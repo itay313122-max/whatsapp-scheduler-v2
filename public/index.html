@@ -159,16 +159,19 @@
     <!-- SCHEDULE ONCE -->
     <div class="card">
       <h2>תזמון חד-פעמי</h2>
-      <label for="sc-id">מזהה ייחודי</label>
-      <input id="sc-id" type="text" placeholder="reminder-1" />
       <label for="sc-phone">טלפון</label>
       <input id="sc-phone" type="text" placeholder="0501234567" />
       <label for="sc-msg">הודעה</label>
       <textarea id="sc-msg" placeholder="הקלד הודעה..."></textarea>
-      <label>תאריך ושעה</label>
-      <div style="display:flex;gap:8px">
-        <input id="sc-date" type="text" placeholder="DD/MM/YYYY" style="flex:1.6" maxlength="10" />
-        <input id="sc-time" type="text" placeholder="HH:MM" style="flex:1" maxlength="5" />
+      <div style="display:flex;gap:12px;margin-top:12px">
+        <div style="flex:1.4">
+          <label for="sc-date" style="margin-top:0">תאריך</label>
+          <input id="sc-date" type="date" />
+        </div>
+        <div style="flex:1">
+          <label for="sc-time" style="margin-top:0">שעה</label>
+          <input id="sc-time" type="time" />
+        </div>
       </div>
       <button onclick="scheduleOnce()">תזמן</button>
       <p id="sc-result" class="msg"></p>
@@ -214,31 +217,6 @@
       } catch (_) {}
     }
 
-    async function loadSchedules() {
-      try {
-        const res = await fetch(`${API}/api/schedules`);
-        const list = await res.json();
-        const container = document.getElementById('schedule-list');
-        if (!list.length) {
-          container.innerHTML = '<p id="no-schedules">אין תזמונים</p>';
-          return;
-        }
-        container.innerHTML = list.map(s => `
-          <div class="sched-item">
-            <div class="info">
-              <strong>${s.id}</strong><br/>
-              <span>טלפון:</span> ${s.phone}<br/>
-              <span>הודעה:</span> ${s.message}<br/>
-              <span>שליחה ב:</span> ${new Date(s.sendAt).toLocaleString('he-IL')}<br/>
-              <span>סטטוס:</span> <span class="status-${s.status}">${s.status}</span>
-              ${s.error ? `<br/><span style="color:#f85149">${s.error}</span>` : ''}
-            </div>
-            <button class="danger" onclick="deleteSchedule('${s.id}')">מחק</button>
-          </div>
-        `).join('');
-      } catch (_) {}
-    }
-
     // ── Actions ───────────────────────────────────────────────────────────────
     function setMsg(id, text, isErr) {
       const el = document.getElementById(id);
@@ -263,22 +241,18 @@
     }
 
     async function scheduleOnce() {
-      const id      = document.getElementById('sc-id').value.trim();
       const phone   = document.getElementById('sc-phone').value.trim();
       const message = document.getElementById('sc-msg').value.trim();
-      const dateStr = document.getElementById('sc-date').value.trim();
-      const timeStr = document.getElementById('sc-time').value.trim();
-      if (!id || !phone || !message || !dateStr || !timeStr) return setMsg('sc-result', 'מלא את כל השדות', true);
+      const dateVal = document.getElementById('sc-date').value;   // YYYY-MM-DD
+      const timeVal = document.getElementById('sc-time').value;   // HH:MM
+      if (!phone || !message || !dateVal || !timeVal)
+        return setMsg('sc-result', 'מלא את כל השדות', true);
 
-      // Parse DD/MM/YYYY + HH:MM
-      const [day, month, year] = dateStr.split('/').map(Number);
-      const [hour, min] = timeStr.split(':').map(Number);
-      if (!day || !month || !year || isNaN(hour) || isNaN(min))
-        return setMsg('sc-result', 'פורמט שגוי — DD/MM/YYYY ו-HH:MM', true);
-      const sendDate = new Date(year, month - 1, day, hour, min, 0);
+      const sendDate = new Date(`${dateVal}T${timeVal}:00`);
       if (isNaN(sendDate.getTime()) || sendDate <= new Date())
-        return setMsg('sc-result', 'תאריך לא תקין או שכבר עבר', true);
+        return setMsg('sc-result', 'התאריך/שעה לא תקינים או שכבר עברו', true);
 
+      const id = `msg-${Date.now()}`;
       try {
         const res = await fetch(`${API}/api/schedule-once`, {
           method: 'POST',
@@ -287,7 +261,8 @@
         });
         const data = await res.json();
         if (res.ok) {
-          setMsg('sc-result', 'תוזמן בהצלחה!', false);
+          setMsg('sc-result', 'תוזמן בהצלחה! ✓', false);
+          document.getElementById('sc-msg').value = '';
           loadSchedules();
         } else setMsg('sc-result', data.error || 'שגיאה', true);
       } catch (e) { setMsg('sc-result', e.message, true); }
@@ -301,11 +276,50 @@
     }
 
     // ── Init ──────────────────────────────────────────────────────────────────
+    function initDefaults() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + 5);
+      const yyyy = now.getFullYear();
+      const mm   = String(now.getMonth() + 1).padStart(2, '0');
+      const dd   = String(now.getDate()).padStart(2, '0');
+      const hh   = String(now.getHours()).padStart(2, '0');
+      const min  = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('sc-date').value = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('sc-time').value = `${hh}:${min}`;
+    }
+
+    const statusHe = { pending: 'ממתין', sent: 'נשלח ✓', failed: 'נכשל ✗' };
+
+    async function loadSchedules() {
+      try {
+        const res = await fetch(`${API}/api/schedules`);
+        const list = await res.json();
+        const container = document.getElementById('schedule-list');
+        if (!list.length) {
+          container.innerHTML = '<p id="no-schedules">אין תזמונים</p>';
+          return;
+        }
+        container.innerHTML = list.map(s => `
+          <div class="sched-item">
+            <div class="info">
+              <span>טלפון:</span> ${s.phone}<br/>
+              <span>הודעה:</span> ${s.message}<br/>
+              <span>שליחה ב:</span> ${new Date(s.sendAt).toLocaleString('he-IL')}<br/>
+              <span>סטטוס:</span> <span class="status-${s.status}">${statusHe[s.status] || s.status}</span>
+              ${s.error ? `<br/><span style="color:#f85149">${s.error}</span>` : ''}
+            </div>
+            <button class="danger" onclick="deleteSchedule('${s.id}')">מחק</button>
+          </div>
+        `).join('');
+      } catch (_) {}
+    }
+
     function tick() {
       pollStatus();
       pollQR();
       loadSchedules();
     }
+    initDefaults();
     tick();
     setInterval(tick, 4000);
   </script>
