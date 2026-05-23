@@ -165,8 +165,11 @@
       <input id="sc-phone" type="text" placeholder="0501234567" />
       <label for="sc-msg">הודעה</label>
       <textarea id="sc-msg" placeholder="הקלד הודעה..."></textarea>
-      <label for="sc-date">תאריך ושעה</label>
-      <input id="sc-date" type="datetime-local" />
+      <label>תאריך ושעה</label>
+      <div style="display:flex;gap:8px">
+        <input id="sc-date" type="text" placeholder="DD/MM/YYYY" style="flex:1.6" maxlength="10" />
+        <input id="sc-time" type="text" placeholder="HH:MM" style="flex:1" maxlength="5" />
+      </div>
       <button onclick="scheduleOnce()">תזמן</button>
       <p id="sc-result" class="msg"></p>
     </div>
@@ -263,13 +266,24 @@
       const id      = document.getElementById('sc-id').value.trim();
       const phone   = document.getElementById('sc-phone').value.trim();
       const message = document.getElementById('sc-msg').value.trim();
-      const sendAt  = document.getElementById('sc-date').value;
-      if (!id || !phone || !message || !sendAt) return setMsg('sc-result', 'מלא את כל השדות', true);
+      const dateStr = document.getElementById('sc-date').value.trim();
+      const timeStr = document.getElementById('sc-time').value.trim();
+      if (!id || !phone || !message || !dateStr || !timeStr) return setMsg('sc-result', 'מלא את כל השדות', true);
+
+      // Parse DD/MM/YYYY + HH:MM
+      const [day, month, year] = dateStr.split('/').map(Number);
+      const [hour, min] = timeStr.split(':').map(Number);
+      if (!day || !month || !year || isNaN(hour) || isNaN(min))
+        return setMsg('sc-result', 'פורמט שגוי — DD/MM/YYYY ו-HH:MM', true);
+      const sendDate = new Date(year, month - 1, day, hour, min, 0);
+      if (isNaN(sendDate.getTime()) || sendDate <= new Date())
+        return setMsg('sc-result', 'תאריך לא תקין או שכבר עבר', true);
+
       try {
         const res = await fetch(`${API}/api/schedule-once`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, phone, message, sendAt: new Date(sendAt).toISOString() }),
+          body: JSON.stringify({ id, phone, message, sendAt: sendDate.toISOString() }),
         });
         const data = await res.json();
         if (res.ok) {
