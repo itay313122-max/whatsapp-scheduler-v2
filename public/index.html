@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp Scheduler</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+      color: #25d366;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      color: #58a6ff;
+      border-bottom: 1px solid #30363d;
+      padding-bottom: 10px;
+    }
+
+    /* Status */
+    #status-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: #3d1f1f;
+      color: #f85149;
+    }
+    #status-badge.connected   { background: #1f3d2e; color: #3fb950; }
+    #status-badge.qr          { background: #3d2e1f; color: #e3b341; }
+    #status-badge.connecting  { background: #1f2a3d; color: #58a6ff; }
+
+    #schedules-count { margin-top: 8px; color: #8b949e; font-size: 0.9rem; }
+
+    /* QR */
+    #qr-img { display: block; margin: 0 auto; max-width: 220px; border-radius: 8px; }
+    #qr-msg { text-align: center; color: #8b949e; font-size: 0.9rem; margin-top: 8px; }
+
+    /* Forms */
+    label { display: block; font-size: 0.85rem; color: #8b949e; margin-bottom: 4px; margin-top: 12px; }
+    label:first-child { margin-top: 0; }
+
+    input, textarea {
+      width: 100%;
+      padding: 9px 12px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #e6edf3;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input:focus, textarea:focus { border-color: #58a6ff; }
+    textarea { resize: vertical; min-height: 70px; }
+
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 10px;
+      background: #238636;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #2ea043; }
+    button.danger { background: #b62324; }
+    button.danger:hover { background: #da3633; }
+
+    .msg { margin-top: 10px; font-size: 0.85rem; min-height: 20px; }
+    .msg.ok  { color: #3fb950; }
+    .msg.err { color: #f85149; }
+
+    /* Schedule list */
+    #schedule-list { margin-top: 8px; max-height: 240px; overflow-y: auto; }
+    .sched-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      gap: 8px;
+    }
+    .sched-item .info { flex: 1; word-break: break-all; }
+    .sched-item .info span { color: #8b949e; }
+    .sched-item button { width: auto; margin: 0; padding: 4px 10px; font-size: 0.8rem; }
+    .status-sent    { color: #3fb950; }
+    .status-pending { color: #e3b341; }
+    .status-failed  { color: #f85149; }
+    #no-schedules { color: #8b949e; font-size: 0.9rem; text-align: center; padding: 12px 0; }
+  </style>
+</head>
+<body>
+  <h1>WhatsApp Scheduler</h1>
+
+  <div class="grid">
+
+    <!-- STATUS -->
+    <div class="card">
+      <h2>סטטוס חיבור</h2>
+      <span id="status-badge">disconnected</span>
+      <p id="schedules-count"></p>
+    </div>
+
+    <!-- QR -->
+    <div class="card">
+      <h2>סריקת QR</h2>
+      <img id="qr-img" src="" alt="" style="display:none" />
+      <p id="qr-msg">אין QR כרגע</p>
+    </div>
+
+    <!-- SEND NOW -->
+    <div class="card">
+      <h2>שליחה מיידית</h2>
+      <label for="send-phone">טלפון (972... או 05...)</label>
+      <input id="send-phone" type="text" placeholder="0501234567" />
+      <label for="send-msg">הודעה</label>
+      <textarea id="send-msg" placeholder="הקלד הודעה..."></textarea>
+      <button onclick="sendNow()">שלח עכשיו</button>
+      <p id="send-result" class="msg"></p>
+    </div>
+
+    <!-- SCHEDULE ONCE -->
+    <div class="card">
+      <h2>תזמון חד-פעמי</h2>
+      <label for="sc-id">מזהה ייחודי</label>
+      <input id="sc-id" type="text" placeholder="reminder-1" />
+      <label for="sc-phone">טלפון</label>
+      <input id="sc-phone" type="text" placeholder="0501234567" />
+      <label for="sc-msg">הודעה</label>
+      <textarea id="sc-msg" placeholder="הקלד הודעה..."></textarea>
+      <label for="sc-date">תאריך ושעה</label>
+      <input id="sc-date" type="datetime-local" />
+      <button onclick="scheduleOnce()">תזמן</button>
+      <p id="sc-result" class="msg"></p>
+    </div>
+
+    <!-- SCHEDULES LIST -->
+    <div class="card" style="grid-column: 1 / -1">
+      <h2>תזמונים קיימים</h2>
+      <div id="schedule-list"><p id="no-schedules">אין תזמונים</p></div>
+    </div>
+
+  </div>
+
+  <script>
+    const API = '';
+
+    // ── Poll status & QR ──────────────────────────────────────────────────────
+    async function pollStatus() {
+      try {
+        const res = await fetch(`${API}/api/status`);
+        const data = await res.json();
+        const badge = document.getElementById('status-badge');
+        badge.textContent = data.status;
+        badge.className = data.status;
+        document.getElementById('schedules-count').textContent =
+          `תזמונים: ${data.schedulesCount} (${data.activeSchedules} ממתינים)`;
+      } catch (_) {}
+    }
+
+    async function pollQR() {
+      try {
+        const res = await fetch(`${API}/api/qr`);
+        if (res.ok) {
+          const data = await res.json();
+          const img = document.getElementById('qr-img');
+          img.src = data.qr;
+          img.style.display = 'block';
+          document.getElementById('qr-msg').textContent = 'סרוק עם WhatsApp';
+        } else {
+          document.getElementById('qr-img').style.display = 'none';
+          document.getElementById('qr-msg').textContent = 'אין QR כרגע';
+        }
+      } catch (_) {}
+    }
+
+    async function loadSchedules() {
+      try {
+        const res = await fetch(`${API}/api/schedules`);
+        const list = await res.json();
+        const container = document.getElementById('schedule-list');
+        if (!list.length) {
+          container.innerHTML = '<p id="no-schedules">אין תזמונים</p>';
+          return;
+        }
+        container.innerHTML = list.map(s => `
+          <div class="sched-item">
+            <div class="info">
+              <strong>${s.id}</strong><br/>
+              <span>טלפון:</span> ${s.phone}<br/>
+              <span>הודעה:</span> ${s.message}<br/>
+              <span>שליחה ב:</span> ${new Date(s.sendAt).toLocaleString('he-IL')}<br/>
+              <span>סטטוס:</span> <span class="status-${s.status}">${s.status}</span>
+              ${s.error ? `<br/><span style="color:#f85149">${s.error}</span>` : ''}
+            </div>
+            <button class="danger" onclick="deleteSchedule('${s.id}')">מחק</button>
+          </div>
+        `).join('');
+      } catch (_) {}
+    }
+
+    // ── Actions ───────────────────────────────────────────────────────────────
+    function setMsg(id, text, isErr) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 'msg ' + (isErr ? 'err' : 'ok');
+    }
+
+    async function sendNow() {
+      const phone   = document.getElementById('send-phone').value.trim();
+      const message = document.getElementById('send-msg').value.trim();
+      if (!phone || !message) return setMsg('send-result', 'מלא טלפון והודעה', true);
+      try {
+        const res = await fetch(`${API}/api/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, message }),
+        });
+        const data = await res.json();
+        if (res.ok) setMsg('send-result', 'נשלח בהצלחה!', false);
+        else setMsg('send-result', data.error || 'שגיאה', true);
+      } catch (e) { setMsg('send-result', e.message, true); }
+    }
+
+    async function scheduleOnce() {
+      const id      = document.getElementById('sc-id').value.trim();
+      const phone   = document.getElementById('sc-phone').value.trim();
+      const message = document.getElementById('sc-msg').value.trim();
+      const sendAt  = document.getElementById('sc-date').value;
+      if (!id || !phone || !message || !sendAt) return setMsg('sc-result', 'מלא את כל השדות', true);
+      try {
+        const res = await fetch(`${API}/api/schedule-once`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, phone, message, sendAt: new Date(sendAt).toISOString() }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setMsg('sc-result', 'תוזמן בהצלחה!', false);
+          loadSchedules();
+        } else setMsg('sc-result', data.error || 'שגיאה', true);
+      } catch (e) { setMsg('sc-result', e.message, true); }
+    }
+
+    async function deleteSchedule(id) {
+      try {
+        await fetch(`${API}/api/schedule/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        loadSchedules();
+      } catch (_) {}
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    function tick() {
+      pollStatus();
+      pollQR();
+      loadSchedules();
+    }
+    tick();
+    setInterval(tick, 4000);
+  </script>
+</body>
+</html>
