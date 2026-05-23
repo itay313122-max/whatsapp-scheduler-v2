@@ -166,11 +166,11 @@
       <div style="display:flex;gap:12px;margin-top:12px">
         <div style="flex:1.4">
           <label for="sc-date" style="margin-top:0">תאריך</label>
-          <input id="sc-date" type="date" />
+          <input id="sc-date" type="text" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric" />
         </div>
         <div style="flex:1">
           <label for="sc-time" style="margin-top:0">שעה</label>
-          <input id="sc-time" type="time" />
+          <input id="sc-time" type="text" placeholder="HH:MM" maxlength="5" inputmode="numeric" />
         </div>
       </div>
       <button onclick="scheduleOnce()">תזמן</button>
@@ -248,7 +248,9 @@
       if (!phone || !message || !dateVal || !timeVal)
         return setMsg('sc-result', 'מלא את כל השדות', true);
 
-      const sendDate = new Date(`${dateVal}T${timeVal}:00`);
+      const [dd, mo, yyyy] = dateVal.split('/').map(Number);
+      const [hh, mn] = timeVal.split(':').map(Number);
+      const sendDate = new Date(yyyy, mo - 1, dd, hh, mn, 0);
       if (isNaN(sendDate.getTime()) || sendDate <= new Date())
         return setMsg('sc-result', 'התאריך/שעה לא תקינים או שכבר עברו', true);
 
@@ -276,15 +278,32 @@
     }
 
     // ── Init ──────────────────────────────────────────────────────────────────
+    // ── Auto-mask inputs ──────────────────────────────────────────────────────
+    function maskDate(e) {
+      const el = e.target;
+      let v = el.value.replace(/\D/g, '').slice(0, 8);
+      if (v.length > 4) v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4);
+      else if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+      el.value = v;
+    }
+    function maskTime(e) {
+      const el = e.target;
+      let v = el.value.replace(/\D/g, '').slice(0, 4);
+      if (v.length > 2) v = v.slice(0,2) + ':' + v.slice(2);
+      el.value = v;
+    }
+    document.getElementById('sc-date').addEventListener('input', maskDate);
+    document.getElementById('sc-time').addEventListener('input', maskTime);
+
     function initDefaults() {
       const now = new Date();
       now.setMinutes(now.getMinutes() + 5);
-      const yyyy = now.getFullYear();
-      const mm   = String(now.getMonth() + 1).padStart(2, '0');
       const dd   = String(now.getDate()).padStart(2, '0');
+      const mm   = String(now.getMonth() + 1).padStart(2, '0');
+      const yyyy = now.getFullYear();
       const hh   = String(now.getHours()).padStart(2, '0');
       const min  = String(now.getMinutes()).padStart(2, '0');
-      document.getElementById('sc-date').value = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('sc-date').value = `${dd}/${mm}/${yyyy}`;
       document.getElementById('sc-time').value = `${hh}:${min}`;
     }
 
