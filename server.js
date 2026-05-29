@@ -13,6 +13,7 @@ import {
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import fs from 'fs';
+import { discover } from 'node-broadlink';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -194,6 +195,141 @@ app.delete('/api/schedule/:id', (req, res) => {
 app.get('/api/schedules', (_req, res) => {
   const list = [...schedules.values()].map(({ cronJob, ...rest }) => rest);
   res.json(list);
+});
+
+// ── AC / Broadlink ──────────────────────────────────────────────────────────
+
+const AC_CODES_FILE = join(__dirname, 'ac_codes.json');
+
+let acCodes = {};   // { commandKey: hexString }
+let blDev   = null; // Broadlink RM device
+let acState = { power: false, temperature: 24, mode: 'cool', fanSpeed: 'auto', swing: false };
+
+function loadACCodes() {
+  try {
+    if (fs.existsSync(AC_CODES_FILE)) acCodes = JSON.parse(fs.readFileSync(AC_CODES_FILE, 'utf8'));
+  } catch (_) {}
+}
+loadACCodes();
+
+function saveACCodes() {
+  fs.writeFileSync(AC_CODES_FILE, JSON.stringify(acCodes, null, 2));
+}
+
+// GET /api/broadlink/status
+app.get('/api/broadlink/status', (_req, res) => {
+  res.json({
+    connected: !!blDev,
+    device: blDev ? { host: blDev.host, mac: blDev.mac?.toString('hex') } : null,
+    learnedCommands: Object.keys(acCodes),
+  });
+});
+
+// POST /api/broadlink/discover
+app.post('/api/broadlink/discover', async (_req, res) => {
+  try {
+    const devices = await discover(5000);
+    if (!devices.length) return res.status(404).json({ error: 'לא נמצאו מכשירי Broadlink ברשת' });
+    blDev = devices[0];
+    await blDev.auth();
+    res.json({ success: true, device: { host: blDev.host, mac: blDev.mac?.toString('hex') } });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/broadlink/connect  { host }
+app.post('/api/broadlink/connect', async (req, res) => {
+  const { host } = req.body;
+  if (!host) return res.status(400).json({ error: 'host נדרש' });
+  try {
+    const devices = await discover(5000, host);
+    if (!devices.length) return res.status(404).json({ error: `לא נמצא מכשיר ב-${host}` });
+    blDev = devices[0];
+    await blDev.auth();
+    res.json({ success: true, device: { host: blDev.host } });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/broadlink/learn  { command }  – 15 sec window
+app.post('/api/broadlink/learn', async (req, res) => {
+  const { command } = req.body;
+  if (!command)  return res.status(400).json({ error: 'command נדרש' });
+  if (!blDev)    return res.status(400).json({ error: 'Broadlink לא מחובר' });
+
+  try {
+    await blDev.enterLearning();
+    let code = null;
+    for (let i = 0; i < 30 && !code; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      try { code = await blDev.checkData(); } catch (_) {}
+    }
+    await blDev.cancelLearning().catch(() => {});
+    if (!code) return res.status(408).json({ error: 'לא נקלט IR – כוון את השלט ולחץ שוב' });
+    acCodes[command] = code.toString('hex');
+    saveACCodes();
+    res.json({ success: true, command });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// DELETE /api/broadlink/codes/:command
+app.delete('/api/broadlink/codes/:command', (req, res) => {
+  delete acCodes[req.params.command];
+  saveACCodes();
+  res.json({ success: true });
+});
+
+// GET /api/ac/state
+app.get('/api/ac/state', (_req, res) => {
+  res.json({ ...acState, learnedCommands: Object.keys(acCodes) });
+});
+
+// POST /api/ac/command  { action, value? }
+app.post('/api/ac/command', async (req, res) => {
+  const { action, value } = req.body;
+  let irKey = action;
+
+  switch (action) {
+    case 'power':
+      acState.power = !acState.power;
+      irKey = acState.power ? 'power_on' : 'power_off';
+      break;
+    case 'temp_up':
+      if (acState.power && acState.temperature < 30) acState.temperature++;
+      break;
+    case 'temp_down':
+      if (acState.power && acState.temperature > 16) acState.temperature--;
+      break;
+    case 'mode':
+      if (acState.power && value) { acState.mode = value; irKey = `mode_${value}`; }
+      break;
+    case 'fan':
+      if (acState.power && value) { acState.fanSpeed = value; irKey = `fan_${value}`; }
+      break;
+    case 'swing':
+      if (acState.power) acState.swing = !acState.swing;
+      break;
+    default:
+      return res.status(400).json({ error: `פעולה לא מוכרת: ${action}` });
+  }
+
+  let irSent = false;
+  let irError = null;
+  const hex = acCodes[irKey];
+  if (blDev && hex) {
+    try {
+      await blDev.sendData(Buffer.from(hex, 'hex'));
+      irSent = true;
+    } catch (e) {
+      irError = e.message;
+    }
+  }
+
+  res.json({ success: true, state: acState, irKey, irSent, irError: irError || undefined });
 });
 
 // ── Start ────────────────────────────────────────────────────────────────────
