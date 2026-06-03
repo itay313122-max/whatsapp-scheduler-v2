@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Citizen Impact — דשבורד</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      :root {
+        --dark-blue:  #1A3A5C;
+        --mid-blue:   #2563EB;
+        --light-blue: #DBEAFE;
+        --gold:       #F59E0B;
+        --green:      #10B981;
+        --white:      #FFFFFF;
+        --gray-50:    #F8FAFC;
+        --gray-100:   #F1F5F9;
+        --gray-200:   #E2E8F0;
+        --gray-600:   #475569;
+        --gray-800:   #1E293B;
+        --font:       'Heebo', sans-serif;
+      }
+      body {
+        font-family: var(--font);
+        background: var(--gray-50);
+        color: var(--gray-800);
+        direction: rtl;
+      }
+      @keyframes fillBar {
+        from { width: 0; }
+        to   { width: var(--target-width); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
