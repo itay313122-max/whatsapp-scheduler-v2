@@ -1,0 +1,137 @@
+"""
+scheduler.py — runs the scrape → update → validate pipeline every 24 hours.
+
+Usage:
+    python scheduler.py           # runs immediately then schedules at SCHEDULE_HOUR:SCHEDULE_MINUTE
+    python scheduler.py --once    # single run, then exit
+"""
+from __future__ import annotations
+
+import atexit
+import json
+import signal
+import sys
+import traceback
+from datetime import datetime
+from pathlib import Path
+
+from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.triggers.cron import CronTrigger
+
+import config
+from scraper import scrape_all
+from updater import run_update
+
+# ── Logger ────────────────────────────────────────────────────────────────────
+LOG_PATH = Path(config.LOG_PATH)
+LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+MAX_LOG_BYTES = 1_000_000  # 1 MB
+
+
+def _rotate_log() -> None:
+    if LOG_PATH.exists() and LOG_PATH.stat().st_size > MAX_LOG_BYTES:
+        LOG_PATH.rename(LOG_PATH.with_suffix(".bak.txt"))
+
+
+def log(status: str, details: dict) -> None:
+    _rotate_log()
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    parts = [f"[{ts}] STATUS={status}"]
+    for k, v in details.items():
+        parts.append(f"{k}={v}")
+    line = " | ".join(parts) + "\n"
+    with LOG_PATH.open("a", encoding="utf-8") as f:
+        f.write(line)
+    print(line.strip())
+
+
+# ── Pipeline ──────────────────────────────────────────────────────────────────
+def run_pipeline() -> None:
+    print(f"\n{'=' * 60}")
+    print(f"Pipeline start: {datetime.now().isoformat(timespec='seconds')}")
+    print(f"{'=' * 60}")
+
+    try:
+        # 1. Scrape
+        result = scrape_all()
+
+        # 2. Update xlsx
+        update_summary = run_update(config.EXCEL_PATH, result)
+
+        # 3. Validate with recalc
+        recalc_ok = False
+        recalc_errors = 0
+        try:
+            sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+            from recalc import recalc as _recalc
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            try:
+                with redirect_stdout(buf):
+                    _recalc(config.EXCEL_PATH)
+                recalc_ok = True
+            except SystemExit as e:
+                recalc_ok = (e.code == 0)
+        except Exception as exc:
+            recalc_errors = 1
+
+        status = (
+            "success" if update_summary.get("ok") and recalc_ok
+            else "partial" if update_summary.get("ok")
+            else "error"
+        )
+
+        log(status, {
+            "pages":          len(result.pages),
+            "kpis_updated":   update_summary.get("kpi_cells_updated", 0),
+            "contact_updated": update_summary.get("contact_cells_updated", 0),
+            "recalc_ok":      recalc_ok,
+            "scrape_errors":  len(result.errors),
+        })
+
+    except Exception:
+        log("error", {"detail": traceback.format_exc().splitlines()[-1]})
+
+
+# ── Entry point ───────────────────────────────────────────────────────────────
+def main() -> None:
+    once = "--once" in sys.argv
+
+    # Run immediately on start
+    run_pipeline()
+
+    if once:
+        print("--once mode: exiting after first run.")
+        return
+
+    scheduler = BlockingScheduler(timezone="Asia/Jerusalem")
+    scheduler.add_job(
+        run_pipeline,
+        CronTrigger(
+            hour=config.SCHEDULE_HOUR,
+            minute=config.SCHEDULE_MINUTE,
+            timezone="Asia/Jerusalem",
+        ),
+        id="citizen_impact_daily",
+        name="Citizen Impact daily update",
+        misfire_grace_time=3600,
+    )
+
+    def _shutdown(signum=None, frame=None):
+        print("\nShutting down scheduler...")
+        scheduler.shutdown(wait=False)
+        sys.exit(0)
+
+    atexit.register(scheduler.shutdown)
+    signal.signal(signal.SIGTERM, _shutdown)
+    signal.signal(signal.SIGINT, _shutdown)
+
+    print(f"\nScheduler running — next run at "
+          f"{config.SCHEDULE_HOUR:02d}:{config.SCHEDULE_MINUTE:02d} (Asia/Jerusalem)")
+    print("Press Ctrl+C to stop.\n")
+    scheduler.start()
+
+
+if __name__ == "__main__":
+    main()
