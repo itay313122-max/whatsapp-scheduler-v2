@@ -79,7 +79,7 @@ export default function Chat() {
   }, [messages, isLoading])
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full pb-14 sm:pb-0">
       {/* Top bar */}
       <div
         className="shrink-0 flex items-center justify-between px-5 py-2.5"

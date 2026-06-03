@@ -13,7 +13,7 @@ function getSettings() {
   catch { return {} }
 }
 
-export default function Sidebar() {
+export default function Sidebar({ onClose }) {
   const navigate = useNavigate()
   const { clearChat } = useChatCtx()
   const s = getSettings()
@@ -34,8 +34,19 @@ export default function Sidebar() {
       className="w-56 shrink-0 flex flex-col h-full"
       style={{ background: '#07071a', borderLeft: '1px solid #1a1a3e' }}
     >
-      {/* Logo */}
+      {/* Logo + mobile close button */}
       <div className="px-4 pt-5 pb-4" style={{ borderBottom: '1px solid #1a1a3e' }}>
+        <div className="flex items-center justify-between mb-1">
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="sm:hidden text-lg font-mono order-first"
+              style={{ color: '#475569' }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-2.5 mb-1">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center text-base shrink-0"

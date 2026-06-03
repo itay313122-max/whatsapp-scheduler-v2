@@ -200,7 +200,7 @@ export default function Agents() {
   const [activeAgent, setActiveAgent] = useState(null)
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full pb-14 sm:pb-0">
       {/* Header */}
       <div
         className="shrink-0 px-5 py-3"
