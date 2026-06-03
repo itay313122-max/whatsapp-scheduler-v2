@@ -4,12 +4,30 @@
 
 ## הרצה מקומית
 
+### אפשרות א׳ — Clone מהריפו (מומלץ)
+
 ```bash
+git clone https://github.com/itay313122-max/whatsapp-scheduler-v2
+cd whatsapp-scheduler-v2
 npm install
 npm run dev
 ```
 
 לאחר מכן פתח `http://localhost:5173`
+
+### אפשרות ב׳ — פרויקט Vite חדש מאפס
+
+```bash
+npm create vite@latest my-app -- --template react
+cd my-app
+npm install react-router-dom react-markdown remark-gfm
+# העתק את כל תיקיית src/ מהריפו
+# העתק tailwind.config.js, postcss.config.js, index.html
+npm install -D tailwindcss postcss autoprefixer
+npm run dev
+```
+
+> ⚠️ אי אפשר להעתיק רק `App.jsx` — המערכת מורכבת מ-26 קבצים עם dependencies ספציפיים.
 
 ## הגדרה ראשונית
 
