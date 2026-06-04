@@ -1,0 +1,86 @@
+{
+  "stocks": [
+    {
+      "symbol": "^TA35.TA",
+      "name": "ת\"א 35",
+      "price": 2148.3,
+      "change_pct": 1.24,
+      "signal": "BUY"
+    },
+    {
+      "symbol": "HAPOALIM.TA",
+      "name": "בנק הפועלים",
+      "price": 35.82,
+      "change_pct": 0.87,
+      "signal": "BUY"
+    },
+    {
+      "symbol": "LEUMI.TA",
+      "name": "בנק לאומי",
+      "price": 29.45,
+      "change_pct": -0.34,
+      "signal": "HOLD"
+    },
+    {
+      "symbol": "DISCOUNT.TA",
+      "name": "בנק דיסקונט",
+      "price": 14.9,
+      "change_pct": 0.54,
+      "signal": "HOLD"
+    },
+    {
+      "symbol": "AZRIELI.TA",
+      "name": "אזריאלי",
+      "price": 220.5,
+      "change_pct": -1.1,
+      "signal": "SELL"
+    },
+    {
+      "symbol": "RBLD.TA",
+      "name": "ריט 1 (נדל\"ן)",
+      "price": 9.24,
+      "change_pct": 0.33,
+      "signal": "HOLD"
+    },
+    {
+      "symbol": "^GSPC",
+      "name": "S&P 500",
+      "price": 5312.15,
+      "change_pct": 0.65,
+      "signal": "BUY"
+    },
+    {
+      "symbol": "^IXIC",
+      "name": "NASDAQ",
+      "price": 16820.4,
+      "change_pct": 0.88,
+      "signal": "BUY"
+    },
+    {
+      "symbol": "^VIX",
+      "name": "VIX",
+      "price": 18.75,
+      "change_pct": -3.2,
+      "signal": "HOLD"
+    },
+    {
+      "symbol": "GC=F",
+      "name": "זהב",
+      "price": 2385.0,
+      "change_pct": 0.42,
+      "signal": "BUY"
+    },
+    {
+      "symbol": "CL=F",
+      "name": "נפט",
+      "price": 79.3,
+      "change_pct": -0.75,
+      "signal": "HOLD"
+    }
+  ],
+  "updated_at": "2026-06-04T07:30:09",
+  "errors": [
+    "network_unavailable: using static demo data"
+  ],
+  "source": "fallback"
+}

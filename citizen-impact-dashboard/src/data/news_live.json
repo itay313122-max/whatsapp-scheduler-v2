@@ -1,0 +1,79 @@
+{
+  "news": [
+    {
+      "title": "בנק ישראל: הריבית נותרת על 4.5% — ההחלטה הבאה בחודש הבא",
+      "source": "TheMarker",
+      "url": "https://www.themarker.com",
+      "published": "2026-06-04T06:00:00+00:00",
+      "relevance": "high"
+    },
+    {
+      "title": "שוק המניות בתל אביב: מדד ת\"א 35 עלה ב-1.2% בסחר דשן",
+      "source": "Calcalist",
+      "url": "https://www.calcalist.co.il",
+      "published": "2026-06-04T07:30:00+00:00",
+      "relevance": "high"
+    },
+    {
+      "title": "אינפלציה בישראל: מדד המחירים עלה ב-0.3% בחודש מאי",
+      "source": "Ynet כלכלה",
+      "url": "https://www.ynet.co.il",
+      "published": "2026-06-04T05:45:00+00:00",
+      "relevance": "high"
+    },
+    {
+      "title": "Fed Minutes: Federal Reserve signals potential rate cut in September",
+      "source": "Reuters Finance",
+      "url": "https://www.reuters.com",
+      "published": "2026-06-04T08:00:00+00:00",
+      "relevance": "high"
+    },
+    {
+      "title": "שוק הנדל\"ן: מחירי הדירות ירדו ב-2.1% ברבעון הראשון",
+      "source": "TheMarker",
+      "url": "https://www.themarker.com",
+      "published": "2026-06-03T14:00:00+00:00",
+      "relevance": "medium"
+    },
+    {
+      "title": "מניות הבנקים עולות על רקע תוצאות רבעון חזקות",
+      "source": "Calcalist",
+      "url": "https://www.calcalist.co.il",
+      "published": "2026-06-03T12:00:00+00:00",
+      "relevance": "medium"
+    },
+    {
+      "title": "Gold prices rise as dollar weakens ahead of US jobs data",
+      "source": "Reuters Markets",
+      "url": "https://www.reuters.com",
+      "published": "2026-06-04T06:30:00+00:00",
+      "relevance": "medium"
+    },
+    {
+      "title": "משכנתאות: הביקוש עלה ב-8% לאחר ירידת הריבית על הדיור",
+      "source": "Ynet כלכלה",
+      "url": "https://www.ynet.co.il",
+      "published": "2026-06-03T10:00:00+00:00",
+      "relevance": "medium"
+    },
+    {
+      "title": "NASDAQ climbs 0.9% led by tech stocks amid positive earnings",
+      "source": "Reuters Finance",
+      "url": "https://www.reuters.com",
+      "published": "2026-06-04T09:00:00+00:00",
+      "relevance": "medium"
+    },
+    {
+      "title": "שוק הקריפטו: ביטקוין חוצה 70,000 דולר לראשונה השנה",
+      "source": "Calcalist",
+      "url": "https://www.calcalist.co.il",
+      "published": "2026-06-03T16:00:00+00:00",
+      "relevance": "medium"
+    }
+  ],
+  "updated_at": "2026-06-04T07:30:09",
+  "errors": [
+    "network_unavailable: using static demo news"
+  ],
+  "source": "fallback"
+}

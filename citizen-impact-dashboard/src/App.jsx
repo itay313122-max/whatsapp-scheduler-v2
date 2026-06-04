@@ -1,18 +1,29 @@
 import React from 'react'
 import { COMPANY, KPIS, STEPS, TEAM, INVESTORS, PROJECTS } from './data/data.js'
-import Header from './components/Header.jsx'
-import KPICards from './components/KPICards.jsx'
-import KPIChart from './components/KPIChart.jsx'
-import StepsTimeline from './components/StepsTimeline.jsx'
-import TeamGrid from './components/TeamGrid.jsx'
-import InvestorsGrid from './components/InvestorsGrid.jsx'
-import ProjectsTable from './components/ProjectsTable.jsx'
-import DigitalPresence from './components/DigitalPresence.jsx'
+import stocksData from './data/stocks_live.json'
+import newsData   from './data/news_live.json'
+
+import Header           from './components/Header.jsx'
+import StockTicker      from './components/StockTicker.jsx'
+import KPICards         from './components/KPICards.jsx'
+import KPIChart         from './components/KPIChart.jsx'
+import StockCards       from './components/StockCards.jsx'
+import StepsTimeline    from './components/StepsTimeline.jsx'
+import TeamGrid         from './components/TeamGrid.jsx'
+import InvestorsGrid    from './components/InvestorsGrid.jsx'
+import ProjectsTable    from './components/ProjectsTable.jsx'
+import DigitalPresence  from './components/DigitalPresence.jsx'
+import NewsFeed         from './components/NewsFeed.jsx'
+import FinancialAdvisor from './components/FinancialAdvisor.jsx'
+
+const stocks = stocksData?.stocks ?? []
+const news   = newsData?.news ?? []
 
 export default function App() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--gray-50)' }}>
       <Header company={COMPANY} />
+      <StockTicker stocks={stocks} />
 
       {/* Hero */}
       <div style={{
@@ -54,9 +65,12 @@ export default function App() {
       </div>
 
       {/* Main content */}
-      <main style={{ paddingBottom: '4rem' }}>
+      <main style={{ paddingBottom: '2rem' }}>
         <KPICards kpis={KPIS} />
         <KPIChart kpis={KPIS} />
+        <StockCards stocks={stocks} />
+        <NewsFeed news={news} />
+        <FinancialAdvisor stocks={stocks} news={news} />
         <StepsTimeline steps={STEPS} />
         <TeamGrid team={TEAM} />
         <InvestorsGrid investors={INVESTORS} />

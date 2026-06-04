@@ -1,15 +1,19 @@
 """
-scheduler.py — runs the scrape → update → validate pipeline every 24 hours.
+scheduler.py — orchestrates all background jobs:
+
+  • Daily  (06:00 Asia/Jerusalem): scrape → update xlsx → recalc validate
+  • Hourly (every 60 min):         stock_scanner + news_scanner → update JSON files
 
 Usage:
-    python scheduler.py           # runs immediately then schedules at SCHEDULE_HOUR:SCHEDULE_MINUTE
-    python scheduler.py --once    # single run, then exit
+    python scheduler.py           # runs all jobs immediately, then schedules
+    python scheduler.py --once    # single run of all jobs, then exit
 """
 from __future__ import annotations
 
 import atexit
 import json
 import signal
+import subprocess
 import sys
 import traceback
 from datetime import datetime
@@ -17,6 +21,7 @@ from pathlib import Path
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 
 import config
 from scraper import scrape_all
@@ -45,7 +50,29 @@ def log(status: str, details: dict) -> None:
     print(line.strip())
 
 
-# ── Pipeline ──────────────────────────────────────────────────────────────────
+# ── Financial feed pipeline ───────────────────────────────────────────────────
+def run_financial_feed() -> None:
+    print(f"\n{'─' * 60}")
+    print(f"Financial feed start: {datetime.now().isoformat(timespec='seconds')}")
+    try:
+        _here = Path(__file__).parent
+        for script in ["stock_scanner.py", "news_scanner.py"]:
+            result = subprocess.run(
+                [sys.executable, str(_here / script)],
+                capture_output=True, text=True, timeout=120,
+            )
+            status = "success" if result.returncode == 0 else "error"
+            log(f"feed_{script.replace('.py','')}", {
+                "status": status,
+                "lines": len(result.stdout.splitlines()),
+            })
+            if result.returncode != 0:
+                log("feed_error", {"script": script, "detail": result.stderr.splitlines()[-1] if result.stderr else "unknown"})
+    except Exception:
+        log("feed_error", {"detail": traceback.format_exc().splitlines()[-1]})
+
+
+# ── Main pipeline ─────────────────────────────────────────────────────────────
 def run_pipeline() -> None:
     print(f"\n{'=' * 60}")
     print(f"Pipeline start: {datetime.now().isoformat(timespec='seconds')}")
@@ -99,6 +126,7 @@ def main() -> None:
     once = "--once" in sys.argv
 
     # Run immediately on start
+    run_financial_feed()
     run_pipeline()
 
     if once:
@@ -106,6 +134,7 @@ def main() -> None:
         return
 
     scheduler = BlockingScheduler(timezone="Asia/Jerusalem")
+    # Daily scrape + xlsx update
     scheduler.add_job(
         run_pipeline,
         CronTrigger(
@@ -116,6 +145,15 @@ def main() -> None:
         id="citizen_impact_daily",
         name="Citizen Impact daily update",
         misfire_grace_time=3600,
+    )
+
+    # Hourly financial feed (stocks + news)
+    scheduler.add_job(
+        run_financial_feed,
+        IntervalTrigger(hours=1),
+        id="financial_feed_hourly",
+        name="Financial feed hourly update",
+        misfire_grace_time=600,
     )
 
     def _shutdown(signum=None, frame=None):
