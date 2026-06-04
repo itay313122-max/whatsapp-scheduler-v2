@@ -5,7 +5,8 @@ import RouterBadge from './RouterBadge'
 
 export default function MessageBubble({ msg }) {
   const [copied, setCopied] = useState(false)
-  const isUser = msg.role === 'user'
+  const isUser      = msg.role === 'user'
+  const isStreaming  = msg.streaming === true
 
   const copy = async () => {
     await navigator.clipboard.writeText(msg.content)
@@ -56,14 +57,20 @@ export default function MessageBubble({ msg }) {
         >
           <div className="ai-md">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {msg.content}
+              {msg.content || '​'}
             </ReactMarkdown>
+            {isStreaming && (
+              <span
+                className="stream-cursor"
+                style={{ display: 'inline-block', width: 2, height: '0.9em', background: '#6366f1', marginRight: 2, verticalAlign: 'text-bottom' }}
+              />
+            )}
           </div>
 
-          {/* Copy button */}
+          {/* Copy button — hidden while streaming */}
           <button
             onClick={copy}
-            className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-all text-xs px-2 py-0.5 rounded"
+            className={`absolute top-2 left-2 transition-all text-xs px-2 py-0.5 rounded ${isStreaming ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover:opacity-100'}`}
             style={{
               background: '#1a1a3e',
               color: copied ? '#10b981' : '#64748b',

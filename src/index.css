@@ -108,6 +108,13 @@ input[type='range']::-webkit-slider-thumb {
 .dot-3 { animation: loadDot 1.2s infinite 0.4s; }
 .dot-4 { animation: loadDot 1.2s infinite 0.6s; }
 
+/* ───── Streaming cursor ───── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.stream-cursor { animation: blink 0.7s step-end infinite; }
+
 /* ───── Glow utilities ───── */
 .glow-indigo { box-shadow: 0 0 18px rgba(99,102,241,0.35); }
 .glow-cyan   { box-shadow: 0 0 18px rgba(34,211,238,0.25); }

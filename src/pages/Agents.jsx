@@ -2,7 +2,7 @@ import { useState } from 'react'
 import AgentCard from '../components/AgentCard'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { callClaude } from '../lib/models'
+import { callClaude, callClaudeStream } from '../lib/models'
 import { buildSystemPrompt } from '../lib/persona'
 import { getMemories } from '../lib/memory'
 
@@ -62,14 +62,17 @@ function AgentModal({ agent, onClose }) {
       const s = JSON.parse(localStorage.getItem('itayai_settings') || '{}')
       if (!s.claudeKey) throw new Error('חסר Anthropic API key — הוסף בהגדרות')
 
-      const memories    = getMemories()
-      const sysPrompt   = buildSystemPrompt(memories, agent.system)
-      const result      = await callClaude(
-        [{ role: 'user', content: input }],
-        sysPrompt,
-        s.claudeKey
-      )
-      setResponse(result)
+      const memories  = getMemories()
+      const sysPrompt = buildSystemPrompt(memories, agent.system)
+      const msgs      = [{ role: 'user', content: input }]
+
+      try {
+        await callClaudeStream(msgs, sysPrompt, s.claudeKey, (text) => setResponse(text))
+      } catch {
+        // Fallback to non-streaming
+        const result = await callClaude(msgs, sysPrompt, s.claudeKey)
+        setResponse(result)
+      }
     } catch (e) {
       setError(e.message)
     } finally {
@@ -179,11 +182,19 @@ function AgentModal({ agent, onClose }) {
                   style={{ background: '#0a0a1a', border: `1px solid ${agent.color}25`, color: '#e2e8f0', fontFamily: 'Georgia, serif', lineHeight: 1.7 }}
                 >
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{response}</ReactMarkdown>
+                  {loading && (
+                    <span
+                      className="stream-cursor"
+                      style={{ display: 'inline-block', width: 2, height: '0.9em', background: agent.color, marginRight: 2, verticalAlign: 'text-bottom' }}
+                    />
+                  )}
                 </div>
                 <button
                   onClick={copy}
-                  className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-all text-xs px-2 py-0.5 rounded"
+                  className={`absolute top-2 left-2 transition-all text-xs px-2 py-0.5 rounded ${loading ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover:opacity-100'}`}
                   style={{ background: '#1a1a3e', color: copied ? '#10b981' : '#64748b', border: '1px solid #2a2a5e' }}
+                  aria-hidden={loading}
+                  tabIndex={loading ? -1 : 0}
                 >
                   {copied ? '✓ הועתק' : '⎘ העתק'}
                 </button>

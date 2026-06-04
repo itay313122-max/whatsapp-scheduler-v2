@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { routeMessage, resolveModel } from '../lib/router'
-import { callModel } from '../lib/models'
+import { callModel, callClaude, callClaudeStream } from '../lib/models'
 import { buildSystemPrompt } from '../lib/persona'
 import { getMemories, getHistory, saveHistory, clearHistory } from '../lib/memory'
 
@@ -62,43 +62,79 @@ export function useChat() {
       return
     }
 
+    const memories     = getMemories()
+    const systemPrompt = buildSystemPrompt(memories, settings.customPersona || '')
+    // Build API-compatible messages (no id/model/route fields)
+    const apiMsgs = [...messages, userMsg].slice(-24).map((m) => ({
+      role:    m.role,
+      content: m.content,
+    }))
+
+    const aiId         = Date.now() + 1
+    const useStreaming = model === 'claude' && !!keys.claude
+
+    if (useStreaming) {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: '', model, route: activeRoute, id: aiId, streaming: true },
+      ])
+    }
+
     try {
-      const memories     = getMemories()
-      const systemPrompt = buildSystemPrompt(memories, settings.customPersona || '')
-      // Build API-compatible messages (no id/model/route fields)
-      const apiMsgs = [...messages, userMsg].slice(-24).map((m) => ({
-        role:    m.role,
-        content: m.content,
-      }))
-
-      const response = await callModel(model, apiMsgs, systemPrompt, keys)
-
-      const aiMsg = {
-        role: 'assistant',
-        content: response,
-        model,
-        route: activeRoute,
-        id: Date.now() + 1,
+      if (useStreaming) {
+        await callClaudeStream(apiMsgs, systemPrompt, keys.claude, (text) => {
+          setMessages((prev) => prev.map((m) => m.id === aiId ? { ...m, content: text } : m))
+        })
+        setMessages((prev) => {
+          const updated = prev.map((m) => m.id === aiId ? { ...m, streaming: false } : m)
+          saveHistory(updated)
+          return updated
+        })
+      } else {
+        const response = await callModel(model, apiMsgs, systemPrompt, keys)
+        const aiMsg = { role: 'assistant', content: response, model, route: activeRoute, id: aiId }
+        setMessages((prev) => {
+          const updated = [...prev, aiMsg]
+          saveHistory(updated)
+          return updated
+        })
       }
-      setMessages((prev) => {
-        const updated = [...prev, aiMsg]
-        saveHistory(updated)
-        return updated
-      })
     } catch (e) {
-      const errMsg = {
-        role: 'assistant',
-        content: `❌ שגיאה: ${e.message}`,
-        model: 'error',
-        route: activeRoute,
-        id: Date.now() + 1,
+      if (useStreaming) {
+        // Fallback: try non-streaming Claude
+        try {
+          const response = await callClaude(apiMsgs, systemPrompt, keys.claude)
+          setMessages((prev) => {
+            const updated = prev.map((m) => m.id === aiId ? { ...m, content: response, streaming: false } : m)
+            saveHistory(updated)
+            return updated
+          })
+        } catch (e2) {
+          setMessages((prev) => {
+            const updated = prev.map((m) => m.id === aiId
+              ? { ...m, content: `❌ שגיאה: ${e2.message}`, model: 'error', streaming: false }
+              : m
+            )
+            saveHistory(updated)
+            return updated
+          })
+          setError(e2.message)
+        }
+      } else {
+        const errMsg = {
+          role: 'assistant',
+          content: `❌ שגיאה: ${e.message}`,
+          model: 'error',
+          route: activeRoute,
+          id: aiId,
+        }
+        setMessages((prev) => {
+          const updated = [...prev, errMsg]
+          saveHistory(updated)
+          return updated
+        })
+        setError(e.message)
       }
-      setMessages((prev) => {
-        const updated = [...prev, errMsg]
-        saveHistory(updated)
-        return updated
-      })
-      setError(e.message)
     } finally {
       setIsLoading(false)
     }
