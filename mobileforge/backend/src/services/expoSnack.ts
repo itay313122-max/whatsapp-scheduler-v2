@@ -41,11 +41,11 @@ export async function createExpoSnack(
 
   console.log('[ExpoSnack] Saving snack:', name, '| files:', Object.keys(files));
 
-  const response = await fetch('https://exp.host/--/api/v2/snack/save', {
+  // Current Expo API endpoint (api.expo.dev replaced exp.host)
+  const response = await fetch('https://api.expo.dev/v2/snack/save', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Snack-Api-Version': '3.0.0',
     },
     body: JSON.stringify(payload),
   });
@@ -65,21 +65,22 @@ export async function createExpoSnack(
     throw new Error(`Expo Snack returned non-JSON: ${responseText.slice(0, 200)}`);
   }
 
-  console.log('[ExpoSnack] Parsed response keys:', Object.keys(data));
+  console.log('[ExpoSnack] Parsed keys:', Object.keys(data));
   console.log('[ExpoSnack] id:', data.id, '| hashId:', data.hashId);
 
-  // Prefer hashId; strip any accidental @snack/ prefix
-  const rawId = (data.hashId || data.id || '').toString().replace(/^@snack\//, '');
+  // API returns 'id'; strip any accidental @snack/ prefix just in case
+  const rawId = ((data.id || data.hashId) ?? '').toString().replace(/^@snack\//, '');
 
   if (!rawId) {
     throw new Error(`Expo Snack returned no id. Full response: ${responseText.slice(0, 300)}`);
   }
 
-  console.log('[ExpoSnack] Using snackId:', rawId);
+  console.log('[ExpoSnack] Final snackId:', rawId);
 
+  // Embed URL format: snack.expo.dev/embedded/{id} (no @snack/ prefix — current format)
   return {
     snackId: rawId,
-    embedUrl: `https://snack.expo.dev/embedded/@snack/${rawId}?platform=web&preview=true&theme=light&loading=lazy`,
-    shareUrl: `https://snack.expo.dev/@snack/${rawId}`,
+    embedUrl: `https://snack.expo.dev/embedded/${rawId}?platform=web&preview=true&theme=light&loading=lazy`,
+    shareUrl: `https://snack.expo.dev/${rawId}`,
   };
 }
