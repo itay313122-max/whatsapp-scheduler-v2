@@ -134,6 +134,28 @@ export async function getProjectMessages(projectId: string) {
   return res.json();
 }
 
+export interface GenerateFromImageRequest {
+  image: string;       // base64 (no data-url prefix)
+  mimeType: string;    // 'image/jpeg' | 'image/png' | etc.
+  prompt?: string;
+  projectId?: string;
+  isSketch?: boolean;
+}
+
+export async function generateFromImage(req: GenerateFromImageRequest): Promise<GenerateResponse> {
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_URL}/api/generate/vision`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(req),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(err.error || 'Vision generation failed');
+  }
+  return res.json();
+}
+
 export async function createSnack(files: Record<string, string>, name?: string) {
   const headers = await getAuthHeaders();
   const res = await fetch(`${API_URL}/api/snack`, {

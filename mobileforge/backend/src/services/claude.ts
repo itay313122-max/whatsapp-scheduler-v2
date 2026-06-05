@@ -96,6 +96,64 @@ export async function generateMobileApp(
   }
 }
 
+type ImageMimeType = 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+
+function buildImageUserMessage(
+  imageBase64: string,
+  mimeType: ImageMimeType,
+  isSketch: boolean,
+  optionalPrompt?: string
+): Anthropic.MessageParam {
+  const baseInstruction = isSketch
+    ? 'This is a hand-drawn wireframe sketch of a mobile app UI. Interpret the layout, components and flow, then build a complete, polished Expo React Native app based on this sketch. Fill in the design details with modern, beautiful styling.'
+    : 'This is a screenshot of a mobile app. Clone its UI and functionality as closely as possible: replicate the colors, layout, typography, components and interaction patterns into a complete Expo React Native app.';
+
+  const fullPrompt = optionalPrompt
+    ? `${baseInstruction}\n\nAdditional instructions: ${optionalPrompt}`
+    : baseInstruction;
+
+  return {
+    role: 'user',
+    content: [
+      {
+        type: 'image',
+        source: { type: 'base64', media_type: mimeType, data: imageBase64 },
+      },
+      { type: 'text', text: fullPrompt },
+    ],
+  };
+}
+
+export async function generateFromScreenshot(
+  imageBase64: string,
+  mimeType: ImageMimeType,
+  optionalPrompt?: string,
+  isSketch = false
+): Promise<GeneratedApp> {
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 8000,
+    system: MOBILE_SYSTEM_PROMPT,
+    messages: [buildImageUserMessage(imageBase64, mimeType, isSketch, optionalPrompt)],
+  });
+
+  const raw = response.content[0].type === 'text' ? response.content[0].text : '';
+
+  try {
+    const cleaned = raw.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+    return JSON.parse(cleaned) as GeneratedApp;
+  } catch {
+    return {
+      appName: isSketch ? 'Sketched App' : 'Cloned App',
+      description: isSketch ? 'App built from sketch' : 'App cloned from screenshot',
+      files: { 'App.tsx': raw },
+      colorScheme: { primary: '#6C3AE8', background: '#0A0A0F', text: '#E8E8F0' },
+      features: [],
+      hebrewSummary: isSketch ? 'האפליקציה נוצרה מהסקיצה בהצלחה' : 'האפליקציה שוחזרה מהצילום מסך בהצלחה',
+    };
+  }
+}
+
 export async function* streamGenerateMobileApp(
   userPrompt: string,
   conversationHistory: ConversationMessage[]
