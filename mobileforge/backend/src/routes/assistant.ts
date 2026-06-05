@@ -1,8 +1,10 @@
 import { Router, Request, Response } from 'express';
-import Anthropic from '@anthropic-ai/sdk';
+import Groq from 'groq-sdk';
 
 const router = Router();
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+const MODEL = 'llama-3.3-70b-versatile';
 
 const FORGE_AI_SYSTEM_PROMPT = `
 You are Forge AI — a friendly design & development assistant inside MobileForge,
@@ -61,23 +63,20 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const safeHistory = (Array.isArray(history) ? history : []).slice(-12);
 
-    const stream = client.messages.stream({
-      model: 'claude-sonnet-4-20250514',
+    const stream = await client.chat.completions.create({
+      model: MODEL,
       max_tokens: 2000,
-      system: FORGE_AI_SYSTEM_PROMPT + buildContextBlock(projectContext),
+      stream: true,
       messages: [
+        { role: 'system', content: FORGE_AI_SYSTEM_PROMPT + buildContextBlock(projectContext) },
         ...safeHistory,
         { role: 'user', content: userMessage },
       ],
     });
 
-    for await (const event of stream) {
-      if (
-        event.type === 'content_block_delta' &&
-        event.delta.type === 'text_delta'
-      ) {
-        res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
-      }
+    for await (const chunk of stream) {
+      const text = chunk.choices[0]?.delta?.content || '';
+      if (text) res.write(`data: ${JSON.stringify({ text })}\n\n`);
     }
 
     res.write('data: [DONE]\n\n');

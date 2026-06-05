@@ -151,7 +151,8 @@ export async function generateFromImage(req: GenerateFromImageRequest): Promise<
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(err.error || 'Vision generation failed');
+    // Use Hebrew message from backend when available (e.g. VISION_NOT_SUPPORTED)
+    throw new Error(err.message || err.error || 'Vision generation failed');
   }
   return res.json();
 }

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { generateMobileApp, streamGenerateMobileApp, generateFromScreenshot } from '../services/claude';
+import { generateMobileApp, streamGenerateMobileApp } from '../services/ai';
 import { createExpoSnack } from '../services/expoSnack';
 import { getFirestore, verifyIdToken } from '../services/firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
@@ -151,56 +151,11 @@ router.post('/vision', async (req: Request, res: Response) => {
     return res.status(400).json({ error: `Unsupported mimeType. Use: ${validMimes.join(', ')}` });
   }
 
-  try {
-    const generated = await generateFromScreenshot(image, mimeType, prompt, isSketch);
-
-    let snackResult = { snackId: '', embedUrl: '', shareUrl: '' };
-    try {
-      snackResult = await createExpoSnack(generated.files, generated.appName);
-    } catch (snackErr) {
-      console.error('Expo Snack creation failed:', snackErr);
-    }
-
-    if (projectId) {
-      try {
-        const db = getFirestore();
-        const msgId = uuidv4();
-        await db
-          .collection('conversations')
-          .doc(projectId)
-          .collection('messages')
-          .doc(msgId)
-          .set({
-            role: 'assistant',
-            content: generated.hebrewSummary,
-            files: generated.files,
-            hebrewSummary: generated.hebrewSummary,
-            snackId: snackResult.snackId,
-            appName: generated.appName,
-            colorScheme: generated.colorScheme,
-            features: generated.features,
-            sourceType: isSketch ? 'sketch' : 'screenshot',
-            timestamp: new Date().toISOString(),
-          });
-        await db.collection('projects').doc(projectId).update({
-          lastSnackId: snackResult.snackId,
-          colorScheme: generated.colorScheme,
-          features: generated.features,
-          updatedAt: new Date().toISOString(),
-        });
-      } catch (dbErr) {
-        console.error('Firestore save failed:', dbErr);
-      }
-    }
-
-    return res.json({ ...generated, ...snackResult });
-  } catch (err) {
-    console.error('Vision generate error:', err);
-    return res.status(500).json({
-      error: 'Vision generation failed',
-      details: err instanceof Error ? err.message : String(err),
-    });
-  }
+  // Vision requires a multimodal model — not available on the current free tier (Groq/Llama)
+  return res.status(503).json({
+    error: 'VISION_NOT_SUPPORTED',
+    message: "פיצ'ר Vision (צילום מסך / סקיצה) דורש שדרוג לתוכנית Premium עם מודל multimodal.",
+  });
 });
 
 export default router;
