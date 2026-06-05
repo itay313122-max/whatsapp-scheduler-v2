@@ -166,3 +166,64 @@ export async function createSnack(files: Record<string, string>, name?: string) 
   if (!res.ok) throw new Error('Failed to create snack');
   return res.json();
 }
+
+export interface ProjectContext {
+  appName?: string;
+  description?: string;
+  currentCode?: string;
+  colorScheme?: Record<string, string>;
+  features?: string[];
+}
+
+export async function streamAssistantMessage(
+  userMessage: string,
+  projectContext: ProjectContext,
+  history: { role: 'user' | 'assistant'; content: string }[],
+  onText: (text: string) => void,
+  onDone: () => void,
+  onError: (err: string) => void
+): Promise<void> {
+  const headers = await getAuthHeaders();
+
+  const res = await fetch(`${API_URL}/api/assistant`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ userMessage, projectContext, history }),
+  });
+
+  if (!res.ok || !res.body) {
+    onError('Failed to connect to assistant');
+    return;
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const payload = line.slice(6);
+      if (payload === '[DONE]') {
+        onDone();
+        return;
+      }
+      try {
+        const data = JSON.parse(payload);
+        if (data.text) onText(data.text);
+        if (data.error) { onError(data.error); return; }
+      } catch {
+        // ignore malformed lines
+      }
+    }
+  }
+
+  onDone();
+}

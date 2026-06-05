@@ -6,9 +6,11 @@ import dynamic from 'next/dynamic';
 import ChatInterface from '@/components/ChatInterface';
 import ExpoPreview from '@/components/ExpoPreview';
 import CodeViewer from '@/components/CodeViewer';
+import ForgeAssistant from '@/components/ForgeAssistant';
+import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { getProject } from '@/lib/api';
-import type { GenerateResponse } from '@/lib/api';
+import type { GenerateResponse, ProjectContext } from '@/lib/api';
 import Link from 'next/link';
 
 const DeviceSync = dynamic(() => import('@/components/DeviceSync'), { ssr: false });
@@ -61,6 +63,8 @@ function BuilderContent() {
   const [rightPanel, setRightPanel] = useState<RightPanel>('preview');
   const [showDeviceSync, setShowDeviceSync] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const [showAssistant, setShowAssistant] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Auth guard
   useEffect(() => {
@@ -104,6 +108,21 @@ function BuilderContent() {
     setRightPanel('code');
   }, []);
 
+  const projectContext: ProjectContext = {
+    appName: currentResult?.appName,
+    description: currentResult?.description,
+    currentCode: currentResult?.files?.['App.tsx'],
+    colorScheme: currentResult?.colorScheme as Record<string, string> | undefined,
+    features: currentResult?.features,
+  };
+
+  const handleToggleAssistant = useCallback(() => {
+    setShowAssistant((prev) => {
+      if (!prev) setUnreadCount(0); // clear badge on open
+      return !prev;
+    });
+  }, []);
+
   // Loading / auth redirecting
   if (authLoading || (!user && !authLoading)) {
     return (
@@ -121,6 +140,21 @@ function BuilderContent() {
 
   return (
     <div className="h-screen bg-bg text-text-primary flex flex-col overflow-hidden" dir="rtl">
+      {/* Forge AI assistant */}
+      <ForgeAssistant
+        isOpen={showAssistant}
+        onClose={() => setShowAssistant(false)}
+        projectContext={projectContext}
+        onNewMessage={() => setUnreadCount((c) => c + 1)}
+      />
+
+      {/* Forge AI toggle button */}
+      <AssistantToggle
+        onClick={handleToggleAssistant}
+        isOpen={showAssistant}
+        unreadCount={unreadCount}
+      />
+
       {/* DeviceSync modal */}
       {showDeviceSync && currentResult?.snackId && (
         <DeviceSync

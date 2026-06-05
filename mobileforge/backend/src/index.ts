@@ -5,6 +5,7 @@ import { initFirebase } from './services/firebase-admin';
 import generateRouter from './routes/generate';
 import projectsRouter from './routes/projects';
 import snackRouter from './routes/snack';
+import assistantRouter from './routes/assistant';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -30,6 +31,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/generate', generateRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/snack', snackRouter);
+app.use('/api/assistant', assistantRouter);
 
 // 404 handler
 app.use((_req, res) => {
