@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { onAuthChange, logout, type User } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
+import { logout } from '@/lib/firebase';
 import { getProjects, createProject, deleteProject } from '@/lib/api';
 import ProjectCard from '@/components/ProjectCard';
 import Navbar from '@/components/Navbar';
@@ -19,33 +20,36 @@ interface Project {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading: authLoading } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingProjects, setLoadingProjects] = useState(true);
   const [creating, setCreating] = useState(false);
   const [showNewModal, setShowNewModal] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectDesc, setNewProjectDesc] = useState('');
 
+  // Auth guard
   useEffect(() => {
-    return onAuthChange((u) => {
-      if (!u) {
-        router.push('/auth');
-        return;
-      }
-      setUser(u);
-      loadProjects();
-    });
-  }, [router]);
+    if (authLoading) return;
+    if (!user) router.push('/auth');
+  }, [user, authLoading, router]);
+
+  // Load projects after auth resolved
+  useEffect(() => {
+    if (!user) return;
+    loadProjects();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   async function loadProjects() {
+    setLoadingProjects(true);
     try {
       const data = await getProjects();
       setProjects(data);
     } catch {
-      // Firebase may not be configured — show empty state
+      // Firebase not configured — show empty state
     } finally {
-      setLoading(false);
+      setLoadingProjects(false);
     }
   }
 
@@ -60,7 +64,6 @@ export default function DashboardPage() {
       setNewProjectDesc('');
       router.push(`/builder/${project.id}`);
     } catch {
-      // If Firebase not configured, create local project and navigate
       const tempId = 'local-' + Date.now();
       router.push(`/builder/${tempId}?name=${encodeURIComponent(newProjectName)}`);
     } finally {
@@ -78,6 +81,20 @@ export default function DashboardPage() {
     }
   }
 
+  // Show spinner while auth resolves
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <svg className="w-8 h-8 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      </div>
+    );
+  }
+
+  if (!user) return null; // will redirect
+
   return (
     <div className="min-h-screen bg-bg text-text-primary" dir="rtl">
       <Navbar />
@@ -86,26 +103,27 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-10">
           <div>
-            <h1 className="font-display font-bold text-3xl mb-1">
-              הפרויקטים שלי
-            </h1>
-            <p className="text-text-secondary">
-              {user?.displayName || user?.email} · {projects.length} פרויקטים
+            <h1 className="font-display font-bold text-3xl mb-1">הפרויקטים שלי</h1>
+            <p className="text-text-secondary text-sm">
+              {user.displayName || user.email}
+              {projects.length > 0 && ` · ${projects.length} פרויקטים`}
             </p>
           </div>
-          <button
-            onClick={() => setShowNewModal(true)}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-primary text-white font-semibold hover:opacity-90 transition-opacity shadow-glow"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            פרויקט חדש
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowNewModal(true)}
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-primary text-white font-semibold hover:opacity-90 transition-opacity shadow-glow"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              פרויקט חדש
+            </button>
+          </div>
         </div>
 
         {/* Content */}
-        {loading ? (
+        {loadingProjects ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-48 rounded-2xl shimmer" />
@@ -119,7 +137,7 @@ export default function DashboardPage() {
             <div>
               <h2 className="font-display font-bold text-2xl mb-2">אין פרויקטים עדיין</h2>
               <p className="text-text-secondary mb-6">
-                צור את הפרויקט הראשון שלך ותתחיל לבנות אפליקציות!
+                צור את הפרויקט הראשון שלך — 10 credits מחכים לך!
               </p>
               <button
                 onClick={() => setShowNewModal(true)}
@@ -149,7 +167,8 @@ export default function DashboardPage() {
           onClick={(e) => { if (e.target === e.currentTarget) setShowNewModal(false); }}
         >
           <div className="w-full max-w-md bg-surface border border-border rounded-2xl p-6">
-            <h3 className="font-display font-bold text-xl mb-6">פרויקט חדש</h3>
+            <h3 className="font-display font-bold text-xl mb-1">פרויקט חדש</h3>
+            <p className="text-text-secondary text-sm mb-6">נשמר אוטומטית אחרי כל generation</p>
             <div className="space-y-4">
               <div>
                 <label className="block text-text-secondary text-xs mb-1.5">שם הפרויקט *</label>

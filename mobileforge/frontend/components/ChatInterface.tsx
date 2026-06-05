@@ -23,6 +23,7 @@ interface ChatInterfaceProps {
   onAppGenerated?: (result: GenerateResponse) => void;
   onShowPreview?: (result: GenerateResponse) => void;
   onShowCode?: (result: GenerateResponse) => void;
+  onGeneratingChange?: (isGenerating: boolean) => void;
 }
 
 const SUGGESTIONS = [
@@ -76,10 +77,17 @@ export default function ChatInterface({
   onAppGenerated,
   onShowPreview,
   onShowCode,
+  onGeneratingChange,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Notify parent when generating state changes
+  const setGenerating = useCallback((val: boolean) => {
+    setIsGenerating(val);
+    onGeneratingChange?.(val);
+  }, [onGeneratingChange]);
 
   // Image upload state
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -209,7 +217,7 @@ export default function ChatInterface({
     };
 
     setMessages((prev) => [...prev, userMsg, loadingMsg]);
-    setIsGenerating(true);
+    setGenerating(true);
     clearImage();
 
     try {
@@ -241,7 +249,7 @@ export default function ChatInterface({
         },
       ]);
     } finally {
-      setIsGenerating(false);
+      setGenerating(false);
     }
   }
 
@@ -276,7 +284,7 @@ export default function ChatInterface({
 
     setMessages((prev) => [...prev, userMsg, loadingMsg]);
     setInput('');
-    setIsGenerating(true);
+    setGenerating(true);
     if (inputRef.current) inputRef.current.style.height = 'auto';
 
     const history = messages.map((m) => ({
@@ -306,7 +314,7 @@ export default function ChatInterface({
         },
       ]);
     } finally {
-      setIsGenerating(false);
+      setGenerating(false);
     }
   }
 

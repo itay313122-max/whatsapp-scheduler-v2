@@ -10,7 +10,7 @@ import {
   type Auth,
   type User,
 } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
 function getFirebaseConfig() {
@@ -99,6 +99,28 @@ export function onAuthChange(callback: (user: User | null) => void) {
 }
 
 export { type User };
+
+// Create (or no-op if existing) user doc in Firestore on first sign-in
+export async function createUserDocIfNeeded(user: User): Promise<void> {
+  const db = getFirebaseDb();
+  if (!db) return;
+  try {
+    const ref = doc(db, 'users', user.uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        email: user.email ?? '',
+        displayName: user.displayName ?? user.email?.split('@')[0] ?? 'משתמש',
+        photoURL: user.photoURL ?? null,
+        credits: 10,
+        plan: 'free',
+        createdAt: new Date().toISOString(),
+      });
+    }
+  } catch {
+    // Non-fatal — user can still use the app
+  }
+}
 
 // Legacy exports for convenience
 export const auth = {
