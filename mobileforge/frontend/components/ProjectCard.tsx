@@ -23,7 +23,7 @@ export default function ProjectCard({
   lastSnackId,
   onDelete,
 }: ProjectCardProps) {
-  const accentColor = colorScheme?.primary || '#6C3AE8';
+  const accentColor = colorScheme?.primary || '#6366F1';
 
   const timeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -32,19 +32,18 @@ export default function ProjectCard({
     if (mins < 60) return `לפני ${mins} דקות`;
     const hours = Math.floor(mins / 60);
     if (hours < 24) return `לפני ${hours} שעות`;
-    const days = Math.floor(hours / 24);
-    return `לפני ${days} ימים`;
+    return `לפני ${Math.floor(hours / 24)} ימים`;
   };
 
   return (
     <div
-      className="group relative rounded-2xl border border-border bg-surface hover:border-primary/50 transition-all duration-300 overflow-hidden cursor-pointer"
+      className="group relative rounded-2xl overflow-hidden glass-card cursor-pointer"
       style={{ '--accent': accentColor } as React.CSSProperties}
     >
       {/* Color strip */}
       <div
-        className="h-1 w-full"
-        style={{ background: `linear-gradient(90deg, ${accentColor}, transparent)` }}
+        className="h-1.5 w-full"
+        style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}44)` }}
       />
 
       <div className="p-5">
@@ -52,21 +51,21 @@ export default function ProjectCard({
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-display font-bold text-lg shadow-lg"
-              style={{ background: accentColor }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-display font-bold text-lg shadow-card"
+              style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)` }}
             >
               {name.charAt(0).toUpperCase()}
             </div>
             <div>
               <h3 className="font-display font-semibold text-text-primary text-sm">{name}</h3>
-              <p className="text-text-secondary text-xs">{timeAgo(updatedAt)}</p>
+              <p className="text-text-soft text-xs">{timeAgo(updatedAt)}</p>
             </div>
           </div>
 
           {onDelete && (
             <button
               onClick={(e) => { e.preventDefault(); onDelete(id); }}
-              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-text-secondary hover:text-red-400 hover:bg-red-400/10 transition-all"
+              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-text-soft hover:text-red-400 hover:bg-red-50 transition-all"
               title="מחק פרויקט"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,29 +75,27 @@ export default function ProjectCard({
           )}
         </div>
 
-        {/* Description */}
         {description && (
           <p className="text-text-secondary text-xs mb-3 line-clamp-2">{description}</p>
         )}
 
-        {/* Features */}
         {features.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
             {features.slice(0, 3).map((f) => (
               <span
                 key={f}
-                className="px-2 py-0.5 rounded-full text-xs border"
+                className="px-2 py-0.5 rounded-full text-xs border font-medium"
                 style={{
-                  borderColor: `${accentColor}40`,
+                  borderColor: `${accentColor}30`,
                   color: accentColor,
-                  background: `${accentColor}15`,
+                  background: `${accentColor}12`,
                 }}
               >
                 {f}
               </span>
             ))}
             {features.length > 3 && (
-              <span className="px-2 py-0.5 rounded-full text-xs text-text-secondary border border-border">
+              <span className="px-2 py-0.5 rounded-full text-xs text-text-soft border border-border">
                 +{features.length - 3}
               </span>
             )}
@@ -109,8 +106,8 @@ export default function ProjectCard({
         <div className="flex items-center gap-2">
           <Link
             href={`/builder/${id}`}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium text-white transition-all"
-            style={{ background: accentColor }}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+            style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)` }}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -122,7 +119,7 @@ export default function ProjectCard({
               href={`https://snack.expo.dev/@snack/${lastSnackId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-2 rounded-lg text-xs text-text-secondary hover:text-accent border border-border hover:border-accent transition-all"
+              className="px-3 py-2 rounded-xl text-xs text-text-secondary hover:text-primary border border-border hover:border-primary/30 bg-surface-2 hover:bg-surface transition-all"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

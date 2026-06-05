@@ -1,6 +1,21 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+import { Plus_Jakarta_Sans, Heebo } from 'next/font/google';
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '600', '700', '800'],
+  variable: '--font-jakarta',
+  display: 'swap',
+});
+
+const heebo = Heebo({
+  subsets: ['hebrew', 'latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-heebo',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'MobileForge — Build Mobile Apps with AI',
@@ -10,12 +25,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="he" dir="rtl">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
-      <body className="bg-bg text-text-primary min-h-screen">
+    <html lang="he" dir="rtl" className={`${jakarta.variable} ${heebo.variable}`}>
+      <body className="bg-bg text-text-primary min-h-screen font-body">
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -332,24 +332,24 @@ export default function ChatInterface({
       title: 'Screenshot → Clone',
       desc: 'העלה צילום מסך של כל אפליקציה — AI ישחזר אותה',
       action: () => fileInputRef.current?.click(),
-      color: 'from-blue-600/20 to-blue-600/5 border-blue-500/30',
-      iconBg: 'bg-blue-500/20 text-blue-400',
+      color: 'from-sky-400/15 to-sky-400/5 border-sky-200',
+      iconBg: 'bg-sky-400/20 text-sky-500',
     },
     {
       icon: '✏️',
       title: 'Sketch → App',
       desc: 'צייר wireframe ו-AI יהפוך אותו לאפליקציה מלאה',
       action: () => setShowSketch(true),
-      color: 'from-purple-600/20 to-purple-600/5 border-purple-500/30',
-      iconBg: 'bg-purple-500/20 text-purple-400',
+      color: 'from-violet-400/15 to-violet-400/5 border-violet-200',
+      iconBg: 'bg-violet-400/20 text-violet-500',
     },
     {
       icon: '🎤',
       title: 'Voice → App',
       desc: 'דבר בעברית — AI יבין ויבנה',
       action: toggleVoice,
-      color: 'from-green-600/20 to-green-600/5 border-green-500/30',
-      iconBg: 'bg-green-500/20 text-green-400',
+      color: 'from-emerald-400/15 to-emerald-400/5 border-emerald-200',
+      iconBg: 'bg-emerald-400/20 text-emerald-500',
       disabled: !voiceSupported,
     },
   ];
@@ -452,7 +452,7 @@ export default function ChatInterface({
 
               <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-1' : ''}`}>
                 {msg.isLoading ? (
-                  <div className="px-4 py-3 rounded-2xl bg-surface border border-border">
+                  <div className="px-4 py-3 rounded-2xl glass-card">
                     <div className="flex items-center gap-2">
                       <div className="flex gap-1">
                         {[0, 1, 2].map((i) => (
@@ -470,8 +470,8 @@ export default function ChatInterface({
                   <div
                     className={`px-4 py-3 rounded-2xl ${
                       msg.role === 'user'
-                        ? 'bg-primary text-white rounded-tr-sm'
-                        : 'bg-surface border border-border text-text-primary rounded-tl-sm'
+                        ? 'bg-gradient-primary text-white rounded-tr-sm'
+                        : 'glass-card text-text-primary rounded-tl-sm'
                     }`}
                     dir="rtl"
                   >
@@ -601,7 +601,7 @@ export default function ChatInterface({
           )}
 
           {/* Main input row */}
-          <div className="flex items-end gap-2 p-3 rounded-2xl bg-surface border border-border focus-within:border-primary/50 transition-colors">
+          <div className="flex items-end gap-2 p-3 rounded-2xl bg-white border border-border focus-within:border-primary focus-within:shadow-soft transition-all">
             {/* Viral feature buttons */}
             <div className="flex items-center gap-1 flex-shrink-0 mb-0.5">
               {/* Screenshot */}

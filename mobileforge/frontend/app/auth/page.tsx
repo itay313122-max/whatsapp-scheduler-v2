@@ -100,26 +100,26 @@ function AuthForm() {
           <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
             <span className="text-white font-display font-bold text-lg">M</span>
           </div>
-          <span className="font-display font-bold text-2xl">
+          <span className="font-display font-bold text-2xl text-text-primary">
             Mobile<span className="text-primary">Forge</span>
           </span>
         </Link>
         <p className="text-text-secondary mt-2 text-sm">
-          {mode === 'login' ? 'ברוך השב! התחבר לחשבונך' : 'צור חשבון חינמי · 10 credits מתנה'}
+          {mode === 'login' ? 'ברוך השב! התחבר לחשבונך' : 'צור חשבון חינמי · 10 credits מתנה 🎁'}
         </p>
       </div>
 
-      {/* Card */}
-      <div className="bg-surface border border-border rounded-2xl p-8">
+      {/* Glass card */}
+      <div className="glass-card rounded-3xl p-8">
         {/* Mode toggle */}
-        <div className="flex p-1 rounded-xl bg-surface-2 border border-border mb-6">
+        <div className="flex p-1 rounded-2xl bg-surface-2 border border-border mb-6">
           {(['login', 'register'] as const).map((m) => (
             <button
               key={m}
               onClick={() => { setMode(m); setError(''); }}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 mode === m
-                  ? 'bg-primary text-white shadow-glow'
+                  ? 'bg-gradient-primary text-white shadow-glow'
                   : 'text-text-secondary hover:text-text-primary'
               }`}
             >
@@ -128,13 +128,13 @@ function AuthForm() {
           ))}
         </div>
 
-        {/* Social auth buttons */}
+        {/* Social auth */}
         <div className="space-y-3 mb-6">
           {/* Google */}
           <button
             onClick={handleGoogle}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-border hover:border-primary/50 text-text-primary text-sm font-medium transition-all disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl bg-white border border-border hover:border-primary/30 hover:shadow-card text-text-primary text-sm font-semibold transition-all disabled:opacity-50"
           >
             <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -145,26 +145,25 @@ function AuthForm() {
             המשך עם Google
           </button>
 
-          {/* Apple — placeholder, disabled */}
+          {/* Apple — placeholder */}
           <div className="relative">
             <button
               type="button"
               disabled
               onMouseEnter={() => setShowAppleTooltip(true)}
               onMouseLeave={() => setShowAppleTooltip(false)}
-              className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-border text-text-secondary text-sm font-medium opacity-40 cursor-not-allowed select-none"
+              className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl border border-border text-text-soft text-sm font-semibold opacity-50 cursor-not-allowed select-none"
             >
-              {/* Apple logo */}
               <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
               </svg>
               המשך עם Apple
-              <span className="mr-auto text-xs px-2 py-0.5 rounded-full border border-border bg-surface-2">
+              <span className="mr-auto text-xs px-2 py-0.5 rounded-full border border-border bg-surface-2 text-text-soft">
                 בקרוב
               </span>
             </button>
             {showAppleTooltip && (
-              <div className="absolute bottom-full mb-2 right-0 left-0 mx-auto w-max max-w-xs px-3 py-2 rounded-xl bg-surface-2 border border-border text-text-secondary text-xs text-center z-10 shadow-lg">
+              <div className="absolute bottom-full mb-2 right-0 left-0 mx-auto w-max max-w-xs px-3 py-2 rounded-xl glass-card text-text-secondary text-xs text-center z-10">
                 Apple Sign-In דורש Apple Developer Account.<br />
                 יתווסף בקרוב 🍎
               </div>
@@ -174,7 +173,7 @@ function AuthForm() {
 
         <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 h-px bg-border" />
-          <span className="text-text-secondary text-xs">או עם אימייל</span>
+          <span className="text-text-soft text-xs">או עם אימייל</span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
@@ -182,19 +181,19 @@ function AuthForm() {
         <form onSubmit={handleEmailAuth} className="space-y-4">
           {mode === 'register' && (
             <div>
-              <label className="block text-text-secondary text-xs mb-1.5">שם מלא</label>
+              <label className="block text-text-secondary text-xs font-medium mb-1.5">שם מלא</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="ישראל ישראלי"
                 dir="rtl"
-                className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-text-primary placeholder-text-secondary text-sm focus:outline-none focus:border-primary transition-colors"
+                className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-text-primary placeholder-text-soft text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
               />
             </div>
           )}
           <div>
-            <label className="block text-text-secondary text-xs mb-1.5">אימייל</label>
+            <label className="block text-text-secondary text-xs font-medium mb-1.5">אימייל</label>
             <input
               type="email"
               value={email}
@@ -202,11 +201,11 @@ function AuthForm() {
               required
               placeholder="your@email.com"
               dir="ltr"
-              className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-text-primary placeholder-text-secondary text-sm focus:outline-none focus:border-primary transition-colors"
+              className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-text-primary placeholder-text-soft text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
             />
           </div>
           <div>
-            <label className="block text-text-secondary text-xs mb-1.5">סיסמה</label>
+            <label className="block text-text-secondary text-xs font-medium mb-1.5">סיסמה</label>
             <input
               type="password"
               value={password}
@@ -214,12 +213,12 @@ function AuthForm() {
               required
               minLength={6}
               placeholder="לפחות 6 תווים"
-              className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-text-primary placeholder-text-secondary text-sm focus:outline-none focus:border-primary transition-colors"
+              className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-text-primary placeholder-text-soft text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
             />
           </div>
 
           {error && (
-            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
               {error}
             </div>
           )}
@@ -227,7 +226,7 @@ function AuthForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-gradient-primary text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 shadow-glow"
+            className="w-full py-3.5 rounded-2xl bg-gradient-primary text-white font-display font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 shadow-glow"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -236,30 +235,29 @@ function AuthForm() {
             ) : mode === 'login' ? (
               'התחבר'
             ) : (
-              'צור חשבון · 10 credits חינם'
+              'צור חשבון · 10 credits חינם 🎁'
             )}
           </button>
         </form>
 
         {mode === 'register' && (
-          <p className="text-text-secondary text-xs text-center mt-4">
+          <p className="text-text-soft text-xs text-center mt-4">
             בלחיצה על &quot;צור חשבון&quot; אתה מסכים לתנאי השימוש ·{' '}
-            <span className="text-accent">10 credits חינם</span> להתחלה
+            <span className="text-primary font-medium">10 credits חינם</span> להתחלה
           </p>
         )}
       </div>
 
-      {/* Footer */}
-      <p className="text-center text-text-secondary text-xs mt-6">
+      <p className="text-center text-text-soft text-xs mt-6">
         {mode === 'login' ? (
           <>אין לך חשבון?{' '}
-            <button onClick={() => setMode('register')} className="text-primary hover:text-primary-light">
+            <button onClick={() => setMode('register')} className="text-primary font-semibold hover:text-primary-light">
               הרשם חינם
             </button>
           </>
         ) : (
           <>כבר יש לך חשבון?{' '}
-            <button onClick={() => setMode('login')} className="text-primary hover:text-primary-light">
+            <button onClick={() => setMode('login')} className="text-primary font-semibold hover:text-primary-light">
               התחבר
             </button>
           </>
@@ -271,8 +269,7 @@ function AuthForm() {
 
 export default function AuthPage() {
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center p-4" dir="rtl">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
+    <div className="min-h-screen hero-bg flex items-center justify-center p-4" dir="rtl">
       <Suspense fallback={
         <div className="flex items-center gap-2 text-text-secondary">
           <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">

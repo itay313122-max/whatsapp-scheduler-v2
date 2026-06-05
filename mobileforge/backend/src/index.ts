@@ -7,30 +7,6 @@ import projectsRouter from './routes/projects';
 import snackRouter from './routes/snack';
 import assistantRouter from './routes/assistant';
 
-// ── dotenv debug (temporary) ─────────────────────────────────────────────────
-const EXPECTED_KEYS = [
-  'PORT', 'FRONTEND_URL', 'GROQ_API_KEY',
-  'FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY',
-];
-console.log('\n=== dotenv debug ===');
-console.log('cwd:', process.cwd());
-for (const key of EXPECTED_KEYS) {
-  const val = process.env[key];
-  if (!val) {
-    console.log(`❌ ${key}: MISSING`);
-  } else if (val.startsWith('__PASTE')) {
-    console.log(`⚠️  ${key}: still a placeholder`);
-  } else if (key === 'FIREBASE_PRIVATE_KEY') {
-    const hasRealNewlines = val.includes('\n') && !val.includes('\\n');
-    const hasEscaped     = val.includes('\\n');
-    console.log(`✅ ${key}: loaded (${val.length} chars) | real newlines: ${hasRealNewlines} | escaped \\n: ${hasEscaped}`);
-  } else {
-    console.log(`✅ ${key}: loaded (${val.length} chars)`);
-  }
-}
-console.log('====================\n');
-// ─────────────────────────────────────────────────────────────────────────────
-
 const app = express();
 const PORT = process.env.PORT || 4000;
 

@@ -110,14 +110,14 @@ export default function ForgeAssistant({
       {/* Mobile backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-indigo-950/20 backdrop-blur-sm z-40 md:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sliding panel */}
       <div
-        className={`fixed inset-y-0 left-0 w-full sm:w-[380px] bg-surface border-r border-border z-50 flex flex-col transform transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 w-full sm:w-[380px] bg-white/90 backdrop-blur-xl border-r border-border z-50 flex flex-col transform transition-transform duration-300 ease-in-out shadow-card-hover ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         dir="rtl"
