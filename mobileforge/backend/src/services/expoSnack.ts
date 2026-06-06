@@ -63,8 +63,40 @@ const STRIP_PKG_DEFAULT_RE = new RegExp(
 function replaceExternalComponents(code: string): string {
   let out = code;
 
-  // LinearGradient → View
-  out = out.replace(/<LinearGradient(\s|\n)/g, '<View$1');
+  // LinearGradient → View, preserving the first color from colors=[...] as backgroundColor
+  out = out.replace(/<LinearGradient([\s\S]*?)>/g, (_, attrs) => {
+    // Extract first color string from colors={['#xxx', ...]} or colors={["#xxx", ...]}
+    const colorMatch = attrs.match(/colors\s*=\s*\{[\s\S]*?\[\s*['"](#?[^'"]+)['"]/);
+    const firstColor = colorMatch ? colorMatch[1] : null;
+
+    // Remove gradient-only props (handles one level of nesting in the value)
+    let newAttrs = attrs
+      .replace(/\s*colors\s*=\s*\{(?:[^{}]|\{[^{}]*\})*\}/g, '')
+      .replace(/\s*start\s*=\s*\{(?:[^{}]|\{[^{}]*\})*\}/g, '')
+      .replace(/\s*end\s*=\s*\{(?:[^{}]|\{[^{}]*\})*\}/g, '')
+      .replace(/\s*locations\s*=\s*\{(?:[^{}]|\{[^{}]*\})*\}/g, '');
+
+    if (firstColor) {
+      // Wrap existing style in an array so we can append backgroundColor
+      // Handles: style={styles.X}  and  style={{...}}
+      const styleRe = /style\s*=\s*(\{(?:[^{}]|\{[^{}]*\})*\})/;
+      const styleMatch = newAttrs.match(styleRe);
+      if (styleMatch) {
+        // Strip outer { } so the value works inside an array literal:
+        //   {styles.bg}  → styles.bg   → style={[styles.bg, {bg}]}
+        //   {{flex:1}}   → {flex:1}    → style={[{flex:1}, {bg}]}
+        const innerVal = styleMatch[1].slice(1, -1).trim();
+        newAttrs = newAttrs.replace(
+          styleRe,
+          `style={[${innerVal}, {backgroundColor: '${firstColor}'}]}`
+        );
+      } else {
+        newAttrs += ` style={{backgroundColor: '${firstColor}'}}`;
+      }
+    }
+
+    return `<View${newAttrs}>`;
+  });
   out = out.replace(/<\/LinearGradient>/g, '</View>');
 
   // Icon components → bullet emoji

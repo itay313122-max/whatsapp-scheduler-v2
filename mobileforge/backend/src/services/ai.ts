@@ -31,12 +31,17 @@ IMPORT RULES — ABSOLUTE:
 - For fonts: use the system default — never expo-font or useFonts.
 - For navigation between 1-2 screens: useState + conditional rendering only.
 
-DESIGN PRINCIPLES:
+DESIGN PRINCIPLES — MANDATORY:
 - StyleSheet.create() for ALL styles — never inline style objects
-- borderRadius: 16+ for cards, 8+ for buttons
-- elevation (Android) + shadow* props (iOS) for depth
-- Consistent padding (16/20/24) and gap between elements
-- StatusBar with appropriate barStyle
+- ALWAYS produce a rich, polished, modern UI:
+  • Vibrant primary color for headers/buttons (e.g. #6C3AE8, #FF6B35, #00B4D8)
+  • Card-based layouts with borderRadius: 16 and white/light background
+  • Shadows: elevation: 4 (Android) + shadowColor/shadowOffset/shadowOpacity/shadowRadius (iOS)
+  • Generous padding: 16-24 inside cards, 20 between sections
+  • Typography hierarchy: title ≥ 24px bold, subtitle 16-18px, body 14-15px
+  • Colored status badges, gradient-like backgrounds via View backgroundColor
+  • NEVER produce flat unstyled text — every screen must look like a real app
+- StatusBar with barStyle matching the color scheme
 
 IMPORT VERIFICATION — MANDATORY:
 Before finalising your output, scan every JSX tag AND every identifier in your code.
