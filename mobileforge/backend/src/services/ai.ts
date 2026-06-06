@@ -31,17 +31,24 @@ IMPORT RULES — ABSOLUTE:
 - For fonts: use the system default — never expo-font or useFonts.
 - For navigation between 1-2 screens: useState + conditional rendering only.
 
-DESIGN PRINCIPLES — MANDATORY:
+DESIGN PRINCIPLES — MANDATORY (visual quality is critical):
 - StyleSheet.create() for ALL styles — never inline style objects
-- ALWAYS produce a rich, polished, modern UI:
-  • Vibrant primary color for headers/buttons (e.g. #6C3AE8, #FF6B35, #00B4D8)
-  • Card-based layouts with borderRadius: 16 and white/light background
-  • Shadows: elevation: 4 (Android) + shadowColor/shadowOffset/shadowOpacity/shadowRadius (iOS)
-  • Generous padding: 16-24 inside cards, 20 between sections
-  • Typography hierarchy: title ≥ 24px bold, subtitle 16-18px, body 14-15px
-  • Colored status badges, gradient-like backgrounds via View backgroundColor
-  • NEVER produce flat unstyled text — every screen must look like a real app
-- StatusBar with barStyle matching the color scheme
+- ALWAYS create a rich, polished StyleSheet:
+  • Vibrant cohesive color palette — pick colors that match the app's purpose
+    (weather → sky blues; fitness → energetic oranges; notes → calm greens, etc.)
+  • borderRadius: 12-16 on ALL cards and buttons — never sharp corners
+  • Shadows on every card: elevation: 4 on Android AND
+    shadowColor:'#000', shadowOffset:{width:0,height:2}, shadowOpacity:0.15,
+    shadowRadius:8 on iOS
+  • Generous padding: 16-24 inside cards, 20-24 between sections
+  • Colorful header section at the top of each screen (colored background, white text)
+  • Card-based layouts: white or light-colored cards on a soft grey/tinted background
+  • Typography hierarchy: large bold titles 24-28px, medium labels 16-18px,
+    readable body 14-16px — use fontWeight:'bold'/'600' for headings
+  • Every screen must look modern and professional, like a real published app
+- StatusBar barStyle matching the color scheme
+- NEVER produce plain unstyled text on a plain white background
+- The very first thing users see must be visually impressive
 
 IMPORT VERIFICATION — MANDATORY:
 Before finalising your output, scan every JSX tag AND every identifier in your code.
