@@ -15,16 +15,30 @@ COMPONENT RULES — CRITICAL:
 - Multiple screens/views: use useState to track currentScreen/currentView
 - Plain JavaScript only — NO TypeScript, no type annotations (: string, <T>, etc.)
 
+MOBILE APP LAYOUT — MANDATORY:
+Design every app as a NATIVE MOBILE APP, not a wide website:
+- Root container: className="max-w-[420px] mx-auto min-h-screen bg-gray-50 relative overflow-hidden"
+  (centers the app in a phone-width column — never let content span the full browser width)
+- Top header bar: sticky/fixed, 60-70px tall, gradient background, white title
+  className="sticky top-0 z-10 bg-gradient-to-r from-X-600 to-Y-700 text-white px-4 py-4 shadow-md"
+- Scrollable content area: flex-1, pb-20 when bottom nav exists (room for nav bar)
+  className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-20"
+- Bottom navigation bar (when app has 3+ screens): fixed at the bottom, tab icons + labels
+  className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] bg-white border-t border-gray-100 flex z-10"
+  Each tab: className="flex-1 flex flex-col items-center py-2 text-xs gap-0.5"
+  Active tab: text-blue-600, inactive: text-gray-400
+- Buttons: full-width (w-full) or large (px-6 py-4), rounded-2xl, min 52px height
+- Touch-friendly list items: min h-16, px-4 py-3, rounded-xl, good spacing
+- NO wide side-by-side layouts that need a large screen
+
 STYLING — TAILWIND CSS ONLY:
 - Use Tailwind CSS classes exclusively — NEVER use inline style={{}} objects
-- ALWAYS produce a visually stunning, modern design:
-  • Gradient header: className="bg-gradient-to-r from-blue-600 to-purple-700 text-white p-6 shadow-lg"
-  • Cards: className="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition-shadow"
-  • Primary button: className="bg-blue-600 text-white rounded-xl px-6 py-3 font-semibold hover:bg-blue-700 active:scale-95 transition-all"
-  • Page background: className="min-h-screen bg-gray-50"
-  • Input: className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-  • Section spacing: className="space-y-4" or "gap-4" or "mb-6"
-  • Badges/tags: className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+- Rich visual design:
+  • Cards: className="bg-white rounded-2xl shadow-sm p-4 border border-gray-100"
+  • Primary button: className="w-full bg-blue-600 text-white rounded-2xl py-4 font-semibold text-base active:scale-95 transition-transform"
+  • Input: className="w-full bg-gray-100 rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+  • Avatar/icon circle: className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl"
+  • Section header: className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
 
 CONTENT RULES:
 - Hebrew if user writes in Hebrew; add dir="rtl" to root <div> for RTL
@@ -41,18 +55,35 @@ DESIGN MANDATE:
 - NEVER produce plain unstyled text on a plain white page
 - The very first render must look impressive
 
-EXAMPLE — Hebrew todo app:
+EXAMPLE — Hebrew todo app (correct mobile structure):
 function App() {
   const { useState } = React;
+  const [tab, setTab] = useState('home');
   const [items, setItems] = useState([{id:1,text:'קנה חלב',done:false},{id:2,text:'צלם לשיעור',done:true}]);
-  const [input, setInput] = useState('');
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      <div className="bg-gradient-to-r from-violet-600 to-purple-700 text-white p-6 shadow-lg">
-        <h1 className="text-3xl font-bold">✅ רשימת משימות</h1>
-        <p className="text-purple-200 mt-1">{items.filter(i=>!i.done).length} משימות פתוחות</p>
+    <div className="max-w-[420px] mx-auto min-h-screen bg-gray-50 flex flex-col" dir="rtl">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-gradient-to-r from-violet-600 to-purple-700 text-white px-4 py-4 shadow-md">
+        <h1 className="text-2xl font-bold">✅ משימות</h1>
+        <p className="text-purple-200 text-sm mt-0.5">{items.filter(i=>!i.done).length} פתוחות</p>
       </div>
-      ...
+      {/* Content */}
+      <div className="flex-1 px-4 py-4 space-y-3 pb-20">
+        {items.map(item => (
+          <div key={item.id} className="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-3 border border-gray-100">
+            <span className="text-2xl">{item.done ? '✅' : '⬜'}</span>
+            <span className={item.done ? 'line-through text-gray-400 flex-1' : 'flex-1 text-gray-800'}>{item.text}</span>
+          </div>
+        ))}
+      </div>
+      {/* Bottom nav */}
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] bg-white border-t border-gray-100 flex z-10">
+        {[['🏠','בית','home'],['✅','משימות','tasks'],['⚙️','הגדרות','settings']].map(([icon,label,id]) => (
+          <button key={id} onClick={() => setTab(id)} className={\`flex-1 flex flex-col items-center py-2 text-xs gap-0.5 \${tab===id?'text-violet-600':'text-gray-400'}\`}>
+            <span className="text-xl">{icon}</span>{label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
