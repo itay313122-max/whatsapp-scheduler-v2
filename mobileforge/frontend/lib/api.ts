@@ -26,9 +26,10 @@ export interface GenerateResponse {
   colorScheme: { primary: string; background: string; text: string; accent?: string };
   features: string[];
   hebrewSummary: string;
-  snackId: string;
-  embedUrl: string;
-  shareUrl: string;
+  htmlDoc: string;       // full HTML document for iframe srcDoc (web renderer)
+  snackId: string;       // legacy — empty for web-mode apps
+  embedUrl: string;      // legacy — empty for web-mode apps
+  shareUrl: string;      // legacy — empty for web-mode apps
 }
 
 export async function generateApp(req: GenerateRequest): Promise<GenerateResponse> {

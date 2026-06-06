@@ -1,78 +1,56 @@
 import { Router, Request, Response } from 'express';
-import { generateMobileApp, streamGenerateMobileApp } from '../services/ai';
-import { createExpoSnack } from '../services/expoSnack';
+import { generateWebApp, streamGenerateWebApp, type ConversationMessage } from '../services/aiWeb';
+import { buildHtmlDocument } from '../services/webRenderer';
 import { getFirestore } from '../services/firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
-/** Extract the app code from the parsed files and normalise newlines. */
+/** Extract the App component code from the parsed files. */
 function extractAppCode(files: Record<string, string>): string {
-  const code = files['App.tsx'] ?? files['App.js'] ?? '';
-  // JSON.parse already converts \n → real newlines, but if the fallback
-  // path put raw JSON in there we detect and reject it.
+  const code = files['App.jsx'] ?? files['App.tsx'] ?? files['App.js'] ?? '';
   if (code.trimStart().startsWith('{') && code.includes('"appName"')) {
-    console.warn('[Generate] App code looks like raw JSON — Groq parse likely failed');
+    console.warn('[Generate] App code looks like raw JSON — LLM parse likely failed');
     return '';
   }
   return code;
 }
 
-// POST /api/generate — generate app with Groq + create Expo Snack
+// POST /api/generate
 router.post('/', async (req: Request, res: Response) => {
   const { projectId, prompt, conversationHistory = [] } = req.body;
-
-  if (!prompt) {
-    return res.status(400).json({ error: 'prompt is required' });
-  }
+  if (!prompt) return res.status(400).json({ error: 'prompt is required' });
 
   try {
-    // Generate app code with Groq
-    const generated = await generateMobileApp(prompt, conversationHistory);
-
-    // Extract only the app code (App.tsx → App.js for Expo Snack)
+    const generated = await generateWebApp(prompt, conversationHistory as ConversationMessage[]);
     const appCode = extractAppCode(generated.files);
 
     if (!appCode) {
-      console.error('[Generate] No valid app code — skipping Snack creation');
+      console.error('[Generate] No valid app code — cannot build HTML');
     } else {
-      console.log('[Generate] Sending to Expo Snack — first 150 chars of code:', appCode.slice(0, 150));
+      console.log('[Generate] Building HTML doc — first 100 chars of code:', appCode.slice(0, 100));
     }
 
-    // Create Expo Snack with just the app code
-    let snackResult = { snackId: '', embedUrl: '', shareUrl: '' };
-    if (appCode) {
-      try {
-        snackResult = await createExpoSnack({ 'App.js': appCode }, generated.appName);
-      } catch (snackErr) {
-        console.error('[Generate] Expo Snack creation failed:', snackErr);
-      }
-    }
+    const htmlDoc = appCode ? buildHtmlDocument(appCode, generated.appName) : '';
 
-    // Save to Firestore if projectId provided and Firebase is available
     if (projectId) {
       try {
         const db = getFirestore();
         const msgId = uuidv4();
         await db
-          .collection('conversations')
-          .doc(projectId)
-          .collection('messages')
-          .doc(msgId)
+          .collection('conversations').doc(projectId)
+          .collection('messages').doc(msgId)
           .set({
             role: 'assistant',
             content: generated.hebrewSummary,
             files: generated.files,
             hebrewSummary: generated.hebrewSummary,
-            snackId: snackResult.snackId,
             appName: generated.appName,
             colorScheme: generated.colorScheme,
             features: generated.features,
             timestamp: new Date().toISOString(),
           });
-
         await db.collection('projects').doc(projectId).update({
-          lastSnackId: snackResult.snackId,
           colorScheme: generated.colorScheme,
           features: generated.features,
           updatedAt: new Date().toISOString(),
@@ -82,10 +60,7 @@ router.post('/', async (req: Request, res: Response) => {
       }
     }
 
-    return res.json({
-      ...generated,
-      ...snackResult,
-    });
+    return res.json({ ...generated, htmlDoc, snackId: '', embedUrl: '', shareUrl: '' });
   } catch (err) {
     console.error('[Generate] Error:', err);
     return res.status(500).json({
@@ -95,13 +70,10 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/generate/stream — streaming response
+// POST /api/generate/stream
 router.post('/stream', async (req: Request, res: Response) => {
   const { prompt, conversationHistory = [] } = req.body;
-
-  if (!prompt) {
-    return res.status(400).json({ error: 'prompt is required' });
-  }
+  if (!prompt) return res.status(400).json({ error: 'prompt is required' });
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -110,59 +82,39 @@ router.post('/stream', async (req: Request, res: Response) => {
 
   try {
     let fullText = '';
-
-    for await (const chunk of streamGenerateMobileApp(prompt, conversationHistory)) {
+    for await (const chunk of streamGenerateWebApp(prompt, conversationHistory as ConversationMessage[])) {
       fullText += chunk;
       res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
     }
 
-    // Parse the accumulated text using the same cleanJson logic as ai.ts
     try {
-      // Inline the same cleaning logic
       let cleaned = fullText
-        .replace(/^```json\s*/i, '')
-        .replace(/^```\s*/i, '')
-        .replace(/\s*```$/i, '')
-        .trim();
+        .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
       const s = cleaned.indexOf('{');
       const e = cleaned.lastIndexOf('}');
       if (s !== -1 && e > s) cleaned = cleaned.slice(s, e + 1);
-
-      // Fix unescaped newlines (same as in ai.ts)
-      cleaned = fixUnescapedNewlinesInline(cleaned);
+      cleaned = fixUnescapedNewlines(cleaned);
 
       const parsed = JSON.parse(cleaned);
-
-      // Extract only the app code
       const appCode = extractAppCode(parsed.files ?? {});
-      console.log('[Generate/stream] app code first 150 chars:', appCode.slice(0, 150));
+      const htmlDoc = appCode ? buildHtmlDocument(appCode, parsed.appName) : '';
+      console.log('[Generate/stream] code first 100 chars:', appCode.slice(0, 100));
 
-      let snackResult = { snackId: '', embedUrl: '', shareUrl: '' };
-      if (appCode) {
-        try {
-          snackResult = await createExpoSnack({ 'App.js': appCode }, parsed.appName);
-        } catch (snackErr) {
-          console.error('[Generate/stream] Expo Snack creation failed:', snackErr);
-        }
-      }
-
-      res.write(`data: ${JSON.stringify({ done: true, result: { ...parsed, ...snackResult } })}\n\n`);
+      res.write(`data: ${JSON.stringify({ done: true, result: { ...parsed, htmlDoc, snackId: '', embedUrl: '', shareUrl: '' } })}\n\n`);
     } catch {
-      res.write(
-        `data: ${JSON.stringify({
-          done: true,
-          result: {
-            appName: 'Generated App',
-            hebrewSummary: 'האפליקציה נוצרה',
-            files: { 'App.tsx': fullText },
-            features: [],
-            colorScheme: { primary: '#6C3AE8', background: '#0A0A0F', text: '#E8E8F0' },
-            snackId: '',
-            embedUrl: '',
-            shareUrl: '',
-          },
-        })}\n\n`
-      );
+      const fallback = `function App() { return <div style={{padding:24}}><h1>שגיאה</h1></div>; }`;
+      res.write(`data: ${JSON.stringify({
+        done: true,
+        result: {
+          appName: 'Generated App',
+          hebrewSummary: 'האפליקציה נוצרה',
+          files: { 'App.jsx': fallback },
+          features: [],
+          colorScheme: { primary: '#6C3AE8', background: '#F8F9FA', text: '#1A1A2E' },
+          htmlDoc: buildHtmlDocument(fallback),
+          snackId: '', embedUrl: '', shareUrl: '',
+        },
+      })}\n\n`);
     }
 
     res.end();
@@ -172,56 +124,28 @@ router.post('/stream', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/generate/vision — generate from screenshot or sketch image
-router.post('/vision', async (req: Request, res: Response) => {
-  const { image, mimeType = 'image/jpeg' } = req.body;
-
-  if (!image) {
-    return res.status(400).json({ error: 'image (base64) is required' });
-  }
-
-  if (image.length > 5_500_000) {
-    return res.status(413).json({ error: 'Image too large. Please use an image under 4 MB.' });
-  }
-
-  const validMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-  if (!validMimes.includes(mimeType)) {
-    return res.status(400).json({ error: `Unsupported mimeType. Use: ${validMimes.join(', ')}` });
-  }
-
-  // Vision requires a multimodal model — not available on the current free tier (Groq/Llama)
+// Vision — not supported in web mode
+router.post('/vision', (_req: Request, res: Response) => {
   return res.status(503).json({
     error: 'VISION_NOT_SUPPORTED',
-    message: "פיצ'ר Vision (צילום מסך / סקיצה) דורש שדרוג לתוכנית Premium עם מודל multimodal.",
+    message: "פיצ'ר Vision דורש שדרוג לתוכנית Premium.",
   });
 });
 
-// Inline version of fixUnescapedNewlines for the stream route
-function fixUnescapedNewlinesInline(json: string): string {
+function fixUnescapedNewlines(json: string): string {
   let result = '';
   let inString = false;
   let i = 0;
   while (i < json.length) {
     const ch = json[i];
-    if (ch === '\\' && inString) {
-      result += ch + (json[i + 1] ?? '');
-      i += 2;
-      continue;
-    }
-    if (ch === '"') {
-      inString = !inString;
-      result += ch;
-      i++;
-      continue;
-    }
+    if (ch === '\\' && inString) { result += ch + (json[i + 1] ?? ''); i += 2; continue; }
+    if (ch === '"') { inString = !inString; result += ch; i++; continue; }
     if (inString) {
       if (ch === '\n') result += '\\n';
       else if (ch === '\r') result += '\\r';
       else if (ch === '\t') result += '\\t';
       else result += ch;
-    } else {
-      result += ch;
-    }
+    } else { result += ch; }
     i++;
   }
   return result;

@@ -4,7 +4,7 @@ import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import ChatInterface from '@/components/ChatInterface';
-import ExpoPreview from '@/components/ExpoPreview';
+import WebPreview from '@/components/WebPreview';
 import ForgeAssistant from '@/components/ForgeAssistant';
 import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
@@ -92,7 +92,7 @@ function BuilderContent() {
 
   const handleAppGenerated = useCallback((result: GenerateResponse) => {
     setCurrentResult(result);
-    if (result.embedUrl) setRightPanel('preview');
+    if (result.htmlDoc || result.embedUrl) setRightPanel('preview');
     setSaveStatus('saved');
     setTimeout(() => setSaveStatus('idle'), 3000);
   }, []);
@@ -105,7 +105,7 @@ function BuilderContent() {
   const projectContext: ProjectContext = {
     appName: currentResult?.appName,
     description: currentResult?.description,
-    currentCode: currentResult?.files?.['App.tsx'],
+    currentCode: currentResult?.files?.['App.jsx'] ?? currentResult?.files?.['App.tsx'],
     colorScheme: currentResult?.colorScheme as Record<string, string> | undefined,
     features: currentResult?.features,
   };
@@ -249,12 +249,11 @@ function BuilderContent() {
         {/* Right panel */}
         {currentResult && (
           <div className="hidden md:flex flex-1 flex-col overflow-hidden bg-surface/30">
-            {currentResult.embedUrl ? (
+            {(currentResult.htmlDoc || currentResult.embedUrl) ? (
               <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-gradient-radial from-primary/5 via-bg to-bg">
-                <ExpoPreview
-                  key={currentResult.embedUrl}
-                  embedUrl={currentResult.embedUrl}
-                  shareUrl={currentResult.shareUrl}
+                <WebPreview
+                  key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
+                  htmlDoc={currentResult.htmlDoc || ''}
                   appName={currentResult.appName}
                 />
               </div>

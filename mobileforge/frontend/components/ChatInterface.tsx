@@ -291,7 +291,9 @@ export default function ChatInterface({
       role: m.role,
       content:
         m.role === 'assistant' && m.result
-          ? `${m.result.hebrewSummary}\n\nקוד נוכחי:\n\`\`\`tsx\n${m.result.files?.['App.tsx'] ?? ''}\n\`\`\``
+          ? `${m.result.hebrewSummary}\n\nקוד נוכחי:\n\`\`\`jsx\n${
+              m.result.files?.['App.jsx'] ?? m.result.files?.['App.tsx'] ?? ''
+            }\n\`\`\``
           : m.content,
     }));
 
