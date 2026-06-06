@@ -43,50 +43,93 @@ STYLING — TAILWIND CSS ONLY:
 CONTENT RULES:
 - Hebrew if user writes in Hebrew; add dir="rtl" to root <div> for RTL
 - Include 3-5 realistic sample data items
-- Include loading states, empty states, and interactive elements
-- All buttons and navigation must actually work (useState-driven)
+- All buttons and navigation must work (useState-driven)
+- Use emoji as icons — no external icon libraries
 
-DESIGN MANDATE:
-- Every app must look like a real, published, professional product
-- Colorful gradient header at the top of every screen
-- Card-based content area on a soft gray background
-- Use emoji as icons: ✅ ❌ 🏠 📊 ⭐ 🎯 💡 🔥 etc.
-- Bold title (text-3xl font-bold), medium labels (text-xl font-semibold), readable body (text-base text-gray-600)
-- NEVER produce plain unstyled text on a plain white page
-- The very first render must look impressive
-
-EXAMPLE — Hebrew todo app (correct mobile structure):
+REFERENCE EXAMPLE — Food Delivery App (follow this shell structure for EVERY app):
 function App() {
   const { useState } = React;
   const [tab, setTab] = useState('home');
-  const [items, setItems] = useState([{id:1,text:'קנה חלב',done:false},{id:2,text:'צלם לשיעור',done:true}]);
+  const categories = [
+    {id:'pizza',icon:'🍕',label:'פיצה',bg:'bg-orange-100'},
+    {id:'burger',icon:'🍔',label:'בורגר',bg:'bg-yellow-100'},
+    {id:'sushi',icon:'🍣',label:'סושי',bg:'bg-blue-100'},
+    {id:'salad',icon:'🥗',label:'סלט',bg:'bg-green-100'},
+  ];
+  const items = [
+    {id:1,name:'פיצה מרגריטה',price:59,emoji:'🍕',rating:'4.8',time:'25 דק'},
+    {id:2,name:'בורגר קלאסי',price:49,emoji:'🍔',rating:'4.6',time:'20 דק'},
+    {id:3,name:'רול טונה',price:65,emoji:'🍣',rating:'4.9',time:'30 דק'},
+  ];
   return (
     <div className="max-w-[420px] mx-auto min-h-screen bg-gray-50 flex flex-col" dir="rtl">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-gradient-to-r from-violet-600 to-purple-700 text-white px-4 py-4 shadow-md">
-        <h1 className="text-2xl font-bold">✅ משימות</h1>
-        <p className="text-purple-200 text-sm mt-0.5">{items.filter(i=>!i.done).length} פתוחות</p>
+      {/* ── Header: white bar with greeting + avatar + bell ── */}
+      <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100 shadow-sm">
+        <div>
+          <p className="text-gray-400 text-xs">שלום 👋</p>
+          <h1 className="text-lg font-bold text-gray-900">ישראל ישראלי</h1>
+        </div>
+        <div className="flex gap-2 items-center">
+          <button className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center"><span>🔔</span></button>
+          <div className="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-sm">י</div>
+        </div>
       </div>
-      {/* Content */}
-      <div className="flex-1 px-4 py-4 space-y-3 pb-20">
-        {items.map(item => (
-          <div key={item.id} className="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-3 border border-gray-100">
-            <span className="text-2xl">{item.done ? '✅' : '⬜'}</span>
-            <span className={item.done ? 'line-through text-gray-400 flex-1' : 'flex-1 text-gray-800'}>{item.text}</span>
+      {/* ── Scrollable content ── */}
+      <div className="flex-1 overflow-y-auto pb-20 space-y-4">
+        {/* Gradient banner card */}
+        <div className="mx-4 mt-4 bg-gradient-to-l from-orange-500 to-red-500 rounded-3xl p-5 text-white">
+          <p className="text-orange-100 text-xs font-medium">מבצע מיוחד 🔥</p>
+          <h2 className="text-2xl font-bold mt-1">20% הנחה</h2>
+          <p className="text-orange-100 text-xs mt-0.5">על הזמנה ראשונה</p>
+          <button className="mt-3 bg-white text-orange-600 rounded-xl px-4 py-1.5 text-sm font-bold">הזמן עכשיו</button>
+        </div>
+        {/* Category grid — circular emoji icons */}
+        <div className="px-4">
+          <h3 className="text-sm font-bold text-gray-700 mb-3">קטגוריות</h3>
+          <div className="grid grid-cols-4 gap-2">
+            {categories.map(c=>(
+              <button key={c.id} className="flex flex-col items-center gap-1">
+                <div className={c.bg + " w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"}>{c.icon}</div>
+                <span className="text-xs text-gray-600">{c.label}</span>
+              </button>
+            ))}
           </div>
-        ))}
+        </div>
+        {/* Horizontal product cards: image placeholder + title + price + shadow */}
+        <div className="px-4">
+          <h3 className="text-sm font-bold text-gray-700 mb-3">פופולרי 🔥</h3>
+          <div className="space-y-3">
+            {items.map(item=>(
+              <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 flex overflow-hidden">
+                <div className="w-20 h-20 bg-orange-50 flex items-center justify-center text-4xl flex-shrink-0">{item.emoji}</div>
+                <div className="p-3 flex-1">
+                  <h4 className="font-semibold text-sm text-gray-900">{item.name}</h4>
+                  <p className="text-xs text-gray-400 mt-0.5">⭐ {item.rating} · ⏱ {item.time}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="font-bold text-orange-500">₪{item.price}</span>
+                    <button className="w-7 h-7 bg-orange-500 rounded-full text-white font-bold flex items-center justify-center text-lg leading-none">+</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      {/* Bottom nav */}
+      {/* ── Fixed bottom nav: 4 tabs ── */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] bg-white border-t border-gray-100 flex z-10">
-        {[['🏠','בית','home'],['✅','משימות','tasks'],['⚙️','הגדרות','settings']].map(([icon,label,id]) => (
-          <button key={id} onClick={() => setTab(id)} className={\`flex-1 flex flex-col items-center py-2 text-xs gap-0.5 \${tab===id?'text-violet-600':'text-gray-400'}\`}>
-            <span className="text-xl">{icon}</span>{label}
+        {[{id:'home',icon:'🏠',label:'בית'},{id:'search',icon:'🔍',label:'חיפוש'},{id:'fav',icon:'❤️',label:'מועדפים'},{id:'profile',icon:'👤',label:'פרופיל'}].map(t=>(
+          <button key={t.id} onClick={()=>setTab(t.id)} className={"flex-1 flex flex-col items-center py-2 text-xs gap-0.5 " + (tab===t.id ? 'text-orange-500 font-semibold' : 'text-gray-400')}>
+            <span className="text-xl">{t.icon}</span>{t.label}
           </button>
         ))}
       </div>
     </div>
   );
 }
+
+EVERY app you generate MUST follow this exact shell structure and visual quality.
+This is the minimum bar — match this style precisely, adapted to the requested domain.
+Always: white header bar with user greeting + avatar, gradient banner card, category grid, product/item cards with emoji placeholder, fixed 4-tab bottom nav.
 
 OUTPUT FORMAT — return ONLY this JSON object, nothing else:
 {
