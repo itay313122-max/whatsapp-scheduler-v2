@@ -5,7 +5,6 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import ChatInterface from '@/components/ChatInterface';
 import ExpoPreview from '@/components/ExpoPreview';
-import CodeViewer from '@/components/CodeViewer';
 import ForgeAssistant from '@/components/ForgeAssistant';
 import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,7 +14,7 @@ import Link from 'next/link';
 
 const DeviceSync = dynamic(() => import('@/components/DeviceSync'), { ssr: false });
 
-type RightPanel = 'preview' | 'code';
+type RightPanel = 'preview';
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 interface Project {
@@ -101,11 +100,6 @@ function BuilderContent() {
   const handleShowPreview = useCallback((result: GenerateResponse) => {
     setCurrentResult(result);
     setRightPanel('preview');
-  }, []);
-
-  const handleShowCode = useCallback((result: GenerateResponse) => {
-    setCurrentResult(result);
-    setRightPanel('code');
   }, []);
 
   const projectContext: ProjectContext = {
@@ -194,30 +188,12 @@ function BuilderContent() {
         <div className="flex items-center gap-2">
           {currentResult && (
             <>
-              {/* Panel toggle */}
-              <div className="hidden sm:flex items-center gap-1 p-1 rounded-lg bg-surface border border-border">
-                <button
-                  onClick={() => setRightPanel('preview')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    rightPanel === 'preview' ? 'bg-primary text-white' : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18.5l-7-4.5V8.5L12 4l7 4.5v5.5L12 18.5z" />
-                  </svg>
-                  Preview
-                </button>
-                <button
-                  onClick={() => setRightPanel('code')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    rightPanel === 'code' ? 'bg-primary text-white' : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                  </svg>
-                  Code
-                </button>
+              {/* Preview indicator */}
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-medium">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18.5l-7-4.5V8.5L12 4l7 4.5v5.5L12 18.5z" />
+                </svg>
+                Preview
               </div>
 
               {/* Open on phone */}
@@ -266,7 +242,6 @@ function BuilderContent() {
             projectId={projectId}
             onAppGenerated={handleAppGenerated}
             onShowPreview={handleShowPreview}
-            onShowCode={handleShowCode}
             onGeneratingChange={handleGeneratingChange}
           />
         </div>
@@ -274,17 +249,14 @@ function BuilderContent() {
         {/* Right panel */}
         {currentResult && (
           <div className="hidden md:flex flex-1 flex-col overflow-hidden bg-surface/30">
-            {rightPanel === 'preview' && currentResult.embedUrl ? (
+            {currentResult.embedUrl ? (
               <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-gradient-radial from-primary/5 via-bg to-bg">
                 <ExpoPreview
+                  key={currentResult.embedUrl}
                   embedUrl={currentResult.embedUrl}
                   shareUrl={currentResult.shareUrl}
                   appName={currentResult.appName}
                 />
-              </div>
-            ) : rightPanel === 'code' && currentResult.files ? (
-              <div className="flex-1 overflow-hidden p-4">
-                <CodeViewer files={currentResult.files} appName={currentResult.appName} />
               </div>
             ) : null}
           </div>

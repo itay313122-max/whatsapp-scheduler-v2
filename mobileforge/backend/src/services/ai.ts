@@ -8,38 +8,57 @@ const MOBILE_SYSTEM_PROMPT = `
 You are MobileForge AI — an expert React Native / Expo developer.
 Your job: receive a natural language description of a mobile app and return COMPLETE, WORKING Expo code.
 
-COMPONENT PREFERENCES (strictly follow this order):
-1. ALWAYS PREFER react-native built-ins first:
-   View, Text, ScrollView, FlatList, SectionList, TouchableOpacity, Pressable,
-   TextInput, Image, Modal, ActivityIndicator, Switch, SafeAreaView, KeyboardAvoidingView
-2. Use StyleSheet.create() for all styling — not inline objects
-3. For gradients ONLY if truly needed: expo-linear-gradient (LinearGradient)
-4. For icons ONLY if truly needed: @expo/vector-icons (Ionicons or MaterialIcons)
-5. AVOID react-native-paper — build your own components with StyleSheet instead
-6. Navigation: use @react-navigation ONLY if the app truly needs 3+ screens.
-   For 1-2 screens, use useState + conditional rendering — NO navigation library needed.
-7. NEVER import packages that are not in the Expo Snack ecosystem
+IMPORTS — CRITICAL RULE:
+Every App.tsx MUST start with this exact import block (keep unused ones — they don't cause errors):
 
-RULES:
-1. Return a single self-contained App.tsx file runnable in Expo Snack SDK 52
-2. If the user writes in Hebrew: UI text in Hebrew, add I18nManager.forceRTL(true) at top-level
-3. Include loading states, error handling, and empty states
-4. Every component must be functional (hooks only, no class components)
-5. Return ONLY valid JSON — no markdown, no explanation, nothing outside the JSON
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList, SectionList,
+  TextInput, Image, Modal, ActivityIndicator, Switch, SafeAreaView, Platform,
+  KeyboardAvoidingView, StatusBar, Alert, Dimensions, Pressable, RefreshControl,
+} from 'react-native';
+
+Then add ONLY the extra imports you actually need (expo-*, @react-navigation/*, etc.).
+NEVER reference a component in JSX that is not in your import statements.
+
+COMPONENT PREFERENCES:
+1. PREFER react-native built-ins (listed above) — use them first
+2. For gradients only when essential: import { LinearGradient } from 'expo-linear-gradient';
+3. For icons only when essential: import { Ionicons } from '@expo/vector-icons';
+4. AVOID react-native-paper — build UI with StyleSheet instead
+5. Use @react-navigation ONLY for apps that genuinely need 3+ separate screens.
+   For 1-2 screens: useState + conditional rendering, no navigation library.
+6. NEVER use packages outside the Expo Snack ecosystem
 
 DESIGN PRINCIPLES:
-- Rich color palette with a clear primary color
+- StyleSheet.create() for ALL styles — never inline style objects
 - borderRadius: 16+ for cards, 8+ for buttons
-- Shadows: elevation (Android) + shadowColor/Offset/Opacity/Radius (iOS)
-- Proper spacing: consistent padding (16/20/24) and gap between elements
-- StatusBar with correct barStyle
+- elevation (Android) + shadow* props (iOS) for depth
+- Consistent padding (16/20/24) and gap between elements
+- StatusBar with appropriate barStyle
 
-OUTPUT FORMAT — return ONLY this JSON, nothing else:
+IMPORT VERIFICATION — MANDATORY:
+Before finalising your output, scan every JSX tag in your code.
+Every component name you use (View, Text, FlatList, ActivityIndicator,
+ScrollView, TouchableOpacity, etc.) MUST appear in the import block above.
+If you use a component that is not imported → add it to the import block.
+NEVER use a component that is not in your imports.
+Prefer react-native built-ins always; use external packages only when there
+is absolutely no built-in alternative.
+
+RULES:
+1. Single self-contained App.tsx, runnable in Expo Snack SDK 52
+2. If user writes in Hebrew: all UI text in Hebrew, add I18nManager.forceRTL(true) at the module level
+3. Include loading states, error handling, and empty states
+4. Functional components with hooks only — no class components
+5. Return ONLY valid JSON — nothing outside the JSON object
+
+OUTPUT FORMAT — return ONLY this JSON object, nothing else:
 {
   "appName": "App name in English",
-  "description": "One sentence description",
+  "description": "One sentence description in English",
   "files": {
-    "App.tsx": "...complete TSX code..."
+    "App.tsx": "...complete TSX code with ALL imports at the top..."
   },
   "colorScheme": {
     "primary": "#hexcolor",
@@ -51,14 +70,12 @@ OUTPUT FORMAT — return ONLY this JSON, nothing else:
   "hebrewSummary": "תיאור קצר בעברית של מה שנבנה"
 }
 
-CRITICAL — JSON ENCODING:
-- Start your response with { and end with }
-- Do NOT wrap in markdown code blocks (no \`\`\` fences)
-- Do NOT add any text before or after the JSON
-- Inside every JSON string value, ALL newlines MUST be written as \\n (backslash + n)
-- ALL tabs MUST be written as \\t
-- ALL backslashes in code MUST be escaped as \\\\
-- The complete response must pass JSON.parse() without errors
+CRITICAL — JSON ENCODING RULES:
+- Response starts with { and ends with } — nothing before or after
+- Do NOT use markdown code fences (no \`\`\`)
+- In the App.tsx string value, encode newlines as \\n and tabs as \\t
+- Do NOT double-escape Unicode: write Hebrew text directly (e.g. "שלום") NOT as \\u05E9\\u05DC\\u05D5\\u05DD
+- The complete response must be parseable by JSON.parse()
 `;
 
 export interface ConversationMessage {
@@ -81,9 +98,9 @@ export interface GeneratedApp {
 }
 
 /**
- * Walk the string character-by-character and escape any literal newlines/tabs
- * that appear inside JSON string values. This repairs the most common case where
- * LLMs emit actual newline characters inside a string instead of the \\n escape.
+ * Walk the JSON character-by-character and escape any literal newlines/tabs
+ * found inside string values. Fixes the most common LLM output error where
+ * actual newline chars appear in a string instead of the \\n escape sequence.
  */
 function fixUnescapedNewlines(json: string): string {
   let result = '';
@@ -93,14 +110,13 @@ function fixUnescapedNewlines(json: string): string {
   while (i < json.length) {
     const ch = json[i];
 
-    // Handle backslash escape sequences — skip both the \ and the next char
+    // Inside a string: skip over any existing escape sequence intact
     if (ch === '\\' && inString) {
       result += ch + (json[i + 1] ?? '');
       i += 2;
       continue;
     }
 
-    // Toggle string mode on unescaped quote
     if (ch === '"') {
       inString = !inString;
       result += ch;
@@ -108,21 +124,14 @@ function fixUnescapedNewlines(json: string): string {
       continue;
     }
 
-    // Inside a string: replace literal control chars with their JSON escapes
     if (inString) {
-      if (ch === '\n') {
-        result += '\\n';
-      } else if (ch === '\r') {
-        result += '\\r';
-      } else if (ch === '\t') {
-        result += '\\t';
-      } else {
-        result += ch;
-      }
+      if (ch === '\n') result += '\\n';
+      else if (ch === '\r') result += '\\r';
+      else if (ch === '\t') result += '\\t';
+      else result += ch;
     } else {
       result += ch;
     }
-
     i++;
   }
 
@@ -130,24 +139,42 @@ function fixUnescapedNewlines(json: string): string {
 }
 
 function cleanJson(raw: string): string {
-  // 1. Strip markdown fences
   let cleaned = raw
     .replace(/^```json\s*/i, '')
     .replace(/^```\s*/i, '')
     .replace(/\s*```$/i, '')
     .trim();
 
-  // 2. Extract just the outer JSON object
   const start = cleaned.indexOf('{');
   const end = cleaned.lastIndexOf('}');
   if (start !== -1 && end !== -1 && end > start) {
     cleaned = cleaned.slice(start, end + 1);
   }
 
-  // 3. Repair unescaped newlines/tabs inside string values
   cleaned = fixUnescapedNewlines(cleaned);
-
   return cleaned;
+}
+
+/**
+ * When Groq double-escapes Unicode (outputs \\u05E8 instead of ר),
+ * JSON.parse produces the literal 6-char string "ר" instead of "ר".
+ * This function converts any surviving \\uXXXX sequences back to characters.
+ */
+function decodeEscapedUnicode(str: string): string {
+  return str.replace(/\\u([0-9A-Fa-f]{4})/g, (_, hex) =>
+    String.fromCharCode(parseInt(hex, 16))
+  );
+}
+
+/** Apply unicode fix to all user-visible string fields. */
+function fixParsedApp(app: GeneratedApp): GeneratedApp {
+  return {
+    ...app,
+    appName: decodeEscapedUnicode(app.appName ?? ''),
+    description: decodeEscapedUnicode(app.description ?? ''),
+    hebrewSummary: decodeEscapedUnicode(app.hebrewSummary ?? ''),
+    features: (app.features ?? []).map(decodeEscapedUnicode),
+  };
 }
 
 export async function generateMobileApp(
@@ -168,11 +195,12 @@ export async function generateMobileApp(
 
   try {
     const parsed = JSON.parse(cleanJson(raw)) as GeneratedApp;
-    console.log('[AI] JSON parse succeeded. appName:', parsed.appName, '| files:', Object.keys(parsed.files || {}));
-    return parsed;
+    const fixed = fixParsedApp(parsed);
+    console.log('[AI] Parse OK — appName:', fixed.appName, '| hebrewSummary:', fixed.hebrewSummary.slice(0, 40));
+    return fixed;
   } catch (parseErr) {
     console.error('[AI] JSON parse FAILED:', (parseErr as Error).message);
-    console.error('[AI] Raw response (first 300 chars):', raw.slice(0, 300));
+    console.error('[AI] Raw (first 300):', raw.slice(0, 300));
     return {
       appName: 'Generated App',
       description: 'Mobile app generated by MobileForge',

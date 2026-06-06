@@ -289,7 +289,10 @@ export default function ChatInterface({
 
     const history = messages.map((m) => ({
       role: m.role,
-      content: m.role === 'assistant' && m.result ? m.result.hebrewSummary : m.content,
+      content:
+        m.role === 'assistant' && m.result
+          ? `${m.result.hebrewSummary}\n\nקוד נוכחי:\n\`\`\`tsx\n${m.result.files?.['App.tsx'] ?? ''}\n\`\`\``
+          : m.content,
     }));
 
     try {
