@@ -26,24 +26,90 @@ const RN_IDENTIFIERS = [
   'Animated', 'Linking',
 ];
 
+// Icon component names exported by @expo/vector-icons and react-native-vector-icons
+const ICON_COMPONENTS = [
+  'Ionicons', 'MaterialIcons', 'FontAwesome', 'FontAwesome5', 'AntDesign',
+  'Entypo', 'EvilIcons', 'Feather', 'Foundation', 'MaterialCommunityIcons',
+  'Octicons', 'SimpleLineIcons', 'Zocial',
+];
+const ICON_OPEN_RE = new RegExp(`<(${ICON_COMPONENTS.join('|')})(\\s[^>]*)?\\/?>`, 'g');
+const ICON_CLOSE_RE = new RegExp(`<\\/(${ICON_COMPONENTS.join('|')})>`, 'g');
+
+// Packages whose imports we always strip (we replace their components with RN equivalents)
+const STRIP_PACKAGES = [
+  'expo-linear-gradient',
+  'expo-font',
+  '@expo/vector-icons',
+  'react-native-vector-icons',
+  'react-native-linear-gradient',
+];
+const STRIP_PKG_RE = new RegExp(
+  `import\\s*\\{[\\s\\S]*?\\}\\s*from\\s*['"](?:${STRIP_PACKAGES.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})['"]\\ *;?[ \\t]*\\n?`,
+  'g'
+);
+const STRIP_PKG_DEFAULT_RE = new RegExp(
+  `import\\s+\\w+\\s+from\\s*['"](?:${STRIP_PACKAGES.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})['"]\\ *;?[ \\t]*\\n?`,
+  'g'
+);
+
 /**
- * Deterministically rebuild react-native and react imports from what's
- * actually used in the code, regardless of what the LLM put in the import
- * block. Prevents "X is not defined" runtime errors in Expo Snack.
+ * Replace external-library components with plain react-native equivalents so
+ * the code runs in Expo Snack without any optional packages.
+ *
+ *  LinearGradient  → View  (gradient props on View are silently ignored)
+ *  <Ionicons ...>  → <Text>●</Text>
+ *  useFonts(...)   → [true]  (no-op, always ready)
+ */
+function replaceExternalComponents(code: string): string {
+  let out = code;
+
+  // LinearGradient → View
+  out = out.replace(/<LinearGradient(\s|\n)/g, '<View$1');
+  out = out.replace(/<\/LinearGradient>/g, '</View>');
+
+  // Icon components → bullet emoji
+  out = out.replace(ICON_OPEN_RE, '<Text>●</Text>');
+  out = out.replace(ICON_CLOSE_RE, '');
+
+  // expo-font: useFonts({...}) → [true]
+  out = out.replace(
+    /const\s+\[([^\]]*)\]\s*=\s*useFonts\s*\(\s*\{[\s\S]*?\}\s*\)\s*;?/g,
+    (_, vars) => {
+      const first = vars.split(',')[0].trim();
+      return `const [${first}] = [true];`;
+    }
+  );
+
+  return out;
+}
+
+/**
+ * Deterministically rebuild react-native and react imports from what is
+ * actually used in the code, regardless of what the LLM generated.
+ * Also replaces unsupported external components with react-native equivalents.
+ * Prevents every "X is not defined" runtime error in Expo Snack.
  */
 export function sanitizeCode(code: string): string {
-  // 1. Strip all existing react-native imports (single-line and multi-line)
-  let body = code.replace(/import\s*\{[\s\S]*?\}\s*from\s*['"]react-native['"]\s*;?[ \t]*\n?/g, '');
+  // 1. Replace external components BEFORE stripping imports so new View/Text
+  //    usages are visible to the scanner below
+  let body = replaceExternalComponents(code);
+
+  // 2. Strip imports for known problematic external packages
+  body = body.replace(STRIP_PKG_RE, '');
+  body = body.replace(STRIP_PKG_DEFAULT_RE, '');
+
+  // 3. Strip all react-native imports (single-line and multi-line) — we rebuild
+  body = body.replace(/import\s*\{[\s\S]*?\}\s*from\s*['"]react-native['"]\s*;?[ \t]*\n?/g, '');
   body = body.replace(/import\s+\w+\s+from\s*['"]react-native['"]\s*;?[ \t]*\n?/g, '');
 
-  // 2. Strip all existing React imports (we'll add a canonical one)
+  // 4. Strip all React imports — we rebuild a canonical one
   body = body.replace(/import\s+React[\s\S]*?from\s*['"]react['"]\s*;?[ \t]*\n?/g, '');
 
-  // 3. Scan remaining code for each react-native identifier
+  // 5. Scan remaining code for each react-native identifier
   const used = RN_IDENTIFIERS.filter((id) => new RegExp(`\\b${id}\\b`).test(body));
   console.log('[sanitizeCode] detected react-native identifiers:', used);
 
-  // 4. Build canonical import lines
+  // 6. Build canonical import lines
   const reactImport = `import React, { useState, useEffect, useRef, useCallback } from 'react';\n`;
   const rnImport = used.length > 0
     ? `import {\n  ${used.join(',\n  ')},\n} from 'react-native';\n`

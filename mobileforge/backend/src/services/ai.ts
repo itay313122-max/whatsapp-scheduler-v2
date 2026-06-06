@@ -22,14 +22,14 @@ import {
 Then add ONLY the extra imports you actually need (expo-*, @react-navigation/*, etc.).
 NEVER reference a component in JSX that is not in your import statements.
 
-COMPONENT PREFERENCES:
-1. PREFER react-native built-ins (listed above) — use them first
-2. For gradients only when essential: import { LinearGradient } from 'expo-linear-gradient';
-3. For icons only when essential: import { Ionicons } from '@expo/vector-icons';
-4. AVOID react-native-paper — build UI with StyleSheet instead
-5. Use @react-navigation ONLY for apps that genuinely need 3+ separate screens.
-   For 1-2 screens: useState + conditional rendering, no navigation library.
-6. NEVER use packages outside the Expo Snack ecosystem
+IMPORT RULES — ABSOLUTE:
+- Import ONLY from 'react' and 'react-native'. NO other packages.
+- NEVER import from expo-linear-gradient, @expo/vector-icons, expo-font,
+  react-native-paper, react-native-vector-icons, or ANY external package.
+- For gradients: use View with a solid backgroundColor — never LinearGradient.
+- For icons: use emoji characters inside <Text> — never Ionicons or MaterialIcons.
+- For fonts: use the system default — never expo-font or useFonts.
+- For navigation between 1-2 screens: useState + conditional rendering only.
 
 DESIGN PRINCIPLES:
 - StyleSheet.create() for ALL styles — never inline style objects
