@@ -1,12 +1,24 @@
 import { Router, Request, Response } from 'express';
 import { generateMobileApp, streamGenerateMobileApp } from '../services/ai';
 import { createExpoSnack } from '../services/expoSnack';
-import { getFirestore, verifyIdToken } from '../services/firebase-admin';
+import { getFirestore } from '../services/firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
-// POST /api/generate — generate app with Claude + create Expo Snack
+/** Extract the app code from the parsed files and normalise newlines. */
+function extractAppCode(files: Record<string, string>): string {
+  const code = files['App.tsx'] ?? files['App.js'] ?? '';
+  // JSON.parse already converts \n → real newlines, but if the fallback
+  // path put raw JSON in there we detect and reject it.
+  if (code.trimStart().startsWith('{') && code.includes('"appName"')) {
+    console.warn('[Generate] App code looks like raw JSON — Groq parse likely failed');
+    return '';
+  }
+  return code;
+}
+
+// POST /api/generate — generate app with Groq + create Expo Snack
 router.post('/', async (req: Request, res: Response) => {
   const { projectId, prompt, conversationHistory = [] } = req.body;
 
@@ -15,15 +27,26 @@ router.post('/', async (req: Request, res: Response) => {
   }
 
   try {
-    // Generate app code with Claude
+    // Generate app code with Groq
     const generated = await generateMobileApp(prompt, conversationHistory);
 
-    // Create Expo Snack
+    // Extract only the app code (App.tsx → App.js for Expo Snack)
+    const appCode = extractAppCode(generated.files);
+
+    if (!appCode) {
+      console.error('[Generate] No valid app code — skipping Snack creation');
+    } else {
+      console.log('[Generate] Sending to Expo Snack — first 150 chars of code:', appCode.slice(0, 150));
+    }
+
+    // Create Expo Snack with just the app code
     let snackResult = { snackId: '', embedUrl: '', shareUrl: '' };
-    try {
-      snackResult = await createExpoSnack(generated.files, generated.appName);
-    } catch (snackErr) {
-      console.error('Expo Snack creation failed:', snackErr);
+    if (appCode) {
+      try {
+        snackResult = await createExpoSnack({ 'App.js': appCode }, generated.appName);
+      } catch (snackErr) {
+        console.error('[Generate] Expo Snack creation failed:', snackErr);
+      }
     }
 
     // Save to Firestore if projectId provided and Firebase is available
@@ -48,7 +71,6 @@ router.post('/', async (req: Request, res: Response) => {
             timestamp: new Date().toISOString(),
           });
 
-        // Update project
         await db.collection('projects').doc(projectId).update({
           lastSnackId: snackResult.snackId,
           colorScheme: generated.colorScheme,
@@ -56,7 +78,7 @@ router.post('/', async (req: Request, res: Response) => {
           updatedAt: new Date().toISOString(),
         });
       } catch (dbErr) {
-        console.error('Firestore save failed:', dbErr);
+        console.error('[Generate] Firestore save failed:', dbErr);
       }
     }
 
@@ -65,7 +87,7 @@ router.post('/', async (req: Request, res: Response) => {
       ...snackResult,
     });
   } catch (err) {
-    console.error('Generate error:', err);
+    console.error('[Generate] Error:', err);
     return res.status(500).json({
       error: 'Generation failed',
       details: err instanceof Error ? err.message : String(err),
@@ -94,17 +116,34 @@ router.post('/stream', async (req: Request, res: Response) => {
       res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
     }
 
-    // Parse the accumulated text
+    // Parse the accumulated text using the same cleanJson logic as ai.ts
     try {
-      const cleaned = fullText.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+      // Inline the same cleaning logic
+      let cleaned = fullText
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/\s*```$/i, '')
+        .trim();
+      const s = cleaned.indexOf('{');
+      const e = cleaned.lastIndexOf('}');
+      if (s !== -1 && e > s) cleaned = cleaned.slice(s, e + 1);
+
+      // Fix unescaped newlines (same as in ai.ts)
+      cleaned = fixUnescapedNewlinesInline(cleaned);
+
       const parsed = JSON.parse(cleaned);
 
-      // Create Expo Snack
+      // Extract only the app code
+      const appCode = extractAppCode(parsed.files ?? {});
+      console.log('[Generate/stream] app code first 150 chars:', appCode.slice(0, 150));
+
       let snackResult = { snackId: '', embedUrl: '', shareUrl: '' };
-      try {
-        snackResult = await createExpoSnack(parsed.files, parsed.appName);
-      } catch (snackErr) {
-        console.error('Expo Snack creation failed:', snackErr);
+      if (appCode) {
+        try {
+          snackResult = await createExpoSnack({ 'App.js': appCode }, parsed.appName);
+        } catch (snackErr) {
+          console.error('[Generate/stream] Expo Snack creation failed:', snackErr);
+        }
       }
 
       res.write(`data: ${JSON.stringify({ done: true, result: { ...parsed, ...snackResult } })}\n\n`);
@@ -135,13 +174,12 @@ router.post('/stream', async (req: Request, res: Response) => {
 
 // POST /api/generate/vision — generate from screenshot or sketch image
 router.post('/vision', async (req: Request, res: Response) => {
-  const { image, mimeType = 'image/jpeg', prompt, projectId, isSketch = false } = req.body;
+  const { image, mimeType = 'image/jpeg' } = req.body;
 
   if (!image) {
     return res.status(400).json({ error: 'image (base64) is required' });
   }
 
-  // Sanity-check size (~4 MB base64 limit)
   if (image.length > 5_500_000) {
     return res.status(413).json({ error: 'Image too large. Please use an image under 4 MB.' });
   }
@@ -157,5 +195,36 @@ router.post('/vision', async (req: Request, res: Response) => {
     message: "פיצ'ר Vision (צילום מסך / סקיצה) דורש שדרוג לתוכנית Premium עם מודל multimodal.",
   });
 });
+
+// Inline version of fixUnescapedNewlines for the stream route
+function fixUnescapedNewlinesInline(json: string): string {
+  let result = '';
+  let inString = false;
+  let i = 0;
+  while (i < json.length) {
+    const ch = json[i];
+    if (ch === '\\' && inString) {
+      result += ch + (json[i + 1] ?? '');
+      i += 2;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      result += ch;
+      i++;
+      continue;
+    }
+    if (inString) {
+      if (ch === '\n') result += '\\n';
+      else if (ch === '\r') result += '\\r';
+      else if (ch === '\t') result += '\\t';
+      else result += ch;
+    } else {
+      result += ch;
+    }
+    i++;
+  }
+  return result;
+}
 
 export default router;
