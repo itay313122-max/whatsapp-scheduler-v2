@@ -67,24 +67,37 @@ const KNOWN_PACKAGES: Record<string, string> = {
 /**
  * Parse import statements from the app code and return the set of external
  * package names referenced (relative imports and react/react-native excluded).
+ *
+ * Handles all three forms:
+ *   import { X } from '@expo/vector-icons'   ← ES6 named import
+ *   import '@react-navigation/native'         ← side-effect import
+ *   require('@react-native-async-storage/..') ← CommonJS require
  */
 function extractImportedPackages(code: string): string[] {
-  const packages = new Set<string>();
-  // Matches: import ... from 'pkg' / import 'pkg' / require('pkg')
-  const re = /(?:from|import|require)\s*\(\s*['"]([^'"]+)['"]/g;
+  const raw = new Set<string>();
+
+  // 1. `from 'pkg'` — covers: import X from, import { X } from, import * from
+  const fromRe = /from\s+['"]([^'"]+)['"]/g;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(code)) !== null) {
-    const raw = m[1];
-    if (raw.startsWith('.') || raw.startsWith('/')) continue; // relative
-    // Normalise to root package name: '@scope/pkg/sub' → '@scope/pkg'
-    const root = raw.startsWith('@')
-      ? raw.split('/').slice(0, 2).join('/')
-      : raw.split('/')[0];
-    packages.add(root);
-  }
-  // Remove packages that are always built-in
+  while ((m = fromRe.exec(code)) !== null) raw.add(m[1]);
+
+  // 2. `import 'pkg'` — side-effect imports (no `from`)
+  const sideRe = /import\s+['"]([^'"]+)['"]/g;
+  while ((m = sideRe.exec(code)) !== null) raw.add(m[1]);
+
+  // 3. `require('pkg')` — CommonJS
+  const reqRe = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+  while ((m = reqRe.exec(code)) !== null) raw.add(m[1]);
+
   const builtIns = new Set(['react', 'react-native', 'expo']);
-  return [...packages].filter((p) => !builtIns.has(p));
+
+  return [...raw]
+    .filter((p) => !p.startsWith('.') && !p.startsWith('/'))
+    // Normalise: '@scope/pkg/deep' → '@scope/pkg', 'pkg/sub' → 'pkg'
+    .map((p) =>
+      p.startsWith('@') ? p.split('/').slice(0, 2).join('/') : p.split('/')[0]
+    )
+    .filter((p) => !builtIns.has(p));
 }
 
 /**
