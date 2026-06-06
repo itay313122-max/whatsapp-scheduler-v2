@@ -15,6 +15,43 @@ export interface SnackResult {
   shareUrl: string;
 }
 
+// All react-native identifiers we know how to detect and auto-import
+const RN_IDENTIFIERS = [
+  // Visual components
+  'View', 'Text', 'ScrollView', 'FlatList', 'SectionList', 'TouchableOpacity',
+  'Pressable', 'TextInput', 'Image', 'Modal', 'ActivityIndicator', 'Switch',
+  'SafeAreaView', 'KeyboardAvoidingView', 'RefreshControl', 'Button', 'StatusBar',
+  // Utilities & APIs
+  'StyleSheet', 'I18nManager', 'Platform', 'Dimensions', 'Alert', 'Appearance',
+  'Animated', 'Linking',
+];
+
+/**
+ * Deterministically rebuild react-native and react imports from what's
+ * actually used in the code, regardless of what the LLM put in the import
+ * block. Prevents "X is not defined" runtime errors in Expo Snack.
+ */
+export function sanitizeCode(code: string): string {
+  // 1. Strip all existing react-native imports (single-line and multi-line)
+  let body = code.replace(/import\s*\{[\s\S]*?\}\s*from\s*['"]react-native['"]\s*;?[ \t]*\n?/g, '');
+  body = body.replace(/import\s+\w+\s+from\s*['"]react-native['"]\s*;?[ \t]*\n?/g, '');
+
+  // 2. Strip all existing React imports (we'll add a canonical one)
+  body = body.replace(/import\s+React[\s\S]*?from\s*['"]react['"]\s*;?[ \t]*\n?/g, '');
+
+  // 3. Scan remaining code for each react-native identifier
+  const used = RN_IDENTIFIERS.filter((id) => new RegExp(`\\b${id}\\b`).test(body));
+  console.log('[sanitizeCode] detected react-native identifiers:', used);
+
+  // 4. Build canonical import lines
+  const reactImport = `import React, { useState, useEffect, useRef, useCallback } from 'react';\n`;
+  const rnImport = used.length > 0
+    ? `import {\n  ${used.join(',\n  ')},\n} from 'react-native';\n`
+    : '';
+
+  return reactImport + rnImport + '\n' + body.trimStart();
+}
+
 /**
  * Package → version map for Expo SDK 52 bundled/common packages.
  * Wildcard "*" tells the Snack runtime to resolve the SDK-compatible version.
@@ -125,13 +162,22 @@ export async function createExpoSnack(
   files: Record<string, string>,
   name = 'MobileForge App'
 ): Promise<SnackResult> {
-  const snackFiles: Record<string, SnackFile> = {};
+  // Sanitize app code — rebuild react-native + react imports from actual usage
+  const sanitizedFiles: Record<string, string> = {};
   for (const [filename, contents] of Object.entries(files)) {
+    sanitizedFiles[filename] =
+      filename === 'App.js' || filename === 'App.tsx'
+        ? sanitizeCode(contents)
+        : contents;
+  }
+
+  const snackFiles: Record<string, SnackFile> = {};
+  for (const [filename, contents] of Object.entries(sanitizedFiles)) {
     snackFiles[filename] = { type: 'CODE', contents };
   }
 
-  // Extract dependencies from the app code
-  const appCode = files['App.js'] ?? files['App.tsx'] ?? '';
+  // Extract dependencies from the sanitized app code
+  const appCode = sanitizedFiles['App.js'] ?? sanitizedFiles['App.tsx'] ?? '';
   const dependencies = buildDependencies(appCode);
   console.log('[ExpoSnack] Detected dependencies:', Object.keys(dependencies));
 
