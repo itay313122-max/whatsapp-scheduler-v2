@@ -177,9 +177,12 @@ export async function createExpoSnack(
 
   console.log('[ExpoSnack] snackId:', rawId);
 
+  // preview=true is required — embedded Snacks default to preview=false (code-only view)
+  // platform=web runs in the browser immediately without a device emulator
+  // supportedPlatforms shows the platform switcher for iOS / Android emulation too
   return {
     snackId: rawId,
-    embedUrl: `https://snack.expo.dev/embedded/${rawId}?platform=web&preview=true&theme=light&loading=lazy`,
+    embedUrl: `https://snack.expo.dev/embedded/${rawId}?preview=true&platform=web&supportedPlatforms=web,ios,android&theme=light`,
     shareUrl: `https://snack.expo.dev/${rawId}`,
   };
 }
