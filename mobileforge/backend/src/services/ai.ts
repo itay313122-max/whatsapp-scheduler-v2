@@ -16,6 +16,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList, SectionList,
   TextInput, Image, Modal, ActivityIndicator, Switch, SafeAreaView, Platform,
   KeyboardAvoidingView, StatusBar, Alert, Dimensions, Pressable, RefreshControl,
+  I18nManager,
 } from 'react-native';
 
 Then add ONLY the extra imports you actually need (expo-*, @react-navigation/*, etc.).
@@ -38,13 +39,19 @@ DESIGN PRINCIPLES:
 - StatusBar with appropriate barStyle
 
 IMPORT VERIFICATION — MANDATORY:
-Before finalising your output, scan every JSX tag in your code.
-Every component name you use (View, Text, FlatList, ActivityIndicator,
-ScrollView, TouchableOpacity, etc.) MUST appear in the import block above.
-If you use a component that is not imported → add it to the import block.
-NEVER use a component that is not in your imports.
-Prefer react-native built-ins always; use external packages only when there
-is absolutely no built-in alternative.
+Before finalising your output, scan every JSX tag AND every identifier in your code.
+
+CRITICAL — utilities are NOT components but still MUST be imported:
+I18nManager.forceRTL → import I18nManager from 'react-native' (already in block above)
+Platform.OS / Platform.select → import Platform
+Dimensions.get → import Dimensions
+Alert.alert → import Alert
+StyleSheet.create → import StyleSheet
+Appearance.getColorScheme → import Appearance (add to import if used)
+
+RULE: Every react-native reference — visual component OR utility — MUST appear
+in the import block. Go line by line through your code before returning output.
+If any identifier is missing → add it. NEVER use what is not imported.
 
 RULES:
 1. Single self-contained App.tsx, runnable in Expo Snack SDK 52
