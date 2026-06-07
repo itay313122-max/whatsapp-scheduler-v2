@@ -1,5 +1,10 @@
 import { Router, Request, Response } from 'express';
-import { generateWebApp, streamGenerateWebApp, type ConversationMessage } from '../services/aiWeb';
+import {
+  generateWebApp,
+  streamGenerateWebApp,
+  parseGroqResponse,
+  type ConversationMessage,
+} from '../services/aiWeb';
 import { buildHtmlDocument } from '../services/webRenderer';
 import { getFirestore } from '../services/firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
@@ -28,12 +33,11 @@ router.post('/', async (req: Request, res: Response) => {
     if (!appCode) {
       console.error('[Generate] No valid app code — cannot build HTML');
     } else {
-      console.log('[Generate] Building HTML doc — first 100 chars of code:', appCode.slice(0, 100));
+      console.log('[Generate] App code length:', appCode.length, '| has function App:', appCode.includes('function App'));
     }
 
     const htmlDoc = appCode ? buildHtmlDocument(appCode, generated.appName) : '';
-    console.log('[Generate] htmlDoc length:', htmlDoc.length, '| contains App():', appCode.includes('function App'));
-    if (!htmlDoc) console.error('[Generate] htmlDoc is EMPTY — appCode was empty or extraction failed');
+    console.log('[Generate] htmlDoc length:', htmlDoc.length);
 
     if (projectId) {
       try {
@@ -89,31 +93,37 @@ router.post('/stream', async (req: Request, res: Response) => {
       res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
     }
 
-    try {
-      let cleaned = fullText
-        .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-      const s = cleaned.indexOf('{');
-      const e = cleaned.lastIndexOf('}');
-      if (s !== -1 && e > s) cleaned = cleaned.slice(s, e + 1);
-      cleaned = fixUnescapedNewlines(cleaned);
+    console.log('[Generate/stream] Full response length:', fullText.length);
+    console.log('[Generate/stream] Raw (first 400):\n', fullText.slice(0, 400));
 
-      const parsed = JSON.parse(cleaned);
-      const appCode = extractAppCode(parsed.files ?? {});
+    try {
+      const parsed = parseGroqResponse(fullText);
+      const appCode = extractAppCode(parsed.files);
       const htmlDoc = appCode ? buildHtmlDocument(appCode, parsed.appName) : '';
-      console.log('[Generate/stream] code first 100 chars:', appCode.slice(0, 100));
+      console.log('[Generate/stream] htmlDoc length:', htmlDoc.length);
 
       res.write(`data: ${JSON.stringify({ done: true, result: { ...parsed, htmlDoc, snackId: '', embedUrl: '', shareUrl: '' } })}\n\n`);
-    } catch {
-      const fallback = `function App() { return <div style={{padding:24}}><h1>שגיאה</h1></div>; }`;
+    } catch (parseErr) {
+      const reason = (parseErr as Error).message.slice(0, 80);
+      console.error('[Generate/stream] Parse failed:', reason);
+      const fallbackCode = `function App() {
+  return (
+    <div style={{padding:24,fontFamily:'sans-serif',maxWidth:420,margin:'0 auto',minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12}}>
+      <div style={{fontSize:40}}>⚠️</div>
+      <h2 style={{margin:0,color:'#dc2626',fontSize:18}}>שגיאה בייצור הקוד</h2>
+      <p style={{margin:0,color:'#6b7280',fontSize:14,textAlign:'center'}}>${reason}</p>
+    </div>
+  );
+}`;
       res.write(`data: ${JSON.stringify({
         done: true,
         result: {
           appName: 'Generated App',
-          hebrewSummary: 'האפליקציה נוצרה',
-          files: { 'App.jsx': fallback },
+          hebrewSummary: `שגיאת parse: ${reason}`,
+          files: { 'App.jsx': fallbackCode },
           features: [],
           colorScheme: { primary: '#6C3AE8', background: '#F8F9FA', text: '#1A1A2E' },
-          htmlDoc: buildHtmlDocument(fallback),
+          htmlDoc: buildHtmlDocument(fallbackCode),
           snackId: '', embedUrl: '', shareUrl: '',
         },
       })}\n\n`);
@@ -121,6 +131,7 @@ router.post('/stream', async (req: Request, res: Response) => {
 
     res.end();
   } catch (err) {
+    console.error('[Generate/stream] Fatal error:', err);
     res.write(`data: ${JSON.stringify({ error: String(err) })}\n\n`);
     res.end();
   }
@@ -133,24 +144,5 @@ router.post('/vision', (_req: Request, res: Response) => {
     message: "פיצ'ר Vision דורש שדרוג לתוכנית Premium.",
   });
 });
-
-function fixUnescapedNewlines(json: string): string {
-  let result = '';
-  let inString = false;
-  let i = 0;
-  while (i < json.length) {
-    const ch = json[i];
-    if (ch === '\\' && inString) { result += ch + (json[i + 1] ?? ''); i += 2; continue; }
-    if (ch === '"') { inString = !inString; result += ch; i++; continue; }
-    if (inString) {
-      if (ch === '\n') result += '\\n';
-      else if (ch === '\r') result += '\\r';
-      else if (ch === '\t') result += '\\t';
-      else result += ch;
-    } else { result += ch; }
-    i++;
-  }
-  return result;
-}
 
 export default router;

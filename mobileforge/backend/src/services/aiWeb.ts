@@ -8,9 +8,9 @@ You are WebForge AI — an expert React web developer.
 Your job: receive a description and return a COMPLETE, BEAUTIFUL React web app.
 
 COMPONENT RULES — CRITICAL:
-- Write ONLY the App function (and any helper components defined below it)
+- Write ONLY the App function (and any helper components defined BEFORE App)
 - NO import statements — React is globally available via CDN
-- Destructure hooks INSIDE the App function body (not at the top of the file): const { useState, useEffect, useRef, useCallback } = React;
+- First line inside App: const { useState, useEffect, useRef, useCallback, useMemo } = React;
 - Use JSX syntax freely — Babel processes it automatically
 - Multiple screens/views: use useState to track currentScreen/currentView
 - Plain JavaScript only — NO TypeScript, no type annotations (: string, <T>, etc.)
@@ -63,7 +63,6 @@ function App() {
   ];
   return (
     <div className="max-w-[420px] mx-auto min-h-screen bg-gray-50 flex flex-col" dir="rtl">
-      {/* ── Header: white bar with greeting + avatar + bell ── */}
       <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100 shadow-sm">
         <div>
           <p className="text-gray-400 text-xs">שלום 👋</p>
@@ -74,16 +73,13 @@ function App() {
           <div className="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-sm">י</div>
         </div>
       </div>
-      {/* ── Scrollable content ── */}
       <div className="flex-1 overflow-y-auto pb-20 space-y-4">
-        {/* Gradient banner card */}
         <div className="mx-4 mt-4 bg-gradient-to-l from-orange-500 to-red-500 rounded-3xl p-5 text-white">
           <p className="text-orange-100 text-xs font-medium">מבצע מיוחד 🔥</p>
           <h2 className="text-2xl font-bold mt-1">20% הנחה</h2>
           <p className="text-orange-100 text-xs mt-0.5">על הזמנה ראשונה</p>
           <button className="mt-3 bg-white text-orange-600 rounded-xl px-4 py-1.5 text-sm font-bold">הזמן עכשיו</button>
         </div>
-        {/* Category grid — circular emoji icons */}
         <div className="px-4">
           <h3 className="text-sm font-bold text-gray-700 mb-3">קטגוריות</h3>
           <div className="grid grid-cols-4 gap-2">
@@ -95,7 +91,6 @@ function App() {
             ))}
           </div>
         </div>
-        {/* Horizontal product cards: image placeholder + title + price + shadow */}
         <div className="px-4">
           <h3 className="text-sm font-bold text-gray-700 mb-3">פופולרי 🔥</h3>
           <div className="space-y-3">
@@ -115,7 +110,6 @@ function App() {
           </div>
         </div>
       </div>
-      {/* ── Fixed bottom nav: 4 tabs ── */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] bg-white border-t border-gray-100 flex z-10">
         {[{id:'home',icon:'🏠',label:'בית'},{id:'search',icon:'🔍',label:'חיפוש'},{id:'fav',icon:'❤️',label:'מועדפים'},{id:'profile',icon:'👤',label:'פרופיל'}].map(t=>(
           <button key={t.id} onClick={()=>setTab(t.id)} className={"flex-1 flex flex-col items-center py-2 text-xs gap-0.5 " + (tab===t.id ? 'text-orange-500 font-semibold' : 'text-gray-400')}>
@@ -128,32 +122,31 @@ function App() {
 }
 
 EVERY app you generate MUST follow this exact shell structure and visual quality.
-This is the minimum bar — match this style precisely, adapted to the requested domain.
-Always: white header bar with user greeting + avatar, gradient banner card, category grid, product/item cards with emoji placeholder, fixed 4-tab bottom nav.
 
-OUTPUT FORMAT — return ONLY this JSON object, nothing else:
-{
-  "appName": "App name in English",
-  "description": "One sentence description in English",
-  "files": {
-    "App.jsx": "...complete App() function — no import statements..."
-  },
-  "colorScheme": {
-    "primary": "#hexcolor",
-    "background": "#hexcolor",
-    "text": "#hexcolor",
-    "accent": "#hexcolor"
-  },
-  "features": ["feature1", "feature2", "feature3"],
-  "hebrewSummary": "תיאור קצר בעברית של מה שנבנה"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMAT — CRITICAL — FOLLOW EXACTLY:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Return EXACTLY TWO blocks:
+
+BLOCK 1 — JSON metadata on one line (no code inside the JSON):
+{"appName":"App name","description":"One sentence","colorScheme":{"primary":"#hex","background":"#hex","text":"#hex","accent":"#hex"},"features":["feature1","feature2","feature3"],"hebrewSummary":"תיאור בעברית"}
+
+BLOCK 2 — App code between markers:
+===CODE===
+function App() {
+  const { useState } = React;
+  // ... complete component code
 }
+===END===
 
-CRITICAL — JSON ENCODING RULES:
-- Response starts with { and ends with } — nothing before or after
-- Do NOT use markdown code fences (no \`\`\`)
-- In the App.jsx string value: encode newlines as \\n and tabs as \\t
-- Do NOT double-escape Unicode — write Hebrew directly (e.g. "שלום") NOT \\u05E9...
-- The complete response must be parseable by JSON.parse()
+CRITICAL RULES:
+1. BLOCK 1 must be valid JSON — keep it short and simple, NO code inside it
+2. BLOCK 2 is raw JavaScript/JSX — write it freely, NO JSON escaping needed
+3. Hebrew text goes directly in BLOCK 2 (write שלום NOT \\u05E9...)
+4. Nothing before BLOCK 1 or after ===END===
+5. No markdown code fences (no backtick blocks)
+6. The ===CODE=== and ===END=== markers must appear on their own lines
 `;
 
 export interface ConversationMessage {
@@ -174,6 +167,8 @@ export interface GeneratedWebApp {
   features: string[];
   hebrewSummary: string;
 }
+
+// ── Helpers ────────────────────────────────────────────────────────────────
 
 function fixUnescapedNewlines(json: string): string {
   let result = '';
@@ -196,27 +191,82 @@ function fixUnescapedNewlines(json: string): string {
   return result;
 }
 
-function cleanJson(raw: string): string {
-  let cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-  const start = cleaned.indexOf('{');
-  const end = cleaned.lastIndexOf('}');
-  if (start !== -1 && end !== -1 && end > start) cleaned = cleaned.slice(start, end + 1);
-  return fixUnescapedNewlines(cleaned);
-}
-
 function decodeEscapedUnicode(str: string): string {
   return str.replace(/\\u([0-9A-Fa-f]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
 }
 
-function fixParsedApp(app: GeneratedWebApp): GeneratedWebApp {
+/**
+ * Parse a Groq response that uses the new delimiter format:
+ *   {metadata JSON}
+ *   ===CODE===
+ *   function App() { ... }
+ *   ===END===
+ *
+ * Falls back to the old JSON-embedded format if markers are not found.
+ */
+export function parseGroqResponse(raw: string): GeneratedWebApp {
+  // ── Strategy 1: delimiter format (===CODE=== … ===END===) ──────────────
+  const codeStart = raw.indexOf('===CODE===');
+  const codeEnd   = raw.indexOf('===END===');
+  if (codeStart !== -1 && codeEnd > codeStart) {
+    const code     = raw.slice(codeStart + 10, codeEnd).trim();
+    const metaPart = raw.slice(0, codeStart).trim();
+    const js = metaPart.indexOf('{');
+    const je = metaPart.lastIndexOf('}');
+
+    let meta: Partial<GeneratedWebApp> = {};
+    if (js !== -1 && je > js) {
+      try {
+        meta = JSON.parse(fixUnescapedNewlines(metaPart.slice(js, je + 1)));
+      } catch (e) {
+        console.warn('[AI/web] Delimiter: metadata JSON parse failed:', (e as Error).message);
+        console.warn('[AI/web] Metadata part:', metaPart.slice(0, 200));
+      }
+    }
+
+    console.log('[AI/web] Parsed via delimiter format — appName:', meta.appName, '| code length:', code.length);
+    return {
+      appName:      decodeEscapedUnicode(meta.appName      ?? 'Generated App'),
+      description:  decodeEscapedUnicode(meta.description  ?? ''),
+      hebrewSummary:decodeEscapedUnicode(meta.hebrewSummary ?? 'האפליקציה נוצרה'),
+      colorScheme:  meta.colorScheme ?? { primary: '#6C3AE8', background: '#F8F9FA', text: '#1A1A2E' },
+      features:     (meta.features ?? []).map(decodeEscapedUnicode),
+      files: { 'App.jsx': code },
+    };
+  }
+
+  // ── Strategy 2: old embedded-JSON format (fallback) ────────────────────
+  let cleaned = raw
+    .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+  const s = cleaned.indexOf('{');
+  const e = cleaned.lastIndexOf('}');
+  if (s !== -1 && e > s) cleaned = cleaned.slice(s, e + 1);
+  cleaned = fixUnescapedNewlines(cleaned);
+
+  const parsed = JSON.parse(cleaned) as GeneratedWebApp;
+  console.log('[AI/web] Parsed via JSON format — appName:', parsed.appName);
   return {
-    ...app,
-    appName: decodeEscapedUnicode(app.appName ?? ''),
-    description: decodeEscapedUnicode(app.description ?? ''),
-    hebrewSummary: decodeEscapedUnicode(app.hebrewSummary ?? ''),
-    features: (app.features ?? []).map(decodeEscapedUnicode),
+    ...parsed,
+    appName:       decodeEscapedUnicode(parsed.appName       ?? ''),
+    description:   decodeEscapedUnicode(parsed.description   ?? ''),
+    hebrewSummary: decodeEscapedUnicode(parsed.hebrewSummary ?? ''),
+    features:      (parsed.features ?? []).map(decodeEscapedUnicode),
   };
 }
+
+const FALLBACK_APP = (reason: string) =>
+  `function App() {
+  return (
+    <div style={{padding:24,fontFamily:'sans-serif',maxWidth:420,margin:'0 auto',minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12}}>
+      <div style={{fontSize:40}}>⚠️</div>
+      <h2 style={{margin:0,color:'#dc2626',fontSize:18}}>שגיאה בייצור הקוד</h2>
+      <p style={{margin:0,color:'#6b7280',fontSize:14,textAlign:'center'}}>${reason}</p>
+      <p style={{margin:0,color:'#9ca3af',fontSize:12}}>נסה שוב</p>
+    </div>
+  );
+}`;
+
+// ── Public API ─────────────────────────────────────────────────────────────
 
 export async function generateWebApp(
   userPrompt: string,
@@ -232,22 +282,23 @@ export async function generateWebApp(
     ],
   });
 
-  const raw = response.choices[0]?.message?.content || '';
+  const raw = response.choices[0]?.message?.content ?? '';
+  console.log('[AI/web] Raw response length:', raw.length);
+  console.log('[AI/web] Raw (first 500):\n', raw.slice(0, 500));
+
   try {
-    const parsed = JSON.parse(cleanJson(raw)) as GeneratedWebApp;
-    const fixed = fixParsedApp(parsed);
-    console.log('[AI/web] Parse OK — appName:', fixed.appName, '| hebrewSummary:', fixed.hebrewSummary.slice(0, 40));
-    return fixed;
+    return parseGroqResponse(raw);
   } catch (parseErr) {
-    console.error('[AI/web] JSON parse FAILED:', (parseErr as Error).message);
-    console.error('[AI/web] Raw (first 300):', raw.slice(0, 300));
+    const msg = (parseErr as Error).message;
+    console.error('[AI/web] ALL parse strategies failed:', msg);
+    console.error('[AI/web] Full raw response:\n', raw);
     return {
       appName: 'Generated App',
-      description: 'Web app generated by WebForge',
-      files: { 'App.jsx': `function App() { return <div style={{padding:24}}><h1>שגיאה בייצור הקוד</h1><p>נסה שוב</p></div>; }` },
+      description: '',
+      files: { 'App.jsx': FALLBACK_APP(`Parse error: ${msg.slice(0, 60)}`) },
       colorScheme: { primary: '#6C3AE8', background: '#F8F9FA', text: '#1A1A2E' },
       features: [],
-      hebrewSummary: 'האפליקציה נוצרה',
+      hebrewSummary: `שגיאת parse: ${msg.slice(0, 80)}`,
     };
   }
 }
@@ -267,7 +318,7 @@ export async function* streamGenerateWebApp(
     ],
   });
   for await (const chunk of stream) {
-    const text = chunk.choices[0]?.delta?.content || '';
+    const text = chunk.choices[0]?.delta?.content ?? '';
     if (text) yield text;
   }
 }
