@@ -32,6 +32,8 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const htmlDoc = appCode ? buildHtmlDocument(appCode, generated.appName) : '';
+    console.log('[Generate] htmlDoc length:', htmlDoc.length, '| contains App():', appCode.includes('function App'));
+    if (!htmlDoc) console.error('[Generate] htmlDoc is EMPTY — appCode was empty or extraction failed');
 
     if (projectId) {
       try {

@@ -10,7 +10,7 @@ Your job: receive a description and return a COMPLETE, BEAUTIFUL React web app.
 COMPONENT RULES — CRITICAL:
 - Write ONLY the App function (and any helper components defined below it)
 - NO import statements — React is globally available via CDN
-- Destructure hooks at the top: const { useState, useEffect, useRef, useCallback } = React;
+- Destructure hooks INSIDE the App function body (not at the top of the file): const { useState, useEffect, useRef, useCallback } = React;
 - Use JSX syntax freely — Babel processes it automatically
 - Multiple screens/views: use useState to track currentScreen/currentView
 - Plain JavaScript only — NO TypeScript, no type annotations (: string, <T>, etc.)

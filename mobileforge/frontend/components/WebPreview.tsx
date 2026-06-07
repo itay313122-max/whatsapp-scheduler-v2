@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 interface WebPreviewProps {
   htmlDoc: string;
@@ -12,6 +12,10 @@ type ViewMode = 'mobile' | 'desktop';
 export default function WebPreview({ htmlDoc, appName }: WebPreviewProps) {
   const [loaded, setLoaded] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('mobile');
+
+  useEffect(() => {
+    console.log('[WebPreview] htmlDoc length:', htmlDoc?.length ?? 0, '| first 80:', htmlDoc?.slice(0, 80));
+  }, [htmlDoc]);
 
   const openInNewTab = useCallback(() => {
     const blob = new Blob([htmlDoc], { type: 'text/html' });
