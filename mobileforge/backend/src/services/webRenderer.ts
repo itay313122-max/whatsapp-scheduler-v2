@@ -199,10 +199,10 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
   <style>${DESIGN_SYSTEM_CSS}</style>
   <script>
     window.onerror = function(msg, _src, line, col) {
@@ -230,26 +230,42 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
 <body>
   <div id="root"></div>
   <script type="text/babel" data-presets="react,typescript">
-    const { useState, useEffect, useRef, useCallback, useMemo, useContext, createContext, useReducer } = React;
+    /* Wrapped in IIFE so try/catch is in the same eval context as the code.
+       This makes real error messages visible instead of "Script error Line 0". */
+    (function __mf_run() {
+      const { useState, useEffect, useRef, useCallback, useMemo, useContext, createContext, useReducer } = React;
 
-    class ErrorBoundary extends React.Component {
-      constructor(props) { super(props); this.state = { error: null }; }
-      static getDerivedStateFromError(err) { return { error: err }; }
-      render() {
-        if (this.state.error) return (
-          <div style={{position:'fixed',inset:0,background:'#fef2f2',padding:24,fontFamily:'monospace',fontSize:13,color:'#dc2626',overflow:'auto',zIndex:9999}}>
-            <div style={{fontWeight:'bold',fontSize:16,marginBottom:8}}>⚠️ Runtime Error</div>
-            <pre style={{whiteSpace:'pre-wrap',lineHeight:1.5}}>{this.state.error.message}</pre>
-          </div>
-        );
-        return this.props.children;
+      class ErrorBoundary extends React.Component {
+        constructor(props) { super(props); this.state = { error: null }; }
+        static getDerivedStateFromError(err) { return { error: err }; }
+        render() {
+          if (this.state.error) return (
+            <div style={{position:'fixed',inset:0,background:'#fef2f2',padding:24,fontFamily:'monospace',fontSize:13,color:'#dc2626',overflow:'auto',zIndex:9999}}>
+              <div style={{fontWeight:'bold',fontSize:16,marginBottom:8}}>⚠️ Runtime Error</div>
+              <pre style={{whiteSpace:'pre-wrap',lineHeight:1.5}}>{this.state.error.message}</pre>
+            </div>
+          );
+          return this.props.children;
+        }
       }
-    }
 
-    ${safeCode}
-
-    const _root = ReactDOM.createRoot(document.getElementById('root'));
-    _root.render(<ErrorBoundary><App /></ErrorBoundary>);
+      try {
+        ${safeCode}
+        const _root = ReactDOM.createRoot(document.getElementById('root'));
+        _root.render(<ErrorBoundary><App /></ErrorBoundary>);
+      } catch (__err) {
+        var __msg = (__err && __err.message) ? __err.message : String(__err);
+        var __stack = (__err && __err.stack) ? __err.stack : '';
+        var __d = document.getElementById('root');
+        if (__d) __d.innerHTML =
+          '<div style="position:fixed;inset:0;background:#fef2f2;padding:24px;font-family:monospace;font-size:13px;color:#dc2626;overflow:auto;z-index:9999">'
+          + '<b style="font-size:16px">⚠️ JS Error (real)</b>'
+          + '<pre style="margin-top:10px;white-space:pre-wrap;line-height:1.5">'
+          + __msg.replace(/</g,'&lt;')
+          + '\\n\\n' + __stack.replace(/</g,'&lt;')
+          + '</pre></div>';
+      }
+    })();
   </script>
 </body>
 </html>`;

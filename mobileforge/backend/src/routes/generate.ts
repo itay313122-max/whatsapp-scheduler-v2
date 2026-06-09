@@ -34,6 +34,9 @@ router.post('/', async (req: Request, res: Response) => {
       console.error('[Generate] No valid app code — cannot build HTML');
     } else {
       console.log('[Generate] App code length:', appCode.length, '| has function App:', appCode.includes('function App'));
+      console.log('[Generate] ── FULL APP CODE ──────────────────────────');
+      console.log(appCode);
+      console.log('[Generate] ─────────────────────────────────────────');
     }
 
     const htmlDoc = appCode ? buildHtmlDocument(appCode, generated.appName) : '';
