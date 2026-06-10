@@ -70,19 +70,142 @@ COLOR PALETTE — set via <style> at top of App JSX (REQUIRED):
 - All navigation works (useState)
 - Emoji as icons, no libraries
 
-━━━ REFERENCE EXAMPLE — Food Delivery (use this pattern for EVERY app) ━━━
+━━━ INTERACTIVITY — MANDATORY ━━━
+Every button MUST have a working onClick handler.
+Every nav tab MUST switch screens via state.
+The app must be FULLY INTERACTIVE — no dead buttons, no static mockups.
+
+REQUIRED PATTERNS:
+1. SCREEN NAVIGATION — use a renderContent() function with if/switch on tab state:
+   const [tab, setTab] = useState('home');
+   const renderContent = () => {
+     if (tab === 'home') return <HomeScreen />;
+     if (tab === 'search') return <SearchScreen />;
+     if (tab === 'profile') return <ProfileScreen />;
+   };
+   // Each tab MUST show DIFFERENT content
+
+2. LIST STATE — items that add/remove/toggle:
+   const [items, setItems] = useState([...]);
+   const addItem = () => setItems(prev => [...prev, newItem]);
+   const removeItem = (id) => setItems(prev => prev.filter(i => i.id !== id));
+   const toggleItem = (id) => setItems(prev => prev.map(i => i.id===id ? {...i,done:!i.done} : i));
+
+3. COUNTERS & VALUES — numbers that change:
+   const [count, setCount] = useState(0);
+   <button onClick={() => setCount(c => c + 1)}>+</button>
+
+4. FORMS & INPUT — text inputs with state:
+   const [text, setText] = useState('');
+   <input className="input-field" value={text} onChange={e => setText(e.target.value)} />
+
+5. MODALS & PANELS — show/hide via boolean state:
+   const [showModal, setShowModal] = useState(false);
+   <button onClick={() => setShowModal(true)}>פתח</button>
+   {showModal && <div className="card">...</div>}
+
+FORBIDDEN: Any button or nav tab without an onClick that changes state.
+
+━━━ REFERENCE EXAMPLE — Food Delivery (FULLY INTERACTIVE — copy this pattern) ━━━
 function App() {
   const { useState } = React;
   const [tab, setTab] = useState('home');
-  const categories = [
-    {id:'pizza',icon:'🍕',label:'פיצה'},{id:'burger',icon:'🍔',label:'בורגר'},
-    {id:'sushi',icon:'🍣',label:'סושי'},{id:'salad',icon:'🥗',label:'סלט'},
-  ];
-  const items = [
+  const [cart, setCart] = useState([]);
+  const [search, setSearch] = useState('');
+  const allItems = [
     {id:1,name:'פיצה מרגריטה',price:59,emoji:'🍕',rating:'4.8',time:'25 דק'},
     {id:2,name:'בורגר קלאסי',price:49,emoji:'🍔',rating:'4.6',time:'20 דק'},
     {id:3,name:'רול טונה',price:65,emoji:'🍣',rating:'4.9',time:'30 דק'},
   ];
+  const addToCart = (item) => setCart(prev => [...prev, {...item, cartId: Date.now()}]);
+  const removeFromCart = (cartId) => setCart(prev => prev.filter(i => i.cartId !== cartId));
+  const total = cart.reduce((s, i) => s + i.price, 0);
+
+  const HomeScreen = () => (
+    <>
+      <div className="gradient-banner">
+        <p className="caption" style={{color:'rgba(255,255,255,0.8)'}}>מבצע מיוחד 🔥</p>
+        <h2 className="title" style={{color:'white',margin:'6px 0 4px'}}>20% הנחה</h2>
+        <p className="body" style={{color:'rgba(255,255,255,0.85)'}}>על הזמנה ראשונה</p>
+        <button className="btn-secondary" style={{width:'auto',marginTop:14,padding:'9px 20px'}} onClick={()=>setTab('search')}>הזמן עכשיו</button>
+      </div>
+      <p className="section-title">פופולרי 🔥</p>
+      {allItems.map(item=>(
+        <div key={item.id} className="list-item">
+          <div className="icon-circle" style={{fontSize:28}}>{item.emoji}</div>
+          <div style={{flex:1}}>
+            <p className="subtitle" style={{fontSize:14}}>{item.name}</p>
+            <p className="caption" style={{marginTop:2}}>⭐ {item.rating} · ⏱ {item.time}</p>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <span className="subtitle" style={{color:'var(--c-primary)'}}>₪{item.price}</span>
+            <button className="btn-icon" style={{width:30,height:30,fontSize:20,fontWeight:900}} onClick={()=>addToCart(item)}>+</button>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+
+  const SearchScreen = () => {
+    const filtered = allItems.filter(i => i.name.includes(search));
+    return (
+      <>
+        <input className="input-field" placeholder="חפש מנה..." value={search} onChange={e=>setSearch(e.target.value)} />
+        <p className="section-title">{filtered.length} תוצאות</p>
+        {filtered.map(item=>(
+          <div key={item.id} className="list-item">
+            <div className="icon-circle">{item.emoji}</div>
+            <div style={{flex:1}}><p className="subtitle" style={{fontSize:14}}>{item.name}</p></div>
+            <button className="btn-icon" style={{width:30,height:30,fontSize:20,fontWeight:900}} onClick={()=>addToCart(item)}>+</button>
+          </div>
+        ))}
+      </>
+    );
+  };
+
+  const CartScreen = () => (
+    <>
+      <p className="section-title">הסל שלך ({cart.length} פריטים)</p>
+      {cart.length === 0 && <div className="card"><p className="body" style={{textAlign:'center'}}>הסל ריק 🛒</p></div>}
+      {cart.map(item=>(
+        <div key={item.cartId} className="list-item">
+          <div className="icon-circle">{item.emoji}</div>
+          <div style={{flex:1}}><p className="subtitle" style={{fontSize:14}}>{item.name}</p></div>
+          <div className="flex items-center gap-2">
+            <span className="subtitle" style={{color:'var(--c-primary)'}}>₪{item.price}</span>
+            <button className="btn-icon" style={{width:28,height:28,fontSize:16}} onClick={()=>removeFromCart(item.cartId)}>✕</button>
+          </div>
+        </div>
+      ))}
+      {cart.length > 0 && (
+        <div className="card">
+          <div className="flex justify-between items-center" style={{marginBottom:14}}>
+            <span className="subtitle">סה"כ</span>
+            <span className="title" style={{color:'var(--c-primary)'}}>₪{total}</span>
+          </div>
+          <button className="btn-primary" onClick={()=>{setCart([]);alert('ההזמנה נשלחה! 🎉');}}>שלח הזמנה</button>
+        </div>
+      )}
+    </>
+  );
+
+  const ProfileScreen = () => (
+    <div className="card">
+      <div className="flex items-center gap-3" style={{marginBottom:16}}>
+        <div className="avatar" style={{width:52,height:52,fontSize:22}}>י</div>
+        <div><p className="subtitle">ישראל ישראלי</p><p className="caption">israel@email.com</p></div>
+      </div>
+      <button className="btn-primary" onClick={()=>alert('פרופיל נשמר!')}>שמור שינויים</button>
+    </div>
+  );
+
+  const renderContent = () => {
+    if (tab === 'home')    return <HomeScreen />;
+    if (tab === 'search')  return <SearchScreen />;
+    if (tab === 'cart')    return <CartScreen />;
+    if (tab === 'profile') return <ProfileScreen />;
+  };
+
   return (
     <>
       <style>{\`
@@ -99,43 +222,15 @@ function App() {
             <h1 className="subtitle">ישראל ישראלי</h1>
           </div>
           <div className="flex gap-2 items-center">
-            <button className="btn-icon">🔔</button>
+            <button className="btn-icon" onClick={()=>setTab('cart')}>🛒{cart.length>0&&<span className="badge" style={{position:'absolute',top:-4,right:-4,minWidth:18,height:18,fontSize:10}}>{cart.length}</span>}</button>
             <div className="avatar">י</div>
           </div>
         </div>
         <div className="app-content">
-          <div className="gradient-banner">
-            <p className="caption" style={{color:'rgba(255,255,255,0.8)'}}>מבצע מיוחד 🔥</p>
-            <h2 className="title" style={{color:'white',margin:'6px 0 4px'}}>20% הנחה</h2>
-            <p className="body" style={{color:'rgba(255,255,255,0.85)'}}>על הזמנה ראשונה</p>
-            <button className="btn-secondary" style={{width:'auto',marginTop:14,padding:'9px 20px'}}>הזמן עכשיו</button>
-          </div>
-          <p className="section-title">קטגוריות</p>
-          <div className="grid grid-cols-4 gap-3">
-            {categories.map(c=>(
-              <button key={c.id} className="flex flex-col items-center gap-2" style={{background:'none',border:'none',cursor:'pointer'}}>
-                <div className="icon-circle">{c.icon}</div>
-                <span className="caption">{c.label}</span>
-              </button>
-            ))}
-          </div>
-          <p className="section-title">פופולרי 🔥</p>
-          {items.map(item=>(
-            <div key={item.id} className="list-item">
-              <div className="icon-circle" style={{fontSize:28}}>{item.emoji}</div>
-              <div style={{flex:1}}>
-                <p className="subtitle" style={{fontSize:14}}>{item.name}</p>
-                <p className="caption" style={{marginTop:2}}>⭐ {item.rating} · ⏱ {item.time}</p>
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                <span className="subtitle" style={{color:'var(--c-primary)'}}>₪{item.price}</span>
-                <button className="btn-icon" style={{width:30,height:30,fontSize:20,fontWeight:900}}>+</button>
-              </div>
-            </div>
-          ))}
+          {renderContent()}
         </div>
         <div className="app-nav">
-          {[{id:'home',icon:'🏠',label:'בית'},{id:'search',icon:'🔍',label:'חיפוש'},{id:'fav',icon:'❤️',label:'מועדפים'},{id:'profile',icon:'👤',label:'פרופיל'}].map(t=>(
+          {[{id:'home',icon:'🏠',label:'בית'},{id:'search',icon:'🔍',label:'חיפוש'},{id:'cart',icon:'🛒',label:`סל${cart.length>0?' ('+cart.length+')':''}`},{id:'profile',icon:'👤',label:'פרופיל'}].map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} className={'nav-tab'+(tab===t.id?' active':'')}>
               <span style={{fontSize:20}}>{t.icon}</span>{t.label}
             </button>
