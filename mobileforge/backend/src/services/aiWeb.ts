@@ -230,7 +230,7 @@ function App() {
           {renderContent()}
         </div>
         <div className="app-nav">
-          {[{id:'home',icon:'🏠',label:'בית'},{id:'search',icon:'🔍',label:'חיפוש'},{id:'cart',icon:'🛒',label:`סל${cart.length>0?' ('+cart.length+')':''}`},{id:'profile',icon:'👤',label:'פרופיל'}].map(t=>(
+          {[{id:'home',icon:'🏠',label:'בית'},{id:'search',icon:'🔍',label:'חיפוש'},{id:'cart',icon:'🛒',label:'סל'+(cart.length>0?' ('+cart.length+')':'')},{id:'profile',icon:'👤',label:'פרופיל'}].map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} className={'nav-tab'+(tab===t.id?' active':'')}>
               <span style={{fontSize:20}}>{t.icon}</span>{t.label}
             </button>
