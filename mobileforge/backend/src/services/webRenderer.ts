@@ -11,7 +11,7 @@
 const DESIGN_SYSTEM_CSS = `
 /* ── MobileForge Design System ─────────────────────────────────────────── */
 
-/* Default palette — overridden per-app via <style>:root{}</style> in App() */
+/* Default palette — AI overrides these by adding a <style> tag inside App() JSX */
 :root {
   --c-from:          #6366f1;
   --c-to:            #8b5cf6;
@@ -188,6 +188,8 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
     .trim();
 
   const safeCode = stripped.replace(/<\/script>/gi, '<\\/script>');
+  // Guard: </style> inside a <style> block terminates the element — strip it from CSS
+  const safeCss = DESIGN_SYSTEM_CSS.replace(/<\/style>/gi, '');
   const safeName = appName.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c] ?? c));
 
   return `<!DOCTYPE html>
@@ -203,7 +205,7 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
   <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
-  <style>${DESIGN_SYSTEM_CSS}</style>
+  <style>${safeCss}</style>
   <script>
     window.onerror = function(msg, _src, line, col) {
       var d = document.getElementById('__err');
