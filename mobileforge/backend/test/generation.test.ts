@@ -7,7 +7,7 @@
  * requirements before launch.
  */
 
-import { parseGroqResponse } from '../src/services/aiWeb';
+import { parseGroqResponse, buildEditSystemPrompt } from '../src/services/aiWeb';
 import { buildHtmlDocument } from '../src/services/webRenderer';
 
 // ── Quality check helpers ─────────────────────────────────────────────────
@@ -692,5 +692,120 @@ describe('Failure detection — quality checks catch bad LLM output', () => {
   it('detects missing useState (no state)', () => {
     const code = 'function App() { return <div className="app-shell"><p className="title">שלום</p></div>; }';
     expect(checkCode(code).hasUseState).toBe(false);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// חבילה 5 — CSS variables עשירים ב-buildHtmlDocument (6 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('CSS variables and design tokens in buildHtmlDocument', () => {
+  const html = buildHtmlDocument('function App() { return <div className="app-shell" />; }', 'Test');
+
+  it('includes --c-font typography variable', () => {
+    expect(html).toContain('--c-font');
+  });
+
+  it('includes --c-text-size typography variable', () => {
+    expect(html).toContain('--c-text-size');
+  });
+
+  it('includes --btn-radius button variable', () => {
+    expect(html).toContain('--btn-radius');
+  });
+
+  it('includes --btn-bg button variable', () => {
+    expect(html).toContain('--btn-bg');
+  });
+
+  it('includes --card-shadow card variable', () => {
+    expect(html).toContain('--card-shadow');
+  });
+
+  it('includes spacing scale variables (--sp-1 through --sp-8)', () => {
+    expect(html).toContain('--sp-1');
+    expect(html).toContain('--sp-8');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// חבילה 6 — Responsive design ב-buildHtmlDocument (5 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Responsive design in buildHtmlDocument', () => {
+  const html = buildHtmlDocument('function App() { return <div className="app-shell" />; }', 'Test');
+
+  it('includes tablet media query (@media min-width 768px)', () => {
+    expect(html).toContain('@media (min-width: 768px)');
+  });
+
+  it('includes grid helper classes (grid-2, grid-3)', () => {
+    expect(html).toContain('.grid-2');
+    expect(html).toContain('.grid-3');
+  });
+
+  it('includes tablet grid helpers (grid-tablet-2, grid-tablet-4)', () => {
+    expect(html).toContain('grid-tablet-2');
+    expect(html).toContain('grid-tablet-4');
+  });
+
+  it('includes skeleton loader class with shimmer animation', () => {
+    expect(html).toContain('.skeleton');
+    expect(html).toContain('shimmer');
+  });
+
+  it('includes empty-state class', () => {
+    expect(html).toContain('.empty-state');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// חבילה 7 — Font preloading (3 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Font preloading in buildHtmlDocument', () => {
+  const html = buildHtmlDocument('function App() { return <div />; }');
+
+  it('preloads Heebo font for Hebrew apps', () => {
+    expect(html).toContain('Heebo');
+  });
+
+  it('preloads Assistant font', () => {
+    expect(html).toContain('Assistant');
+  });
+
+  it('preloads Rubik font', () => {
+    expect(html).toContain('Rubik');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// חבילה 8 — Edit mode system prompt (5 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('buildEditSystemPrompt', () => {
+  const EXISTING_CODE = 'function App() { const {useState}=React; const [n,setN]=useState(0); return <button onClick={()=>setN(n+1)}>{n}</button>; }';
+  const prompt = buildEditSystemPrompt(EXISTING_CODE);
+
+  it('includes the full existing code', () => {
+    expect(prompt).toContain(EXISTING_CODE);
+  });
+
+  it('contains ===CURRENT_CODE=== delimiter', () => {
+    expect(prompt).toContain('===CURRENT_CODE===');
+    expect(prompt).toContain('===END_CURRENT_CODE===');
+  });
+
+  it('instructs to apply ONLY the specific change', () => {
+    expect(prompt).toMatch(/Apply ONLY the specific change/i);
+  });
+
+  it('instructs to preserve existing state and onClick handlers', () => {
+    expect(prompt).toMatch(/Preserve ALL existing state.*onClick/is);
+  });
+
+  it('includes the output format rules (===CODE=== / ===END===)', () => {
+    expect(prompt).toContain('===CODE===');
+    expect(prompt).toContain('===END===');
   });
 });

@@ -180,11 +180,40 @@ COLOR PALETTE — set via <style> at top of App JSX (REQUIRED):
   Choose palette for the domain: meditation→purple, food→orange, finance→emerald,
   fitness→red, travel→teal, music→pink. Background: very light tint of the primary.
 
+━━━ UX/UI PRINCIPLES — MANDATORY ━━━
+HIERARCHY & LAYOUT:
+- Less is more: one clear primary action per screen, no overloaded UI.
+- Visual hierarchy: use size, weight, color to guide the eye naturally.
+- Primary CTA (btn-primary) must be prominent and visible without scrolling.
+- Consistent spacing using var(--sp-3) through var(--sp-6).
+
+NAVIGATION:
+- Use bottom tab nav (app-nav + nav-tab) with max 5 tabs.
+- Active tab must be visually distinct (class "active").
+- Navigation must be predictable across all screens.
+
+TOUCH & ACCESSIBILITY:
+- Every interactive element minimum 44×44 px (enforced by design system).
+- Font sizes: body text minimum 14px (caption 12px is ok for labels only).
+- High contrast: text on backgrounds must be readable.
+
+VISUAL POLISH:
+- Empty states: when a list is empty show an .empty-state div with icon, title, body text and a CTA button — never a blank screen.
+- Loading: use .skeleton / .skeleton-text / .skeleton-card classes for perceived performance.
+- Micro-interactions: buttons scale on :active — already in design system.
+- First screen must look professional and inviting (gradient-banner or rich header).
+
+RESPONSIVE:
+- Every app must look great on PHONE (420px) AND TABLET (768px+).
+- Use grid-2, grid-3 for phone; grid-tablet-3, grid-tablet-4 for tablet.
+- app-shell expands to full width on tablet automatically.
+
 ━━━ CONTENT RULES ━━━
 - Hebrew if user writes Hebrew; add dir="rtl" to app-shell div
-- 3-5 realistic sample data items
+- 3-5 realistic sample data items with real content (not lorem ipsum)
 - All navigation works (useState)
 - Emoji as icons, no libraries
+- Empty state for every list (use .empty-state)
 
 ━━━ INTERACTIVITY — MANDATORY ━━━
 Every button MUST have a working onClick handler.
@@ -411,7 +440,7 @@ RULES:
 6. ===CODE=== and ===END=== on their own lines
 `;
 
-function buildEditSystemPrompt(existingCode: string): string {
+export function buildEditSystemPrompt(existingCode: string): string {
   return `You are WebForge AI — you are EDITING an existing React app.
 
 EXISTING CODE (modify this, do NOT rewrite from scratch):

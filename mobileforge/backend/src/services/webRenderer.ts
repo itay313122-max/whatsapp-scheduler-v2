@@ -24,12 +24,31 @@ const DESIGN_SYSTEM_CSS = `
   --c-text-2:        #475569;
   --c-text-3:        #94a3b8;
   --r-sm: 12px; --r-md: 16px; --r-lg: 20px; --r-xl: 24px;
+  /* Typography — overrideable by quick-edit panel */
+  --c-font:           'Inter', system-ui, -apple-system, sans-serif;
+  --c-text-size:      14px;
+  /* Buttons — overrideable by quick-edit panel */
+  --btn-radius:       var(--r-md);
+  --btn-bg:           linear-gradient(135deg, var(--c-from), var(--c-to));
+  --btn-color:        #ffffff;
+  --btn-border-width: 0px;
+  --btn-border-color: transparent;
+  --btn-shadow:       0 4px 14px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.1);
+  /* Cards — overrideable by quick-edit panel */
+  --card-radius:      var(--r-lg);
+  --card-bg:          var(--c-surface);
+  --card-shadow:      0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+  --card-border:      none;
+  /* Spacing scale */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-7: 28px; --sp-8: 32px;
 }
 
 /* Reset */
 *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--c-font);
+  font-size: var(--c-text-size);
   background: var(--c-bg); color: var(--c-text);
   -webkit-font-smoothing: antialiased;
 }
@@ -80,12 +99,13 @@ body {
 /* ── Buttons ───────────────────────────────────────────────────────────── */
 .btn-primary {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 100%; padding: 15px 24px;
-  background: linear-gradient(135deg, var(--c-from), var(--c-to));
-  color: #fff; font-weight: 700; font-size: 15px; font-family: inherit;
-  border-radius: var(--r-md); border: none; cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.1);
-  transition: transform 0.14s, box-shadow 0.14s; letter-spacing: 0.1px;
+  width: 100%; padding: 15px 24px; min-height: 44px;
+  background: var(--btn-bg); color: var(--btn-color);
+  font-weight: 700; font-size: 15px; font-family: inherit;
+  border-radius: var(--btn-radius);
+  border: var(--btn-border-width) solid var(--btn-border-color);
+  cursor: pointer; box-shadow: var(--btn-shadow);
+  transition: transform 0.14s, opacity 0.14s; letter-spacing: 0.1px;
 }
 .btn-primary:hover  { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.22); }
 .btn-primary:active { transform: scale(0.97); }
@@ -111,12 +131,13 @@ body {
 
 /* ── Cards ─────────────────────────────────────────────────────────────── */
 .card {
-  background: var(--c-surface); border-radius: var(--r-lg); padding: 18px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+  background: var(--card-bg); border-radius: var(--card-radius); padding: 18px;
+  box-shadow: var(--card-shadow); border: var(--card-border);
 }
 .card-sm {
-  background: var(--c-surface); border-radius: var(--r-md); padding: 14px;
+  background: var(--card-bg); border-radius: var(--r-md); padding: 14px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.05);
+  border: var(--card-border);
 }
 
 /* ── Banners ───────────────────────────────────────────────────────────── */
@@ -176,6 +197,71 @@ body {
   color: #fff; font-weight: 700; font-size: 16px;
 }
 .divider { height: 1px; background: var(--c-border); }
+
+/* ── Touch targets ─────────────────────────────────────────────────────── */
+.nav-tab { min-height: 44px; min-width: 44px; }
+.btn-icon { min-width: 44px; min-height: 44px; }
+.btn-secondary { min-height: 44px; }
+
+/* ── Micro-interactions ────────────────────────────────────────────────── */
+.btn-primary:hover  { opacity: 0.92; }
+.btn-primary:active { transform: scale(0.97); }
+.list-item { transition: transform 0.12s, box-shadow 0.12s; }
+.list-item:active { transform: scale(0.98); box-shadow: none; }
+.card { transition: box-shadow 0.15s; }
+
+/* ── Skeleton loader ───────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  border-radius: var(--r-sm);
+  background: linear-gradient(90deg, var(--c-border) 25%, #f0f4f8 50%, var(--c-border) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+.skeleton-text   { height: 14px; width: 100%; }
+.skeleton-avatar { width: 42px; height: 42px; border-radius: 50%; }
+.skeleton-card   { height: 80px; border-radius: var(--r-lg); }
+
+/* ── Empty state ───────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 48px 24px; text-align: center; gap: 12px;
+}
+.empty-state-icon { font-size: 48px; }
+.empty-state-title { font-size: 18px; font-weight: 700; color: var(--c-text); }
+.empty-state-body  { font-size: 14px; color: var(--c-text-2); max-width: 260px; }
+
+/* ── Grid helpers ──────────────────────────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+
+/* ── Responsive — Tablet (768px+) ─────────────────────────────────────── */
+@media (min-width: 768px) {
+  .app-shell   { max-width: 100%; padding: 0; }
+  .app-content { padding: 28px 32px; padding-bottom: 100px; gap: 20px; }
+  .app-nav     { max-width: 100%; left: 0; right: 0; transform: none; }
+  .app-header  { padding: 18px 32px; }
+  .header-gradient { padding: 28px 32px; }
+
+  .title    { font-size: 32px; }
+  .subtitle { font-size: 18px; }
+  .body     { font-size: 15px; }
+
+  .card    { padding: 24px; }
+  .card-sm { padding: 18px; }
+  .btn-primary  { padding: 16px 28px; font-size: 16px; }
+  .gradient-banner { padding: 32px 32px; }
+
+  .grid-2          { gap: 16px; }
+  .grid-3          { grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .grid-tablet-2   { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+  .grid-tablet-3   { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .grid-tablet-4   { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .grid-tablet-5   { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; }
+}
 `;
 
 export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'): string {
@@ -200,7 +286,7 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
   <title>${safeName}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Heebo:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>

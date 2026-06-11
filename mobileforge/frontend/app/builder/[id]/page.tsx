@@ -8,7 +8,7 @@ import WebPreview from '@/components/WebPreview';
 import ForgeAssistant from '@/components/ForgeAssistant';
 import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
-import { getProject } from '@/lib/api';
+import { getProject, generateApp } from '@/lib/api';
 import type { GenerateResponse, ProjectContext } from '@/lib/api';
 import Link from 'next/link';
 
@@ -17,20 +17,28 @@ const DeviceSync = dynamic(() => import('@/components/DeviceSync'), { ssr: false
 type RightPanel = 'preview';
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
-// ── Palette quick-edit ───────────────────────────────────────────────────────
+// ── Rich Edit Panel — data ────────────────────────────────────────────────────
 
 const PALETTES = [
-  { id: 'default', label: 'ברירת מחדל', from: '#6366f1', to: '#8b5cf6',
-    vars: {} as Record<string, string> },
-  { id: 'green',   label: 'ירוק',       from: '#16a34a', to: '#22c55e',
-    vars: { '--c-from': '#16a34a', '--c-to': '#22c55e', '--c-primary': '#16a34a', '--c-primary-light': 'rgba(22,163,74,0.12)' } },
-  { id: 'orange',  label: 'כתום',       from: '#ea580c', to: '#f97316',
-    vars: { '--c-from': '#ea580c', '--c-to': '#f97316', '--c-primary': '#ea580c', '--c-primary-light': 'rgba(234,88,12,0.12)' } },
-  { id: 'pink',    label: 'ורוד',       from: '#be185d', to: '#ec4899',
-    vars: { '--c-from': '#be185d', '--c-to': '#ec4899', '--c-primary': '#be185d', '--c-primary-light': 'rgba(190,24,93,0.12)' } },
-  { id: 'teal',    label: 'טורקיז',     from: '#0d9488', to: '#14b8a6',
-    vars: { '--c-from': '#0d9488', '--c-to': '#14b8a6', '--c-primary': '#0d9488', '--c-primary-light': 'rgba(13,148,136,0.12)' } },
-];
+  { id: 'indigo',  label: 'Indigo',   from: '#6366f1', to: '#8b5cf6',
+    vars: { '--c-from':'#6366f1','--c-to':'#8b5cf6','--c-primary':'#6366f1','--c-primary-light':'rgba(99,102,241,0.12)' } },
+  { id: 'ocean',   label: 'Ocean',    from: '#0284c7', to: '#0ea5e9',
+    vars: { '--c-from':'#0284c7','--c-to':'#0ea5e9','--c-primary':'#0284c7','--c-primary-light':'rgba(2,132,199,0.12)' } },
+  { id: 'forest',  label: 'Forest',   from: '#15803d', to: '#22c55e',
+    vars: { '--c-from':'#15803d','--c-to':'#22c55e','--c-primary':'#15803d','--c-primary-light':'rgba(21,128,61,0.12)' } },
+  { id: 'sunset',  label: 'Sunset',   from: '#b45309', to: '#f59e0b',
+    vars: { '--c-from':'#b45309','--c-to':'#f59e0b','--c-primary':'#b45309','--c-primary-light':'rgba(180,83,9,0.12)' } },
+  { id: 'crimson', label: 'Crimson',  from: '#be123c', to: '#f43f5e',
+    vars: { '--c-from':'#be123c','--c-to':'#f43f5e','--c-primary':'#be123c','--c-primary-light':'rgba(190,18,60,0.12)' } },
+  { id: 'violet',  label: 'Violet',   from: '#7c3aed', to: '#a855f7',
+    vars: { '--c-from':'#7c3aed','--c-to':'#a855f7','--c-primary':'#7c3aed','--c-primary-light':'rgba(124,58,237,0.12)' } },
+  { id: 'teal',    label: 'Teal',     from: '#0d9488', to: '#06b6d4',
+    vars: { '--c-from':'#0d9488','--c-to':'#06b6d4','--c-primary':'#0d9488','--c-primary-light':'rgba(13,148,136,0.12)' } },
+  { id: 'mono',    label: 'Mono',     from: '#374151', to: '#6b7280',
+    vars: { '--c-from':'#374151','--c-to':'#6b7280','--c-primary':'#374151','--c-primary-light':'rgba(55,65,81,0.12)' } },
+] as const;
+
+type PaletteId = (typeof PALETTES)[number]['id'];
 
 const DARK_VARS: Record<string, string> = {
   '--c-bg':      '#0f172a',
@@ -41,10 +49,114 @@ const DARK_VARS: Record<string, string> = {
   '--c-text-3':  '#64748b',
 };
 
-function computeDisplayHtmlDoc(htmlDoc: string, paletteId: string, darkMode: boolean): string {
+const FONTS = [
+  { id: 'inter',     label: 'Inter',     family: 'Inter, system-ui, sans-serif',     cssValue: "'Inter', system-ui, sans-serif" },
+  { id: 'heebo',     label: 'Heebo',     family: 'Heebo, system-ui, sans-serif',     cssValue: "'Heebo', system-ui, sans-serif" },
+  { id: 'assistant', label: 'Assistant', family: 'Assistant, system-ui, sans-serif', cssValue: "'Assistant', system-ui, sans-serif" },
+  { id: 'rubik',     label: 'Rubik',     family: 'Rubik, system-ui, sans-serif',     cssValue: "'Rubik', system-ui, sans-serif" },
+];
+
+const TEXT_SIZES = [
+  { id: 'sm', label: 'קטן',   value: '12px' },
+  { id: 'md', label: 'בינוני', value: '14px' },
+  { id: 'lg', label: 'גדול',  value: '16px' },
+];
+
+const BUTTON_STYLES = [
+  { id: 'rounded', label: 'עגול',    vars: { '--btn-radius':'16px', '--btn-bg':'linear-gradient(135deg,var(--c-from),var(--c-to))', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'0 4px 14px rgba(0,0,0,0.18)' } },
+  { id: 'sharp',   label: 'חד',      vars: { '--btn-radius':'4px',  '--btn-bg':'linear-gradient(135deg,var(--c-from),var(--c-to))', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'0 4px 14px rgba(0,0,0,0.18)' } },
+  { id: 'outline', label: 'קו',      vars: { '--btn-radius':'12px', '--btn-bg':'transparent', '--btn-color':'var(--c-primary)', '--btn-border-width':'2px', '--btn-border-color':'var(--c-primary)', '--btn-shadow':'none' } },
+  { id: 'soft',    label: 'רך',      vars: { '--btn-radius':'12px', '--btn-bg':'var(--c-primary-light)', '--btn-color':'var(--c-primary)', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+];
+
+const CARD_STYLES = [
+  { id: 'elevated', label: 'צל',     vars: { '--card-shadow':'0 1px 2px rgba(0,0,0,0.04),0 4px 16px rgba(0,0,0,0.06)', '--card-border':'none' } },
+  { id: 'flat',     label: 'שטוח',   vars: { '--card-shadow':'none', '--card-border':'none' } },
+  { id: 'bordered', label: 'מסגרת',  vars: { '--card-shadow':'none', '--card-border':'1px solid var(--c-border)' } },
+  { id: 'glass',    label: 'זכוכית', vars: { '--card-bg':'rgba(255,255,255,0.72)', '--card-shadow':'0 8px 32px rgba(0,0,0,0.08)', '--card-border':'1px solid rgba(255,255,255,0.6)' } },
+];
+
+const RADIUS_PRESETS = [
+  { id: 'sharp',  label: 'חד',     vars: { '--r-sm':'4px','--r-md':'6px','--r-lg':'8px','--r-xl':'10px','--btn-radius':'4px','--card-radius':'8px' } },
+  { id: 'medium', label: 'בינוני', vars: {} as Record<string, string> },
+  { id: 'round',  label: 'עגול',   vars: { '--r-sm':'20px','--r-md':'24px','--r-lg':'28px','--r-xl':'32px','--btn-radius':'24px','--card-radius':'28px' } },
+];
+
+const PRESET_SCREENS = [
+  { id: 'settings', label: 'הגדרות', icon: '⚙️' },
+  { id: 'profile',  label: 'פרופיל',  icon: '👤' },
+  { id: 'about',    label: 'אודות',   icon: 'ℹ️' },
+  { id: 'contact',  label: 'צור קשר', icon: '💬' },
+];
+
+const LANGUAGES = [
+  { id: 'he', label: 'עברית' },
+  { id: 'en', label: 'English' },
+  { id: 'ar', label: 'العربية' },
+];
+
+export interface EditSettings {
+  paletteId: PaletteId;
+  darkMode: boolean;
+  fontId: string;
+  textSize: string;
+  buttonStyle: string;
+  cardStyle: string;
+  radiusPreset: string;
+  accentColor: string;
+}
+
+const DEFAULT_SETTINGS: EditSettings = {
+  paletteId: 'indigo',
+  darkMode: false,
+  fontId: 'inter',
+  textSize: 'md',
+  buttonStyle: 'rounded',
+  cardStyle: 'elevated',
+  radiusPreset: 'medium',
+  accentColor: '',
+};
+
+function computeDisplayHtmlDoc(htmlDoc: string, settings: EditSettings): string {
   if (!htmlDoc) return htmlDoc;
-  const palette = PALETTES.find((p) => p.id === paletteId) ?? PALETTES[0];
-  const allVars: Record<string, string> = { ...palette.vars, ...(darkMode ? DARK_VARS : {}) };
+  const allVars: Record<string, string> = {};
+
+  const palette = PALETTES.find((p) => p.id === settings.paletteId) ?? PALETTES[0];
+  Object.assign(allVars, palette.vars);
+
+  if (settings.accentColor) {
+    allVars['--c-from'] = settings.accentColor;
+    allVars['--c-to'] = settings.accentColor;
+    allVars['--c-primary'] = settings.accentColor;
+  }
+
+  if (settings.darkMode) Object.assign(allVars, DARK_VARS);
+
+  if (settings.fontId !== 'inter') {
+    const f = FONTS.find((x) => x.id === settings.fontId);
+    if (f) allVars['--c-font'] = f.cssValue;
+  }
+
+  if (settings.textSize !== 'md') {
+    const s = TEXT_SIZES.find((x) => x.id === settings.textSize);
+    if (s) allVars['--c-text-size'] = s.value;
+  }
+
+  if (settings.buttonStyle !== 'rounded') {
+    const b = BUTTON_STYLES.find((x) => x.id === settings.buttonStyle);
+    if (b) Object.assign(allVars, b.vars);
+  }
+
+  if (settings.cardStyle !== 'elevated') {
+    const c = CARD_STYLES.find((x) => x.id === settings.cardStyle);
+    if (c) Object.assign(allVars, c.vars);
+  }
+
+  if (settings.radiusPreset !== 'medium') {
+    const r = RADIUS_PRESETS.find((x) => x.id === settings.radiusPreset);
+    if (r && Object.keys(r.vars).length) Object.assign(allVars, r.vars);
+  }
+
   const entries = Object.entries(allVars);
   if (entries.length === 0) return htmlDoc;
   const pairs = JSON.stringify(entries);
@@ -52,45 +164,194 @@ function computeDisplayHtmlDoc(htmlDoc: string, paletteId: string, darkMode: boo
   return htmlDoc.replace('</head>', script + '\n</head>');
 }
 
-function QuickEditPanel({
-  paletteId,
-  onPaletteChange,
-  darkMode,
-  onDarkModeChange,
+// ── Rich Edit Panel ───────────────────────────────────────────────────────────
+
+function RichEditPanel({
+  settings,
+  onSettings,
+  onStructureEdit,
 }: {
-  paletteId: string;
-  onPaletteChange: (id: string) => void;
-  darkMode: boolean;
-  onDarkModeChange: (v: boolean) => void;
+  settings: EditSettings;
+  onSettings: (s: EditSettings) => void;
+  onStructureEdit: (prompt: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const [section, setSection] = useState('colors');
+  const set = <K extends keyof EditSettings>(k: K, v: EditSettings[K]) =>
+    onSettings({ ...settings, [k]: v });
+
   return (
-    <div className="flex items-center gap-3 px-4 py-2 border-b border-border bg-surface/60 backdrop-blur-sm flex-shrink-0" dir="rtl">
-      <span className="text-text-secondary text-xs font-medium flex-shrink-0">ערכת צבעים:</span>
-      <div className="flex items-center gap-1.5">
+    <div className="border-b border-border bg-surface/80 backdrop-blur-sm flex-shrink-0" dir="rtl">
+      {/* ── compact bar ──────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 px-3 py-1.5 overflow-x-auto">
         {PALETTES.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => onPaletteChange(p.id)}
-            title={p.label}
-            className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${
-              paletteId === p.id ? 'border-text-primary scale-110 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'
-            }`}
-            style={{ background: `linear-gradient(135deg, ${p.from}, ${p.to})` }}
-          />
+          <button key={p.id} onClick={() => set('paletteId', p.id as PaletteId)} title={p.label}
+            className={`w-5 h-5 rounded-full border-2 flex-shrink-0 transition-all hover:scale-110 ${settings.paletteId === p.id ? 'border-text-primary scale-110' : 'border-transparent opacity-60 hover:opacity-100'}`}
+            style={{ background: `linear-gradient(135deg, ${p.from}, ${p.to})` }} />
         ))}
+        <div className="h-4 w-px bg-border flex-shrink-0" />
+        <button onClick={() => set('darkMode', !settings.darkMode)}
+          className={`px-2 py-0.5 rounded text-xs border flex-shrink-0 transition-all ${settings.darkMode ? 'bg-slate-800 text-slate-200 border-slate-600' : 'text-text-secondary border-border hover:text-text-primary'}`}>
+          {settings.darkMode ? '☀️' : '🌙'}
+        </button>
+        <div className="h-4 w-px bg-border flex-shrink-0" />
+        <button onClick={() => setOpen((x) => !x)}
+          className="flex items-center gap-1 px-2 py-0.5 rounded text-xs text-text-secondary hover:text-text-primary border border-border transition-all flex-shrink-0">
+          ⚙️ עריכה {open ? '▲' : '▼'}
+        </button>
       </div>
-      <div className="h-4 w-px bg-border mx-1 flex-shrink-0" />
-      <button
-        onClick={() => onDarkModeChange(!darkMode)}
-        title={darkMode ? 'עבור למצב בהיר' : 'עבור למצב כהה'}
-        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all border flex-shrink-0 ${
-          darkMode
-            ? 'bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700'
-            : 'bg-surface-2 text-text-secondary border-border hover:text-text-primary'
-        }`}
-      >
-        {darkMode ? '☀️' : '🌙'} {darkMode ? 'בהיר' : 'כהה'}
-      </button>
+
+      {/* ── expanded panel ───────────────────────────────────────────────── */}
+      {open && (
+        <div className="px-3 pb-3 border-t border-border/50">
+          {/* Section tabs */}
+          <div className="flex gap-1 pt-2 pb-2 overflow-x-auto">
+            {(['colors', 'typography', 'components', 'structure'] as const).map((s) => (
+              <button key={s} onClick={() => setSection(s)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex-shrink-0 ${section === s ? 'bg-primary text-white' : 'text-text-secondary border border-border hover:text-text-primary'}`}>
+                {s === 'colors' ? '🎨 צבעים' : s === 'typography' ? 'Aa טיפוגרפיה' : s === 'components' ? '□ רכיבים' : '⊞ מבנה'}
+              </button>
+            ))}
+          </div>
+
+          {/* Colors */}
+          {section === 'colors' && (
+            <div className="space-y-3">
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">פלטה</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {PALETTES.map((p) => (
+                    <button key={p.id} onClick={() => set('paletteId', p.id as PaletteId)} title={p.label}
+                      className={`flex flex-col items-center gap-0.5 p-1.5 rounded-lg border transition-all hover:scale-105 ${settings.paletteId === p.id ? 'border-primary bg-primary/10' : 'border-border'}`}>
+                      <div className="w-7 h-7 rounded-md" style={{ background: `linear-gradient(135deg, ${p.from}, ${p.to})` }} />
+                      <span className="text-[9px] text-text-secondary leading-none">{p.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">מצב</p>
+                <div className="flex gap-1.5">
+                  {[{id:'light',label:'☀️ בהיר'},{id:'dark',label:'🌙 כהה'}].map((m) => (
+                    <button key={m.id} onClick={() => set('darkMode', m.id === 'dark')}
+                      className={`flex-1 py-1.5 rounded-lg text-xs border transition-all ${(m.id === 'dark') === settings.darkMode ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary'}`}>
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">צבע מותאם</p>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={settings.accentColor || '#6366f1'}
+                    onChange={(e) => set('accentColor', e.target.value)}
+                    className="w-7 h-7 rounded cursor-pointer border border-border" />
+                  <span className="text-xs text-text-secondary">{settings.accentColor || 'ברירת מחדל'}</span>
+                  {settings.accentColor && (
+                    <button onClick={() => set('accentColor', '')} className="text-xs text-text-secondary hover:text-red-400">✕</button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Typography */}
+          {section === 'typography' && (
+            <div className="space-y-3">
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">פונט</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {FONTS.map((f) => (
+                    <button key={f.id} onClick={() => set('fontId', f.id)}
+                      className={`py-1.5 px-2 rounded-lg text-sm border transition-all ${settings.fontId === f.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary'}`}
+                      style={{ fontFamily: f.family }}>
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">גודל טקסט</p>
+                <div className="flex gap-1">
+                  {TEXT_SIZES.map((s) => (
+                    <button key={s.id} onClick={() => set('textSize', s.id)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs border transition-all ${settings.textSize === s.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary'}`}>
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Components */}
+          {section === 'components' && (
+            <div className="space-y-3">
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">כפתורים</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {BUTTON_STYLES.map((b) => (
+                    <button key={b.id} onClick={() => set('buttonStyle', b.id)}
+                      className={`py-1.5 px-2 rounded-lg text-xs border transition-all ${settings.buttonStyle === b.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary'}`}>
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">כרטיסים</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {CARD_STYLES.map((c) => (
+                    <button key={c.id} onClick={() => set('cardStyle', c.id)}
+                      className={`py-1.5 px-2 rounded-lg text-xs border transition-all ${settings.cardStyle === c.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary'}`}>
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">עיגול פינות</p>
+                <div className="flex gap-1">
+                  {RADIUS_PRESETS.map((r) => (
+                    <button key={r.id} onClick={() => set('radiusPreset', r.id)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs border transition-all ${settings.radiusPreset === r.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary'}`}>
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Structure */}
+          {section === 'structure' && (
+            <div className="space-y-3">
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">הוסף מסך</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {PRESET_SCREENS.map((s) => (
+                    <button key={s.id} onClick={() => onStructureEdit(`הוסף מסך ${s.label} לאפליקציה`)}
+                      className="py-1.5 px-2 rounded-lg text-xs border border-border text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all text-right">
+                      {s.icon} {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">שפת ממשק</p>
+                <div className="flex gap-1">
+                  {LANGUAGES.map((l) => (
+                    <button key={l.id} onClick={() => onStructureEdit(`תרגם את כל הטקסט הגלוי באפליקציה ל${l.label}. שמור על כל הלוגיקה, רק תרגם טקסטים. RTL אם ${l.id === 'he' || l.id === 'ar' ? 'כן' : 'לא'}.`)}
+                      className="flex-1 py-1.5 rounded-lg text-xs border border-border text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all">
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -142,8 +403,7 @@ function BuilderContent() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [showAssistant, setShowAssistant] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [paletteId, setPaletteId] = useState('default');
-  const [darkMode, setDarkMode] = useState(false);
+  const [editSettings, setEditSettings] = useState<EditSettings>(DEFAULT_SETTINGS);
 
   // Auth guard
   useEffect(() => {
@@ -181,6 +441,17 @@ function BuilderContent() {
     setCurrentResult(result);
     setRightPanel('preview');
   }, []);
+
+  const handleStructureEdit = useCallback(async (prompt: string) => {
+    if (!currentResult) return;
+    const existingCode = currentResult.files?.['App.jsx'] ?? currentResult.files?.['App.tsx'] ?? '';
+    try {
+      const result = await generateApp({ prompt, conversationHistory: [], editMode: true, existingCode });
+      handleAppGenerated(result);
+    } catch (err) {
+      console.error('[Builder] Structure edit failed:', err);
+    }
+  }, [currentResult, handleAppGenerated]);
 
   const projectContext: ProjectContext = {
     appName: currentResult?.appName,
@@ -329,19 +600,18 @@ function BuilderContent() {
         {/* Right panel */}
         {currentResult && (
           <div className="hidden md:flex flex-1 flex-col overflow-hidden bg-surface/30">
-            <QuickEditPanel
-              paletteId={paletteId}
-              onPaletteChange={setPaletteId}
-              darkMode={darkMode}
-              onDarkModeChange={setDarkMode}
+            <RichEditPanel
+              settings={editSettings}
+              onSettings={setEditSettings}
+              onStructureEdit={handleStructureEdit}
             />
             {(currentResult.htmlDoc || currentResult.embedUrl) ? (
               <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-gradient-radial from-primary/5 via-bg to-bg">
                 <WebPreview
                   key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
-                  htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', paletteId, darkMode)}
+                  htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', editSettings)}
                   appName={currentResult.appName}
-                  refreshKey={`${paletteId}-${darkMode}`}
+                  refreshKey={JSON.stringify(editSettings)}
                 />
               </div>
             ) : null}
