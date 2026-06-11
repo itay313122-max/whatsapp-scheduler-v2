@@ -17,6 +17,84 @@ const DeviceSync = dynamic(() => import('@/components/DeviceSync'), { ssr: false
 type RightPanel = 'preview';
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
+// ── Palette quick-edit ───────────────────────────────────────────────────────
+
+const PALETTES = [
+  { id: 'default', label: 'ברירת מחדל', from: '#6366f1', to: '#8b5cf6',
+    vars: {} as Record<string, string> },
+  { id: 'green',   label: 'ירוק',       from: '#16a34a', to: '#22c55e',
+    vars: { '--c-from': '#16a34a', '--c-to': '#22c55e', '--c-primary': '#16a34a', '--c-primary-light': 'rgba(22,163,74,0.12)' } },
+  { id: 'orange',  label: 'כתום',       from: '#ea580c', to: '#f97316',
+    vars: { '--c-from': '#ea580c', '--c-to': '#f97316', '--c-primary': '#ea580c', '--c-primary-light': 'rgba(234,88,12,0.12)' } },
+  { id: 'pink',    label: 'ורוד',       from: '#be185d', to: '#ec4899',
+    vars: { '--c-from': '#be185d', '--c-to': '#ec4899', '--c-primary': '#be185d', '--c-primary-light': 'rgba(190,24,93,0.12)' } },
+  { id: 'teal',    label: 'טורקיז',     from: '#0d9488', to: '#14b8a6',
+    vars: { '--c-from': '#0d9488', '--c-to': '#14b8a6', '--c-primary': '#0d9488', '--c-primary-light': 'rgba(13,148,136,0.12)' } },
+];
+
+const DARK_VARS: Record<string, string> = {
+  '--c-bg':      '#0f172a',
+  '--c-surface': '#1e293b',
+  '--c-border':  '#334155',
+  '--c-text':    '#f8fafc',
+  '--c-text-2':  '#94a3b8',
+  '--c-text-3':  '#64748b',
+};
+
+function computeDisplayHtmlDoc(htmlDoc: string, paletteId: string, darkMode: boolean): string {
+  if (!htmlDoc) return htmlDoc;
+  const palette = PALETTES.find((p) => p.id === paletteId) ?? PALETTES[0];
+  const allVars: Record<string, string> = { ...palette.vars, ...(darkMode ? DARK_VARS : {}) };
+  const entries = Object.entries(allVars);
+  if (entries.length === 0) return htmlDoc;
+  const pairs = JSON.stringify(entries);
+  const script = `<script>(function(){var p=${pairs};function a(){var r=document.documentElement;p.forEach(function(x){r.style.setProperty(x[0],x[1]);});}a();setTimeout(a,50);setTimeout(a,300);new MutationObserver(function(){a();}).observe(document.documentElement,{childList:true,subtree:true});})();</script>`;
+  return htmlDoc.replace('</head>', script + '\n</head>');
+}
+
+function QuickEditPanel({
+  paletteId,
+  onPaletteChange,
+  darkMode,
+  onDarkModeChange,
+}: {
+  paletteId: string;
+  onPaletteChange: (id: string) => void;
+  darkMode: boolean;
+  onDarkModeChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-2 border-b border-border bg-surface/60 backdrop-blur-sm flex-shrink-0" dir="rtl">
+      <span className="text-text-secondary text-xs font-medium flex-shrink-0">ערכת צבעים:</span>
+      <div className="flex items-center gap-1.5">
+        {PALETTES.map((p) => (
+          <button
+            key={p.id}
+            onClick={() => onPaletteChange(p.id)}
+            title={p.label}
+            className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${
+              paletteId === p.id ? 'border-text-primary scale-110 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'
+            }`}
+            style={{ background: `linear-gradient(135deg, ${p.from}, ${p.to})` }}
+          />
+        ))}
+      </div>
+      <div className="h-4 w-px bg-border mx-1 flex-shrink-0" />
+      <button
+        onClick={() => onDarkModeChange(!darkMode)}
+        title={darkMode ? 'עבור למצב בהיר' : 'עבור למצב כהה'}
+        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all border flex-shrink-0 ${
+          darkMode
+            ? 'bg-slate-800 text-slate-200 border-slate-600 hover:bg-slate-700'
+            : 'bg-surface-2 text-text-secondary border-border hover:text-text-primary'
+        }`}
+      >
+        {darkMode ? '☀️' : '🌙'} {darkMode ? 'בהיר' : 'כהה'}
+      </button>
+    </div>
+  );
+}
+
 interface Project {
   id: string;
   name: string;
@@ -64,6 +142,8 @@ function BuilderContent() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [showAssistant, setShowAssistant] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [paletteId, setPaletteId] = useState('default');
+  const [darkMode, setDarkMode] = useState(false);
 
   // Auth guard
   useEffect(() => {
@@ -249,12 +329,19 @@ function BuilderContent() {
         {/* Right panel */}
         {currentResult && (
           <div className="hidden md:flex flex-1 flex-col overflow-hidden bg-surface/30">
+            <QuickEditPanel
+              paletteId={paletteId}
+              onPaletteChange={setPaletteId}
+              darkMode={darkMode}
+              onDarkModeChange={setDarkMode}
+            />
             {(currentResult.htmlDoc || currentResult.embedUrl) ? (
               <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-gradient-radial from-primary/5 via-bg to-bg">
                 <WebPreview
                   key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
-                  htmlDoc={currentResult.htmlDoc || ''}
+                  htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', paletteId, darkMode)}
                   appName={currentResult.appName}
+                  refreshKey={`${paletteId}-${darkMode}`}
                 />
               </div>
             ) : null}

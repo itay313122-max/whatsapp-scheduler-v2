@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect } from 'react';
 interface WebPreviewProps {
   htmlDoc: string;
   appName?: string;
+  refreshKey?: string;
 }
 
 type DeviceId = 'iphone' | 'galaxy' | 'ipad' | 'desktop';
@@ -291,7 +292,7 @@ function DesktopFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProp
 
 // ── Main component ─────────────────────────────────────────────────────────
 
-export default function WebPreview({ htmlDoc, appName }: WebPreviewProps) {
+export default function WebPreview({ htmlDoc, appName, refreshKey }: WebPreviewProps) {
   const [loaded, setLoaded] = useState(false);
   const [device, setDevice] = useState<DeviceId>('iphone');
 
@@ -308,7 +309,7 @@ export default function WebPreview({ htmlDoc, appName }: WebPreviewProps) {
 
   const selectDevice = (id: DeviceId) => { setDevice(id); setLoaded(false); };
 
-  const iframeKey = `${device}-${htmlDoc.slice(0, 40)}`;
+  const iframeKey = `${device}-${refreshKey ?? ''}-${htmlDoc.slice(0, 40)}`;
   const frameProps: FrameProps = { htmlDoc, appName, loaded, onLoad: () => setLoaded(true), iframeKey };
 
   return (

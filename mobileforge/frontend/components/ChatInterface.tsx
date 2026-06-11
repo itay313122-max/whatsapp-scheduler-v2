@@ -287,6 +287,13 @@ export default function ChatInterface({
     setGenerating(true);
     if (inputRef.current) inputRef.current.style.height = 'auto';
 
+    // Detect edit mode: if there is already a generated result, subsequent messages edit the existing app
+    const lastResultMsg = [...messages].reverse().find((m) => m.result);
+    const isEditMode = !!lastResultMsg;
+    const existingCode = lastResultMsg
+      ? (lastResultMsg.result!.files?.['App.jsx'] ?? lastResultMsg.result!.files?.['App.tsx'] ?? '')
+      : undefined;
+
     const history = messages.map((m) => ({
       role: m.role,
       content:
@@ -298,7 +305,7 @@ export default function ChatInterface({
     }));
 
     try {
-      const result = await generateApp({ projectId, prompt, conversationHistory: history });
+      const result = await generateApp({ projectId, prompt, conversationHistory: history, editMode: isEditMode, existingCode });
       const assistantMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -602,6 +609,14 @@ export default function ChatInterface({
               <button onClick={toggleVoice} className="mr-auto text-xs text-green-400 hover:text-green-300">
                 עצור
               </button>
+            </div>
+          )}
+
+          {/* Edit mode indicator */}
+          {messages.some((m) => m.result) && (
+            <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20">
+              <span className="text-primary text-xs">✏️</span>
+              <span className="text-primary text-xs font-medium">מצב עריכה — הודעה הבאה תעדכן את האפליקציה</span>
             </div>
           )}
 

@@ -3,6 +3,122 @@ import Groq from 'groq-sdk';
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const MODEL = 'llama-3.3-70b-versatile';
 
+// ── Provider abstraction ────────────────────────────────────────────────────
+
+interface ChatMessage { role: string; content: string; }
+
+async function callGroq(messages: ChatMessage[]): Promise<string> {
+  const response = await client.chat.completions.create({
+    model: MODEL,
+    max_tokens: 8000,
+    messages: messages as Parameters<typeof client.chat.completions.create>[0]['messages'],
+  });
+  return response.choices[0]?.message?.content ?? '';
+}
+
+async function callGemini(messages: ChatMessage[]): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) { const e = new Error('GEMINI_API_KEY not set'); (e as any).skip = true; throw e; }
+
+  const systemMsg = messages.find(m => m.role === 'system');
+  const contents = messages
+    .filter(m => m.role !== 'system')
+    .map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents,
+        ...(systemMsg && { systemInstruction: { parts: [{ text: systemMsg.content }] } }),
+        generationConfig: { maxOutputTokens: 8192, temperature: 0.7 },
+      }),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const e = new Error(`Gemini ${res.status}: ${(err as any)?.error?.message ?? 'unknown'}`);
+    (e as any).status = res.status;
+    throw e;
+  }
+  const data = await res.json() as any;
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  if (!text) throw new Error('Gemini returned empty response');
+  return text;
+}
+
+async function callOpenRouter(messages: ChatMessage[]): Promise<string> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) { const e = new Error('OPENROUTER_API_KEY not set'); (e as any).skip = true; throw e; }
+
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://mobileforge.app',
+      'X-Title': 'MobileForge',
+    },
+    body: JSON.stringify({
+      model: 'meta-llama/llama-3.1-8b-instruct:free',
+      messages,
+      max_tokens: 8000,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const e = new Error(`OpenRouter ${res.status}: ${(err as any)?.error?.message ?? 'unknown'}`);
+    (e as any).status = res.status;
+    throw e;
+  }
+  const data = await res.json() as any;
+  return data.choices?.[0]?.message?.content ?? '';
+}
+
+/**
+ * Try Groq first (with 1 retry on rate-limit), then Gemini, then OpenRouter.
+ * Throws only when all configured providers have failed.
+ */
+async function callWithFallback(messages: ChatMessage[]): Promise<string> {
+  const isRateLimit = (e: unknown) => (e as any)?.status === 429;
+
+  // 1. Groq — up to 2 attempts with 2-second back-off
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      return await callGroq(messages);
+    } catch (err) {
+      if (!isRateLimit(err)) throw err;
+      if (attempt === 0) {
+        console.warn('[AI/web] Groq rate-limited — retrying in 2 s…');
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+  }
+  console.warn('[AI/web] Groq still rate-limited — trying fallback providers');
+
+  // 2. Gemini
+  try {
+    console.log('[AI/web] → Gemini');
+    return await callGemini(messages);
+  } catch (err) {
+    if ((err as any).skip) console.log('[AI/web]   Gemini skipped (no key)');
+    else console.error('[AI/web]   Gemini failed:', (err as Error).message);
+  }
+
+  // 3. OpenRouter
+  try {
+    console.log('[AI/web] → OpenRouter');
+    return await callOpenRouter(messages);
+  } catch (err) {
+    if ((err as any).skip) console.log('[AI/web]   OpenRouter skipped (no key)');
+    else console.error('[AI/web]   OpenRouter failed:', (err as Error).message);
+  }
+
+  throw new Error('All AI providers unavailable. Please try again in a moment.');
+}
+
 const WEB_SYSTEM_PROMPT = `
 You are WebForge AI — an expert React developer.
 Your job: receive a description and return a COMPLETE React web app.
@@ -267,6 +383,62 @@ RULES:
 6. ===CODE=== and ===END=== on their own lines
 `;
 
+// ── Edit mode system prompt ─────────────────────────────────────────────────
+
+const OUTPUT_FORMAT_RULES = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMAT — CRITICAL — FOLLOW EXACTLY:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Return EXACTLY TWO blocks:
+
+BLOCK 1 — JSON metadata (one line, no code):
+{"appName":"App name","description":"what changed","colorScheme":{"primary":"#hex","background":"#hex","text":"#hex","accent":"#hex"},"features":["f1","f2"],"hebrewSummary":"תיאור השינוי בעברית"}
+
+BLOCK 2 — Full updated App code:
+===CODE===
+function App() {
+  // complete updated component
+}
+===END===
+
+RULES:
+1. BLOCK 1: valid JSON, NO code inside it
+2. BLOCK 2: raw JSX — write freely, no JSON escaping
+3. Hebrew text directly in code (שלום not \\u05E9...)
+4. Nothing before BLOCK 1 or after ===END===
+5. No markdown fences
+6. ===CODE=== and ===END=== on their own lines
+`;
+
+function buildEditSystemPrompt(existingCode: string): string {
+  return `You are WebForge AI — you are EDITING an existing React app.
+
+EXISTING CODE (modify this, do NOT rewrite from scratch):
+===CURRENT_CODE===
+${existingCode}
+===END_CURRENT_CODE===
+
+EDITING RULES — CRITICAL:
+1. Apply ONLY the specific change the user requests
+2. Preserve ALL existing state, onClick handlers, screens, and navigation
+3. Preserve ALL existing design system classes (card, btn-primary, app-shell, nav-tab, etc.)
+4. Return the COMPLETE updated function App(){...} — not partial code
+5. Color change → update ONLY the <style>{\`:root{...}\`}</style> CSS variables
+6. Text change → update ONLY that text; keep all logic and structure identical
+7. New screen → add it using the existing renderContent() pattern
+8. Language change → translate ALL visible text (preserve logic/classes)
+9. Dark mode → update --c-bg, --c-surface, --c-text variables to dark values
+${OUTPUT_FORMAT_RULES}`;
+}
+
+// ── Interfaces ──────────────────────────────────────────────────────────────
+
+export interface GenerateOptions {
+  editMode?: boolean;
+  existingCode?: string;
+}
+
 export interface ConversationMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -388,19 +560,22 @@ const FALLBACK_APP = (reason: string) =>
 
 export async function generateWebApp(
   userPrompt: string,
-  conversationHistory: ConversationMessage[]
+  conversationHistory: ConversationMessage[],
+  options?: GenerateOptions
 ): Promise<GeneratedWebApp> {
-  const response = await client.chat.completions.create({
-    model: MODEL,
-    max_tokens: 8000,
-    messages: [
-      { role: 'system', content: WEB_SYSTEM_PROMPT },
-      ...conversationHistory,
-      { role: 'user', content: userPrompt },
-    ],
-  });
+  const systemPrompt = options?.editMode && options.existingCode
+    ? buildEditSystemPrompt(options.existingCode)
+    : WEB_SYSTEM_PROMPT;
 
-  const raw = response.choices[0]?.message?.content ?? '';
+  const messages: ChatMessage[] = [
+    { role: 'system', content: systemPrompt },
+    ...conversationHistory,
+    { role: 'user', content: userPrompt },
+  ];
+
+  console.log('[AI/web] Mode:', options?.editMode ? 'EDIT' : 'GENERATE', '| prompt:', userPrompt.slice(0, 80));
+
+  const raw = await callWithFallback(messages);
   console.log('[AI/web] Raw response length:', raw.length);
   console.log('[AI/web] Raw (first 500):\n', raw.slice(0, 500));
 
@@ -423,20 +598,38 @@ export async function generateWebApp(
 
 export async function* streamGenerateWebApp(
   userPrompt: string,
-  conversationHistory: ConversationMessage[]
+  conversationHistory: ConversationMessage[],
+  options?: GenerateOptions
 ): AsyncGenerator<string> {
+  const systemPrompt = options?.editMode && options.existingCode
+    ? buildEditSystemPrompt(options.existingCode)
+    : WEB_SYSTEM_PROMPT;
+
+  const msgs = [
+    { role: 'system' as const, content: systemPrompt },
+    ...conversationHistory,
+    { role: 'user' as const, content: userPrompt },
+  ];
+
+  // Try Groq streaming first
+  try {
   const stream = await client.chat.completions.create({
     model: MODEL,
     max_tokens: 8000,
     stream: true,
-    messages: [
-      { role: 'system', content: WEB_SYSTEM_PROMPT },
-      ...conversationHistory,
-      { role: 'user', content: userPrompt },
-    ],
+    messages: msgs,
   });
-  for await (const chunk of stream) {
-    const text = chunk.choices[0]?.delta?.content ?? '';
-    if (text) yield text;
+    for await (const chunk of stream) {
+      const text = chunk.choices[0]?.delta?.content ?? '';
+      if (text) yield text;
+    }
+    return;
+  } catch (err) {
+    if ((err as any)?.status !== 429) throw err;
+    console.warn('[AI/web] Groq stream rate-limited — falling back to non-streaming…');
   }
+
+  // Fallback: non-streaming, emit entire response as one chunk
+  const raw = await callWithFallback(msgs);
+  yield raw;
 }

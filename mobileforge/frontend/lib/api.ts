@@ -17,6 +17,8 @@ export interface GenerateRequest {
   projectId?: string;
   prompt: string;
   conversationHistory: { role: 'user' | 'assistant'; content: string }[];
+  editMode?: boolean;
+  existingCode?: string;
 }
 
 export interface GenerateResponse {

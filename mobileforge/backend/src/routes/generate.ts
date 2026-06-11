@@ -23,20 +23,21 @@ function extractAppCode(files: Record<string, string>): string {
 
 // POST /api/generate
 router.post('/', async (req: Request, res: Response) => {
-  const { projectId, prompt, conversationHistory = [] } = req.body;
+  const { projectId, prompt, conversationHistory = [], editMode = false, existingCode } = req.body;
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
 
   try {
-    const generated = await generateWebApp(prompt, conversationHistory as ConversationMessage[]);
+    const generated = await generateWebApp(
+      prompt,
+      conversationHistory as ConversationMessage[],
+      { editMode: !!editMode, existingCode: existingCode ?? undefined }
+    );
     const appCode = extractAppCode(generated.files);
 
     if (!appCode) {
       console.error('[Generate] No valid app code — cannot build HTML');
     } else {
-      console.log('[Generate] App code length:', appCode.length, '| has function App:', appCode.includes('function App'));
-      console.log('[Generate] ── FULL APP CODE ──────────────────────────');
-      console.log(appCode);
-      console.log('[Generate] ─────────────────────────────────────────');
+      console.log('[Generate] App code length:', appCode.length, '| editMode:', editMode);
     }
 
     const htmlDoc = appCode ? buildHtmlDocument(appCode, generated.appName) : '';
@@ -81,7 +82,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 // POST /api/generate/stream
 router.post('/stream', async (req: Request, res: Response) => {
-  const { prompt, conversationHistory = [] } = req.body;
+  const { prompt, conversationHistory = [], editMode = false, existingCode } = req.body;
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -91,7 +92,11 @@ router.post('/stream', async (req: Request, res: Response) => {
 
   try {
     let fullText = '';
-    for await (const chunk of streamGenerateWebApp(prompt, conversationHistory as ConversationMessage[])) {
+    for await (const chunk of streamGenerateWebApp(
+      prompt,
+      conversationHistory as ConversationMessage[],
+      { editMode: !!editMode, existingCode: existingCode ?? undefined }
+    )) {
       fullText += chunk;
       res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
     }
