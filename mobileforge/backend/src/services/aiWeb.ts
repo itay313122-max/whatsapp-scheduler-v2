@@ -180,6 +180,22 @@ COLOR PALETTE — set via <style> at top of App JSX (REQUIRED):
   Choose palette for the domain: meditation→purple, food→orange, finance→emerald,
   fitness→red, travel→teal, music→pink. Background: very light tint of the primary.
 
+FONTS — for Hebrew apps use Heebo, Assistant, or Rubik (all pre-loaded):
+  <style>{\`:root { --c-font: 'Heebo', system-ui, sans-serif; }\`}</style>
+  For English apps keep the default Inter font.
+
+EMPTY STATES — use for every list that can be empty:
+  <div className="empty-state">
+    <div className="empty-state-icon">🛒</div>
+    <p className="empty-state-title">הרשימה ריקה</p>
+    <p className="empty-state-body">לחץ + כדי להוסיף את הפריט הראשון</p>
+    <button className="btn-primary" style={{width:'auto',padding:'12px 24px'}} onClick={...}>הוסף</button>
+  </div>
+
+RESPONSIVE GRIDS — use to make app look good on iPad too:
+  Phone (default):  <div className="grid-2">  — 2 columns
+  Tablet (768px+):  <div className="grid-tablet-3"> or <div className="grid-tablet-4">
+
 ━━━ UX/UI PRINCIPLES — MANDATORY ━━━
 HIERARCHY & LAYOUT:
 - Less is more: one clear primary action per screen, no overloaded UI.
@@ -296,14 +312,24 @@ function App() {
     return (
       <>
         <input className="input-field" placeholder="חפש מנה..." value={search} onChange={e=>setSearch(e.target.value)} />
-        <p className="section-title">{filtered.length} תוצאות</p>
-        {filtered.map(item=>(
-          <div key={item.id} className="list-item">
-            <div className="icon-circle">{item.emoji}</div>
-            <div style={{flex:1}}><p className="subtitle" style={{fontSize:14}}>{item.name}</p></div>
-            <button className="btn-icon" style={{width:30,height:30,fontSize:20,fontWeight:900}} onClick={()=>addToCart(item)}>+</button>
+        {filtered.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-icon">🔍</div>
+            <p className="empty-state-title">אין תוצאות</p>
+            <p className="empty-state-body">נסה מילת חיפוש אחרת</p>
           </div>
-        ))}
+        ) : (
+          <>
+            <p className="section-title">{filtered.length} תוצאות</p>
+            {filtered.map(item=>(
+              <div key={item.id} className="list-item">
+                <div className="icon-circle">{item.emoji}</div>
+                <div style={{flex:1}}><p className="subtitle" style={{fontSize:14}}>{item.name}</p></div>
+                <button className="btn-icon" onClick={()=>addToCart(item)}>+</button>
+              </div>
+            ))}
+          </>
+        )}
       </>
     );
   };
@@ -311,7 +337,14 @@ function App() {
   const CartScreen = () => (
     <>
       <p className="section-title">הסל שלך ({cart.length} פריטים)</p>
-      {cart.length === 0 && <div className="card"><p className="body" style={{textAlign:'center'}}>הסל ריק 🛒</p></div>}
+      {cart.length === 0 && (
+        <div className="empty-state">
+          <div className="empty-state-icon">🛒</div>
+          <p className="empty-state-title">הסל ריק</p>
+          <p className="empty-state-body">הוסף מנות מהתפריט</p>
+          <button className="btn-primary" style={{width:'auto',padding:'12px 24px',marginTop:4}} onClick={()=>setTab('search')}>הזמן עכשיו</button>
+        </div>
+      )}
       {cart.map(item=>(
         <div key={item.cartId} className="list-item">
           <div className="icon-circle">{item.emoji}</div>
