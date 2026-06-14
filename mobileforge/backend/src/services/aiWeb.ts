@@ -3,6 +3,14 @@ import Groq from 'groq-sdk';
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const MODEL = 'llama-3.3-70b-versatile';
 
+// Log key status once on startup (last 4 chars only, never full key)
+const _k = (v: string | undefined) => v ? (v.length > 4 ? `…${v.slice(-4)}` : '(set)') : '⚠️ MISSING';
+console.log('[AI/web] Provider keys —', {
+  GROQ:        _k(process.env.GROQ_API_KEY),
+  GEMINI:      _k(process.env.GEMINI_API_KEY),
+  OPENROUTER:  _k(process.env.OPENROUTER_API_KEY),
+});
+
 // ── Provider abstraction ────────────────────────────────────────────────────
 
 interface ChatMessage { role: string; content: string; }
@@ -79,29 +87,43 @@ async function callOpenRouter(messages: ChatMessage[]): Promise<string> {
 
 /**
  * Try Groq first (with 1 retry on rate-limit), then Gemini, then OpenRouter.
- * Throws only when all configured providers have failed.
+ * Throws only when ALL configured providers have failed.
+ *
+ * Bug fix: previously only fell back on 429 rate-limit. Now falls back on
+ * ANY Groq failure (auth error, server error, network error, etc.) so that
+ * a bad/missing Groq key still lets Gemini/OpenRouter serve the request.
  */
 async function callWithFallback(messages: ChatMessage[]): Promise<string> {
-  const isRateLimit = (e: unknown) => (e as any)?.status === 429;
+  let groqLastError: unknown;
 
-  // 1. Groq — up to 2 attempts with 2-second back-off
+  // 1. Groq — up to 2 attempts, but only retry on 429 rate-limit
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      return await callGroq(messages);
+      console.log(`[AI/web] Groq attempt ${attempt + 1}/2…`);
+      const result = await callGroq(messages);
+      console.log('[AI/web] ✓ Groq succeeded');
+      return result;
     } catch (err) {
-      if (!isRateLimit(err)) throw err;
+      groqLastError = err;
+      const status = (err as any)?.status ?? (err as any)?.error?.status;
+      const msg    = (err as Error).message ?? String(err);
+      console.warn(`[AI/web] Groq attempt ${attempt + 1} failed — status=${status ?? 'n/a'} — ${msg}`);
+      if (status !== 429) break;   // not rate-limited: don't retry, go to fallback
       if (attempt === 0) {
         console.warn('[AI/web] Groq rate-limited — retrying in 2 s…');
         await new Promise(r => setTimeout(r, 2000));
       }
     }
   }
-  console.warn('[AI/web] Groq still rate-limited — trying fallback providers');
+
+  console.warn('[AI/web] Groq failed — trying fallback providers…');
 
   // 2. Gemini
   try {
     console.log('[AI/web] → Gemini');
-    return await callGemini(messages);
+    const result = await callGemini(messages);
+    console.log('[AI/web] ✓ Gemini succeeded');
+    return result;
   } catch (err) {
     if ((err as any).skip) console.log('[AI/web]   Gemini skipped (no key)');
     else console.error('[AI/web]   Gemini failed:', (err as Error).message);
@@ -110,13 +132,17 @@ async function callWithFallback(messages: ChatMessage[]): Promise<string> {
   // 3. OpenRouter
   try {
     console.log('[AI/web] → OpenRouter');
-    return await callOpenRouter(messages);
+    const result = await callOpenRouter(messages);
+    console.log('[AI/web] ✓ OpenRouter succeeded');
+    return result;
   } catch (err) {
     if ((err as any).skip) console.log('[AI/web]   OpenRouter skipped (no key)');
     else console.error('[AI/web]   OpenRouter failed:', (err as Error).message);
   }
 
-  throw new Error('All AI providers unavailable. Please try again in a moment.');
+  // All providers failed — surface the original Groq error for clarity
+  const rootMsg = groqLastError instanceof Error ? groqLastError.message : String(groqLastError);
+  throw new Error(`All AI providers unavailable. Original Groq error: ${rootMsg}`);
 }
 
 const WEB_SYSTEM_PROMPT = `
