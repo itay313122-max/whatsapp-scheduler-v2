@@ -95,6 +95,16 @@ export async function streamGenerateApp(
   }
 }
 
+export async function shareApp(htmlDoc: string, appName: string): Promise<{ id: string; shareUrl: string }> {
+  const res = await fetch(`${API_URL}/api/share`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ htmlDoc, appName }),
+  });
+  if (!res.ok) throw new Error('Failed to share app');
+  return res.json();
+}
+
 export async function createProject(name: string, description?: string) {
   const headers = await getAuthHeaders();
   const res = await fetch(`${API_URL}/api/projects`, {

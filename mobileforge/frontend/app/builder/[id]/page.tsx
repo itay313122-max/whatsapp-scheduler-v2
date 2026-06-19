@@ -8,7 +8,7 @@ import WebPreview from '@/components/WebPreview';
 import ForgeAssistant from '@/components/ForgeAssistant';
 import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
-import { getProject, generateApp } from '@/lib/api';
+import { getProject, generateApp, shareApp } from '@/lib/api';
 import type { GenerateResponse, ProjectContext } from '@/lib/api';
 import Link from 'next/link';
 
@@ -404,6 +404,7 @@ function BuilderContent() {
   const [showAssistant, setShowAssistant] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [editSettings, setEditSettings] = useState<EditSettings>(DEFAULT_SETTINGS);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'sharing' | 'copied'>('idle');
 
   // Auth guard — skip redirect for guest users (demo mode)
   useEffect(() => {
@@ -541,47 +542,79 @@ function BuilderContent() {
           <SaveIndicator status={saveStatus} />
         </div>
 
-        {/* Right side */}
+        {/* Right side — Share & Export */}
         <div className="flex items-center gap-2">
-          {currentResult && (
+          {currentResult && currentResult.htmlDoc && (
             <>
-              {/* Preview indicator */}
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-medium">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18.5l-7-4.5V8.5L12 4l7 4.5v5.5L12 18.5z" />
-                </svg>
-                Preview
-              </div>
-
-              {/* Open on phone */}
-              {currentResult.snackId && (
-                <button
-                  onClick={() => setShowDeviceSync(true)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent/10 text-accent border border-accent/20 hover:bg-accent/20 text-xs font-medium transition-all"
-                  title="פתח בטלפון עם Expo Go"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              {/* Share button */}
+              <button
+                onClick={async () => {
+                  if (shareStatus !== 'idle') return;
+                  setShareStatus('sharing');
+                  try {
+                    const { shareUrl } = await shareApp(currentResult.htmlDoc, currentResult.appName);
+                    await navigator.clipboard.writeText(shareUrl);
+                    setShareStatus('copied');
+                    setTimeout(() => setShareStatus('idle'), 3000);
+                  } catch { setShareStatus('idle'); }
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 text-xs font-medium transition-all"
+              >
+                {shareStatus === 'sharing' ? (
+                  <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  <span className="hidden sm:inline">פתח בטלפון</span>
-                  <span className="sm:hidden">QR</span>
-                </button>
-              )}
-
-              {/* Share link */}
-              {currentResult.shareUrl && (
-                <a
-                  href={currentResult.shareUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 text-xs transition-all"
-                >
+                ) : shareStatus === 'copied' ? (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                   </svg>
-                  <span className="hidden sm:inline">שתף</span>
-                </a>
-              )}
+                )}
+                <span className="hidden sm:inline">{shareStatus === 'copied' ? 'הועתק!' : 'שתף לינק'}</span>
+                <span className="sm:hidden">{shareStatus === 'copied' ? '✓' : 'שתף'}</span>
+              </button>
+
+              {/* Download HTML */}
+              <button
+                onClick={() => {
+                  const blob = new Blob([currentResult.htmlDoc], { type: 'text/html' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${currentResult.appName || 'app'}.html`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 text-xs font-medium transition-all"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span className="hidden sm:inline">הורד</span>
+              </button>
+
+              {/* Install as PWA */}
+              <button
+                onClick={async () => {
+                  try {
+                    const { id } = await shareApp(currentResult.htmlDoc, currentResult.appName);
+                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+                    window.open(`${apiUrl}/api/share/${id}/pwa`, '_blank');
+                  } catch { /* ignore */ }
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent/10 text-accent border border-accent/20 hover:bg-accent/20 text-xs font-medium transition-all"
+                title="הורד כאפליקציית PWA להתקנה על טלפון"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <span className="hidden sm:inline">התקן PWA</span>
+                <span className="sm:hidden">PWA</span>
+              </button>
             </>
           )}
         </div>

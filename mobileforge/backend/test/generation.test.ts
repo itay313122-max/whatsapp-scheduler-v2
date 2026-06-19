@@ -984,3 +984,63 @@ describe('Import stripping edge cases in buildHtmlDocument', () => {
     expect(html).toContain('function App()');
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// חבילה 14 — Share route (5 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Share route', () => {
+  let app: any;
+  let request: any;
+
+  beforeAll(async () => {
+    const express = require('express');
+    const shareRouter = require('../src/routes/share').default;
+    app = express();
+    app.use(express.json());
+    app.use('/api/share', shareRouter);
+    const supertest = require('supertest');
+    request = supertest(app);
+  });
+
+  it('creates a share and returns id + shareUrl', async () => {
+    const res = await request.post('/api/share')
+      .send({ htmlDoc: '<html><body>Test</body></html>', appName: 'MyApp' });
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBeDefined();
+    expect(res.body.shareUrl).toContain('/api/share/');
+  });
+
+  it('serves the shared HTML at GET /api/share/:id', async () => {
+    const create = await request.post('/api/share')
+      .send({ htmlDoc: '<html><body>Hello World</body></html>', appName: 'TestApp' });
+    const res = await request.get(`/api/share/${create.body.id}`);
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Hello World');
+    expect(res.headers['content-type']).toContain('text/html');
+  });
+
+  it('returns 404 for non-existent share', async () => {
+    const res = await request.get('/api/share/nonexistent123');
+    expect(res.status).toBe(404);
+  });
+
+  it('returns download with Content-Disposition header', async () => {
+    const create = await request.post('/api/share')
+      .send({ htmlDoc: '<html><body>DL</body></html>', appName: 'DownloadApp' });
+    const res = await request.get(`/api/share/${create.body.id}/download`);
+    expect(res.status).toBe(200);
+    expect(res.headers['content-disposition']).toContain('attachment');
+    expect(res.headers['content-disposition']).toContain('DownloadApp');
+  });
+
+  it('returns PWA-enhanced HTML with manifest', async () => {
+    const create = await request.post('/api/share')
+      .send({ htmlDoc: '<html><head></head><body>PWA</body></html>', appName: 'PWAApp' });
+    const res = await request.get(`/api/share/${create.body.id}/pwa`);
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('manifest');
+    expect(res.text).toContain('skipWaiting');
+    expect(res.headers['content-disposition']).toContain('pwa');
+  });
+});
