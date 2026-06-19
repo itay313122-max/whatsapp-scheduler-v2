@@ -9,9 +9,10 @@ export function initFirebase() {
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-  if (!projectId || !clientEmail || !privateKey) {
+  const isPlaceholder = (v?: string) => !v || v.startsWith('__');
+  if (isPlaceholder(projectId) || isPlaceholder(clientEmail) || isPlaceholder(privateKey)) {
     console.warn(
-      'Firebase Admin credentials not fully configured. Running without Firebase.'
+      '[Firebase] Credentials not configured (placeholders detected). Running without Firebase.'
     );
     return;
   }
