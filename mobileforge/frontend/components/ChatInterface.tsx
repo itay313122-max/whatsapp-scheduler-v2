@@ -754,7 +754,7 @@ export default function ChatInterface({
 
             {/* Send */}
             <button
-              onClick={handleSubmit}
+              onClick={() => handleSubmit()}
               disabled={(!input.trim() && !imageBase64) || isGenerating}
               className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-primary text-white flex items-center justify-center hover:opacity-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-glow"
             >
