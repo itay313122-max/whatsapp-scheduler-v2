@@ -377,7 +377,240 @@ const CALCULATOR_APP: DemoApp = {
 }`,
 };
 
-const DEMO_APPS: DemoApp[] = [CLOTHING_STORE, TODO_APP, CALCULATOR_APP];
+const WEATHER_APP: DemoApp = {
+  keywords: ['מזג אוויר', 'weather', 'טמפרטורה', 'תחזית', 'forecast', 'temperature', 'גשם', 'rain'],
+  metadata: {
+    appName: 'WeatherNow',
+    description: 'אפליקציית מזג אוויר עם תחזית שעתית ושבועית',
+    colorScheme: { primary: '#0284c7', background: '#F0F9FF', text: '#1A1A2E', accent: '#38bdf8' },
+    features: ['טמפרטורה נוכחית עם אייקון', 'תחזית שעתית (גלילה)', 'תחזית שבועית 7 ימים'],
+    hebrewSummary: 'אפליקציית מזג אוויר עם תחזית שעתית, שבועית ופרטי לחות ורוח',
+  },
+  code: `function App() {
+  const { useState } = React;
+  const [city, setCity] = useState('תל אביב');
+
+  const hourly = [
+    { time: 'עכשיו', temp: 28, icon: '☀️' },
+    { time: '14:00', temp: 30, icon: '☀️' },
+    { time: '16:00', temp: 29, icon: '🌤️' },
+    { time: '18:00', temp: 26, icon: '🌤️' },
+    { time: '20:00', temp: 23, icon: '🌙' },
+    { time: '22:00', temp: 21, icon: '🌙' },
+  ];
+
+  const weekly = [
+    { day: 'היום', high: 30, low: 22, icon: '☀️' },
+    { day: 'מחר', high: 31, low: 23, icon: '☀️' },
+    { day: 'שלישי', high: 28, low: 21, icon: '🌤️' },
+    { day: 'רביעי', high: 27, low: 20, icon: '⛅' },
+    { day: 'חמישי', high: 25, low: 19, icon: '🌧️' },
+    { day: 'שישי', high: 29, low: 22, icon: '☀️' },
+    { day: 'שבת', high: 32, low: 24, icon: '☀️' },
+  ];
+
+  return (
+    <>
+      <style>{\`
+        :root {
+          --c-from:#0284c7; --c-to:#38bdf8;
+          --c-primary:#0284c7; --c-primary-light:rgba(2,132,199,0.12);
+          --c-bg:#F0F9FF; --c-font:'Heebo',system-ui,sans-serif;
+        }
+      \`}</style>
+      <div className="app-shell" dir="rtl">
+        <div className="header-gradient" style={{borderRadius:0,paddingTop:24,paddingBottom:28}}>
+          <p className="caption" style={{color:'rgba(255,255,255,0.7)',marginBottom:4}}>{city}</p>
+          <div style={{display:'flex',alignItems:'center',gap:16}}>
+            <span style={{fontSize:56}}>☀️</span>
+            <div>
+              <p style={{fontSize:48,fontWeight:800,color:'#fff',lineHeight:1}}>28°</p>
+              <p style={{color:'rgba(255,255,255,0.8)',fontSize:14}}>בהיר | מרגיש כמו 31°</p>
+            </div>
+          </div>
+        </div>
+        <div className="app-content">
+          <div className="card">
+            <p className="section-title" style={{marginBottom:10}}>תחזית שעתית</p>
+            <div style={{display:'flex',gap:16,overflowX:'auto',paddingBottom:8}}>
+              {hourly.map((h,i) => (
+                <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,minWidth:52}}>
+                  <p className="caption">{h.time}</p>
+                  <span style={{fontSize:24}}>{h.icon}</span>
+                  <p className="subtitle" style={{fontSize:15}}>{h.temp}°</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="card">
+            <p className="section-title" style={{marginBottom:10}}>תחזית שבועית</p>
+            {weekly.map((d,i) => (
+              <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0',borderBottom:i<6?'1px solid var(--c-border)':'none'}}>
+                <p className="body" style={{width:60,fontWeight:i===0?700:400}}>{d.day}</p>
+                <span style={{fontSize:20}}>{d.icon}</span>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <span className="subtitle" style={{fontSize:14,color:'var(--c-primary)'}}>{d.high}°</span>
+                  <span className="caption">{d.low}°</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid-2">
+            <div className="card-sm" style={{textAlign:'center'}}>
+              <p className="caption" style={{marginBottom:4}}>💧 לחות</p>
+              <p className="subtitle">62%</p>
+            </div>
+            <div className="card-sm" style={{textAlign:'center'}}>
+              <p className="caption" style={{marginBottom:4}}>💨 רוח</p>
+              <p className="subtitle">18 קמ"ש</p>
+            </div>
+            <div className="card-sm" style={{textAlign:'center'}}>
+              <p className="caption" style={{marginBottom:4}}>☀️ UV</p>
+              <p className="subtitle">גבוה 7</p>
+            </div>
+            <div className="card-sm" style={{textAlign:'center'}}>
+              <p className="caption" style={{marginBottom:4}}>👁️ ראות</p>
+              <p className="subtitle">10 ק"מ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}`,
+};
+
+const RESTAURANT_APP: DemoApp = {
+  keywords: ['מסעדה', 'restaurant', 'אוכל', 'food', 'תפריט', 'menu', 'פיצה', 'pizza', 'בורגר', 'burger', 'מנה', 'הזמנ'],
+  metadata: {
+    appName: 'FoodHub',
+    description: 'אפליקציית מסעדה עם תפריט והזמנות',
+    colorScheme: { primary: '#ea580c', background: '#FFF7ED', text: '#1A1A2E', accent: '#fb923c' },
+    features: ['תפריט עם קטגוריות', 'הוספה להזמנה עם כמות', 'סיכום הזמנה ותשלום'],
+    hebrewSummary: 'אפליקציית מסעדה עם תפריט מחולק לקטגוריות, עגלת הזמנות וסיכום',
+  },
+  code: `function App() {
+  const { useState, useMemo } = React;
+  const [screen, setScreen] = useState('menu');
+  const [order, setOrder] = useState([]);
+  const [category, setCategory] = useState('main');
+
+  const menu = {
+    main: [
+      { id: 1, name: 'המבורגר קלאסי', price: 52, emoji: '🍔', desc: '200 גרם, חסה, עגבנייה' },
+      { id: 2, name: 'פיצה מרגריטה', price: 48, emoji: '🍕', desc: 'רוטב, מוצרלה, בזיליקום' },
+      { id: 3, name: 'שניצל פריך', price: 45, emoji: '🍗', desc: 'עם צ\\'יפס ואורז' },
+      { id: 4, name: 'סלט סיזר', price: 42, emoji: '🥗', desc: 'חסה, קרוטונים, פרמזן' },
+    ],
+    sides: [
+      { id: 5, name: 'צ\\'יפס', price: 18, emoji: '🍟', desc: 'פריך ומתובל' },
+      { id: 6, name: 'טבעות בצל', price: 22, emoji: '🧅', desc: 'בציפוי פנקו' },
+    ],
+    drinks: [
+      { id: 7, name: 'לימונדה', price: 16, emoji: '🍋', desc: 'סחוט טרי עם נענע' },
+      { id: 8, name: 'קולה', price: 12, emoji: '🥤', desc: '330 מ"ל' },
+    ],
+  };
+
+  const categories = [
+    { id: 'main', label: 'מנות עיקריות', emoji: '🍽️' },
+    { id: 'sides', label: 'תוספות', emoji: '🍟' },
+    { id: 'drinks', label: 'שתייה', emoji: '🥤' },
+  ];
+
+  const addToOrder = (item) => setOrder(prev => [...prev, { ...item, orderId: Date.now() + Math.random() }]);
+  const removeFromOrder = (orderId) => setOrder(prev => prev.filter(i => i.orderId !== orderId));
+  const total = useMemo(() => order.reduce((s, i) => s + i.price, 0), [order]);
+
+  return (
+    <>
+      <style>{\`
+        :root {
+          --c-from:#ea580c; --c-to:#fb923c;
+          --c-primary:#ea580c; --c-primary-light:rgba(234,88,12,0.12);
+          --c-bg:#FFF7ED; --c-font:'Heebo',system-ui,sans-serif;
+        }
+      \`}</style>
+      <div className="app-shell" dir="rtl">
+        <div className="app-header">
+          <h1 className="subtitle">FoodHub 🍕</h1>
+          <button className="btn-icon" onClick={() => setScreen('order')}>
+            🛒 {order.length > 0 && <span className="badge" style={{fontSize:10,padding:'2px 6px'}}>{order.length}</span>}
+          </button>
+        </div>
+        <div className="app-content">
+          {screen === 'menu' ? (
+            <>
+              <div className="gradient-banner">
+                <h2 className="title" style={{color:'white',margin:'0 0 6px',fontSize:22}}>ברוכים הבאים!</h2>
+                <p className="body" style={{color:'rgba(255,255,255,0.85)'}}>הזמינו ותיהנו ממשלוח מהיר</p>
+              </div>
+              <div style={{display:'flex',gap:8}}>
+                {categories.map(c => (
+                  <button key={c.id} className={category === c.id ? 'btn-primary' : 'btn-secondary'} style={{flex:1,padding:'10px 0',fontSize:12}} onClick={() => setCategory(c.id)}>
+                    {c.emoji} {c.label}
+                  </button>
+                ))}
+              </div>
+              {menu[category].map(item => (
+                <div key={item.id} className="list-item">
+                  <div className="icon-circle" style={{fontSize:28}}>{item.emoji}</div>
+                  <div style={{flex:1}}>
+                    <p className="subtitle" style={{fontSize:14}}>{item.name}</p>
+                    <p className="caption">{item.desc}</p>
+                    <p className="subtitle" style={{color:'var(--c-primary)',fontSize:14,marginTop:4}}>₪{item.price}</p>
+                  </div>
+                  <button className="btn-icon" style={{fontSize:16}} onClick={() => addToOrder(item)}>+</button>
+                </div>
+              ))}
+            </>
+          ) : (
+            <>
+              <p className="section-title">ההזמנה שלך ({order.length} פריטים)</p>
+              {order.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">🛒</div>
+                  <p className="empty-state-title">ההזמנה ריקה</p>
+                  <p className="empty-state-body">הוסיפו פריטים מהתפריט</p>
+                  <button className="btn-primary" style={{width:'auto',padding:'12px 24px'}} onClick={() => setScreen('menu')}>לתפריט</button>
+                </div>
+              ) : (
+                <>
+                  {order.map(item => (
+                    <div key={item.orderId} className="list-item">
+                      <span style={{fontSize:20}}>{item.emoji}</span>
+                      <div style={{flex:1}}>
+                        <p className="subtitle" style={{fontSize:13}}>{item.name}</p>
+                        <p className="caption">₪{item.price}</p>
+                      </div>
+                      <button className="btn-icon" style={{width:28,height:28,fontSize:14}} onClick={() => removeFromOrder(item.orderId)}>✕</button>
+                    </div>
+                  ))}
+                  <div className="card" style={{marginTop:8}}>
+                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}>
+                      <span className="subtitle">סה"כ</span>
+                      <span className="title" style={{fontSize:22,color:'var(--c-primary)'}}>₪{total}</span>
+                    </div>
+                    <button className="btn-primary" onClick={() => { setOrder([]); setScreen('menu'); alert('ההזמנה נשלחה! 🎉'); }}>שלח הזמנה</button>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
+        <div className="app-nav">
+          <button className={'nav-tab' + (screen === 'menu' ? ' active' : '')} onClick={() => setScreen('menu')}><span style={{fontSize:20}}>🍽️</span>תפריט</button>
+          <button className={'nav-tab' + (screen === 'order' ? ' active' : '')} onClick={() => setScreen('order')}><span style={{fontSize:20}}>🛒</span>הזמנה{order.length > 0 ? \` (\${order.length})\` : ''}</button>
+        </div>
+      </div>
+    </>
+  );
+}`,
+};
+
+const DEMO_APPS: DemoApp[] = [CLOTHING_STORE, TODO_APP, WEATHER_APP, RESTAURANT_APP, CALCULATOR_APP];
 
 /**
  * Returns a complete AI response in the format parseGroqResponse expects.
@@ -390,11 +623,25 @@ export function getDemoResponse(prompt: string): string {
     app.keywords.length > 0 && app.keywords.some(kw => lower.includes(kw))
   );
 
-  // Fallback to calculator (last app, which has empty keywords)
   if (!match) {
     match = CALCULATOR_APP;
   }
 
   const metaJson = JSON.stringify(match.metadata);
   return `${metaJson}\n===CODE===\n${match.code}\n===END===`;
+}
+
+/**
+ * In demo/edit mode, return the existing code back as-is
+ * (since we can't actually call an LLM to modify it).
+ */
+export function getDemoEditResponse(existingCode: string): string {
+  const meta = {
+    appName: 'Updated App',
+    description: 'האפליקציה עודכנה',
+    colorScheme: { primary: '#6C3AE8', background: '#F8F9FA', text: '#1A1A2E', accent: '#A78BFA' },
+    features: ['עודכן לפי הבקשה'],
+    hebrewSummary: 'האפליקציה עודכנה — במצב דמו, שינויי AI לא זמינים. חבר מפתח API כדי לערוך עם AI',
+  };
+  return `${JSON.stringify(meta)}\n===CODE===\n${existingCode}\n===END===`;
 }

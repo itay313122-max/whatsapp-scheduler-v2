@@ -1,5 +1,5 @@
 import Groq from 'groq-sdk';
-import { getDemoResponse } from './demoApps';
+import { getDemoResponse, getDemoEditResponse } from './demoApps';
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY || 'placeholder-for-demo-mode' });
 const MODEL = 'llama-3.3-70b-versatile';
@@ -672,6 +672,15 @@ export async function generateWebApp(
   ];
 
   console.log('[AI/web] Mode:', options?.editMode ? 'EDIT' : 'GENERATE', '| prompt:', userPrompt.slice(0, 80));
+
+  // In demo mode + edit mode, return existing code as-is (can't modify without LLM)
+  const allPlaceholder = [process.env.GROQ_API_KEY, process.env.GEMINI_API_KEY, process.env.OPENROUTER_API_KEY]
+    .every(k => !k || k.startsWith('__') || k.startsWith('placeholder'));
+  if (allPlaceholder && options?.editMode && options.existingCode) {
+    console.log('[AI/web] \u{1F3AD} Demo mode — edit request, returning existing code');
+    const raw = getDemoEditResponse(options.existingCode);
+    return parseGroqResponse(raw);
+  }
 
   const raw = await callWithFallback(messages);
   console.log('[AI/web] Raw response length:', raw.length);
