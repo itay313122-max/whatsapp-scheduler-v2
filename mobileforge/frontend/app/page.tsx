@@ -69,7 +69,7 @@ export default function LandingPage() {
           {/* CTA */}
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/auth?mode=register"
+              href="/builder/demo"
               className="group px-8 py-4 rounded-2xl bg-gradient-primary text-white font-display font-bold text-lg shadow-glow hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
             >
               התחל לבנות — בחינם
@@ -200,7 +200,7 @@ export default function LandingPage() {
             10 credits בחינם. ללא כרטיס אשראי. ללא התחייבות.
           </p>
           <Link
-            href="/auth?mode=register"
+            href="/builder/demo"
             className="inline-block px-10 py-4 rounded-2xl bg-gradient-primary text-white font-display font-bold text-xl hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-glow"
           >
             התחל עכשיו — בחינם ✨

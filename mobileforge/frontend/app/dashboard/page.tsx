@@ -23,7 +23,7 @@ const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isGuest } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -33,14 +33,19 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) router.push('/auth');
-  }, [user, authLoading, router]);
+    if (!user && !isGuest) router.push('/auth');
+  }, [user, authLoading, isGuest, router]);
 
   useEffect(() => {
     if (!user) return;
+    // In guest mode, skip fetching projects from backend
+    if (isGuest) {
+      setLoadingProjects(false);
+      return;
+    }
     loadProjects();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, isGuest]);
 
   async function loadProjects() {
     setLoadingProjects(true);
@@ -93,7 +98,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) return null;
+  if (!user && !isGuest) return null;
 
   return (
     <div className="min-h-screen bg-bg text-text-primary" dir="rtl">
@@ -110,7 +115,7 @@ export default function DashboardPage() {
           <div>
             <h1 className="font-display font-bold text-3xl mb-1">הפרויקטים שלי</h1>
             <p className="text-text-secondary text-sm">
-              {user.displayName || user.email}
+              {user?.displayName || user?.email || 'Guest'}
               {projects.length > 0 && ` · ${projects.length} פרויקטים`}
             </p>
           </div>

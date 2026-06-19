@@ -393,7 +393,7 @@ function BuilderContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isGuest } = useAuth();
   const projectId = params.id as string;
 
   const [project, setProject] = useState<Project | null>(null);
@@ -405,11 +405,11 @@ function BuilderContent() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [editSettings, setEditSettings] = useState<EditSettings>(DEFAULT_SETTINGS);
 
-  // Auth guard
+  // Auth guard — skip redirect for guest users (demo mode)
   useEffect(() => {
     if (authLoading) return;
-    if (!user) router.push('/auth');
-  }, [user, authLoading, router]);
+    if (!user && !isGuest) router.push('/auth');
+  }, [user, authLoading, isGuest, router]);
 
   // Load project meta
   useEffect(() => {
@@ -421,10 +421,16 @@ function BuilderContent() {
       return;
     }
 
+    // In guest/demo mode, don't try to fetch project from backend
+    if (isGuest) {
+      setProject({ id: projectId, name: 'Demo Project' });
+      return;
+    }
+
     getProject(projectId)
       .then(setProject)
       .catch(() => setProject({ id: projectId, name: 'פרויקט חדש' }));
-  }, [projectId, user, authLoading, searchParams]);
+  }, [projectId, user, authLoading, isGuest, searchParams]);
 
   const handleGeneratingChange = useCallback((isGenerating: boolean) => {
     setSaveStatus(isGenerating ? 'saving' : 'idle');
@@ -468,8 +474,8 @@ function BuilderContent() {
     });
   }, []);
 
-  // Loading / auth redirecting
-  if (authLoading || (!user && !authLoading)) {
+  // Loading / auth redirecting (allow guest users through)
+  if (authLoading || (!user && !isGuest && !authLoading)) {
     return (
       <div className="h-screen bg-bg flex items-center justify-center">
         <div className="flex items-center gap-3 text-text-secondary">

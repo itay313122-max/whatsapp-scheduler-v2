@@ -89,10 +89,37 @@ export async function logout() {
   return signOut(auth);
 }
 
+// Guest user object for demo/dev mode when Firebase is not configured
+export interface GuestUser {
+  uid: string;
+  email: string;
+  displayName: string;
+  photoURL: null;
+  isGuest: true;
+  getIdToken: () => Promise<string>;
+}
+
+function createGuestUser(): GuestUser {
+  return {
+    uid: 'guest-' + Math.random().toString(36).slice(2, 10),
+    email: 'guest@demo.local',
+    displayName: 'Guest User',
+    photoURL: null,
+    isGuest: true,
+    getIdToken: async () => '',
+  };
+}
+
+export function isFirebaseConfigured(): boolean {
+  return isConfigured();
+}
+
 export function onAuthChange(callback: (user: User | null) => void) {
   const auth = getFirebaseAuth();
   if (!auth) {
-    callback(null);
+    // Firebase not configured — auto-create guest session for demo mode
+    const guest = createGuestUser() as unknown as User;
+    setTimeout(() => callback(guest), 0);
     return () => {};
   }
   return onAuthStateChanged(auth, callback);

@@ -1,4 +1,5 @@
 import Groq from 'groq-sdk';
+import { getDemoResponse } from './demoApps';
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const MODEL = 'llama-3.3-70b-versatile';
@@ -94,6 +95,15 @@ async function callOpenRouter(messages: ChatMessage[]): Promise<string> {
  * a bad/missing Groq key still lets Gemini/OpenRouter serve the request.
  */
 async function callWithFallback(messages: ChatMessage[]): Promise<string> {
+  // Demo mode: skip network calls entirely if all API keys are placeholders
+  const allPlaceholder = [process.env.GROQ_API_KEY, process.env.GEMINI_API_KEY, process.env.OPENROUTER_API_KEY]
+    .every(k => !k || k.startsWith('__'));
+  if (allPlaceholder) {
+    console.log('[AI/web] \u{1F3AD} Demo mode — all API keys are placeholders');
+    const userMsg = messages.find(m => m.role === 'user');
+    return getDemoResponse(userMsg?.content ?? '');
+  }
+
   let groqLastError: unknown;
 
   // 1. Groq — up to 2 attempts, but only retry on 429 rate-limit
