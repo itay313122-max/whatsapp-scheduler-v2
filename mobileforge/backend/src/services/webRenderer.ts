@@ -290,7 +290,7 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
   <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17" crossorigin="anonymous"></script>
   <style>${safeCss}</style>
   <script>
     window.onerror = function(msg, _src, line, col) {
