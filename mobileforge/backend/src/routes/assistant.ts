@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import Groq from 'groq-sdk';
 
 const router = Router();
-const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY || 'placeholder-for-demo-mode' });
 
 const MODEL = 'llama-3.3-70b-versatile';
 

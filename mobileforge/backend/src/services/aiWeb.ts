@@ -1,7 +1,7 @@
 import Groq from 'groq-sdk';
 import { getDemoResponse } from './demoApps';
 
-const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY || 'placeholder-for-demo-mode' });
 const MODEL = 'llama-3.3-70b-versatile';
 
 // Log key status once on startup (last 4 chars only, never full key)
@@ -97,7 +97,7 @@ async function callOpenRouter(messages: ChatMessage[]): Promise<string> {
 async function callWithFallback(messages: ChatMessage[]): Promise<string> {
   // Demo mode: skip network calls entirely if all API keys are placeholders
   const allPlaceholder = [process.env.GROQ_API_KEY, process.env.GEMINI_API_KEY, process.env.OPENROUTER_API_KEY]
-    .every(k => !k || k.startsWith('__'));
+    .every(k => !k || k.startsWith('__') || k.startsWith('placeholder'));
   if (allPlaceholder) {
     console.log('[AI/web] \u{1F3AD} Demo mode — all API keys are placeholders');
     const userMsg = messages.find(m => m.role === 'user');

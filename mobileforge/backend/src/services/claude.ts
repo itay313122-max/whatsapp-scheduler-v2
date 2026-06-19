@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || 'placeholder-for-demo-mode' });
 
 const MOBILE_SYSTEM_PROMPT = `
 You are MobileForge AI — an expert React Native / Expo developer.
