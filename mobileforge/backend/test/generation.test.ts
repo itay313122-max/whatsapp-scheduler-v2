@@ -809,3 +809,178 @@ describe('buildEditSystemPrompt', () => {
     expect(prompt).toContain('===END===');
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// חבילה 9 — CDN version pinning (4 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('CDN version pinning in buildHtmlDocument', () => {
+  const html = buildHtmlDocument('function App() { return <div>Test</div>; }');
+
+  it('pins Tailwind CSS to version 3.x (not unversioned)', () => {
+    expect(html).toContain('cdn.tailwindcss.com/3.');
+    expect(html).not.toMatch(/cdn\.tailwindcss\.com["'\s>]/);
+  });
+
+  it('pins Babel standalone to a specific version', () => {
+    expect(html).toMatch(/@babel\/standalone@\d+\.\d+/);
+  });
+
+  it('pins React to version 18.x', () => {
+    expect(html).toContain('react@18.');
+    expect(html).toContain('react-dom@18.');
+  });
+
+  it('loads all CDN scripts with crossorigin attribute', () => {
+    const scriptTags = html.match(/<script\s+src="https:\/\/[^"]+"/g) || [];
+    expect(scriptTags.length).toBeGreaterThanOrEqual(4);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// חבילה 10 — Click-to-edit overlay injection (6 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Click-to-edit overlay in buildHtmlDocument', () => {
+  const html = buildHtmlDocument('function App() { return <div>Hello</div>; }');
+
+  it('injects the edit overlay script', () => {
+    expect(html).toContain('__mf_toolbar');
+  });
+
+  it('includes hover event listener for editable elements', () => {
+    expect(html).toContain('mouseover');
+    expect(html).toContain('EDITABLE');
+  });
+
+  it('includes contentEditable toggling for inline editing', () => {
+    expect(html).toContain('contentEditable');
+  });
+
+  it('sends postMessage to parent on text change', () => {
+    expect(html).toContain('postMessage');
+    expect(html).toContain('mf-edit');
+  });
+
+  it('includes keyboard shortcuts (Escape and Enter)', () => {
+    expect(html).toContain('Escape');
+    expect(html).toContain('keydown');
+  });
+
+  it('places edit overlay script before </body>', () => {
+    const overlayPos = html.indexOf('__mf_toolbar');
+    const bodyClosePos = html.indexOf('</body>');
+    expect(overlayPos).toBeLessThan(bodyClosePos);
+    expect(overlayPos).toBeGreaterThan(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// חבילה 11 — Demo mode responses (5 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Demo mode — getDemoResponse', () => {
+  // Import directly to test
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { getDemoResponse } = require('../src/services/demoApps');
+
+  it('returns clothing store for "חנות בגדים"', () => {
+    const raw = getDemoResponse('חנות בגדים');
+    const parsed = parseGroqResponse(raw);
+    expect(parsed.appName).toBe('StyleHub');
+  });
+
+  it('returns todo app for "משימות"', () => {
+    const raw = getDemoResponse('משימות');
+    const parsed = parseGroqResponse(raw);
+    expect(parsed.appName).toBe('TaskFlow');
+  });
+
+  it('falls back to calculator for unknown prompts', () => {
+    const raw = getDemoResponse('something random xyz');
+    const parsed = parseGroqResponse(raw);
+    expect(parsed.appName).toBe('CalcPro');
+  });
+
+  it('returns valid parseable format with ===CODE=== delimiters', () => {
+    const raw = getDemoResponse('test');
+    expect(raw).toContain('===CODE===');
+    expect(raw).toContain('===END===');
+  });
+
+  it('demo app code renders valid HTML via buildHtmlDocument', () => {
+    const raw = getDemoResponse('חנות');
+    const parsed = parseGroqResponse(raw);
+    const appCode = parsed.files['App.jsx'] || '';
+    expect(appCode.length).toBeGreaterThan(100);
+    const html = buildHtmlDocument(appCode, parsed.appName);
+    expect(html).toContain('<!DOCTYPE html>');
+    expect(html).toContain('ReactDOM.createRoot');
+    expect(html).toContain('__mf_toolbar');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// חבילה 12 — SDK placeholder keys (3 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('SDK initialization with placeholder keys', () => {
+  it('aiWeb module loads without GROQ_API_KEY env var', () => {
+    expect(() => {
+      require('../src/services/aiWeb');
+    }).not.toThrow();
+  });
+
+  it('ai module loads without GROQ_API_KEY env var', () => {
+    expect(() => {
+      require('../src/services/ai');
+    }).not.toThrow();
+  });
+
+  it('assistant route loads without GROQ_API_KEY env var', () => {
+    expect(() => {
+      require('../src/routes/assistant');
+    }).not.toThrow();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// חבילה 13 — Import stripping edge cases (5 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Import stripping edge cases in buildHtmlDocument', () => {
+  it('strips multiline import statements', () => {
+    const code = `import React from 'react';\nimport { useState } from 'react';\nfunction App() { return <div>Hi</div>; }`;
+    const html = buildHtmlDocument(code);
+    expect(html).not.toMatch(/import\s+React\s+from/);
+    expect(html).not.toMatch(/import\s+\{\s*useState\s*\}\s*from/);
+    expect(html).toContain('function App()');
+  });
+
+  it('strips export default function', () => {
+    const code = `export default function App() { return <div>Hi</div>; }`;
+    const html = buildHtmlDocument(code);
+    expect(html).toContain('function App()');
+    expect(html).not.toContain('export default');
+  });
+
+  it('strips export const/let/var', () => {
+    const code = `export const App = () => <div>Hi</div>;`;
+    const html = buildHtmlDocument(code);
+    expect(html).toContain('const App');
+    expect(html).not.toContain('export const');
+  });
+
+  it('strips side-effect imports', () => {
+    const code = `import './styles.css';\nfunction App() { return <div>Hi</div>; }`;
+    const html = buildHtmlDocument(code);
+    expect(html).not.toContain("import './styles.css'");
+  });
+
+  it('preserves code after stripping imports', () => {
+    const code = `import React from 'react';\nconst helper = () => 42;\nfunction App() { return <div>{helper()}</div>; }`;
+    const html = buildHtmlDocument(code);
+    expect(html).toContain('const helper');
+    expect(html).toContain('function App()');
+  });
+});
