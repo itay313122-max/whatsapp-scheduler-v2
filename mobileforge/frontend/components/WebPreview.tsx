@@ -457,6 +457,16 @@ export default function WebPreview({ htmlDoc, appName, refreshKey }: WebPreviewP
     console.log('[WebPreview] htmlDoc length:', htmlDoc?.length ?? 0);
   }, [htmlDoc]);
 
+  useEffect(() => {
+    function handleMessage(e: MessageEvent) {
+      if (e.data?.type === 'mf-edit') {
+        console.log('[WebPreview] Edit event:', e.data);
+      }
+    }
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   const openInNewTab = useCallback(() => {
     const blob = new Blob([htmlDoc], { type: 'text/html' });
     const url  = URL.createObjectURL(blob);

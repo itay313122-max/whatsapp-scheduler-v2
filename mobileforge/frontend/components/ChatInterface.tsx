@@ -26,12 +26,79 @@ interface ChatInterfaceProps {
   onGeneratingChange?: (isGenerating: boolean) => void;
 }
 
-const SUGGESTIONS = [
-  'אפליקציית רשימת קניות עם קטגוריות וסמן פריטים',
-  'אפליקציית מזג אוויר עם ממשק יפה',
-  'אפליקציית טיימר פואנדרי עם אנימציות',
-  'Todo app with swipe gestures and categories',
-  'אפליקציית מדיטציה עם נשימה מודרכת',
+const TEMPLATES = [
+  {
+    id: 'store',
+    emoji: '🛍️',
+    name: 'חנות אונליין',
+    desc: 'קטלוג מוצרים, סל קניות ותשלום',
+    gradient: 'from-violet-500/15 to-purple-500/10',
+    border: 'border-violet-200/60',
+    prompt: 'בנה אפליקציית חנות אונליין מעוצבת עם קטלוג מוצרים (6 פריטים עם אימוג\'י, שם, מחיר), סל קניות עם הוספה והסרה, ומסך תשלום. ניווט תחתון בין קטלוג, סל ופרופיל. עיצוב מודרני עם באנר gradient ו-empty states',
+  },
+  {
+    id: 'restaurant',
+    emoji: '🍕',
+    name: 'אפליקציית מסעדה',
+    desc: 'תפריט, הזמנות וסטטוס משלוח',
+    gradient: 'from-orange-500/15 to-red-500/10',
+    border: 'border-orange-200/60',
+    prompt: 'בנה אפליקציית מסעדה מעוצבת עם תפריט מחולק לקטגוריות (מנות עיקריות, תוספות, שתייה, קינוחים), כל מנה עם אימוג\'י שם מחיר ותיאור קצר. אפשרות הוספה להזמנה, מסך סיכום הזמנה עם סה"כ, ומסך סטטוס משלוח. עיצוב חם עם צבעי כתום ואדום',
+  },
+  {
+    id: 'fitness',
+    emoji: '💪',
+    name: 'אפליקציית כושר',
+    desc: 'אימונים, מעקב התקדמות וטיימר',
+    gradient: 'from-red-500/15 to-pink-500/10',
+    border: 'border-red-200/60',
+    prompt: 'בנה אפליקציית כושר עם רשימת אימונים (כוח, קרדיו, יוגה, HIIT), כל אימון עם תרגילים, סטים וחזרות. טיימר אימון עם סטופר, מסך מעקב התקדמות עם גרף שבועי (bars), ומסך פרופיל עם סטטיסטיקות. עיצוב אנרגטי עם צבעי אדום וורוד',
+  },
+  {
+    id: 'tasks',
+    emoji: '✅',
+    name: 'מנהל משימות',
+    desc: 'משימות, קטגוריות ופס התקדמות',
+    gradient: 'from-emerald-500/15 to-green-500/10',
+    border: 'border-emerald-200/60',
+    prompt: 'בנה אפליקציית ניהול משימות עם הוספת משימות חדשות, סימון השלמה, מחיקה, סינון (הכל/פעילות/הושלמו), פס התקדמות ויזואלי עם אחוזים, וקטגוריות צבעוניות (עבודה, אישי, קניות). עיצוב נקי בירוק',
+  },
+  {
+    id: 'finance',
+    emoji: '💰',
+    name: 'ניהול תקציב',
+    desc: 'הוצאות, הכנסות ותרשימים',
+    gradient: 'from-emerald-500/15 to-teal-500/10',
+    border: 'border-teal-200/60',
+    prompt: 'בנה אפליקציית ניהול תקציב אישי עם מסך ראשי שמציג יתרה, הכנסות והוצאות החודש. אפשרות הוספת הוצאה/הכנסה עם קטגוריה (אוכל, תחבורה, בידור, חשבונות), היסטוריית תנועות, ומסך סיכום עם חלוקה לפי קטגוריות. עיצוב פיננסי בירוק-כחול',
+  },
+  {
+    id: 'social',
+    emoji: '💬',
+    name: 'רשת חברתית',
+    desc: 'פיד, פרופיל ולייקים',
+    gradient: 'from-blue-500/15 to-cyan-500/10',
+    border: 'border-blue-200/60',
+    prompt: 'בנה אפליקציית רשת חברתית עם פיד פוסטים (כרטיסים עם אווטאר, שם, תוכן, לייקים ותגובות), מסך פרופיל עם תמונה סטטיסטיקות ופוסטים, מסך הודעות, וכפתור יצירת פוסט חדש. עיצוב מודרני בכחול',
+  },
+  {
+    id: 'weather',
+    emoji: '🌤️',
+    name: 'מזג אוויר',
+    desc: 'תחזית, טמפרטורה ומפה',
+    gradient: 'from-sky-500/15 to-blue-500/10',
+    border: 'border-sky-200/60',
+    prompt: 'בנה אפליקציית מזג אוויר עם מסך ראשי שמציג טמפרטורה נוכחית גדולה, מצב מזג אוויר עם אימוג\'י, תחזית שעתית (גלילה אופקית), תחזית שבועית (7 ימים), ופרטים נוספים (לחות, רוח, UV). עיצוב נקי עם gradient כחול-סגול',
+  },
+  {
+    id: 'learning',
+    emoji: '📚',
+    name: 'פלטפורמת למידה',
+    desc: 'קורסים, שיעורים והתקדמות',
+    gradient: 'from-indigo-500/15 to-violet-500/10',
+    border: 'border-indigo-200/60',
+    prompt: 'בנה אפליקציית למידה עם קטלוג קורסים (6 קורסים עם אימוג\'י, שם, מורה, מספר שיעורים), מסך קורס עם רשימת שיעורים וסימון השלמה, פס התקדמות, ומסך פרופיל עם סטטיסטיקות למידה. עיצוב אקדמי באינדיגו',
+  },
 ];
 
 // Compress image to base64 (max 1024px wide, jpeg 85%)
@@ -253,7 +320,7 @@ export default function ChatInterface({
     }
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(promptOverride?: string) {
     // If we have an image pending, use vision endpoint
     if (imageBase64) {
       await submitWithImage(imageBase64, imageMimeType, input.trim() || undefined, false);
@@ -262,7 +329,7 @@ export default function ChatInterface({
       return;
     }
 
-    const prompt = input.trim();
+    const prompt = promptOverride || input.trim();
     if (!prompt || isGenerating) return;
 
     const sourceType: Message['sourceType'] = isListening ? 'voice' : 'text';
@@ -391,60 +458,62 @@ export default function ChatInterface({
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full gap-5 text-center py-8">
+              {/* Logo */}
               <div className="w-14 h-14 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-glow">
                 <span className="text-white font-display font-bold text-xl">M</span>
               </div>
               <div>
-                <h2 className="font-display font-bold text-xl text-text-primary mb-1">
-                  MobileForge AI
-                </h2>
-                <p className="text-text-secondary text-sm">
-                  בנה אפליקציות מובייל בשלוש דרכים
-                </p>
+                <h2 className="font-display font-bold text-xl text-text-primary mb-1">MobileForge AI</h2>
+                <p className="text-text-secondary text-sm">תאר מה אתה רוצה — או התחל מתבנית</p>
               </div>
 
-              {/* Viral feature cards */}
-              <div className="grid grid-cols-1 gap-2 w-full max-w-sm">
-                {viralFeatures.map((f) => (
-                  <button
-                    key={f.title}
-                    onClick={f.action}
-                    disabled={f.disabled || isGenerating}
-                    className={`flex items-center gap-3 p-3 rounded-2xl border bg-gradient-to-br text-right transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 ${f.color}`}
-                  >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl ${f.iconBg}`}>
-                      {f.icon}
-                    </div>
-                    <div className="text-right">
-                      <p className="font-display font-semibold text-text-primary text-sm">{f.title}</p>
-                      <p className="text-text-secondary text-xs">{f.desc}</p>
-                    </div>
-                    {f.disabled && (
-                      <span className="mr-auto text-xs text-text-secondary px-2 py-0.5 rounded-full border border-border">
-                        לא נתמך
-                      </span>
-                    )}
-                  </button>
-                ))}
+              {/* Template Gallery */}
+              <div className="w-full max-w-sm">
+                <p className="text-text-secondary text-xs font-medium mb-2 text-right">התחל מתבנית מוכנה</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {TEMPLATES.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        setInput(t.prompt);
+                        // Auto-submit after a tick
+                        setTimeout(() => handleSubmit(t.prompt), 50);
+                      }}
+                      disabled={isGenerating}
+                      className={`flex items-center gap-2.5 p-3 rounded-xl border bg-gradient-to-br text-right transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 ${t.gradient} ${t.border}`}
+                    >
+                      <div className="w-9 h-9 rounded-lg bg-white/60 flex items-center justify-center flex-shrink-0 text-lg shadow-sm">
+                        {t.emoji}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-text-primary text-[13px] truncate">{t.name}</p>
+                        <p className="text-text-secondary text-[11px] truncate">{t.desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Divider */}
               <div className="flex items-center gap-3 w-full max-w-sm">
                 <div className="flex-1 h-px bg-border" />
-                <span className="text-text-secondary text-xs">או כתוב בטקסט</span>
+                <span className="text-text-secondary text-xs">או</span>
                 <div className="flex-1 h-px bg-border" />
               </div>
 
-              {/* Text suggestions */}
-              <div className="flex flex-col gap-2 w-full max-w-sm">
-                {SUGGESTIONS.map((s) => (
+              {/* Input methods row */}
+              <div className="flex gap-2 w-full max-w-sm">
+                {viralFeatures.map((f) => (
                   <button
-                    key={s}
-                    onClick={() => { setInput(s); inputRef.current?.focus(); }}
-                    className="px-4 py-2 rounded-xl border border-border text-text-secondary hover:text-text-primary hover:border-primary/50 text-right text-sm transition-all"
-                    dir="rtl"
+                    key={f.title}
+                    onClick={f.action}
+                    disabled={f.disabled || isGenerating}
+                    className={`flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl border bg-gradient-to-br transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 ${f.color}`}
                   >
-                    {s}
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-base ${f.iconBg}`}>
+                      {f.icon}
+                    </div>
+                    <p className="font-medium text-text-primary text-xs">{f.title}</p>
                   </button>
                 ))}
               </div>

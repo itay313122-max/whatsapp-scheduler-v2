@@ -355,6 +355,155 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
       }
     })();
   </script>
+  <!-- MobileForge Edit Overlay -->
+  <script>
+  (function() {
+    var EDITABLE = 'p,h1,h2,h3,h4,h5,h6,span,button,a,label,li,td,th,div';
+    var selected = null;
+    var toolbar = null;
+    var editing = false;
+
+    function createToolbar() {
+      var t = document.createElement('div');
+      t.id = '__mf_toolbar';
+      t.style.cssText = 'position:fixed;z-index:99999;display:none;background:#1e293b;border-radius:10px;padding:4px;gap:4px;box-shadow:0 8px 32px rgba(0,0,0,0.25),0 2px 8px rgba(0,0,0,0.15);font-family:-apple-system,sans-serif;font-size:12px;align-items:center;backdrop-filter:blur(8px);';
+
+      var editBtn = document.createElement('button');
+      editBtn.textContent = '\\u270F\\uFE0F \\u05E2\\u05E8\\u05D5\\u05DA';
+      editBtn.style.cssText = 'background:rgba(99,102,241,0.2);color:#a5b4fc;border:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;';
+      editBtn.onclick = function() { startEdit(); };
+
+      var doneBtn = document.createElement('button');
+      doneBtn.textContent = '\\u2713 \\u05E1\\u05D9\\u05D5\\u05DD';
+      doneBtn.id = '__mf_done';
+      doneBtn.style.cssText = 'background:rgba(34,197,94,0.2);color:#86efac;border:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;display:none;white-space:nowrap;';
+      doneBtn.onclick = function() { finishEdit(); };
+
+      t.appendChild(editBtn);
+      t.appendChild(doneBtn);
+      document.body.appendChild(t);
+      return t;
+    }
+
+    function positionToolbar(el) {
+      if (!toolbar) toolbar = createToolbar();
+      var r = el.getBoundingClientRect();
+      toolbar.style.display = 'flex';
+      toolbar.style.left = Math.max(4, r.left) + 'px';
+      toolbar.style.top = Math.max(4, r.top - 40) + 'px';
+    }
+
+    function clearSelection() {
+      if (selected) {
+        selected.style.outline = '';
+        selected.style.outlineOffset = '';
+      }
+      if (toolbar) toolbar.style.display = 'none';
+      selected = null;
+      editing = false;
+    }
+
+    function startEdit() {
+      if (!selected) return;
+      selected.contentEditable = 'true';
+      selected.focus();
+      selected.style.outline = '2px solid #22c55e';
+      editing = true;
+      var editBtn = toolbar.querySelector('button:first-child');
+      var doneBtn = document.getElementById('__mf_done');
+      editBtn.style.display = 'none';
+      doneBtn.style.display = 'block';
+    }
+
+    function finishEdit() {
+      if (!selected) return;
+      selected.contentEditable = 'false';
+      selected.style.outline = '2px solid #22c55e';
+      setTimeout(function() { selected.style.outline = ''; }, 800);
+
+      // Flash green
+      selected.style.transition = 'background 0.3s';
+      selected.style.background = 'rgba(34,197,94,0.1)';
+      setTimeout(function() { if(selected) selected.style.background = ''; }, 600);
+
+      // Notify parent
+      try {
+        window.parent.postMessage({
+          type: 'mf-edit',
+          action: 'text-changed',
+          newText: selected.textContent,
+          tag: selected.tagName.toLowerCase(),
+        }, '*');
+      } catch(e) {}
+
+      var editBtn = toolbar.querySelector('button:first-child');
+      var doneBtn = document.getElementById('__mf_done');
+      editBtn.style.display = 'block';
+      doneBtn.style.display = 'none';
+      editing = false;
+      clearSelection();
+    }
+
+    // Hover
+    document.addEventListener('mouseover', function(e) {
+      if (editing) return;
+      var el = e.target.closest(EDITABLE);
+      if (!el || el.id === '__mf_toolbar' || el.closest('#__mf_toolbar') || el.id === '__err') return;
+      el.style.outline = '2px dashed rgba(99,102,241,0.5)';
+      el.style.outlineOffset = '2px';
+      el.addEventListener('mouseout', function handler() {
+        if (el !== selected) { el.style.outline = ''; el.style.outlineOffset = ''; }
+        el.removeEventListener('mouseout', handler);
+      });
+    });
+
+    // Click
+    document.addEventListener('click', function(e) {
+      if (editing) return;
+      var el = e.target.closest(EDITABLE);
+      if (!el || el.id === '__mf_toolbar' || el.closest('#__mf_toolbar')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      clearSelection();
+      selected = el;
+      el.style.outline = '2px solid #6366f1';
+      el.style.outlineOffset = '2px';
+      positionToolbar(el);
+    }, true);
+
+    // Double-click to edit directly
+    document.addEventListener('dblclick', function(e) {
+      var el = e.target.closest(EDITABLE);
+      if (!el || el.id === '__mf_toolbar' || el.closest('#__mf_toolbar')) return;
+      e.preventDefault();
+      clearSelection();
+      selected = el;
+      el.style.outline = '2px solid #6366f1';
+      el.style.outlineOffset = '2px';
+      positionToolbar(el);
+      startEdit();
+    }, true);
+
+    // Escape to cancel
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (editing) finishEdit();
+        else clearSelection();
+      }
+      if (e.key === 'Enter' && editing && !e.shiftKey) {
+        e.preventDefault();
+        finishEdit();
+      }
+    });
+
+    // Click on empty space to deselect
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest(EDITABLE) && !e.target.closest('#__mf_toolbar')) {
+        clearSelection();
+      }
+    });
+  })();
+  </script>
 </body>
 </html>`;
 }
