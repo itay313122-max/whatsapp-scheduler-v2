@@ -7,7 +7,7 @@ import ChatInterface from '@/components/ChatInterface';
 import WebPreview from '@/components/WebPreview';
 import type { PreviewScreen, PreviewSelectedElement } from '@/components/WebPreview';
 import CodeViewer from '@/components/CodeViewer';
-import ScreenNavigator from '@/components/ScreenNavigator';
+import EditSidebar from '@/components/EditSidebar';
 import PropertyPanel from '@/components/PropertyPanel';
 import type { SelectedElement } from '@/components/PropertyPanel';
 import ForgeAssistant from '@/components/ForgeAssistant';
@@ -411,6 +411,7 @@ function BuilderContent() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [editSettings, setEditSettings] = useState<EditSettings>(DEFAULT_SETTINGS);
   const [shareStatus, setShareStatus] = useState<'idle' | 'sharing' | 'copied'>('idle');
+  const [isGenerating, setIsGenerating] = useState(false);
   const [appScreens, setAppScreens] = useState<PreviewScreen[]>([]);
   const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -459,8 +460,9 @@ function BuilderContent() {
       .catch(() => setProject({ id: projectId, name: 'פרויקט חדש' }));
   }, [projectId, user, authLoading, isGuest, searchParams]);
 
-  const handleGeneratingChange = useCallback((isGenerating: boolean) => {
-    setSaveStatus(isGenerating ? 'saving' : 'idle');
+  const handleGeneratingChange = useCallback((generating: boolean) => {
+    setIsGenerating(generating);
+    setSaveStatus(generating ? 'saving' : 'idle');
   }, []);
 
   const handleAppGenerated = useCallback((result: GenerateResponse) => {
@@ -732,15 +734,6 @@ function BuilderContent() {
                 />
                 {(currentResult.htmlDoc || currentResult.embedUrl) ? (
                   <div className="flex-1 flex overflow-hidden">
-                    {/* Screen Navigator sidebar */}
-                    <div className="w-[170px] flex-shrink-0 border-l border-border bg-surface/60 overflow-hidden">
-                      <ScreenNavigator
-                        screens={appScreens}
-                        onNavigate={handleNavigateScreen}
-                        onAddScreen={handleAddScreen}
-                      />
-                    </div>
-
                     {/* Preview area */}
                     <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-gradient-radial from-primary/5 via-bg to-bg">
                       <WebPreview
@@ -755,17 +748,20 @@ function BuilderContent() {
                       />
                     </div>
 
-                    {/* Property Panel sidebar — shown when element selected */}
-                    {selectedElement && (
-                      <div className="w-[240px] flex-shrink-0 border-r border-border bg-surface/60 overflow-auto">
-                        <PropertyPanel
-                          element={selectedElement}
-                          onStyleChange={handleStyleChange}
-                          onTextChange={handleTextChange}
-                          onDeselect={handleDeselectElement}
-                        />
-                      </div>
-                    )}
+                    {/* Edit Sidebar — AI design, layers, properties */}
+                    <div className="w-[280px] flex-shrink-0 border-r border-border bg-surface/60 overflow-hidden">
+                      <EditSidebar
+                        onAIEdit={handleStructureEdit}
+                        isGenerating={isGenerating}
+                        screens={appScreens}
+                        onNavigate={handleNavigateScreen}
+                        onAddScreen={handleAddScreen}
+                        selectedElement={selectedElement}
+                        onStyleChange={handleStyleChange}
+                        onTextChange={handleTextChange}
+                        onDeselect={handleDeselectElement}
+                      />
+                    </div>
                   </div>
                 ) : null}
               </>

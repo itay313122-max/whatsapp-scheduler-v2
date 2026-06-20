@@ -12,6 +12,11 @@ export interface SelectedElement {
     padding: string;
     fontWeight: string;
     borderRadius: string;
+    boxShadow?: string;
+    border?: string;
+    textAlign?: string;
+    opacity?: string;
+    width?: string;
   };
   path: string;
 }
