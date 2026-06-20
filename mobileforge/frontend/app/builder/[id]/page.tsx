@@ -472,6 +472,15 @@ function BuilderContent() {
     setTimeout(() => setSaveStatus('idle'), 3000);
   }, [projectId]);
 
+  // Auto-save on edit settings change (debounced)
+  useEffect(() => {
+    if (!currentResult) return;
+    const timer = setTimeout(() => {
+      saveLocalProject(projectId, currentResult);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [editSettings, projectId, currentResult]);
+
   const handleShowPreview = useCallback((result: GenerateResponse) => {
     setCurrentResult(result);
     setRightPanel('preview');
@@ -752,6 +761,7 @@ function BuilderContent() {
                       <EditSidebar
                         onAIEdit={handleStructureEdit}
                         isGenerating={isGenerating}
+                        appName={currentResult.appName}
                         screens={appScreens}
                         onNavigate={handleNavigateScreen}
                         onAddScreen={handleAddScreen}

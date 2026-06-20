@@ -9,6 +9,7 @@ import {
   onAuthChange,
   createUserDocIfNeeded,
 } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
 function Spinner({ className = 'w-4 h-4' }: { className?: string }) {
@@ -23,6 +24,7 @@ function Spinner({ className = 'w-4 h-4' }: { className?: string }) {
 function AuthForm() {
   const router = useRouter();
   const params = useSearchParams();
+  const { enterGuestMode } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>(
     params.get('mode') === 'register' ? 'register' : 'login'
   );
@@ -83,9 +85,13 @@ function AuthForm() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';
       if (msg.includes('not configured')) {
-        setError('Firebase לא מוגדר. הוסף משתני סביבה.');
-      } else if (!msg.includes('popup-closed-by-user')) {
-        setError('שגיאה בהתחברות עם Google');
+        setError('Firebase לא מוגדר — לחץ "המשך כאורח" למטה');
+      } else if (msg.includes('unauthorized-domain') || msg.includes('auth-domain')) {
+        setError('הדומיין הנוכחי לא מורשה ב-Firebase. לחץ "המשך כאורח"');
+      } else if (msg.includes('network-request-failed')) {
+        setError('בעיית רשת — בדוק חיבור אינטרנט או לחץ "המשך כאורח"');
+      } else if (!msg.includes('popup-closed-by-user') && !msg.includes('cancelled-popup-request')) {
+        setError('שגיאה בהתחברות עם Google — נסה "המשך כאורח"');
       }
     } finally {
       setLoading(false);
@@ -246,6 +252,25 @@ function AuthForm() {
             <span className="text-primary font-medium">10 credits חינם</span> להתחלה
           </p>
         )}
+
+        {/* Guest mode */}
+        <div className="flex items-center gap-3 mt-6">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-text-soft text-xs">או</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+        <button
+          onClick={() => {
+            enterGuestMode();
+            router.push('/dashboard');
+          }}
+          className="w-full mt-4 py-3 rounded-2xl border-2 border-dashed border-border hover:border-primary/40 text-text-secondary hover:text-primary text-sm font-semibold transition-all hover:bg-primary/5"
+        >
+          המשך כאורח — ללא הרשמה
+        </button>
+        <p className="text-[10px] text-text-soft text-center mt-2">
+          פרויקטים נשמרים מקומית בדפדפן
+        </p>
       </div>
 
       <p className="text-center text-text-soft text-xs mt-6">

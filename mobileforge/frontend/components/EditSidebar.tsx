@@ -14,6 +14,7 @@ type SidebarTab = 'ai' | 'layers' | 'properties';
 interface EditSidebarProps {
   onAIEdit: (prompt: string) => void;
   isGenerating: boolean;
+  appName?: string;
   screens: Screen[];
   onNavigate: (index: number) => void;
   onAddScreen: (prompt: string) => void;
@@ -134,6 +135,15 @@ const SHADOW_PRESETS = [
   { id: 'glow', label: 'זוהר', value: '0 0 20px rgba(99,102,241,0.4)' },
 ];
 
+const AI_RECOMMENDATIONS = [
+  { label: 'שפר נגישות', prompt: 'שפר את הנגישות של האפליקציה - הוסף aria-labels, ניגודיות צבעים טובה, ו-focus states לכל רכיב אינטראקטיבי', icon: '♿' },
+  { label: 'הוסף loading states', prompt: 'הוסף מצבי טעינה (loading states) עם skeletons או spinners לכל הרכיבים שטוענים מידע', icon: '⏳' },
+  { label: 'שפר רספונסיביות', prompt: 'ודא שהאפליקציה רספונסיבית לחלוטין - שימוש ב-flexbox, גדלים יחסיים, ו-media queries', icon: '📱' },
+  { label: 'הוסף empty states', prompt: 'הוסף מצבי ריק (empty states) מעוצבים עם אייקון, כותרת, וכפתור פעולה לכל רשימה או אזור תוכן', icon: '📭' },
+  { label: 'שפר ביצועים', prompt: 'שפר ביצועים - lazy loading לתמונות, מזער re-renders, הוסף will-change לאנימציות', icon: '⚡' },
+  { label: 'הוסף micro-interactions', prompt: 'הוסף micro-interactions - אנימציות hover, לחיצה, מעברים חלקים, ו-feedback ויזואלי לכל אינטראקציה', icon: '✨' },
+];
+
 const PRESET_SCREENS = [
   { id: 'settings', label: 'הגדרות', icon: '⚙️' },
   { id: 'profile', label: 'פרופיל', icon: '👤' },
@@ -144,6 +154,7 @@ const PRESET_SCREENS = [
 export default function EditSidebar({
   onAIEdit,
   isGenerating,
+  appName,
   screens,
   onNavigate,
   onAddScreen,
@@ -320,10 +331,36 @@ export default function EditSidebar({
                 ))}
               </div>
             </Section>
+
+            <div className="h-px bg-border/60" />
+
+            {/* AI Recommendations */}
+            <Section label="✨ המלצות AI">
+              <p className="text-[10px] text-text-soft mb-2 leading-relaxed">
+                {appName ? `שיפורים מומלצים ל${appName}` : 'שיפורים מקצועיים מומלצים'}
+              </p>
+              <div className="flex flex-col gap-1.5">
+                {AI_RECOMMENDATIONS.map((rec) => (
+                  <button
+                    key={rec.label}
+                    onClick={() => onAIEdit(rec.prompt)}
+                    disabled={isGenerating}
+                    title={rec.prompt}
+                    className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-[11px] font-medium border border-border text-text-secondary
+                      hover:text-primary hover:border-primary/30 hover:bg-primary/5
+                      active:scale-[0.98] transition-all duration-150 text-right disabled:opacity-40"
+                  >
+                    <span className="text-sm flex-shrink-0">{rec.icon}</span>
+                    <span className="flex-1 text-right">{rec.label}</span>
+                    <svg className="w-3.5 h-3.5 opacity-40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+            </Section>
           </div>
         )}
-
-        {/* ── Layers / Screens ───────────────────────────────────────── */}
         {tab === 'layers' && (
           <div className="flex flex-col h-full">
             <div className="px-4 py-3 border-b border-border/50">
