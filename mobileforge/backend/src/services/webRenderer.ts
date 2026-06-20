@@ -409,10 +409,10 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
       selected.focus();
       selected.style.outline = '2px solid #22c55e';
       editing = true;
-      var editBtn = toolbar.querySelector('button:first-child');
+      var editBtn = toolbar ? toolbar.querySelector('button:first-child') : null;
       var doneBtn = document.getElementById('__mf_done');
-      editBtn.style.display = 'none';
-      doneBtn.style.display = 'block';
+      if (editBtn) editBtn.style.display = 'none';
+      if (doneBtn) doneBtn.style.display = 'block';
     }
 
     function finishEdit() {
@@ -436,10 +436,10 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
         }, '*');
       } catch(e) {}
 
-      var editBtn = toolbar.querySelector('button:first-child');
+      var editBtn = toolbar ? toolbar.querySelector('button:first-child') : null;
       var doneBtn = document.getElementById('__mf_done');
-      editBtn.style.display = 'block';
-      doneBtn.style.display = 'none';
+      if (editBtn) editBtn.style.display = 'block';
+      if (doneBtn) doneBtn.style.display = 'none';
       editing = false;
       clearSelection();
     }
@@ -541,13 +541,23 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
 
     // Find element by path
     function findByPath(path) {
+      if (!path) return null;
       var parts = path.split('>');
       var el = document.body;
       for (var i = 0; i < parts.length; i++) {
-        var m = parts[i].match(/^(\w+)\[(\d+)\]$/);
-        if (!m) return null;
-        var children = el.querySelectorAll(':scope > ' + m[1]);
-        el = children[parseInt(m[2])];
+        var m = parts[i].match(/^(\\w+)\\[(\\d+)\\]$/);
+        if (!m || !el) return null;
+        var tag = m[1].toUpperCase();
+        var idx = parseInt(m[2]);
+        var count = 0;
+        var found = null;
+        for (var c = el.firstElementChild; c; c = c.nextElementSibling) {
+          if (c.tagName === tag) {
+            if (count === idx) { found = c; break; }
+            count++;
+          }
+        }
+        el = found;
         if (!el) return null;
       }
       return el;
