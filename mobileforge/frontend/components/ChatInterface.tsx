@@ -21,6 +21,7 @@ interface ChatInterfaceProps {
   projectId?: string;
   initialMessages?: Message[];
   initialPrompt?: string;
+  currentAppResult?: GenerateResponse | null;
   onAppGenerated?: (result: GenerateResponse) => void;
   onShowPreview?: (result: GenerateResponse) => void;
   onShowCode?: (result: GenerateResponse) => void;
@@ -143,6 +144,7 @@ export default function ChatInterface({
   projectId,
   initialMessages = [],
   initialPrompt,
+  currentAppResult,
   onAppGenerated,
   onShowPreview,
   onShowCode,
@@ -359,11 +361,12 @@ export default function ChatInterface({
     setGenerating(true);
     if (inputRef.current) inputRef.current.style.height = 'auto';
 
-    // Detect edit mode: if there is already a generated result, subsequent messages edit the existing app
+    // Detect edit mode: if there is already a generated result (from messages or from loaded app), edit instead of regenerate
     const lastResultMsg = [...messages].reverse().find((m) => m.result);
-    const isEditMode = !!lastResultMsg;
-    const existingCode = lastResultMsg
-      ? (lastResultMsg.result!.files?.['App.jsx'] ?? lastResultMsg.result!.files?.['App.tsx'] ?? '')
+    const lastResult = lastResultMsg?.result ?? currentAppResult;
+    const isEditMode = !!lastResult;
+    const existingCode = lastResult
+      ? (lastResult.files?.['App.jsx'] ?? lastResult.files?.['App.tsx'] ?? '')
       : undefined;
 
     const history = messages.map((m) => ({
@@ -696,7 +699,7 @@ export default function ChatInterface({
           )}
 
           {/* Edit mode indicator */}
-          {messages.some((m) => m.result) && (
+          {(messages.some((m) => m.result) || currentAppResult) && (
             <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20">
               <span className="text-primary text-xs">✏️</span>
               <span className="text-primary text-xs font-medium">מצב עריכה — הודעה הבאה תעדכן את האפליקציה</span>
@@ -759,7 +762,7 @@ export default function ChatInterface({
               value={input}
               onChange={(e) => { setInput(e.target.value); adjustTextareaHeight(); }}
               onKeyDown={handleKeyDown}
-              placeholder={imagePreview ? 'הוסף הוראות נוספות (אופציונלי)…' : 'תאר את האפליקציה שאתה רוצה…'}
+              placeholder={imagePreview ? 'הוסף הוראות נוספות (אופציונלי)…' : (messages.some((m) => m.result) || currentAppResult) ? 'למשל: "שנה את הצבע לורוד" או "הוסף מסך הגדרות"…' : 'תאר את האפליקציה שאתה רוצה…'}
               rows={1}
               dir="rtl"
               disabled={isGenerating}

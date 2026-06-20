@@ -367,6 +367,53 @@ interface Project {
   description?: string;
 }
 
+// ── Builder Steps ───────────────────────────────────────────────────────────
+type BuilderStep = 'describe' | 'design' | 'customize' | 'publish';
+
+const BUILDER_STEPS: { id: BuilderStep; label: string; icon: string; desc: string }[] = [
+  { id: 'describe', label: 'תיאור', icon: '💬', desc: 'תאר את האפליקציה' },
+  { id: 'design', label: 'עיצוב', icon: '🎨', desc: 'בחר סגנון עיצוב' },
+  { id: 'customize', label: 'התאמה', icon: '✏️', desc: 'ערוך וכוונן רכיבים' },
+  { id: 'publish', label: 'פרסום', icon: '🚀', desc: 'שתף והפץ' },
+];
+
+function BuilderStepper({ currentStep, onStepClick }: {
+  currentStep: BuilderStep;
+  onStepClick: (step: BuilderStep) => void;
+}) {
+  const stepOrder: BuilderStep[] = ['describe', 'design', 'customize', 'publish'];
+  const currentIdx = stepOrder.indexOf(currentStep);
+
+  return (
+    <div className="flex items-center gap-1 px-4 py-2 bg-surface/80 border-b border-border backdrop-blur-sm flex-shrink-0" dir="rtl">
+      {BUILDER_STEPS.map((step, i) => {
+        const isActive = step.id === currentStep;
+        const isDone = i < currentIdx;
+        return (
+          <div key={step.id} className="flex items-center gap-1 flex-1">
+            <button
+              onClick={() => onStepClick(step.id)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all w-full justify-center ${
+                isActive
+                  ? 'bg-primary/10 text-primary border border-primary/20'
+                  : isDone
+                    ? 'text-accent bg-accent/5 border border-accent/15'
+                    : 'text-text-soft hover:text-text-secondary border border-transparent'
+              }`}
+            >
+              <span className="text-sm">{isDone ? '✓' : step.icon}</span>
+              <span className="hidden lg:inline">{step.label}</span>
+            </button>
+            {i < BUILDER_STEPS.length - 1 && (
+              <div className={`w-4 h-px flex-shrink-0 ${i < currentIdx ? 'bg-accent' : 'bg-border'}`} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ── Save status indicator ────────────────────────────────────────────────────
 function SaveIndicator({ status }: { status: SaveStatus }) {
   if (status === 'idle') return null;
@@ -414,6 +461,7 @@ function BuilderContent() {
   const [appScreens, setAppScreens] = useState<PreviewScreen[]>([]);
   const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [builderStep, setBuilderStep] = useState<BuilderStep>('describe');
 
   // Auth guard — skip redirect for guest users (demo mode)
   useEffect(() => {
@@ -447,6 +495,7 @@ function BuilderContent() {
             htmlDoc: local.htmlDoc,
             snackId: '', embedUrl: '', shareUrl: '',
           });
+          setBuilderStep('customize');
         }
       } else {
         setProject({ id: projectId, name: 'פרויקט חדש' });
@@ -470,7 +519,8 @@ function BuilderContent() {
     saveLocalProject(projectId, result);
     setSaveStatus('saved');
     setTimeout(() => setSaveStatus('idle'), 3000);
-  }, [projectId]);
+    if (builderStep === 'describe') setBuilderStep('design');
+  }, [projectId, builderStep]);
 
   // Auto-save on edit settings change (debounced)
   useEffect(() => {
@@ -705,6 +755,7 @@ function BuilderContent() {
           <ChatInterface
             projectId={projectId}
             initialPrompt={searchParams.get('prompt') || undefined}
+            currentAppResult={currentResult}
             onAppGenerated={handleAppGenerated}
             onShowPreview={handleShowPreview}
             onGeneratingChange={handleGeneratingChange}
@@ -714,6 +765,15 @@ function BuilderContent() {
         {/* Right panel */}
         {currentResult && (
           <div className="hidden md:flex flex-1 flex-col overflow-hidden bg-surface/30">
+            {/* Builder progress stepper */}
+            <BuilderStepper
+              currentStep={builderStep}
+              onStepClick={(step) => {
+                setBuilderStep(step);
+                if (step === 'publish') setRightPanel('preview');
+              }}
+            />
+
             {/* Preview / Code tabs */}
             <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border bg-surface/80 backdrop-blur-sm flex-shrink-0">
               <button

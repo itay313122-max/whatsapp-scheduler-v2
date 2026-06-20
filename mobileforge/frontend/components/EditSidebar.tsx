@@ -10,7 +10,7 @@ interface Screen {
   active: boolean;
 }
 
-type SidebarTab = 'ai' | 'gallery' | 'layers' | 'properties';
+type SidebarTab = 'ai' | 'gallery' | 'layers' | 'animations' | 'properties';
 
 interface EditSidebarProps {
   onAIEdit: (prompt: string) => void;
@@ -153,6 +153,49 @@ const ICON_LIBRARY = [
   '📱', '✏️', '🗑️', '➕', '➡️', '⬅️', '✨', '👍',
 ];
 
+const ANIMATION_PRESETS = [
+  {
+    category: 'כניסה',
+    icon: '🎬',
+    animations: [
+      { label: 'Fade In', prompt: 'הוסף אנימציית fade-in לכל הרכיבים הראשיים בעמוד. כל רכיב יופיע עם השהייה קטנה אחרי הקודם. השתמש ב-CSS @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }' },
+      { label: 'Slide Up', prompt: 'הוסף אנימציית slide-up לכל הכרטיסים והרכיבים. @keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }. הוסף animation-delay מדורג לכל רכיב.' },
+      { label: 'Scale In', prompt: 'הוסף אנימציית scale-in לכפתורים וכרטיסים. @keyframes scaleIn { from { transform: scale(0.9); opacity: 0 } to { transform: scale(1); opacity: 1 } }' },
+      { label: 'Slide From Right', prompt: 'הוסף אנימציית כניסה מימין לשמאל לרכיבים. @keyframes slideRight { from { transform: translateX(30px); opacity: 0 } to { transform: translateX(0); opacity: 1 } }' },
+    ],
+  },
+  {
+    category: 'אינטראקציה',
+    icon: '👆',
+    animations: [
+      { label: 'Hover Scale', prompt: 'הוסף אפקט hover scale לכל הכפתורים והכרטיסים: transition: transform 0.2s ease, box-shadow 0.2s ease. בהובר: transform: scale(1.03) ו-box-shadow חזק יותר.' },
+      { label: 'Press Effect', prompt: 'הוסף אפקט לחיצה (active state) לכל הכפתורים: active { transform: scale(0.97); transition: transform 0.1s }' },
+      { label: 'Glow on Hover', prompt: 'הוסף אפקט זוהר (glow) על hover לכפתורים ראשיים: box-shadow: 0 0 20px rgba(var(--c-primary), 0.4) בהובר' },
+      { label: 'Underline Slide', prompt: 'הוסף אנימציית underline שמחליקה מימין לשמאל על hover לכל הלינקים ופריטי ניווט. השתמש ב-::after pseudo-element עם transition.' },
+    ],
+  },
+  {
+    category: 'מעברים',
+    icon: '🔄',
+    animations: [
+      { label: 'Smooth Transitions', prompt: 'הוסף transition חלק לכל הרכיבים האינטראקטיביים: transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1). זה כולל כפתורים, כרטיסים, שדות קלט, ופריטי ניווט.' },
+      { label: 'Page Transition', prompt: 'הוסף אנימציית מעבר בין מסכים: כשמחליפים מסך, המסך הנוכחי עושה fade-out והחדש עושה fade-in. השתמש ב-CSS transitions.' },
+      { label: 'Stagger Animation', prompt: 'הוסף אפקט stagger - כל פריט ברשימה מופיע עם השהייה של 0.05s אחרי הקודם. animation-delay: calc(var(--i) * 0.05s) לכל פריט.' },
+      { label: 'Parallax Scroll', prompt: 'הוסף אפקט parallax קל: ה-header זזה לאט יותר מהתוכן בזמן גלילה. השתמש ב-background-attachment: fixed או transform בגלילה.' },
+    ],
+  },
+  {
+    category: 'מיוחדים',
+    icon: '✨',
+    animations: [
+      { label: 'Pulse Badge', prompt: 'הוסף אנימציית pulse לבאג\'ים (badges) והתראות: @keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.1) } }' },
+      { label: 'Skeleton Loading', prompt: 'הוסף אפקט skeleton loading לכרטיסים: @keyframes shimmer { from { background-position: -200% 0 } to { background-position: 200% 0 } } עם background gradient אפור מתחלף.' },
+      { label: 'Float Effect', prompt: 'הוסף אפקט ציפה (float) לאלמנט ראשי/לוגו: @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } } animation: float 3s ease-in-out infinite.' },
+      { label: 'Gradient Shift', prompt: 'הוסף אנימציית gradient מתחלף לרקע ה-header: @keyframes gradientShift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } } background-size: 200% 200%.' },
+    ],
+  },
+];
+
 const PRESET_SCREENS = [
   { id: 'settings', label: 'הגדרות', icon: '⚙️' },
   { id: 'profile', label: 'פרופיל', icon: '👤' },
@@ -177,6 +220,7 @@ export default function EditSidebar({
   const [aiPrompt, setAIPrompt] = useState('');
   const [text, setText] = useState('');
   const [expandedCategory, setExpandedCategory] = useState<string | null>('כפתורים');
+  const [expandedAnimCategory, setExpandedAnimCategory] = useState<string | null>('כניסה');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -216,10 +260,19 @@ export default function EditSidebar({
     },
     {
       id: 'layers',
-      label: 'שכבות',
+      label: 'מסכים',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3" />
+        </svg>
+      ),
+    },
+    {
+      id: 'animations' as SidebarTab,
+      label: 'אנימציה',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
         </svg>
       ),
     },
@@ -432,6 +485,91 @@ export default function EditSidebar({
                 ))}
               </OptionGrid>
             </div>
+          </div>
+        )}
+
+        {/* ── Animations ─────────────────────────────────────────────── */}
+        {tab === 'animations' && (
+          <div className="flex flex-col gap-4 p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500/15 to-pink-500/10 flex items-center justify-center text-sm">
+                🎬
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-text-primary">אנימציות ואפקטים</p>
+                <p className="text-[10px] text-text-soft">הוסף תנועה וחיים לאפליקציה</p>
+              </div>
+            </div>
+
+            {ANIMATION_PRESETS.map((cat) => (
+              <div key={cat.category}>
+                <button
+                  onClick={() => setExpandedAnimCategory(expandedAnimCategory === cat.category ? null : cat.category)}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-all duration-150 ${
+                    expandedAnimCategory === cat.category
+                      ? 'bg-primary/8 text-primary font-semibold'
+                      : 'text-text-secondary hover:bg-surface-2 hover:text-text-primary'
+                  }`}
+                >
+                  <span className="text-sm">{cat.icon}</span>
+                  <span className="flex-1 text-right">{cat.category}</span>
+                  <svg
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${expandedAnimCategory === cat.category ? 'rotate-180' : ''}`}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {expandedAnimCategory === cat.category && (
+                  <div className="grid grid-cols-2 gap-1.5 mt-1.5 mb-1 pe-2">
+                    {cat.animations.map((anim) => (
+                      <button
+                        key={anim.label}
+                        onClick={() => onAIEdit(anim.prompt)}
+                        disabled={isGenerating}
+                        title={anim.prompt}
+                        className="py-2 px-2.5 rounded-lg text-[10px] font-medium border border-border text-text-secondary
+                          hover:text-primary hover:border-primary/30 hover:bg-primary/5
+                          active:scale-[0.97] transition-all duration-150 text-right disabled:opacity-40 leading-tight"
+                      >
+                        {anim.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            <div className="h-px bg-border/60" />
+
+            <Section label="אנימציה מותאמת">
+              <textarea
+                value={aiPrompt}
+                onChange={(e) => setAIPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleAISubmit();
+                  }
+                }}
+                placeholder='למשל: "הוסף אנימציית bounce לכפתור הראשי"'
+                rows={2}
+                className="w-full px-3 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none placeholder:text-text-soft transition-all"
+              />
+              <button
+                onClick={handleAISubmit}
+                disabled={!aiPrompt.trim() || isGenerating}
+                className={`w-full mt-2 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${
+                  isGenerating
+                    ? 'bg-primary/20 text-primary/60 cursor-wait'
+                    : aiPrompt.trim()
+                      ? 'bg-gradient-to-l from-primary to-accent text-white hover:shadow-glow active:scale-[0.98]'
+                      : 'bg-surface-2 text-text-soft cursor-not-allowed'
+                }`}
+              >
+                {isGenerating ? 'AI מוסיף...' : 'החל אנימציה'}
+              </button>
+            </Section>
           </div>
         )}
 
