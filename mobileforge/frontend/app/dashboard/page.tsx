@@ -68,7 +68,9 @@ export default function DashboardPage() {
   }
 
   async function handleCreateProject() {
-    if (!newProjectName.trim()) return;
+    const name = newProjectName.trim();
+    const desc = newProjectDesc.trim();
+    if (!name) return;
     setCreating(true);
     try {
       if (isGuest) {
@@ -76,10 +78,10 @@ export default function DashboardPage() {
         setShowNewModal(false);
         setNewProjectName('');
         setNewProjectDesc('');
-        router.push(`/builder/${id}?name=${encodeURIComponent(newProjectName)}`);
+        router.push(`/builder/${id}?name=${encodeURIComponent(name)}`);
         return;
       }
-      const project = await createProject(newProjectName.trim(), newProjectDesc.trim());
+      const project = await createProject(name, desc);
       setProjects((prev) => [project, ...prev]);
       setShowNewModal(false);
       setNewProjectName('');
@@ -87,7 +89,7 @@ export default function DashboardPage() {
       router.push(`/builder/${project.id}`);
     } catch {
       const id = createLocalProjectId();
-      router.push(`/builder/${id}?name=${encodeURIComponent(newProjectName)}`);
+      router.push(`/builder/${id}?name=${encodeURIComponent(name)}`);
     } finally {
       setCreating(false);
     }

@@ -179,10 +179,10 @@ const APP_STYLES: DesignPreset[] = [
   },
 ];
 
-function PresetCard({ preset, onApply, disabled }: { preset: DesignPreset; onApply: () => void; disabled: boolean }) {
+function PresetCard({ preset, onApply, disabled }: { preset: DesignPreset; onApply: (prompt: string) => void; disabled: boolean }) {
   return (
     <button
-      onClick={onApply}
+      onClick={() => onApply(preset.prompt)}
       disabled={disabled}
       title={preset.tag}
       className="group flex flex-col gap-1.5 p-2 rounded-xl border border-border bg-surface
@@ -221,7 +221,7 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
         </label>
         <div className="grid grid-cols-2 gap-2">
           {DESIGN_LANGUAGES.map((p) => (
-            <PresetCard key={p.id} preset={p} onApply={() => onApply(p.prompt)} disabled={isGenerating} />
+            <PresetCard key={p.id} preset={p} onApply={onApply} disabled={isGenerating} />
           ))}
         </div>
       </div>
@@ -238,7 +238,7 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
         </p>
         <div className="grid grid-cols-2 gap-2">
           {APP_STYLES.map((p) => (
-            <PresetCard key={p.id} preset={p} onApply={() => onApply(p.prompt)} disabled={isGenerating} />
+            <PresetCard key={p.id} preset={p} onApply={onApply} disabled={isGenerating} />
           ))}
         </div>
       </div>

@@ -308,11 +308,13 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
     setTimeout(function() {
       if (!window.Babel && document.getElementById('root') && !document.getElementById('root').firstChild) {
         document.getElementById('root').innerHTML =
-          '<div style="padding:24px;font-family:monospace;font-size:13px;color:#b45309;background:#fffbeb;min-height:100vh">'
-          + '<b style="font-size:15px">⚠️ Babel CDN failed to load</b>'
-          + '<p style="margin-top:8px">Check your internet connection.<br>The preview requires unpkg.com.</p></div>';
+          '<div style="padding:32px;font-family:-apple-system,sans-serif;text-align:center;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#fffbeb;color:#92400e">'
+          + '<div style="font-size:40px">⚠️</div>'
+          + '<b style="font-size:16px">לא ניתן לטעון את התצוגה</b>'
+          + '<p style="font-size:13px;color:#a16207;max-width:260px;line-height:1.5">בדוק חיבור לאינטרנט ורענן את הדף.<br>התצוגה דורשת גישה ל-unpkg.com ו-cdn.tailwindcss.com</p>'
+          + '<button onclick="location.reload()" style="margin-top:8px;padding:8px 20px;border-radius:8px;background:#f59e0b;color:#fff;border:none;font-weight:600;font-size:13px;cursor:pointer">נסה שוב</button></div>';
       }
-    }, 8000);
+    }, 5000);
   </script>
 </head>
 <body>

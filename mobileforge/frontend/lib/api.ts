@@ -72,26 +72,32 @@ export async function streamGenerateApp(
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
+  let gotDone = false;
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
 
-    for (const line of lines) {
-      if (!line.startsWith('data: ')) continue;
-      try {
-        const data = JSON.parse(line.slice(6));
-        if (data.chunk) onChunk(data.chunk);
-        if (data.done && data.result) onDone(data.result);
-        if (data.error) onError(data.error);
-      } catch {
-        // ignore malformed lines
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const data = JSON.parse(line.slice(6));
+          if (data.chunk) onChunk(data.chunk);
+          if (data.done && data.result) { onDone(data.result); gotDone = true; }
+          if (data.error) onError(data.error);
+        } catch {
+          // ignore malformed lines
+        }
       }
     }
+  } finally {
+    reader.cancel().catch(() => {});
+    if (!gotDone) onError('Stream ended unexpectedly');
   }
 }
 

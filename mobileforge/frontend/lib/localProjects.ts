@@ -58,8 +58,8 @@ export function saveLocalProject(id: string, result: GenerateResponse, prompt?: 
     updatedAt: new Date().toISOString(),
     colorScheme: result.colorScheme,
     features: result.features,
-    htmlDoc: result.htmlDoc,
-    appCode,
+    htmlDoc: appCode ? result.htmlDoc : (existing?.htmlDoc || result.htmlDoc),
+    appCode: appCode || existing?.appCode || '',
     prompt: prompt || existing?.prompt,
   };
 

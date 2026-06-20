@@ -68,7 +68,21 @@ const DEVICES: { id: DeviceId; label: string; icon: React.ReactNode }[] = [
   { id: 'ipad',    label: 'iPad',       icon: <IconTablet /> },
 ];
 
-function LoadingOverlay({ appName }: { appName?: string }) {
+function LoadingOverlay({ appName, failed }: { appName?: string; failed?: boolean }) {
+  if (failed) {
+    return (
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 text-center px-6"
+           style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' }}>
+        <div className="text-4xl">⚠️</div>
+        <p className="text-sm font-semibold" style={{ color: '#92400e' }}>
+          לא ניתן לטעון את התצוגה
+        </p>
+        <p className="text-xs leading-relaxed max-w-[220px]" style={{ color: '#a16207' }}>
+          בדוק חיבור לאינטרנט ורענן את הדף. התצוגה דורשת גישה לרשת.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10"
          style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)' }}>
@@ -99,6 +113,7 @@ interface FrameProps {
   htmlDoc: string;
   appName?: string;
   loaded: boolean;
+  loadFailed: boolean;
   onLoad: () => void;
   iframeKey: string;
   onIframeMount?: (el: HTMLIFrameElement | null) => void;
@@ -106,7 +121,7 @@ interface FrameProps {
 
 // ── iPhone 15 Pro — Titanium Design ──────────────────────────────────────
 
-function IPhoneFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMount }: FrameProps) {
+function IPhoneFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount }: FrameProps) {
   return (
     <div className="relative flex-shrink-0" style={{ width: 390 }}>
       {/* Hardware buttons */}
@@ -196,7 +211,7 @@ function IPhoneFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMoun
           background: '#000', position: 'relative',
           boxShadow: '0 0 0 0.5px rgba(255,255,255,0.04) inset',
         }}>
-          {!loaded && <LoadingOverlay appName={appName} />}
+          {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} />}
           <iframe
             ref={onIframeMount}
             key={iframeKey}
@@ -224,7 +239,7 @@ function IPhoneFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMoun
 
 // ── Samsung Galaxy S24 Ultra — Premium Design ────────────────────────────
 
-function GalaxyFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMount }: FrameProps) {
+function GalaxyFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount }: FrameProps) {
   return (
     <div className="relative flex-shrink-0" style={{ width: 384 }}>
       {/* Hardware buttons */}
@@ -297,7 +312,7 @@ function GalaxyFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMoun
           background: '#000', position: 'relative',
           boxShadow: '0 0 0 0.5px rgba(255,255,255,0.03) inset',
         }}>
-          {!loaded && <LoadingOverlay appName={appName} />}
+          {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} />}
           <iframe
             ref={onIframeMount}
             key={iframeKey}
@@ -324,7 +339,7 @@ function GalaxyFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMoun
 
 // ── iPad Pro — Silver Aluminium ──────────────────────────────────────────
 
-function IPadFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMount }: FrameProps) {
+function IPadFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount }: FrameProps) {
   const shellW = IPAD_DISP_W + 44;
 
   return (
@@ -380,7 +395,7 @@ function IPadFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMount 
           position: 'relative',
           boxShadow: '0 0 0 0.5px rgba(0,0,0,0.1) inset',
         }}>
-          {!loaded && <LoadingOverlay appName={appName} />}
+          {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} />}
           <div style={{
             position: 'absolute', top: 0, left: 0,
             width: IPAD_SCREEN_W, height: IPAD_SCREEN_H,
@@ -405,7 +420,7 @@ function IPadFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMount 
 
 // ── Desktop — macOS Style Browser ────────────────────────────────────────
 
-function DesktopFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMount }: FrameProps) {
+function DesktopFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount }: FrameProps) {
   return (
     <div className="relative w-full" style={{ maxWidth: 960 }}>
       {/* Browser chrome - macOS style */}
@@ -460,7 +475,7 @@ function DesktopFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMou
         border: '1px solid #d0d0d4', borderTop: 'none',
         boxShadow: '0 20px 50px -10px rgba(0,0,0,0.2), 0 8px 20px -6px rgba(0,0,0,0.12)',
       }}>
-        {!loaded && <LoadingOverlay appName={appName} />}
+        {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} />}
         <iframe
           ref={onIframeMount}
           key={iframeKey}
@@ -480,8 +495,19 @@ function DesktopFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMou
 
 export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChanged, onElementSelected, onElementDeselected, iframeRef }: WebPreviewProps) {
   const [loaded, setLoaded] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [device, setDevice] = useState<DeviceId>('iphone');
   const localIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const loadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setLoadFailed(false);
+    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+    loadTimerRef.current = setTimeout(() => {
+      if (!loaded) setLoadFailed(true);
+    }, 12000);
+    return () => { if (loadTimerRef.current) clearTimeout(loadTimerRef.current); };
+  }, [htmlDoc, device, refreshKey]);
 
   const onIframeMount = useCallback((el: HTMLIFrameElement | null) => {
     localIframeRef.current = el;
@@ -514,7 +540,12 @@ export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChan
   const selectDevice = (id: DeviceId) => { setDevice(id); setLoaded(false); };
 
   const iframeKey = `${device}-${refreshKey ?? ''}-${htmlDoc.slice(0, 40)}`;
-  const frameProps: FrameProps = { htmlDoc, appName, loaded, onLoad: () => setLoaded(true), iframeKey, onIframeMount };
+  const handleLoad = useCallback(() => {
+    setLoaded(true);
+    setLoadFailed(false);
+    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+  }, []);
+  const frameProps: FrameProps = { htmlDoc, appName, loaded, loadFailed, onLoad: handleLoad, iframeKey, onIframeMount };
 
   return (
     <div className="flex flex-col w-full gap-4">
