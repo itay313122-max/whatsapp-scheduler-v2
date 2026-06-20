@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import ChatInterface from '@/components/ChatInterface';
 import WebPreview from '@/components/WebPreview';
 import type { PreviewScreen, PreviewSelectedElement } from '@/components/WebPreview';
@@ -385,7 +386,7 @@ function BuilderStepper({ currentStep, onStepClick }: {
   const currentIdx = stepOrder.indexOf(currentStep);
 
   return (
-    <div className="flex items-center gap-1 px-4 py-2 bg-surface/80 border-b border-border backdrop-blur-sm flex-shrink-0" dir="rtl">
+    <div className="flex items-center gap-1 px-4 py-1.5 bg-surface/90 border-b border-border backdrop-blur-xl flex-shrink-0" dir="rtl">
       {BUILDER_STEPS.map((step, i) => {
         const isActive = step.id === currentStep;
         const isDone = i < currentIdx;
@@ -393,19 +394,19 @@ function BuilderStepper({ currentStep, onStepClick }: {
           <div key={step.id} className="flex items-center gap-1 flex-1">
             <button
               onClick={() => onStepClick(step.id)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all w-full justify-center ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium w-full justify-center ${
                 isActive
-                  ? 'bg-primary/10 text-primary border border-primary/20'
+                  ? 'bg-primary/10 text-primary border border-primary/20 shadow-panel'
                   : isDone
                     ? 'text-accent bg-accent/5 border border-accent/15'
-                    : 'text-text-soft hover:text-text-secondary border border-transparent'
+                    : 'text-text-soft hover:text-text-secondary hover:bg-surface-2 border border-transparent'
               }`}
             >
-              <span className="text-sm">{isDone ? '✓' : step.icon}</span>
+              <span className={`text-sm ${isDone ? 'text-accent' : ''}`}>{isDone ? '✓' : step.icon}</span>
               <span className="hidden lg:inline">{step.label}</span>
             </button>
             {i < BUILDER_STEPS.length - 1 && (
-              <div className={`w-4 h-px flex-shrink-0 ${i < currentIdx ? 'bg-accent' : 'bg-border'}`} />
+              <div className={`w-6 h-px flex-shrink-0 transition-colors duration-300 ${i < currentIdx ? 'bg-accent' : 'bg-border'}`} />
             )}
           </div>
         );
@@ -645,7 +646,7 @@ function BuilderContent() {
       )}
 
       {/* Top bar */}
-      <header className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b border-border bg-surface/80 backdrop-blur-lg z-40">
+      <header className="flex-shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-border bg-surface/90 backdrop-blur-xl z-40">
         {/* Left side */}
         <div className="flex items-center gap-3">
           <Link
@@ -747,13 +748,15 @@ function BuilderContent() {
         </div>
       </header>
 
-      {/* Main layout */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Main layout — resizable panels */}
+      <PanelGroup orientation="horizontal" className="flex-1 overflow-hidden">
         {/* Chat panel */}
-        <div
-          className={`flex flex-col border-l border-border overflow-hidden ${
-            currentResult ? 'w-full md:w-[420px] md:flex-shrink-0' : 'flex-1'
-          }`}
+        <Panel
+          id="chat"
+          defaultSize="30%"
+          minSize="20%"
+          maxSize={currentResult ? '60%' : '100%'}
+          className="flex flex-col border-l border-border overflow-hidden"
         >
           <ChatInterface
             projectId={projectId}
@@ -763,11 +766,16 @@ function BuilderContent() {
             onShowPreview={handleShowPreview}
             onGeneratingChange={handleGeneratingChange}
           />
-        </div>
+        </Panel>
+
+        {/* Resize handle */}
+        {currentResult && (
+          <PanelResizeHandle className="hidden md:block" />
+        )}
 
         {/* Right panel */}
         {currentResult && (
-          <div className="hidden md:flex flex-1 flex-col overflow-hidden bg-surface/30">
+          <Panel id="preview" defaultSize="70%" minSize="40%" className="hidden md:flex flex-col overflow-hidden bg-surface/30">
             {/* Builder progress stepper */}
             <BuilderStepper
               currentStep={builderStep}
@@ -781,7 +789,7 @@ function BuilderContent() {
             <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border bg-surface/80 backdrop-blur-sm flex-shrink-0">
               <button
                 onClick={() => setRightPanel('preview')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'preview' ? 'bg-primary/10 text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'preview' ? 'bg-primary/10 text-primary shadow-panel' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -791,7 +799,7 @@ function BuilderContent() {
               </button>
               <button
                 onClick={() => setRightPanel('code')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'code' ? 'bg-primary/10 text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'code' ? 'bg-primary/10 text-primary shadow-panel' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
@@ -852,14 +860,14 @@ function BuilderContent() {
                 />
               </div>
             )}
-          </div>
+          </Panel>
         )}
 
         {/* Empty state */}
         {!currentResult && (
-          <div className="hidden md:flex flex-1 items-center justify-center text-text-secondary bg-surface/10">
+          <Panel id="empty" defaultSize="70%" minSize="40%" className="hidden md:flex items-center justify-center text-text-secondary bg-surface/10">
             <div className="text-center max-w-xs">
-              <div className="w-20 h-20 rounded-2xl bg-surface border border-border flex items-center justify-center text-4xl mx-auto mb-4">
+              <div className="w-20 h-20 rounded-2xl bg-surface border border-border flex items-center justify-center text-4xl mx-auto mb-4 hover-lift">
                 💬
               </div>
               <h3 className="font-display font-semibold text-text-primary mb-2">תאר את האפליקציה</h3>
@@ -867,9 +875,9 @@ function BuilderContent() {
                 כתוב, העלה צילום מסך, צייר סקיצה, או דבר — AI יבנה ויציג את הקוד כאן
               </p>
             </div>
-          </div>
+          </Panel>
         )}
-      </div>
+      </PanelGroup>
     </div>
   );
 }

@@ -52,10 +52,12 @@ code, pre, .font-code {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(99, 102, 241, 0.12);
   box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08);
-  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .glass-card:hover {
-  box-shadow: 0 20px 48px rgba(99, 102, 241, 0.16);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.14);
   border-color: rgba(99, 102, 241, 0.22);
 }
 
@@ -138,3 +140,60 @@ code, pre, .font-code {
 
 /* ── RTL ────────────────────────────────────────────────────────────────── */
 [dir="rtl"] { text-align: right; }
+
+/* ── Professional micro-interactions ───────────────────────────────────── */
+button, a, [role="button"] {
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Resizable panel handles ──────────────────────────────────────────── */
+[data-separator] {
+  width: 6px;
+  background: transparent;
+  position: relative;
+  cursor: col-resize;
+  transition: background-color 150ms ease-out;
+}
+[data-separator]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 32px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-separator]:hover::after {
+  background: var(--primary);
+  height: 48px;
+  width: 4px;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.25);
+}
+[data-separator]:hover {
+  background: rgba(99, 102, 241, 0.04);
+}
+
+/* ── Interactive lift effect ──────────────────────────────────────────── */
+.hover-lift {
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.hover-lift:active {
+  transform: translateY(0);
+}
+
+/* ── Subtle pulse for generating state ────────────────────────────────── */
+@keyframes gentlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.animate-gentle-pulse {
+  animation: gentlePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

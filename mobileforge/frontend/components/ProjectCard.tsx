@@ -37,7 +37,7 @@ export default function ProjectCard({
 
   return (
     <div
-      className="group relative rounded-2xl overflow-hidden glass-card cursor-pointer"
+      className="group relative rounded-2xl overflow-hidden glass-card cursor-pointer hover-lift"
       style={{ '--accent': accentColor } as React.CSSProperties}
     >
       {/* Color strip */}

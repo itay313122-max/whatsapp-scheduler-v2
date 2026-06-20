@@ -38,6 +38,14 @@ const config: Config = {
         card: '0 4px 24px rgba(99, 102, 241, 0.08)',
         'card-hover': '0 20px 48px rgba(99, 102, 241, 0.18)',
         soft: '0 2px 12px rgba(99, 102, 241, 0.06)',
+        'panel': '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
+        'panel-hover': '0 4px 6px rgba(0,0,0,0.04), 0 2px 4px rgba(0,0,0,0.06)',
+      },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      transitionDuration: {
+        '250': '250ms',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
