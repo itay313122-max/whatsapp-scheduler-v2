@@ -649,6 +649,7 @@ function BuilderContent() {
         >
           <ChatInterface
             projectId={projectId}
+            initialPrompt={searchParams.get('prompt') || undefined}
             onAppGenerated={handleAppGenerated}
             onShowPreview={handleShowPreview}
             onGeneratingChange={handleGeneratingChange}

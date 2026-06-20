@@ -20,6 +20,7 @@ interface Message {
 interface ChatInterfaceProps {
   projectId?: string;
   initialMessages?: Message[];
+  initialPrompt?: string;
   onAppGenerated?: (result: GenerateResponse) => void;
   onShowPreview?: (result: GenerateResponse) => void;
   onShowCode?: (result: GenerateResponse) => void;
@@ -141,6 +142,7 @@ function SourceBadge({ type }: { type: 'screenshot' | 'sketch' | 'voice' }) {
 export default function ChatInterface({
   projectId,
   initialMessages = [],
+  initialPrompt,
   onAppGenerated,
   onShowPreview,
   onShowCode,
@@ -155,6 +157,9 @@ export default function ChatInterface({
     setIsGenerating(val);
     onGeneratingChange?.(val);
   }, [onGeneratingChange]);
+
+  // Ref for auto-submit (used after handleSubmit is defined)
+  const autoSubmittedRef = useRef(false);
 
   // Image upload state
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -396,6 +401,15 @@ export default function ChatInterface({
       setGenerating(false);
     }
   }
+
+  // Auto-submit initial prompt from landing page
+  useEffect(() => {
+    if (initialPrompt && !autoSubmittedRef.current && !isGenerating) {
+      autoSubmittedRef.current = true;
+      setTimeout(() => handleSubmit(initialPrompt), 200);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPrompt]);
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter' && !e.shiftKey) {
