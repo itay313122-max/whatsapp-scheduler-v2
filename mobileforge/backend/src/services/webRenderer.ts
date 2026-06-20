@@ -588,6 +588,16 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
         if (el) el.textContent = d.text;
       }
 
+      if (d.type === 'mf-insert-icon' && d.path) {
+        var el = findByPath(d.path);
+        if (el) {
+          var span = document.createElement('span');
+          span.textContent = d.icon + ' ';
+          span.style.marginInlineEnd = '4px';
+          el.insertBefore(span, el.firstChild);
+        }
+      }
+
       if (d.type === 'mf-deselect') {
         clearSelection();
       }

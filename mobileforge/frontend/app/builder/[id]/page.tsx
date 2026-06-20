@@ -521,6 +521,10 @@ function BuilderContent() {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-update-text', path, text }, '*');
   }, []);
 
+  const handleInsertIcon = useCallback((path: string, icon: string) => {
+    iframeRef.current?.contentWindow?.postMessage({ type: 'mf-insert-icon', path, icon }, '*');
+  }, []);
+
   const handleDeselectElement = useCallback(() => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-deselect' }, '*');
     setSelectedElement(null);
@@ -768,6 +772,7 @@ function BuilderContent() {
                         selectedElement={selectedElement}
                         onStyleChange={handleStyleChange}
                         onTextChange={handleTextChange}
+                        onInsertIcon={handleInsertIcon}
                         onDeselect={handleDeselectElement}
                       />
                     </div>
