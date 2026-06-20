@@ -445,7 +445,7 @@ function BuilderContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, loading: authLoading, isGuest } = useAuth();
+  const { user, loading: authLoading, isGuest, enterGuestMode } = useAuth();
   const projectId = params.id as string;
 
   const [project, setProject] = useState<Project | null>(null);
@@ -463,11 +463,14 @@ function BuilderContent() {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [builderStep, setBuilderStep] = useState<BuilderStep>('describe');
 
-  // Auth guard — skip redirect for guest users (demo mode)
+  // Auth guard — honor the "no registration, start immediately" promise.
+  // A first-time visitor who lands on the builder (e.g. typed an idea on the
+  // homepage and clicked "build") is auto-entered into guest mode instead of
+  // being bounced to /auth and losing their prompt. Sign-in stays optional.
   useEffect(() => {
     if (authLoading) return;
-    if (!user && !isGuest) router.push('/auth');
-  }, [user, authLoading, isGuest, router]);
+    if (!user && !isGuest) enterGuestMode();
+  }, [user, authLoading, isGuest, enterGuestMode]);
 
   // Load project meta
   useEffect(() => {
