@@ -460,6 +460,8 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
     // Click
     document.addEventListener('click', function(e) {
       if (editing) return;
+      // Let navigation tabs work normally — don't intercept them for editing
+      if (e.target.closest && e.target.closest('.nav-tab')) return;
       var el = e.target.closest(EDITABLE);
       if (!el || el.id === '__mf_toolbar' || el.closest('#__mf_toolbar')) return;
       e.preventDefault();
