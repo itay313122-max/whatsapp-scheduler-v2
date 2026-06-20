@@ -5,6 +5,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import ChatInterface from '@/components/ChatInterface';
 import WebPreview from '@/components/WebPreview';
+import CodeViewer from '@/components/CodeViewer';
 import ForgeAssistant from '@/components/ForgeAssistant';
 import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,7 +16,7 @@ import Link from 'next/link';
 
 const DeviceSync = dynamic(() => import('@/components/DeviceSync'), { ssr: false });
 
-type RightPanel = 'preview';
+type RightPanel = 'preview' | 'code';
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 // ── Rich Edit Panel — data ────────────────────────────────────────────────────
@@ -659,21 +660,57 @@ function BuilderContent() {
         {/* Right panel */}
         {currentResult && (
           <div className="hidden md:flex flex-1 flex-col overflow-hidden bg-surface/30">
-            <RichEditPanel
-              settings={editSettings}
-              onSettings={setEditSettings}
-              onStructureEdit={handleStructureEdit}
-            />
-            {(currentResult.htmlDoc || currentResult.embedUrl) ? (
-              <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-gradient-radial from-primary/5 via-bg to-bg">
-                <WebPreview
-                  key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
-                  htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', editSettings)}
+            {/* Preview / Code tabs */}
+            <div className="flex items-center gap-1 px-3 py-1.5 border-b border-border bg-surface/80 flex-shrink-0">
+              <button
+                onClick={() => setRightPanel('preview')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${rightPanel === 'preview' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-text-secondary hover:text-text-primary'}`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Preview
+              </button>
+              <button
+                onClick={() => setRightPanel('code')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${rightPanel === 'code' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-text-secondary hover:text-text-primary'}`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                Code
+              </button>
+            </div>
+
+            {rightPanel === 'preview' && (
+              <>
+                <RichEditPanel
+                  settings={editSettings}
+                  onSettings={setEditSettings}
+                  onStructureEdit={handleStructureEdit}
+                />
+                {(currentResult.htmlDoc || currentResult.embedUrl) ? (
+                  <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-gradient-radial from-primary/5 via-bg to-bg">
+                    <WebPreview
+                      key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
+                      htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', editSettings)}
+                      appName={currentResult.appName}
+                      refreshKey={JSON.stringify(editSettings)}
+                    />
+                  </div>
+                ) : null}
+              </>
+            )}
+
+            {rightPanel === 'code' && (
+              <div className="flex-1 overflow-hidden p-4">
+                <CodeViewer
+                  files={currentResult.files}
                   appName={currentResult.appName}
-                  refreshKey={JSON.stringify(editSettings)}
                 />
               </div>
-            ) : null}
+            )}
           </div>
         )}
 
