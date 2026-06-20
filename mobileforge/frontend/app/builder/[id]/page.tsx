@@ -10,6 +10,7 @@ import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { getProject, generateApp, shareApp } from '@/lib/api';
 import type { GenerateResponse, ProjectContext } from '@/lib/api';
+import { saveLocalProject, getLocalProject } from '@/lib/localProjects';
 import Link from 'next/link';
 
 const DeviceSync = dynamic(() => import('@/components/DeviceSync'), { ssr: false });
@@ -422,9 +423,26 @@ function BuilderContent() {
       return;
     }
 
-    // In guest/demo mode, don't try to fetch project from backend
+    // In guest/demo mode, try to restore from localStorage
     if (isGuest) {
-      setProject({ id: projectId, name: 'Demo Project' });
+      const local = getLocalProject(projectId);
+      if (local) {
+        setProject({ id: projectId, name: local.name, description: local.description });
+        if (local.htmlDoc && local.appCode) {
+          setCurrentResult({
+            appName: local.name,
+            description: local.description,
+            files: { 'App.jsx': local.appCode },
+            colorScheme: local.colorScheme || { primary: '#6366f1', background: '#F8F9FA', text: '#1A1A2E' },
+            features: local.features || [],
+            hebrewSummary: local.description,
+            htmlDoc: local.htmlDoc,
+            snackId: '', embedUrl: '', shareUrl: '',
+          });
+        }
+      } else {
+        setProject({ id: projectId, name: 'פרויקט חדש' });
+      }
       return;
     }
 
@@ -440,9 +458,10 @@ function BuilderContent() {
   const handleAppGenerated = useCallback((result: GenerateResponse) => {
     setCurrentResult(result);
     if (result.htmlDoc || result.embedUrl) setRightPanel('preview');
+    saveLocalProject(projectId, result);
     setSaveStatus('saved');
     setTimeout(() => setSaveStatus('idle'), 3000);
-  }, []);
+  }, [projectId]);
 
   const handleShowPreview = useCallback((result: GenerateResponse) => {
     setCurrentResult(result);

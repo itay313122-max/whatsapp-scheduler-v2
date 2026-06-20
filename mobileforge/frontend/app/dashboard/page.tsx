@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { getProjects, createProject, deleteProject } from '@/lib/api';
+import { getLocalProjects, deleteLocalProject, createLocalProjectId } from '@/lib/localProjects';
 import ProjectCard from '@/components/ProjectCard';
 import Navbar from '@/components/Navbar';
 
@@ -38,8 +39,15 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) return;
-    // In guest mode, skip fetching projects from backend
     if (isGuest) {
+      setProjects(getLocalProjects().map(p => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        updatedAt: p.updatedAt,
+        colorScheme: p.colorScheme as Project['colorScheme'],
+        features: p.features,
+      })));
       setLoadingProjects(false);
       return;
     }
@@ -63,6 +71,14 @@ export default function DashboardPage() {
     if (!newProjectName.trim()) return;
     setCreating(true);
     try {
+      if (isGuest) {
+        const id = createLocalProjectId();
+        setShowNewModal(false);
+        setNewProjectName('');
+        setNewProjectDesc('');
+        router.push(`/builder/${id}?name=${encodeURIComponent(newProjectName)}`);
+        return;
+      }
       const project = await createProject(newProjectName.trim(), newProjectDesc.trim());
       setProjects((prev) => [project, ...prev]);
       setShowNewModal(false);
@@ -70,8 +86,8 @@ export default function DashboardPage() {
       setNewProjectDesc('');
       router.push(`/builder/${project.id}`);
     } catch {
-      const tempId = 'local-' + Date.now();
-      router.push(`/builder/${tempId}?name=${encodeURIComponent(newProjectName)}`);
+      const id = createLocalProjectId();
+      router.push(`/builder/${id}?name=${encodeURIComponent(newProjectName)}`);
     } finally {
       setCreating(false);
     }
@@ -79,6 +95,11 @@ export default function DashboardPage() {
 
   async function handleDeleteProject(id: string) {
     if (!confirm('האם אתה בטוח שברצונך למחוק פרויקט זה?')) return;
+    if (isGuest || id.startsWith('local-')) {
+      deleteLocalProject(id);
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+      return;
+    }
     try {
       await deleteProject(id);
       setProjects((prev) => prev.filter((p) => p.id !== id));
