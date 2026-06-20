@@ -1,11 +1,35 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+
+export interface PreviewScreen {
+  label: string;
+  index: number;
+  active: boolean;
+}
+
+export interface PreviewSelectedElement {
+  tag: string;
+  text: string;
+  styles: {
+    color: string;
+    backgroundColor: string;
+    fontSize: string;
+    padding: string;
+    fontWeight: string;
+    borderRadius: string;
+  };
+  path: string;
+}
 
 interface WebPreviewProps {
   htmlDoc: string;
   appName?: string;
   refreshKey?: string;
+  onScreensChanged?: (screens: PreviewScreen[]) => void;
+  onElementSelected?: (element: PreviewSelectedElement) => void;
+  onElementDeselected?: () => void;
+  iframeRef?: React.MutableRefObject<HTMLIFrameElement | null>;
 }
 
 type DeviceId = 'iphone' | 'galaxy' | 'ipad' | 'desktop';
@@ -77,11 +101,12 @@ interface FrameProps {
   loaded: boolean;
   onLoad: () => void;
   iframeKey: string;
+  onIframeMount?: (el: HTMLIFrameElement | null) => void;
 }
 
 // ── iPhone 15 Pro — Titanium Design ──────────────────────────────────────
 
-function IPhoneFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProps) {
+function IPhoneFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMount }: FrameProps) {
   return (
     <div className="relative flex-shrink-0" style={{ width: 390 }}>
       {/* Hardware buttons */}
@@ -173,6 +198,7 @@ function IPhoneFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProps
         }}>
           {!loaded && <LoadingOverlay appName={appName} />}
           <iframe
+            ref={onIframeMount}
             key={iframeKey}
             srcDoc={htmlDoc}
             sandbox="allow-scripts"
@@ -198,7 +224,7 @@ function IPhoneFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProps
 
 // ── Samsung Galaxy S24 Ultra — Premium Design ────────────────────────────
 
-function GalaxyFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProps) {
+function GalaxyFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMount }: FrameProps) {
   return (
     <div className="relative flex-shrink-0" style={{ width: 384 }}>
       {/* Hardware buttons */}
@@ -273,6 +299,7 @@ function GalaxyFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProps
         }}>
           {!loaded && <LoadingOverlay appName={appName} />}
           <iframe
+            ref={onIframeMount}
             key={iframeKey}
             srcDoc={htmlDoc}
             sandbox="allow-scripts"
@@ -297,7 +324,7 @@ function GalaxyFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProps
 
 // ── iPad Pro — Silver Aluminium ──────────────────────────────────────────
 
-function IPadFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProps) {
+function IPadFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMount }: FrameProps) {
   const shellW = IPAD_DISP_W + 44;
 
   return (
@@ -361,6 +388,7 @@ function IPadFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProps) 
             transformOrigin: 'top left',
           }}>
             <iframe
+              ref={onIframeMount}
               key={iframeKey}
               srcDoc={htmlDoc}
               sandbox="allow-scripts"
@@ -377,7 +405,7 @@ function IPadFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProps) 
 
 // ── Desktop — macOS Style Browser ────────────────────────────────────────
 
-function DesktopFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProps) {
+function DesktopFrame({ htmlDoc, appName, loaded, onLoad, iframeKey, onIframeMount }: FrameProps) {
   return (
     <div className="relative w-full" style={{ maxWidth: 960 }}>
       {/* Browser chrome - macOS style */}
@@ -434,6 +462,7 @@ function DesktopFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProp
       }}>
         {!loaded && <LoadingOverlay appName={appName} />}
         <iframe
+          ref={onIframeMount}
           key={iframeKey}
           srcDoc={htmlDoc}
           sandbox="allow-scripts"
@@ -449,9 +478,15 @@ function DesktopFrame({ htmlDoc, appName, loaded, onLoad, iframeKey }: FrameProp
 
 // ── Main component ────────────────────────────────────────────────────────
 
-export default function WebPreview({ htmlDoc, appName, refreshKey }: WebPreviewProps) {
+export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChanged, onElementSelected, onElementDeselected, iframeRef }: WebPreviewProps) {
   const [loaded, setLoaded] = useState(false);
   const [device, setDevice] = useState<DeviceId>('iphone');
+  const localIframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  const onIframeMount = useCallback((el: HTMLIFrameElement | null) => {
+    localIframeRef.current = el;
+    if (iframeRef) iframeRef.current = el;
+  }, [iframeRef]);
 
   useEffect(() => {
     console.log('[WebPreview] htmlDoc length:', htmlDoc?.length ?? 0);
@@ -459,13 +494,21 @@ export default function WebPreview({ htmlDoc, appName, refreshKey }: WebPreviewP
 
   useEffect(() => {
     function handleMessage(e: MessageEvent) {
-      if (e.data?.type === 'mf-edit') {
-        console.log('[WebPreview] Edit event:', e.data);
+      const data = e.data;
+      if (!data?.type) return;
+      if (data.type === 'mf-edit') {
+        console.log('[WebPreview] Edit event:', data);
+      } else if (data.type === 'mf-screens') {
+        onScreensChanged?.(data.screens);
+      } else if (data.type === 'mf-element-selected') {
+        onElementSelected?.(data);
+      } else if (data.type === 'mf-element-deselected') {
+        onElementDeselected?.();
       }
     }
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [onScreensChanged, onElementSelected, onElementDeselected]);
 
   const openInNewTab = useCallback(() => {
     const blob = new Blob([htmlDoc], { type: 'text/html' });
@@ -477,7 +520,7 @@ export default function WebPreview({ htmlDoc, appName, refreshKey }: WebPreviewP
   const selectDevice = (id: DeviceId) => { setDevice(id); setLoaded(false); };
 
   const iframeKey = `${device}-${refreshKey ?? ''}-${htmlDoc.slice(0, 40)}`;
-  const frameProps: FrameProps = { htmlDoc, appName, loaded, onLoad: () => setLoaded(true), iframeKey };
+  const frameProps: FrameProps = { htmlDoc, appName, loaded, onLoad: () => setLoaded(true), iframeKey, onIframeMount };
 
   return (
     <div className="flex flex-col w-full gap-4">

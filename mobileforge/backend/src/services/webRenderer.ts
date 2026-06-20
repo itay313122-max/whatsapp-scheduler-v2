@@ -469,6 +469,27 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
       el.style.outline = '2px solid #6366f1';
       el.style.outlineOffset = '2px';
       positionToolbar(el);
+
+      // Report selected element to parent
+      try {
+        var cs = getComputedStyle(el);
+        var r = el.getBoundingClientRect();
+        window.parent.postMessage({
+          type: 'mf-element-selected',
+          tag: el.tagName.toLowerCase(),
+          text: el.textContent || '',
+          styles: {
+            color: cs.color,
+            backgroundColor: cs.backgroundColor,
+            fontSize: cs.fontSize,
+            padding: cs.padding,
+            fontWeight: cs.fontWeight,
+            borderRadius: cs.borderRadius,
+          },
+          rect: { top: r.top, left: r.left, width: r.width, height: r.height },
+          path: buildPath(el),
+        }, '*');
+      } catch(e) {}
     }, true);
 
     // Double-click to edit directly
@@ -500,8 +521,83 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
     document.addEventListener('click', function(e) {
       if (!e.target.closest(EDITABLE) && !e.target.closest('#__mf_toolbar')) {
         clearSelection();
+        try { window.parent.postMessage({ type: 'mf-element-deselected' }, '*'); } catch(x) {}
       }
     });
+
+    // Build unique path for element
+    function buildPath(el) {
+      var parts = [];
+      while (el && el !== document.body) {
+        var tag = el.tagName.toLowerCase();
+        var idx = 0;
+        var sib = el;
+        while ((sib = sib.previousElementSibling)) { if (sib.tagName === el.tagName) idx++; }
+        parts.unshift(tag + '[' + idx + ']');
+        el = el.parentElement;
+      }
+      return parts.join('>');
+    }
+
+    // Find element by path
+    function findByPath(path) {
+      var parts = path.split('>');
+      var el = document.body;
+      for (var i = 0; i < parts.length; i++) {
+        var m = parts[i].match(/^(\w+)\[(\d+)\]$/);
+        if (!m) return null;
+        var children = el.querySelectorAll(':scope > ' + m[1]);
+        el = children[parseInt(m[2])];
+        if (!el) return null;
+      }
+      return el;
+    }
+
+    // Listen for commands from parent
+    window.addEventListener('message', function(e) {
+      var d = e.data;
+      if (!d || !d.type) return;
+
+      if (d.type === 'mf-navigate') {
+        var tabs = document.querySelectorAll('.nav-tab');
+        if (tabs[d.index]) tabs[d.index].click();
+      }
+
+      if (d.type === 'mf-update-style' && d.path) {
+        var el = findByPath(d.path);
+        if (el) el.style[d.property] = d.value;
+      }
+
+      if (d.type === 'mf-update-text' && d.path) {
+        var el = findByPath(d.path);
+        if (el) el.textContent = d.text;
+      }
+
+      if (d.type === 'mf-deselect') {
+        clearSelection();
+      }
+    });
+
+    // Screen discovery — report nav tabs to parent
+    function reportScreens() {
+      var tabs = document.querySelectorAll('.nav-tab');
+      if (!tabs.length) return;
+      var screens = [];
+      for (var i = 0; i < tabs.length; i++) {
+        screens.push({
+          label: tabs[i].textContent.trim(),
+          index: i,
+          active: tabs[i].classList.contains('active') ||
+                  tabs[i].style.color === 'var(--c-primary)' ||
+                  tabs[i].getAttribute('data-active') === 'true',
+        });
+      }
+      try { window.parent.postMessage({ type: 'mf-screens', screens: screens }, '*'); } catch(x) {}
+    }
+    setTimeout(reportScreens, 500);
+    setTimeout(reportScreens, 1500);
+    new MutationObserver(function() { setTimeout(reportScreens, 100); })
+      .observe(document.documentElement, { childList: true, subtree: true, attributes: true });
   })();
   </script>
 </body>

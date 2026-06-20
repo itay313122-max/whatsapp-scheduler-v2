@@ -1,11 +1,15 @@
 'use client';
 
-import { Suspense, useState, useEffect, useCallback } from 'react';
+import { Suspense, useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import ChatInterface from '@/components/ChatInterface';
 import WebPreview from '@/components/WebPreview';
+import type { PreviewScreen, PreviewSelectedElement } from '@/components/WebPreview';
 import CodeViewer from '@/components/CodeViewer';
+import ScreenNavigator from '@/components/ScreenNavigator';
+import PropertyPanel from '@/components/PropertyPanel';
+import type { SelectedElement } from '@/components/PropertyPanel';
 import ForgeAssistant from '@/components/ForgeAssistant';
 import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
@@ -407,6 +411,9 @@ function BuilderContent() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [editSettings, setEditSettings] = useState<EditSettings>(DEFAULT_SETTINGS);
   const [shareStatus, setShareStatus] = useState<'idle' | 'sharing' | 'copied'>('idle');
+  const [appScreens, setAppScreens] = useState<PreviewScreen[]>([]);
+  const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   // Auth guard — skip redirect for guest users (demo mode)
   useEffect(() => {
@@ -479,6 +486,39 @@ function BuilderContent() {
       console.error('[Builder] Structure edit failed:', err);
     }
   }, [currentResult, handleAppGenerated]);
+
+  const handleScreensChanged = useCallback((screens: PreviewScreen[]) => {
+    setAppScreens(screens);
+  }, []);
+
+  const handleElementSelected = useCallback((el: PreviewSelectedElement) => {
+    setSelectedElement(el as SelectedElement);
+  }, []);
+
+  const handleElementDeselected = useCallback(() => {
+    setSelectedElement(null);
+  }, []);
+
+  const handleNavigateScreen = useCallback((index: number) => {
+    iframeRef.current?.contentWindow?.postMessage({ type: 'mf-navigate', index }, '*');
+  }, []);
+
+  const handleStyleChange = useCallback((path: string, property: string, value: string) => {
+    iframeRef.current?.contentWindow?.postMessage({ type: 'mf-update-style', path, property, value }, '*');
+  }, []);
+
+  const handleTextChange = useCallback((path: string, text: string) => {
+    iframeRef.current?.contentWindow?.postMessage({ type: 'mf-update-text', path, text }, '*');
+  }, []);
+
+  const handleDeselectElement = useCallback(() => {
+    iframeRef.current?.contentWindow?.postMessage({ type: 'mf-deselect' }, '*');
+    setSelectedElement(null);
+  }, []);
+
+  const handleAddScreen = useCallback((prompt: string) => {
+    handleStructureEdit(prompt);
+  }, [handleStructureEdit]);
 
   const projectContext: ProjectContext = {
     appName: currentResult?.appName,
@@ -691,13 +731,41 @@ function BuilderContent() {
                   onStructureEdit={handleStructureEdit}
                 />
                 {(currentResult.htmlDoc || currentResult.embedUrl) ? (
-                  <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-gradient-radial from-primary/5 via-bg to-bg">
-                    <WebPreview
-                      key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
-                      htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', editSettings)}
-                      appName={currentResult.appName}
-                      refreshKey={JSON.stringify(editSettings)}
-                    />
+                  <div className="flex-1 flex overflow-hidden">
+                    {/* Screen Navigator sidebar */}
+                    <div className="w-[170px] flex-shrink-0 border-l border-border bg-surface/60 overflow-hidden">
+                      <ScreenNavigator
+                        screens={appScreens}
+                        onNavigate={handleNavigateScreen}
+                        onAddScreen={handleAddScreen}
+                      />
+                    </div>
+
+                    {/* Preview area */}
+                    <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-gradient-radial from-primary/5 via-bg to-bg">
+                      <WebPreview
+                        key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
+                        htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', editSettings)}
+                        appName={currentResult.appName}
+                        refreshKey={JSON.stringify(editSettings)}
+                        onScreensChanged={handleScreensChanged}
+                        onElementSelected={handleElementSelected}
+                        onElementDeselected={handleElementDeselected}
+                        iframeRef={iframeRef}
+                      />
+                    </div>
+
+                    {/* Property Panel sidebar — shown when element selected */}
+                    {selectedElement && (
+                      <div className="w-[240px] flex-shrink-0 border-r border-border bg-surface/60 overflow-auto">
+                        <PropertyPanel
+                          element={selectedElement}
+                          onStyleChange={handleStyleChange}
+                          onTextChange={handleTextChange}
+                          onDeselect={handleDeselectElement}
+                        />
+                      </div>
+                    )}
                   </div>
                 ) : null}
               </>
