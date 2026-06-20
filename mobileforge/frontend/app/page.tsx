@@ -213,7 +213,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-border text-center text-text-soft text-sm bg-surface">
-        <p>MobileForge &copy; 2024 &middot; בנה אפליקציות עם AI</p>
+        <p>MobileForge &copy; {new Date().getFullYear()} &middot; בנה אפליקציות עם AI</p>
       </footer>
     </main>
   );

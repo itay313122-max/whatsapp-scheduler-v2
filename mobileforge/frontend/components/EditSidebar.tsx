@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { SelectedElement } from './PropertyPanel';
-
-// ── Types ────────────────────────────────────────────────────────────────────
 
 interface Screen {
   label: string;
@@ -25,12 +23,53 @@ interface EditSidebarProps {
   onDeselect: () => void;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
 function rgbToHex(rgb: string): string {
   const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
   if (!m) return '#000000';
   return '#' + [m[1], m[2], m[3]].map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+}
+
+// ── Section wrapper with consistent spacing ─────────────────────────────────
+
+function Section({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2 block select-none">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function OptionGrid({ children, cols = 'grid-cols-2' }: { children: React.ReactNode; cols?: string }) {
+  return <div className={`grid ${cols} gap-1.5`}>{children}</div>;
+}
+
+function OptionButton({
+  active,
+  onClick,
+  children,
+  title,
+}: {
+  active?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  title?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className={`py-2 px-2 rounded-lg text-[11px] font-medium border transition-all duration-150 select-none
+        ${active
+          ? 'border-primary bg-primary/10 text-primary shadow-sm'
+          : 'border-border text-text-secondary hover:text-text-primary hover:border-primary/30 hover:bg-primary/5 active:scale-[0.97]'
+        }`}
+    >
+      {children}
+    </button>
+  );
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────────
@@ -40,10 +79,10 @@ const AI_QUICK_ACTIONS = [
     category: 'כפתורים',
     icon: '🔘',
     actions: [
-      { label: 'כפתורים מודרניים', prompt: 'שנה את כל הכפתורים לעיצוב מודרני עם gradient, צללים רכים, ואנימציית hover חלקה' },
+      { label: 'מודרניים + gradient', prompt: 'שנה את כל הכפתורים לעיצוב מודרני עם gradient, צללים רכים, ואנימציית hover חלקה' },
       { label: 'הוסף hover effects', prompt: 'הוסף אפקטי hover לכל הכפתורים - שינוי צבע חלק, הגדלה קלה (scale), וצל' },
       { label: 'כפתורים עגולים', prompt: 'הפוך את כל הכפתורים לעגולים עם border-radius מלא ו-padding נוח' },
-      { label: 'כפתורי outline', prompt: 'שנה את הכפתורים לסגנון outline - רקע שקוף עם מסגרת צבעונית' },
+      { label: 'סגנון outline', prompt: 'שנה את הכפתורים לסגנון outline - רקע שקוף עם מסגרת צבעונית' },
     ],
   },
   {
@@ -53,7 +92,7 @@ const AI_QUICK_ACTIONS = [
       { label: 'הפוך למודרני', prompt: 'שפר את העיצוב הכללי - הוסף gradient רקע, צללים רכים לכרטיסים, ומרווחים נכונים' },
       { label: 'מינימליסטי', prompt: 'הפוך את העיצוב למינימליסטי - הסר צללים מיותרים, צבעים רגועים, הרבה white space' },
       { label: 'הוסף צללים', prompt: 'הוסף box-shadow רך לכל הכרטיסים והרכיבים הראשיים' },
-      { label: 'הוסף אנימציות', prompt: 'הוסף אנימציות כניסה (fade-in, slide-up) לרכיבים בעמוד. השתמש ב-CSS keyframes.' },
+      { label: 'אנימציות כניסה', prompt: 'הוסף אנימציות כניסה (fade-in, slide-up) לרכיבים בעמוד. השתמש ב-CSS keyframes.' },
     ],
   },
   {
@@ -61,8 +100,8 @@ const AI_QUICK_ACTIONS = [
     icon: '📐',
     actions: [
       { label: 'מרכז תוכן', prompt: 'מרכז את כל התוכן הראשי בעמוד עם max-width ו-margin auto' },
-      { label: 'הוסף header קבוע', prompt: 'הפוך את ה-header ל-sticky/fixed שנשאר למעלה בזמן גלילה עם backdrop-filter blur' },
-      { label: 'עיצוב grid', prompt: 'שנה את התצוגה של הכרטיסים/פריטים ל-CSS Grid רספונסיבי 2-3 עמודות' },
+      { label: 'header קבוע', prompt: 'הפוך את ה-header ל-sticky/fixed שנשאר למעלה בזמן גלילה עם backdrop-filter blur' },
+      { label: 'Grid רספונסיבי', prompt: 'שנה את התצוגה של הכרטיסים/פריטים ל-CSS Grid רספונסיבי 2-3 עמודות' },
       { label: 'הוסף footer', prompt: 'הוסף footer מעוצב לאפליקציה עם לינקים, לוגו קטן, וטקסט זכויות יוצרים' },
     ],
   },
@@ -72,7 +111,7 @@ const AI_QUICK_ACTIONS = [
     actions: [
       { label: 'הוסף אייקונים', prompt: 'הוסף אייקוני emoji או SVG מתאימים ליד כל כותרת, כפתור ופריט בתפריט' },
       { label: 'שפר טקסטים', prompt: 'שפר את כל הטקסטים באפליקציה - כותרות ברורות יותר, תיאורים מושכים' },
-      { label: 'הוסף תמונות placeholder', prompt: 'הוסף תמונות placeholder מ-unsplash בגדלים מתאימים לכל מקום רלוונטי' },
+      { label: 'תמונות placeholder', prompt: 'הוסף תמונות placeholder מ-unsplash בגדלים מתאימים לכל מקום רלוונטי' },
       { label: 'RTL מלא', prompt: 'ודא שכל האפליקציה ב-RTL מלא - כיוון טקסט, יישור, ו-flex-direction' },
     ],
   },
@@ -95,36 +134,12 @@ const SHADOW_PRESETS = [
   { id: 'glow', label: 'זוהר', value: '0 0 20px rgba(99,102,241,0.4)' },
 ];
 
-const BORDER_PRESETS = [
-  { id: 'none', label: 'ללא', value: 'none' },
-  { id: 'thin', label: 'דק', value: '1px solid currentColor' },
-  { id: 'medium', label: 'בינוני', value: '2px solid currentColor' },
-  { id: 'thick', label: 'עבה', value: '3px solid currentColor' },
-];
-
-const TEXT_ALIGN_OPTIONS = [
-  { id: 'right', label: 'ימין', icon: '⫦' },
-  { id: 'center', label: 'מרכז', icon: '⫰' },
-  { id: 'left', label: 'שמאל', icon: '⫧' },
-];
-
-const OPACITY_PRESETS = ['1', '0.9', '0.75', '0.5', '0.25'];
-
-const WIDTH_PRESETS = [
-  { id: 'auto', label: 'אוטו', value: 'auto' },
-  { id: '50', label: '50%', value: '50%' },
-  { id: '100', label: '100%', value: '100%' },
-  { id: 'fit', label: 'Fit', value: 'fit-content' },
-];
-
 const PRESET_SCREENS = [
   { id: 'settings', label: 'הגדרות', icon: '⚙️' },
   { id: 'profile', label: 'פרופיל', icon: '👤' },
   { id: 'about', label: 'אודות', icon: 'ℹ️' },
   { id: 'contact', label: 'צור קשר', icon: '💬' },
 ];
-
-// ── Component ────────────────────────────────────────────────────────────────
 
 export default function EditSidebar({
   onAIEdit,
@@ -141,6 +156,7 @@ export default function EditSidebar({
   const [aiPrompt, setAIPrompt] = useState('');
   const [text, setText] = useState('');
   const [expandedCategory, setExpandedCategory] = useState<string | null>('כפתורים');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (selectedElement) {
@@ -158,69 +174,92 @@ export default function EditSidebar({
     setAIPrompt('');
   };
 
+  const tabs: { id: SidebarTab; label: string; icon: React.ReactNode }[] = [
+    {
+      id: 'ai',
+      label: 'AI עיצוב',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'layers',
+      label: 'שכבות',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3" />
+        </svg>
+      ),
+    },
+    {
+      id: 'properties',
+      label: 'מאפיינים',
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <div className="flex flex-col h-full" dir="rtl">
-      {/* Tab bar */}
-      <div className="flex border-b border-border bg-surface/80 flex-shrink-0">
-        {([
-          { id: 'ai' as SidebarTab, label: 'AI עיצוב', icon: '✨' },
-          { id: 'layers' as SidebarTab, label: 'שכבות', icon: '◫' },
-          { id: 'properties' as SidebarTab, label: 'מאפיינים', icon: '⚙', badge: selectedElement ? '1' : undefined },
-        ]).map((t) => (
+      {/* ── Tab bar — Figma-style with indicator ─────────────────────── */}
+      <div className="flex border-b border-border bg-surface flex-shrink-0">
+        {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 flex items-center justify-center gap-1 py-2 text-[11px] font-medium transition-all relative ${
-              tab === t.id
-                ? 'text-primary'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
+            title={t.label}
+            className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium transition-all duration-200 relative
+              ${tab === t.id ? 'text-primary' : 'text-text-soft hover:text-text-secondary'}`}
           >
-            <span>{t.icon}</span>
+            <span className={`transition-transform duration-200 ${tab === t.id ? 'scale-110' : ''}`}>
+              {t.icon}
+            </span>
             <span>{t.label}</span>
-            {t.badge && (
-              <span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-primary text-white text-[9px] flex items-center justify-center">
-                {t.badge}
-              </span>
+            {selectedElement && t.id === 'properties' && tab !== 'properties' && (
+              <span className="absolute top-1.5 end-3 w-2 h-2 rounded-full bg-primary animate-pulse" />
             )}
             {tab === t.id && (
-              <div className="absolute bottom-0 inset-x-2 h-0.5 bg-primary rounded-full" />
+              <div className="absolute bottom-0 inset-x-3 h-[2px] bg-primary rounded-full" />
             )}
           </button>
         ))}
       </div>
 
-      {/* Tab content */}
-      <div className="flex-1 overflow-auto">
-        {/* ── AI Design tab ──────────────────────────────────────────── */}
+      {/* ── Tab content ──────────────────────────────────────────────── */}
+      <div className="flex-1 overflow-auto scrollbar-thin">
+
+        {/* ── AI Design ──────────────────────────────────────────────── */}
         {tab === 'ai' && (
-          <div className="flex flex-col gap-3 p-3">
-            {/* AI input */}
-            <div>
-              <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">בקשת עיצוב AI</label>
-              <div className="flex gap-1.5">
-                <textarea
-                  value={aiPrompt}
-                  onChange={(e) => setAIPrompt(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleAISubmit();
-                    }
-                  }}
-                  placeholder="תאר מה לשנות... למשל: &#34;הפוך את הכפתורים לסגנון מודרני עם צללים&#34;"
-                  rows={3}
-                  className="flex-1 px-3 py-2 rounded-lg bg-surface-2 border border-border text-text-primary text-xs focus:outline-none focus:border-primary resize-none placeholder:text-text-soft"
-                />
-              </div>
+          <div className="flex flex-col gap-4 p-4">
+            {/* Input */}
+            <Section label="בקשת עיצוב חופשית">
+              <textarea
+                ref={textareaRef}
+                value={aiPrompt}
+                onChange={(e) => setAIPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleAISubmit();
+                  }
+                }}
+                placeholder='למשל: "הפוך את הכפתורים לסגנון מודרני עם צללים"'
+                rows={3}
+                className="w-full px-3 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none placeholder:text-text-soft transition-all"
+              />
               <button
                 onClick={handleAISubmit}
                 disabled={!aiPrompt.trim() || isGenerating}
-                className={`w-full mt-1.5 py-2 rounded-lg text-xs font-semibold transition-all ${
+                className={`w-full mt-2 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${
                   isGenerating
                     ? 'bg-primary/20 text-primary/60 cursor-wait'
                     : aiPrompt.trim()
-                      ? 'bg-gradient-to-l from-primary to-accent text-white hover:opacity-90 shadow-sm'
+                      ? 'bg-gradient-to-l from-primary to-accent text-white hover:shadow-glow active:scale-[0.98]'
                       : 'bg-surface-2 text-text-soft cursor-not-allowed'
                 }`}
               >
@@ -230,45 +269,47 @@ export default function EditSidebar({
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    מעצב...
+                    AI מעצב...
                   </span>
-                ) : '✨ החל שינויי עיצוב'}
+                ) : 'החל שינויים'}
               </button>
-            </div>
+            </Section>
 
-            <div className="h-px bg-border" />
+            <div className="h-px bg-border/60" />
 
-            {/* Quick actions by category */}
-            <div>
-              <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-2 block">פעולות מהירות</label>
-              <div className="flex flex-col gap-1">
+            {/* Quick actions */}
+            <Section label="פעולות מהירות">
+              <div className="flex flex-col gap-0.5">
                 {AI_QUICK_ACTIONS.map((cat) => (
                   <div key={cat.category}>
                     <button
                       onClick={() => setExpandedCategory(expandedCategory === cat.category ? null : cat.category)}
-                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-all ${
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-all duration-150 ${
                         expandedCategory === cat.category
-                          ? 'bg-primary/10 text-primary font-semibold'
+                          ? 'bg-primary/8 text-primary font-semibold'
                           : 'text-text-secondary hover:bg-surface-2 hover:text-text-primary'
                       }`}
                     >
-                      <span>{cat.icon}</span>
+                      <span className="text-sm">{cat.icon}</span>
                       <span className="flex-1 text-right">{cat.category}</span>
                       <svg
-                        className={`w-3 h-3 transition-transform ${expandedCategory === cat.category ? 'rotate-180' : ''}`}
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${expandedCategory === cat.category ? 'rotate-180' : ''}`}
                         fill="none" stroke="currentColor" viewBox="0 0 24 24"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
                     {expandedCategory === cat.category && (
-                      <div className="grid grid-cols-1 gap-1 mt-1 pr-4">
+                      <div className="grid grid-cols-2 gap-1.5 mt-1.5 mb-1 pe-2">
                         {cat.actions.map((action) => (
                           <button
                             key={action.label}
                             onClick={() => onAIEdit(action.prompt)}
                             disabled={isGenerating}
-                            className="py-1.5 px-2 rounded text-[10px] border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 hover:bg-primary/5 transition-all text-right disabled:opacity-50"
+                            title={action.prompt}
+                            className="py-2 px-2.5 rounded-lg text-[10px] font-medium border border-border text-text-secondary
+                              hover:text-primary hover:border-primary/30 hover:bg-primary/5
+                              active:scale-[0.97] transition-all duration-150 text-right disabled:opacity-40 leading-tight"
                           >
                             {action.label}
                           </button>
@@ -278,18 +319,15 @@ export default function EditSidebar({
                   </div>
                 ))}
               </div>
-            </div>
+            </Section>
           </div>
         )}
 
-        {/* ── Layers / Screens tab ───────────────────────────────────── */}
+        {/* ── Layers / Screens ───────────────────────────────────────── */}
         {tab === 'layers' && (
           <div className="flex flex-col h-full">
-            <div className="px-3 py-2 border-b border-border/50 flex items-center gap-2">
-              <svg className="w-3.5 h-3.5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              <span className="text-xs font-semibold text-text-secondary">מסכים ושכבות</span>
+            <div className="px-4 py-3 border-b border-border/50">
+              <span className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold">מסכים באפליקציה</span>
             </div>
 
             <div className="flex-1 overflow-auto py-1">
@@ -298,13 +336,13 @@ export default function EditSidebar({
                   <button
                     key={screen.index}
                     onClick={() => onNavigate(screen.index)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-right text-xs transition-all ${
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-right text-xs transition-all duration-150 ${
                       screen.active
-                        ? 'bg-primary/10 text-primary font-semibold border-r-2 border-primary'
-                        : 'text-text-secondary hover:bg-surface hover:text-text-primary'
+                        ? 'bg-primary/10 text-primary font-semibold border-e-2 border-primary'
+                        : 'text-text-secondary hover:bg-surface-2 hover:text-text-primary'
                     }`}
                   >
-                    <div className={`w-5 h-5 rounded flex items-center justify-center text-[10px] flex-shrink-0 ${
+                    <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold flex-shrink-0 transition-colors ${
                       screen.active ? 'bg-primary text-white' : 'bg-surface-2 text-text-soft'
                     }`}>
                       {screen.index + 1}
@@ -313,46 +351,44 @@ export default function EditSidebar({
                   </button>
                 ))
               ) : (
-                <div className="px-3 py-4 text-xs text-text-soft text-center">
-                  בנה אפליקציה כדי לראות מסכים
+                <div className="px-4 py-8 text-center">
+                  <div className="w-12 h-12 rounded-xl bg-surface-2 border border-border flex items-center justify-center text-xl mx-auto mb-3">
+                    📱
+                  </div>
+                  <p className="text-xs text-text-soft">בנה אפליקציה כדי לראות מסכים</p>
                 </div>
               )}
             </div>
 
-            {/* Add screen */}
-            <div className="border-t border-border p-2">
-              <p className="text-[10px] text-text-soft uppercase tracking-wide mb-1.5 px-1">הוסף מסך</p>
-              <div className="grid grid-cols-2 gap-1">
+            <div className="border-t border-border p-3">
+              <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">הוסף מסך</p>
+              <OptionGrid>
                 {PRESET_SCREENS.map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => onAddScreen(`הוסף מסך ${s.label} לאפליקציה`)}
-                    className="py-1.5 px-1 rounded text-[10px] border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all truncate"
-                  >
+                  <OptionButton key={s.id} onClick={() => onAddScreen(`הוסף מסך ${s.label} לאפליקציה`)}>
                     {s.icon} {s.label}
-                  </button>
+                  </OptionButton>
                 ))}
-              </div>
+              </OptionGrid>
             </div>
           </div>
         )}
 
-        {/* ── Properties tab ─────────────────────────────────────────── */}
+        {/* ── Properties ─────────────────────────────────────────────── */}
         {tab === 'properties' && (
-          <div className="flex flex-col gap-3 p-3">
+          <div className="flex flex-col gap-4 p-4">
             {selectedElement ? (
               <>
-                {/* Header */}
+                {/* Element header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-mono font-bold uppercase">
-                      {selectedElement.tag}
+                    <div className="px-2.5 py-1 rounded-md bg-primary/10 text-primary text-[10px] font-mono font-bold uppercase tracking-wide">
+                      &lt;{selectedElement.tag}&gt;
                     </div>
-                    <span className="text-xs text-text-secondary">עריכת רכיב</span>
                   </div>
                   <button
                     onClick={onDeselect}
-                    className="p-1 rounded hover:bg-surface-2 text-text-soft hover:text-text-primary transition-all"
+                    title="בטל בחירה"
+                    className="p-1.5 rounded-lg hover:bg-surface-2 text-text-soft hover:text-text-primary transition-all active:scale-90"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -360,281 +396,254 @@ export default function EditSidebar({
                   </button>
                 </div>
 
-                {/* Text */}
+                {/* Text content */}
                 {isTextEl && (
-                  <div>
-                    <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">טקסט</label>
+                  <Section label="טקסט">
                     <textarea
                       value={text}
                       onChange={(e) => setText(e.target.value)}
                       onBlur={() => onTextChange(selectedElement.path, text)}
                       rows={2}
-                      className="w-full px-3 py-2 rounded-lg bg-surface-2 border border-border text-text-primary text-xs focus:outline-none focus:border-primary resize-none"
+                      className="w-full px-3 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none transition-all"
                     />
-                  </div>
+                  </Section>
                 )}
 
-                {/* Button size presets */}
+                {/* Button size */}
                 {isButton && (
-                  <div>
-                    <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">גודל כפתור</label>
-                    <div className="flex gap-1">
+                  <Section label="גודל כפתור">
+                    <OptionGrid cols="grid-cols-4">
                       {BUTTON_SIZE_PRESETS.map((s) => (
-                        <button
+                        <OptionButton
                           key={s.id}
+                          title={`${s.fontSize} / ${s.padding}`}
                           onClick={() => {
                             onStyleChange(selectedElement.path, 'padding', s.padding);
                             onStyleChange(selectedElement.path, 'fontSize', s.fontSize);
                           }}
-                          className="flex-1 py-1.5 rounded text-[10px] border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all"
                         >
                           {s.label}
-                        </button>
+                        </OptionButton>
                       ))}
-                    </div>
-                  </div>
+                    </OptionGrid>
+                  </Section>
                 )}
 
-                {/* Font Size */}
+                {/* Font size */}
                 {isTextEl && (
-                  <div>
-                    <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">גודל טקסט</label>
-                    <div className="flex flex-wrap gap-1">
+                  <Section label="גודל טקסט">
+                    <div className="flex flex-wrap gap-1.5">
                       {FONT_SIZES.map((size) => (
-                        <button
+                        <OptionButton
                           key={size}
+                          active={selectedElement.styles.fontSize === size}
                           onClick={() => onStyleChange(selectedElement.path, 'fontSize', size)}
-                          className={`px-2 py-1 rounded text-[10px] border transition-all ${
-                            selectedElement.styles.fontSize === size
-                              ? 'border-primary bg-primary/10 text-primary font-semibold'
-                              : 'border-border text-text-secondary hover:text-text-primary'
-                          }`}
                         >
                           {parseInt(size)}
-                        </button>
+                        </OptionButton>
                       ))}
                     </div>
-                  </div>
+                  </Section>
                 )}
 
-                {/* Font Weight */}
+                {/* Font weight */}
                 {isTextEl && (
-                  <div>
-                    <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">משקל</label>
-                    <div className="flex gap-1">
+                  <Section label="משקל טקסט">
+                    <OptionGrid cols="grid-cols-3">
                       {[
                         { id: '400', label: 'רגיל' },
                         { id: '600', label: 'בולט' },
                         { id: '800', label: 'כבד' },
                       ].map((w) => (
-                        <button
+                        <OptionButton
                           key={w.id}
+                          active={selectedElement.styles.fontWeight === w.id || (w.id === '400' && parseInt(selectedElement.styles.fontWeight) < 500)}
                           onClick={() => onStyleChange(selectedElement.path, 'fontWeight', w.id)}
-                          className={`flex-1 py-1.5 rounded text-[10px] border transition-all ${
-                            selectedElement.styles.fontWeight === w.id || (w.id === '400' && parseInt(selectedElement.styles.fontWeight) < 500)
-                              ? 'border-primary bg-primary/10 text-primary'
-                              : 'border-border text-text-secondary hover:text-text-primary'
-                          }`}
                         >
                           {w.label}
-                        </button>
+                        </OptionButton>
                       ))}
-                    </div>
-                  </div>
+                    </OptionGrid>
+                  </Section>
                 )}
 
-                {/* Text Align */}
+                {/* Text align */}
                 {isTextEl && (
-                  <div>
-                    <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">יישור טקסט</label>
-                    <div className="flex gap-1">
-                      {TEXT_ALIGN_OPTIONS.map((a) => (
-                        <button
+                  <Section label="יישור">
+                    <OptionGrid cols="grid-cols-3">
+                      {[
+                        { id: 'right', label: 'ימין' },
+                        { id: 'center', label: 'מרכז' },
+                        { id: 'left', label: 'שמאל' },
+                      ].map((a) => (
+                        <OptionButton
                           key={a.id}
+                          active={selectedElement.styles.textAlign === a.id}
                           onClick={() => onStyleChange(selectedElement.path, 'textAlign', a.id)}
-                          className="flex-1 py-1.5 rounded text-[10px] border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all"
                         >
                           {a.label}
-                        </button>
+                        </OptionButton>
                       ))}
-                    </div>
-                  </div>
+                    </OptionGrid>
+                  </Section>
                 )}
 
-                {/* Colors */}
-                <div>
-                  <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">צבעים</label>
-                  <div className="flex items-center gap-3">
-                    <div className="flex flex-col items-center gap-1">
+                {/* Colors — side by side */}
+                <Section label="צבעים">
+                  <div className="flex items-center gap-4">
+                    <label className="flex flex-col items-center gap-1.5 cursor-pointer">
                       <input
                         type="color"
                         defaultValue={rgbToHex(selectedElement.styles.color)}
                         onChange={(e) => onStyleChange(selectedElement.path, 'color', e.target.value)}
-                        className="w-8 h-8 rounded cursor-pointer border border-border"
+                        className="w-9 h-9 rounded-lg cursor-pointer border-2 border-border hover:border-primary/40 transition-colors"
                       />
-                      <span className="text-[9px] text-text-soft">טקסט</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-[9px] text-text-soft font-medium">טקסט</span>
+                    </label>
+                    <label className="flex flex-col items-center gap-1.5 cursor-pointer">
                       <input
                         type="color"
                         defaultValue={rgbToHex(selectedElement.styles.backgroundColor)}
                         onChange={(e) => onStyleChange(selectedElement.path, 'backgroundColor', e.target.value)}
-                        className="w-8 h-8 rounded cursor-pointer border border-border"
+                        className="w-9 h-9 rounded-lg cursor-pointer border-2 border-border hover:border-primary/40 transition-colors"
                       />
-                      <span className="text-[9px] text-text-soft">רקע</span>
-                    </div>
+                      <span className="text-[9px] text-text-soft font-medium">רקע</span>
+                    </label>
                     <button
                       onClick={() => onStyleChange(selectedElement.path, 'backgroundColor', 'transparent')}
-                      className="text-[10px] text-text-soft hover:text-red-400 transition-colors border border-border rounded px-2 py-1"
+                      title="הפוך רקע לשקוף"
+                      className="flex flex-col items-center gap-1.5 group"
                     >
-                      רקע שקוף
+                      <div className="w-9 h-9 rounded-lg border-2 border-border group-hover:border-red-300 flex items-center justify-center transition-colors"
+                        style={{ background: 'repeating-conic-gradient(#e5e7eb 0% 25%, transparent 0% 50%) 50% / 12px 12px' }}>
+                        <svg className="w-4 h-4 text-text-soft group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                      </div>
+                      <span className="text-[9px] text-text-soft font-medium">שקוף</span>
                     </button>
                   </div>
-                </div>
+                </Section>
 
                 {/* Shadow */}
-                <div>
-                  <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">צל</label>
-                  <div className="flex flex-wrap gap-1">
+                <Section label="צל">
+                  <OptionGrid cols="grid-cols-5">
                     {SHADOW_PRESETS.map((s) => (
-                      <button
+                      <OptionButton
                         key={s.id}
+                        title={s.value}
                         onClick={() => onStyleChange(selectedElement.path, 'boxShadow', s.value)}
-                        className="px-2 py-1 rounded text-[10px] border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all"
                       >
                         {s.label}
-                      </button>
+                      </OptionButton>
                     ))}
-                  </div>
-                </div>
+                  </OptionGrid>
+                </Section>
 
-                {/* Border */}
-                <div>
-                  <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">מסגרת</label>
-                  <div className="flex gap-1">
-                    {BORDER_PRESETS.map((b) => (
-                      <button
-                        key={b.id}
-                        onClick={() => onStyleChange(selectedElement.path, 'border', b.value)}
-                        className="flex-1 py-1.5 rounded text-[10px] border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all"
-                      >
-                        {b.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Border Radius */}
-                <div>
-                  <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">עיגול פינות</label>
-                  <div className="flex gap-1">
+                {/* Border radius */}
+                <Section label="עיגול פינות">
+                  <OptionGrid cols="grid-cols-5">
                     {['0px', '8px', '16px', '24px', '9999px'].map((r) => (
-                      <button
+                      <OptionButton
                         key={r}
+                        active={selectedElement.styles.borderRadius === r}
                         onClick={() => onStyleChange(selectedElement.path, 'borderRadius', r)}
-                        className={`flex-1 py-1.5 rounded text-[10px] border transition-all ${
-                          selectedElement.styles.borderRadius === r
-                            ? 'border-primary bg-primary/10 text-primary'
-                            : 'border-border text-text-secondary hover:text-text-primary'
-                        }`}
                       >
-                        {r === '9999px' ? '⬤' : parseInt(r)}
-                      </button>
+                        {r === '9999px' ? 'Full' : parseInt(r)}
+                      </OptionButton>
                     ))}
-                  </div>
-                </div>
-
-                {/* Width */}
-                <div>
-                  <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">רוחב</label>
-                  <div className="flex gap-1">
-                    {WIDTH_PRESETS.map((w) => (
-                      <button
-                        key={w.id}
-                        onClick={() => onStyleChange(selectedElement.path, 'width', w.value)}
-                        className="flex-1 py-1.5 rounded text-[10px] border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all"
-                      >
-                        {w.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                  </OptionGrid>
+                </Section>
 
                 {/* Padding */}
-                <div>
-                  <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">ריווח פנימי</label>
-                  <div className="flex gap-1">
+                <Section label="ריווח פנימי">
+                  <OptionGrid cols="grid-cols-6">
                     {['0px', '4px', '8px', '12px', '16px', '24px'].map((p) => (
-                      <button
+                      <OptionButton
                         key={p}
                         onClick={() => onStyleChange(selectedElement.path, 'padding', p)}
-                        className="flex-1 py-1.5 rounded text-[10px] border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all"
                       >
                         {parseInt(p)}
-                      </button>
+                      </OptionButton>
                     ))}
-                  </div>
-                </div>
+                  </OptionGrid>
+                </Section>
 
                 {/* Opacity */}
-                <div>
-                  <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">שקיפות</label>
-                  <div className="flex gap-1">
-                    {OPACITY_PRESETS.map((o) => (
-                      <button
+                <Section label="שקיפות">
+                  <OptionGrid cols="grid-cols-5">
+                    {['1', '0.9', '0.75', '0.5', '0.25'].map((o) => (
+                      <OptionButton
                         key={o}
                         onClick={() => onStyleChange(selectedElement.path, 'opacity', o)}
-                        className="flex-1 py-1.5 rounded text-[10px] border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all"
                       >
                         {Math.round(parseFloat(o) * 100)}%
-                      </button>
+                      </OptionButton>
                     ))}
-                  </div>
-                </div>
+                  </OptionGrid>
+                </Section>
 
-                {/* AI edit for this element */}
-                <div className="border-t border-border pt-3">
-                  <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">✨ AI עיצוב לרכיב</label>
-                  <div className="flex flex-wrap gap-1">
-                    {isButton ? (
-                      <>
-                        <button onClick={() => onAIEdit(`שפר את העיצוב של הכפתור "${selectedElement.text}" - הוסף gradient, צל, ואנימציית hover`)} disabled={isGenerating}
-                          className="py-1 px-2 rounded text-[10px] border border-primary/20 text-primary bg-primary/5 hover:bg-primary/10 transition-all disabled:opacity-50">
-                          שפר כפתור
-                        </button>
-                        <button onClick={() => onAIEdit(`הוסף אייקון מתאים לכפתור "${selectedElement.text}"`)} disabled={isGenerating}
-                          className="py-1 px-2 rounded text-[10px] border border-primary/20 text-primary bg-primary/5 hover:bg-primary/10 transition-all disabled:opacity-50">
-                          + אייקון
-                        </button>
-                        <button onClick={() => onAIEdit(`הפוך את הכפתור "${selectedElement.text}" לסגנון outline עם מסגרת ובלי רקע`)} disabled={isGenerating}
-                          className="py-1 px-2 rounded text-[10px] border border-primary/20 text-primary bg-primary/5 hover:bg-primary/10 transition-all disabled:opacity-50">
-                          outline
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button onClick={() => onAIEdit(`שפר את העיצוב של ה-${selectedElement.tag} "${selectedElement.text.slice(0, 30)}" - הפוך למרשים יותר`)} disabled={isGenerating}
-                          className="py-1 px-2 rounded text-[10px] border border-primary/20 text-primary bg-primary/5 hover:bg-primary/10 transition-all disabled:opacity-50">
-                          שפר עיצוב
-                        </button>
-                        <button onClick={() => onAIEdit(`הוסף אנימציית כניסה לרכיב ה-${selectedElement.tag}`)} disabled={isGenerating}
-                          className="py-1 px-2 rounded text-[10px] border border-primary/20 text-primary bg-primary/5 hover:bg-primary/10 transition-all disabled:opacity-50">
-                          + אנימציה
-                        </button>
-                      </>
-                    )}
-                  </div>
+                {/* Width */}
+                <Section label="רוחב">
+                  <OptionGrid cols="grid-cols-4">
+                    {[
+                      { label: 'אוטו', value: 'auto' },
+                      { label: '50%', value: '50%' },
+                      { label: '100%', value: '100%' },
+                      { label: 'Fit', value: 'fit-content' },
+                    ].map((w) => (
+                      <OptionButton key={w.value} onClick={() => onStyleChange(selectedElement.path, 'width', w.value)}>
+                        {w.label}
+                      </OptionButton>
+                    ))}
+                  </OptionGrid>
+                </Section>
+
+                {/* AI for this element */}
+                <div className="border-t border-border pt-4">
+                  <Section label="AI לרכיב זה">
+                    <div className="flex flex-wrap gap-1.5">
+                      {isButton ? (
+                        <>
+                          <button onClick={() => onAIEdit(`שפר את העיצוב של הכפתור "${selectedElement.text}" - הוסף gradient, צל, ואנימציית hover`)} disabled={isGenerating}
+                            className="py-1.5 px-3 rounded-lg text-[10px] font-medium bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 active:scale-[0.97] transition-all disabled:opacity-40">
+                            שפר כפתור
+                          </button>
+                          <button onClick={() => onAIEdit(`הוסף אייקון מתאים לכפתור "${selectedElement.text}"`)} disabled={isGenerating}
+                            className="py-1.5 px-3 rounded-lg text-[10px] font-medium bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 active:scale-[0.97] transition-all disabled:opacity-40">
+                            + אייקון
+                          </button>
+                          <button onClick={() => onAIEdit(`הפוך את הכפתור "${selectedElement.text}" לסגנון outline`)} disabled={isGenerating}
+                            className="py-1.5 px-3 rounded-lg text-[10px] font-medium bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 active:scale-[0.97] transition-all disabled:opacity-40">
+                            Outline
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => onAIEdit(`שפר את העיצוב של ה-${selectedElement.tag} "${selectedElement.text.slice(0, 30)}" - הפוך למרשים יותר`)} disabled={isGenerating}
+                            className="py-1.5 px-3 rounded-lg text-[10px] font-medium bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 active:scale-[0.97] transition-all disabled:opacity-40">
+                            שפר עיצוב
+                          </button>
+                          <button onClick={() => onAIEdit(`הוסף אנימציית כניסה לרכיב ה-${selectedElement.tag}`)} disabled={isGenerating}
+                            className="py-1.5 px-3 rounded-lg text-[10px] font-medium bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 active:scale-[0.97] transition-all disabled:opacity-40">
+                            + אנימציה
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </Section>
                 </div>
               </>
             ) : (
-              /* No element selected */
-              <div className="flex flex-col items-center justify-center text-center py-8 px-4">
-                <div className="w-14 h-14 rounded-2xl bg-surface-2 border border-border flex items-center justify-center text-2xl mb-3">
-                  👆
+              <div className="flex flex-col items-center justify-center text-center py-12 px-6">
+                <div className="w-16 h-16 rounded-2xl bg-surface-2 border border-border flex items-center justify-center mb-4">
+                  <svg className="w-7 h-7 text-text-soft" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59" />
+                  </svg>
                 </div>
-                <p className="text-xs text-text-secondary font-medium mb-1">לחץ על רכיב בתצוגה</p>
-                <p className="text-[10px] text-text-soft leading-relaxed">
-                  לחץ על כפתור, טקסט, או כל רכיב כדי לערוך את המאפיינים שלו
+                <p className="text-sm text-text-primary font-medium mb-1.5">לחץ על רכיב</p>
+                <p className="text-[11px] text-text-soft leading-relaxed max-w-[180px]">
+                  לחץ על כפתור, טקסט, או כל רכיב בתצוגה המקדימה כדי לערוך אותו
                 </p>
               </div>
             )}

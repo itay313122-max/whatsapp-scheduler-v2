@@ -489,16 +489,10 @@ export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChan
   }, [iframeRef]);
 
   useEffect(() => {
-    console.log('[WebPreview] htmlDoc length:', htmlDoc?.length ?? 0);
-  }, [htmlDoc]);
-
-  useEffect(() => {
     function handleMessage(e: MessageEvent) {
       const data = e.data;
       if (!data?.type) return;
-      if (data.type === 'mf-edit') {
-        console.log('[WebPreview] Edit event:', data);
-      } else if (data.type === 'mf-screens') {
+      if (data.type === 'mf-screens') {
         onScreensChanged?.(data.screens);
       } else if (data.type === 'mf-element-selected') {
         onElementSelected?.(data);
