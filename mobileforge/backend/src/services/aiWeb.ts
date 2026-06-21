@@ -208,6 +208,27 @@ NEW COMPONENTS (2026 Design System):
   badge-warning    yellow semantic badge
   badge-error      red semantic badge
 
+WIDGET COMPONENTS (for interactive features):
+  clock-widget     container for clock widgets
+  clock-digital    large monospace time display (48px)
+  timer-display    countdown/stopwatch number display (56px monospace)
+  calendar-grid    7-column date grid
+  calendar-day     individual day cell (min 36px, hover/today/selected states)
+  calendar-nav     month navigation bar with buttons
+  chart-container  wrapper for SVG charts
+  chart-legend     flex legend with colored dots
+  stat-card        statistics card with big number
+  star-rating      horizontal star container (32px stars, 44px touch target)
+  carousel         image slider with arrows and dots
+  share-row        horizontal share button row
+  share-btn        social share button (48px) — add .whatsapp/.facebook/.twitter/.email/.copy
+  profile-card     user profile with header, avatar, stats
+  calc-grid        4-column calculator button grid
+  calc-btn         calculator button (56px) — add .num/.op/.func/.equals/.clear/.zero
+  note-card        colored sticky note — add .yellow/.green/.blue/.pink
+  survey-option    quiz answer option (48px) with radio indicator
+  habit-item       habit row with checkbox and streak
+
 TYPOGRAPHY — Material Design 3 scale (use for ALL text — no Tailwind font/color):
   display          36px 700-weight hero heading (line-height: 44px)
   title            26px 800-weight heading (line-height: 32px)
