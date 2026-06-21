@@ -64,7 +64,7 @@ function OptionButton({
     <button
       onClick={onClick}
       title={title}
-      className={`py-2 px-2 rounded-lg text-[11px] font-medium border transition-all duration-150 select-none
+      className={`py-2 px-2 min-h-[36px] rounded-lg text-[11px] font-medium border transition-all duration-150 select-none
         ${active
           ? 'border-primary bg-primary/10 text-primary shadow-sm'
           : 'border-border text-text-secondary hover:text-text-primary hover:border-primary/30 hover:bg-primary/5 active:scale-[0.97]'
@@ -120,20 +120,20 @@ const AI_QUICK_ACTIONS = [
   },
 ];
 
-const FONT_SIZES = ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px'];
+const FONT_SIZES = ['11px', '12px', '14px', '16px', '20px', '24px', '28px', '32px'];
 
 const BUTTON_SIZE_PRESETS = [
-  { id: 'sm', label: 'S', padding: '6px 12px', fontSize: '12px' },
-  { id: 'md', label: 'M', padding: '10px 20px', fontSize: '14px' },
-  { id: 'lg', label: 'L', padding: '14px 28px', fontSize: '16px' },
-  { id: 'xl', label: 'XL', padding: '18px 36px', fontSize: '18px' },
+  { id: 'sm', label: 'S', padding: '8px 16px', fontSize: '12px' },
+  { id: 'md', label: 'M', padding: '12px 24px', fontSize: '14px' },
+  { id: 'lg', label: 'L', padding: '16px 32px', fontSize: '16px' },
+  { id: 'xl', label: 'XL', padding: '20px 40px', fontSize: '18px' },
 ];
 
 const SHADOW_PRESETS = [
   { id: 'none', label: 'ללא', value: 'none' },
-  { id: 'sm', label: 'רך', value: '0 1px 3px rgba(0,0,0,0.12)' },
-  { id: 'md', label: 'בינוני', value: '0 4px 12px rgba(0,0,0,0.15)' },
-  { id: 'lg', label: 'חזק', value: '0 8px 30px rgba(0,0,0,0.2)' },
+  { id: 'sm', label: 'עדין', value: '0 1px 2px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1)' },
+  { id: 'md', label: 'בינוני', value: '0 2px 4px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.1)' },
+  { id: 'lg', label: 'חזק', value: '0 4px 8px rgba(0,0,0,0.06), 0 8px 16px rgba(0,0,0,0.1)' },
   { id: 'glow', label: 'זוהר', value: '0 0 20px rgba(99,102,241,0.4)' },
 ];
 
@@ -296,7 +296,7 @@ export default function EditSidebar({
             key={t.id}
             onClick={() => setTab(t.id)}
             title={t.label}
-            className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium transition-all duration-200 relative
+            className={`flex-1 flex flex-col items-center gap-0.5 py-2 min-h-[44px] text-[10px] font-medium transition-all duration-200 relative
               ${tab === t.id ? 'text-primary' : 'text-text-soft hover:text-text-secondary'}`}
           >
             <span className={`transition-transform duration-200 ${tab === t.id ? 'scale-110' : ''}`}>
@@ -760,8 +760,8 @@ export default function EditSidebar({
 
                 {/* Border radius */}
                 <Section label="עיגול פינות">
-                  <OptionGrid cols="grid-cols-5">
-                    {['0px', '8px', '16px', '24px', '9999px'].map((r) => (
+                  <OptionGrid cols="grid-cols-4">
+                    {['0px', '4px', '8px', '12px', '16px', '24px', '9999px'].map((r) => (
                       <OptionButton
                         key={r}
                         active={selectedElement.styles.borderRadius === r}
@@ -776,7 +776,7 @@ export default function EditSidebar({
                 {/* Padding */}
                 <Section label="ריווח פנימי">
                   <OptionGrid cols="grid-cols-6">
-                    {['0px', '4px', '8px', '12px', '16px', '24px'].map((p) => (
+                    {['0px', '4px', '8px', '16px', '24px', '32px'].map((p) => (
                       <OptionButton
                         key={p}
                         onClick={() => onStyleChange(selectedElement.path, 'padding', p)}

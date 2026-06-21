@@ -77,6 +77,27 @@ function NeuPreview() {
   );
 }
 
+function LiquidGlassPreview() {
+  return (
+    <div className="w-full h-full rounded-lg overflow-hidden relative" style={{ background: 'linear-gradient(135deg, #e0f2fe, #fce7f3, #f3e8ff)' }}>
+      <div className="absolute inset-2 rounded-md" style={{ background: 'rgba(255,255,255,0.45)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.4)', boxShadow: 'inset 0 0 12px -4px rgba(255,255,255,0.5)' }} />
+      <div className="absolute bottom-2 right-2 w-6 h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.7)', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }} />
+    </div>
+  );
+}
+
+function M3ExpressivePreview() {
+  return (
+    <div className="w-full h-full rounded-lg overflow-hidden relative bg-white">
+      <div className="absolute top-2 right-2 w-8 h-3.5" style={{ borderRadius: '12px', background: '#e8def8' }} />
+      <div className="absolute inset-x-2 top-7 h-2 rounded-lg" style={{ background: '#f3edf7' }} />
+      <div className="absolute bottom-2 right-2 w-7 h-7 rounded-2xl flex items-center justify-center" style={{ background: '#6750a4', boxShadow: '0 2px 6px rgba(103,80,164,0.3)' }}>
+        <div className="w-2 h-0.5 bg-white rounded-full" />
+      </div>
+    </div>
+  );
+}
+
 function FoodPreview() {
   return (
     <div className="w-full h-full rounded-lg overflow-hidden relative bg-white">
@@ -265,46 +286,46 @@ function InputShapePreview({ radius, style: inputStyle }: { radius: string; styl
 const BUTTON_SHAPES = [
   {
     id: 'square', name: 'חד', preview: <ButtonShapePreview radius="4px" />,
-    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב חד (מרובע): border-radius: 4px, padding מרווח, צללים עדינים. ${STYLE_ONLY}`,
+    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב חד (מרובע): border-radius: 4px, גובה מינימלי 48dp, padding: 12px 24px, צללים עדינים. ${STYLE_ONLY}`,
   },
   {
     id: 'rounded', name: 'מעוגל', preview: <ButtonShapePreview radius="12px" />,
-    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב מעוגל: border-radius: 12px, padding מרווח, צללים רכים. ${STYLE_ONLY}`,
+    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב מעוגל: border-radius: 12px, גובה מינימלי 48dp, padding: 12px 24px, צללים רכים. ${STYLE_ONLY}`,
   },
   {
     id: 'pill', name: 'כדור', preview: <ButtonShapePreview radius="9999px" />,
-    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב כדורי (pill): border-radius: 9999px, padding אופקי רחב, תחושת מודרנית. ${STYLE_ONLY}`,
+    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב כדורי (pill): border-radius: 9999px, גובה מינימלי 48dp, padding: 12px 32px, תחושת מודרנית. ${STYLE_ONLY}`,
   },
   {
     id: 'outline', name: 'מסגרת', preview: <ButtonShapePreview radius="10px" border="2px solid #6366f1" shadow="none" />,
-    prompt: `שנה את כל הכפתורים באפליקציה לסגנון מסגרת (outline): רקע שקוף, border: 2px solid עם הצבע הראשי, border-radius: 10px, טקסט בצבע הראשי. ${STYLE_ONLY}`,
+    prompt: `שנה את כל הכפתורים באפליקציה לסגנון מסגרת (outline): רקע שקוף, border: 2px solid עם הצבע הראשי, border-radius: 10px, גובה מינימלי 48dp, padding: 12px 24px, טקסט בצבע הראשי. ${STYLE_ONLY}`,
   },
   {
     id: 'soft', name: 'רך', preview: <ButtonShapePreview radius="14px" shadow="0 4px 14px rgba(99,102,241,0.25)" />,
-    prompt: `שנה את כל הכפתורים לסגנון רך: border-radius: 14px, רקע gradient עדין, צל צבעוני רך (box-shadow עם צבע הכפתור), אפקט hover שמעלה את הכפתור למעלה. ${STYLE_ONLY}`,
+    prompt: `שנה את כל הכפתורים לסגנון רך: border-radius: 14px, גובה מינימלי 48dp, padding: 12px 24px, רקע gradient עדין, צל צבעוני רך (box-shadow עם צבע הכפתור), אפקט hover שמעלה את הכפתור למעלה. ${STYLE_ONLY}`,
   },
   {
     id: 'brutal-btn', name: 'ברוטלי', preview: <ButtonShapePreview radius="4px" shadow="3px 3px 0 #000" border="2px solid #000" />,
-    prompt: `שנה את כל הכפתורים לסגנון neo-brutalism: border: 2px solid #000, box-shadow: 3px 3px 0 #000, border-radius: 4px, רקע צבעוני חזק, טקסט מודגש. ${STYLE_ONLY}`,
+    prompt: `שנה את כל הכפתורים לסגנון neo-brutalism: border: 2px solid #000, box-shadow: 3px 3px 0 #000, border-radius: 4px, גובה מינימלי 48dp, padding: 12px 24px, רקע צבעוני חזק, טקסט מודגש. ${STYLE_ONLY}`,
   },
 ];
 
 const CARD_SHAPES = [
   {
     id: 'flat', name: 'שטוח', preview: <CardShapePreview radius="4px" shadow="none" border="1px solid #e5e7eb" />,
-    prompt: `שנה את כל הכרטיסים לעיצוב שטוח: ללא צללים, border דק (#e5e7eb), border-radius: 4px, רקע לבן. ${STYLE_ONLY}`,
+    prompt: `שנה את כל הכרטיסים לעיצוב שטוח: ללא צללים, border דק (#e5e7eb), border-radius: 4px, רקע לבן, padding: 16px, מרווח פנימי על בסיס רשת 8px. ${STYLE_ONLY}`,
   },
   {
     id: 'elevated', name: 'צל', preview: <CardShapePreview radius="12px" shadow="0 4px 16px rgba(0,0,0,0.08)" border="none" />,
-    prompt: `שנה את כל הכרטיסים לעיצוב מורם: box-shadow: 0 4px 16px rgba(0,0,0,0.08), ללא border, border-radius: 12px, רקע לבן. ${STYLE_ONLY}`,
+    prompt: `שנה את כל הכרטיסים לעיצוב מורם: box-shadow: 0 4px 16px rgba(0,0,0,0.08), ללא border, border-radius: 12px, רקע לבן, padding: 16px, מרווח פנימי על בסיס רשת 8px. ${STYLE_ONLY}`,
   },
   {
     id: 'glass-card', name: 'זכוכית', preview: <CardShapePreview radius="16px" shadow="0 8px 32px rgba(0,0,0,0.06)" border="1px solid rgba(255,255,255,0.5)" />,
-    prompt: `שנה את כל הכרטיסים לסגנון זכוכית (glass): background: rgba(255,255,255,0.7), backdrop-filter: blur(12px), border: 1px solid rgba(255,255,255,0.5), border-radius: 16px, צל רך. ${STYLE_ONLY}`,
+    prompt: `שנה את כל הכרטיסים לסגנון זכוכית (glass): background: rgba(255,255,255,0.7), backdrop-filter: blur(12px), border: 1px solid rgba(255,255,255,0.5), border-radius: 16px, צל רך, padding: 16px, מרווח פנימי על בסיס רשת 8px. ${STYLE_ONLY}`,
   },
   {
     id: 'bordered', name: 'מסגרת', preview: <CardShapePreview radius="8px" shadow="none" border="2px solid #e0e7ff" />,
-    prompt: `שנה את כל הכרטיסים לעיצוב מסגרת: border: 2px solid (צבע גבול עדין), ללא צל, border-radius: 8px, רקע לבן. ${STYLE_ONLY}`,
+    prompt: `שנה את כל הכרטיסים לעיצוב מסגרת: border: 2px solid (צבע גבול עדין), ללא צל, border-radius: 8px, רקע לבן, padding: 16px, מרווח פנימי על בסיס רשת 8px. ${STYLE_ONLY}`,
   },
 ];
 
@@ -330,78 +351,86 @@ const INPUT_SHAPES = [
 const DESIGN_LANGUAGES: DesignPreset[] = [
   {
     id: 'glass', name: 'זכוכית', tag: 'Glassmorphism', preview: <GlassPreview />,
-    prompt: `החל סגנון Glassmorphism על האפליקציה: רקעים שקופים-למחצה עם backdrop-filter blur, מסגרות לבנות עדינות (rgba(255,255,255,0.3)), צללים רכים, gradient רקע צבעוני מאחורי הכל, ועיגול פינות גדול. ${STYLE_ONLY}`,
+    prompt: `החל סגנון Glassmorphism על האפליקציה: רקעים שקופים-למחצה עם backdrop-filter blur, מסגרות לבנות עדינות (rgba(255,255,255,0.3)), צללים רכים, gradient רקע צבעוני מאחורי הכל, ועיגול פינות גדול. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'liquid-glass', name: 'זכוכית נוזלית', tag: 'Liquid Glass', preview: <LiquidGlassPreview />,
+    prompt: `החל סגנון Apple Liquid Glass (2025): רקע gradient בהיר (#e0f2fe → #fce7f3 → #f3e8ff), כרטיסים עם background: rgba(255,255,255,0.45), backdrop-filter: blur(12px) saturate(1.8), border: 1px solid rgba(255,255,255,0.35), box-shadow: 0 8px 32px rgba(31,38,135,0.12) ו-inset shadow עדין. פינות מעוגלות גדולות (16-20px), שקיפות וזרימה. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
   },
   {
     id: 'brutal', name: 'ברוטליזם', tag: 'Neo-Brutalism', preview: <BrutalPreview />,
-    prompt: `החל סגנון Neo-Brutalism: צבעים חזקים ורוויים, מסגרות שחורות עבות (3-4px solid #000), צללים קשיחים לא מטושטשים (box-shadow: 4px 4px 0 #000), פונטים מודגשים גדולים, ללא gradient, פינות מעט מעוגלות. ${STYLE_ONLY}`,
+    prompt: `החל סגנון Neo-Brutalism: צבעים חזקים ורוויים, מסגרות שחורות עבות (3-4px solid #000), צללים קשיחים לא מטושטשים (box-shadow: 4px 4px 0 #000), פונטים מודגשים גדולים, ללא gradient, פינות מעט מעוגלות. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
   },
   {
     id: 'minimal', name: 'מינימלי', tag: 'Minimal', preview: <MinimalPreview />,
-    prompt: `החל סגנון מינימליסטי נקי: הרבה white space, פלטה מונוכרומטית (שחור/לבן/אפור) עם צבע אקסנט אחד, פונט נקי, צללים עדינים מאוד או בכלל לא, קווים דקים, טיפוגרפיה היא הגיבור. ${STYLE_ONLY}`,
+    prompt: `החל סגנון מינימליסטי נקי: הרבה white space, פלטה מונוכרומטית (שחור/לבן/אפור) עם צבע אקסנט אחד, פונט נקי, צללים עדינים מאוד או בכלל לא, קווים דקים, טיפוגרפיה היא הגיבור. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
   },
   {
     id: 'darkpro', name: 'כהה מקצועי', tag: 'Dark Pro', preview: <DarkProPreview />,
-    prompt: `החל סגנון Dark Mode מקצועי: רקע כהה עמוק (#0a0a14, #1a1a2e), אקסנטים בצבעי ניאון (teal/cyan), זוהר עדין סביב כפתורים (glow), כרטיסים כהים עם מסגרות דקות מאירות, ניגודיות גבוהה לטקסט. ${STYLE_ONLY}`,
+    prompt: `החל סגנון Dark Mode מקצועי: רקע כהה עמוק (#0a0a14, #1a1a2e), אקסנטים בצבעי ניאון (teal/cyan), זוהר עדין סביב כפתורים (glow), כרטיסים כהים עם מסגרות דקות מאירות, ניגודיות גבוהה לטקסט. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
   },
   {
     id: 'gradient', name: 'גרדיאנטים', tag: 'Gradient Rich', preview: <GradientPreview />,
-    prompt: `החל סגנון עשיר בגרדיאנטים: gradient רקע צבעוני וחי, כפתורים עם gradient, כותרות עם gradient text, כרטיסים עם gradient עדין, צבעים תוססים ומודרניים (סגול/ורוד/כחול). ${STYLE_ONLY}`,
+    prompt: `החל סגנון עשיר בגרדיאנטים: gradient רקע צבעוני וחי, כפתורים עם gradient, כותרות עם gradient text, כרטיסים עם gradient עדין, צבעים תוססים ומודרניים (סגול/ורוד/כחול). השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
   },
   {
     id: 'neu', name: 'רך (Soft UI)', tag: 'Neumorphism', preview: <NeuPreview />,
-    prompt: `החל סגנון Neumorphism / Soft UI: רקע אפור-בהיר אחיד (#e0e5ec), רכיבים עם צללים כפולים רכים (אור מלמעלה-שמאל, צל מלמטה-ימין) שיוצרים אפקט תלת-ממדי מובלט/שקוע, פינות מעוגלות מאוד, ניגודיות נמוכה. ${STYLE_ONLY}`,
+    prompt: `החל סגנון Neumorphism / Soft UI: רקע אפור-בהיר אחיד (#e0e5ec), רכיבים עם צללים כפולים רכים (אור מלמעלה-שמאל, צל מלמטה-ימין) שיוצרים אפקט תלת-ממדי מובלט/שקוע, פינות מעוגלות מאוד, ניגודיות נמוכה. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'm3-expressive', name: 'M3 אקספרסיבי', tag: 'Material 3', preview: <M3ExpressivePreview />,
+    prompt: `החל סגנון Material Design 3 Expressive: פלטת צבעים מרחבית עם primary (#6750a4), secondary (#625b71), tertiary (#7d5260), surface tones (#f3edf7, #e8def8), כפתורי FAB מעוגלים גדולים (28px radius), כרטיסים עם surface containers, 35 צורות חדשות — squircle shapes ו-wavy edges, מרווחים 8px grid, touch targets 48dp, טיפוגרפיה עשירה עם emphasized styles. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
   },
 ];
 
 const APP_STYLES: DesignPreset[] = [
   {
     id: 'whatsapp', name: 'WhatsApp', tag: 'מסרים', preview: <WhatsAppPreview />,
-    prompt: `החל עיצוב בסגנון WhatsApp: רקע כהה (#111b21), header ב-#1f2c34, בועות צ'אט ירוקות (#005c4b) למשתמש ואפורות כהות לצד שני, כפתור FAB עגול בירוק (#00a884), טיפוגרפיה נקייה, אייקונים דקים בלבן. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון WhatsApp: רקע כהה (#111b21), header ב-#1f2c34, בועות צ'אט ירוקות (#005c4b) למשתמש ואפורות כהות לצד שני, כפתור FAB עגול בירוק (#00a884), טיפוגרפיה נקייה, אייקונים דקים בלבן. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'spotify', name: 'Spotify', tag: 'מוזיקה', preview: <SpotifyPreview />,
-    prompt: `החל עיצוב בסגנון Spotify: רקע שחור (#121212), כרטיסים ב-#282828 עם פינות מעוגלות, אקסנט ירוק (#1db954) לכפתורים ו-progress bars, כותרות לבנות גדולות, gradient שיורד מצבע הכיסוי לשחור, הרגשת מוזיקה מודרנית. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון Spotify: רקע שחור (#121212), כרטיסים ב-#282828 עם פינות מעוגלות, אקסנט ירוק (#1db954) לכפתורים ו-progress bars, כותרות לבנות גדולות, gradient שיורד מצבע הכיסוי לשחור, הרגשת מוזיקה מודרנית. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'tiktok', name: 'TikTok', tag: 'וידאו', preview: <TikTokPreview />,
-    prompt: `החל עיצוב בסגנון TikTok: רקע שחור מלא (#000), טקסט לבן, אקסנט אדום-ורוד (#fe2c55) ו-cyan (#25f4ee), כפתורי אינטראקציה עגולים בצד, טיפוגרפיה מודגשת, תחושת פיד אינסופי וצעיר. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון TikTok: רקע שחור מלא (#000), טקסט לבן, אקסנט אדום-ורוד (#fe2c55) ו-cyan (#25f4ee), כפתורי אינטראקציה עגולים בצד, טיפוגרפיה מודגשת, תחושת פיד אינסופי וצעיר. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'apple', name: 'Apple', tag: 'מינימלי', preview: <ApplePreview />,
-    prompt: `החל עיצוב בסגנון Apple: רקע בהיר (#f5f5f7), כרטיסים לבנים עם פינות מעוגלות גדולות (16px), צללים עדינים מאוד, אקסנט כחול (#007aff), הרבה white space, טיפוגרפיה SF Pro style נקייה ומינימלית, תחושת פרימיום. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון Apple: רקע בהיר (#f5f5f7), כרטיסים לבנים עם פינות מעוגלות גדולות (16px), צללים עדינים מאוד, אקסנט כחול (#007aff), הרבה white space, טיפוגרפיה SF Pro style נקייה ומינימלית, תחושת פרימיום. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'uber', name: 'Uber', tag: 'נסיעות', preview: <UberPreview />,
-    prompt: `החל עיצוב בסגנון Uber: רקע לבן נקי, כפתורים שחורים מלאים עם פינות מעוגלות, כרטיסים עם רקע אפור בהיר (#f6f6f6), טיפוגרפיה מודגשת בשחור, נקודות מיקום עגולות, תחושת יעילות ופשטות. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון Uber: רקע לבן נקי, כפתורים שחורים מלאים עם פינות מעוגלות, כרטיסים עם רקע אפור בהיר (#f6f6f6), טיפוגרפיה מודגשת בשחור, נקודות מיקום עגולות, תחושת יעילות ופשטות. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'google', name: 'Material', tag: 'Google', preview: <GooglePreview />,
-    prompt: `החל עיצוב Material Design 3: רקע לבן, כרטיסים עם פינות מעוגלות (12px) ו-surface tones, כפתורים FAB עגולים, צבעי Google (כחול #4285f4, אדום #ea4335, צהוב #fbbc04, ירוק #34a853), שדות עם מסגרת עגולה, מרווחים 8px grid, צללים עדינים. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב Material Design 3: רקע לבן, כרטיסים עם פינות מעוגלות (12px) ו-surface tones, כפתורים FAB עגולים, צבעי Google (כחול #4285f4, אדום #ea4335, צהוב #fbbc04, ירוק #34a853), שדות עם מסגרת עגולה, מרווחים 8px grid, צללים עדינים. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'food', name: 'משלוחים', tag: 'Wolt / תן ביס', preview: <FoodPreview />,
-    prompt: `החל עיצוב בסגנון אפליקציות משלוחי אוכל מובילות (כמו Wolt / תן ביס / Uber Eats): כרטיסים גדולים עם פינות מעוגלות, צבעי אקסנט חמים (כתום/אדום), הרבה מקום לתמונות, badges וצ'יפים מעוגלים, כפתורי הזמנה בולטים, טיפוגרפיה ידידותית, צללים רכים. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון אפליקציות משלוחי אוכל מובילות (כמו Wolt / תן ביס / Uber Eats): כרטיסים גדולים עם פינות מעוגלות, צבעי אקסנט חמים (כתום/אדום), הרבה מקום לתמונות, badges וצ'יפים מעוגלים, כפתורי הזמנה בולטים, טיפוגרפיה ידידותית, צללים רכים. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'fintech', name: 'פינטק', tag: 'Revolut / N26', preview: <FintechPreview />,
-    prompt: `החל עיצוב בסגנון אפליקציות פינטק מובילות (כמו Revolut / N26): רקע כהה אלגנטי, כרטיסים עם gradient כחול, אקסנטים בירוק (חיובי) ואדום (שלילי), מספרים גדולים וברורים, גרפים מינימליסטיים, תחושת אמון ויוקרה, פינות מעוגלות. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון אפליקציות פינטק מובילות (כמו Revolut / N26): רקע כהה אלגנטי, כרטיסים עם gradient כחול, אקסנטים בירוק (חיובי) ואדום (שלילי), מספרים גדולים וברורים, גרפים מינימליסטיים, תחושת אמון ויוקרה, פינות מעוגלות. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'fitness', name: 'כושר', tag: 'Nike / Strava', preview: <FitnessPreview />,
-    prompt: `החל עיצוב בסגנון אפליקציות כושר מובילות (כמו Nike Training / Strava): רקע כהה אנרגטי, אקסנטים בצבעי ניאון (ירוק-ליים/ציאן), טיפוגרפיה מודגשת וספורטיבית, מדדים גדולים בולטים, כפתורים עם זוהר, תחושת מוטיבציה ואנרגיה. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון אפליקציות כושר מובילות (כמו Nike Training / Strava): רקע כהה אנרגטי, אקסנטים בצבעי ניאון (ירוק-ליים/ציאן), טיפוגרפיה מודגשת וספורטיבית, מדדים גדולים בולטים, כפתורים עם זוהר, תחושת מוטיבציה ואנרגיה. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'ecom', name: 'חנות', tag: 'Shopify / ASOS', preview: <EcomPreview />,
-    prompt: `החל עיצוב בסגנון חנויות אונליין מובילות (כמו ASOS / Shopify): גריד מוצרים נקי, הרבה לבן, תמונות מוצר גדולות, מחירים ברורים, כפתורי "הוסף לסל" בולטים, תגיות מבצע, טיפוגרפיה אלגנטית, מיקוד בהמרה. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון חנויות אונליין מובילות (כמו ASOS / Shopify): גריד מוצרים נקי, הרבה לבן, תמונות מוצר גדולות, מחירים ברורים, כפתורי "הוסף לסל" בולטים, תגיות מבצע, טיפוגרפיה אלגנטית, מיקוד בהמרה. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'social', name: 'חברתי', tag: 'Instagram / X', preview: <SocialPreview />,
-    prompt: `החל עיצוב בסגנון רשתות חברתיות מובילות (כמו Instagram / X): כרטיסי feed נקיים, אווטארים עגולים עם טבעת gradient, אייקוני אינטראקציה (לייק/תגובה/שיתוף), הרבה לבן, מרווחים נדיבים, טיפוגרפיה קריאה, אקסנטים צבעוניים. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון רשתות חברתיות מובילות (כמו Instagram / X): כרטיסי feed נקיים, אווטארים עגולים עם טבעת gradient, אייקוני אינטראקציה (לייק/תגובה/שיתוף), הרבה לבן, מרווחים נדיבים, טיפוגרפיה קריאה, אקסנטים צבעוניים. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
   {
     id: 'booking', name: 'הזמנות', tag: 'Airbnb / Booking', preview: <SocialPreview />,
-    prompt: `החל עיצוב בסגנון אפליקציות הזמנות מובילות (כמו Airbnb / Booking): כרטיסים נקיים עם תמונות גדולות מעוגלות, דירוגי כוכבים, אקסנט בצבע אחד חם (ורוד-אדום), הרבה white space, טיפוגרפיה ידידותית ואמינה, כפתורי הזמנה ברורים. ${STYLE_ONLY}`,
+    prompt: `החל עיצוב בסגנון אפליקציות הזמנות מובילות (כמו Airbnb / Booking): כרטיסים נקיים עם תמונות גדולות מעוגלות, דירוגי כוכבים, אקסנט בצבע אחד חם (ורוד-אדום), הרבה white space, טיפוגרפיה ידידותית ואמינה, כפתורי הזמנה ברורים. מרווחים על בסיס רשת 8px (8, 16, 24, 32px). כפתורים בגובה מינימלי 48dp. שדות קלט בגובה מינימלי 44dp. ${STYLE_ONLY}`,
   },
 ];
 

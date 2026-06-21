@@ -84,13 +84,13 @@ export default function LandingPage() {
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleGo(); }}
                 placeholder="תאר את האפליקציה שלך... למשל: אפליקציית משימות עם קטגוריות"
-                className="flex-1 px-4 py-3 bg-transparent text-text-primary placeholder-text-soft text-sm sm:text-base focus:outline-none"
+                className="flex-1 px-4 py-3 min-h-[48px] bg-transparent text-text-primary placeholder-text-soft text-sm sm:text-base focus:outline-none"
                 dir="rtl"
               />
               <button
                 onClick={() => handleGo()}
                 disabled={!prompt.trim()}
-                className="px-6 py-3 rounded-xl bg-gradient-primary text-white font-display font-bold text-sm sm:text-base hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-40 shadow-glow flex-shrink-0"
+                className="px-6 py-3 min-h-[48px] rounded-xl bg-gradient-primary text-white font-display font-bold text-sm sm:text-base hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-40 shadow-glow flex-shrink-0"
               >
                 בנה עכשיו
               </button>
@@ -107,7 +107,7 @@ export default function LandingPage() {
               <button
                 key={t.name}
                 onClick={() => handleGo(t.prompt)}
-                className="group flex items-center gap-1.5 px-4 py-2 rounded-full glass-card border border-border hover:border-primary/30 text-text-secondary hover:text-text-primary text-sm transition-all hover:shadow-soft"
+                className="group flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-full glass-card border border-border hover:border-primary/30 text-text-secondary hover:text-text-primary text-sm transition-all hover:shadow-soft"
               >
                 <span>{t.emoji}</span>
                 <span>{t.name}</span>
@@ -133,10 +133,10 @@ export default function LandingPage() {
           <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
             {STEPS.map((step) => (
               <motion.div key={step.num} variants={fadeUp} className="text-center">
-                <div className="w-16 h-16 rounded-2xl bg-surface border border-border flex items-center justify-center text-3xl mx-auto mb-4 shadow-card">
+                <div className="w-14 h-14 rounded-2xl bg-surface border border-border flex items-center justify-center text-3xl mx-auto mb-4 shadow-card elevation-2">
                   {step.icon}
                 </div>
-                <div className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary text-white font-display font-bold text-xs mb-3">
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-display font-bold text-xs mb-3">
                   {step.num}
                 </div>
                 <h3 className="font-display font-bold text-lg mb-2 text-text-primary">{step.title}</h3>
@@ -163,9 +163,9 @@ export default function LandingPage() {
                 key={title}
                 variants={fadeUp}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className={`p-6 rounded-2xl bg-gradient-to-br border glass-card ${color}`}
+                className={`p-6 rounded-2xl bg-gradient-to-br border glass-card press-effect ${color}`}
               >
-                <div className="text-3xl mb-4">{icon}</div>
+                <div className="text-2xl mb-3 w-12 h-12 rounded-xl flex items-center justify-center bg-white/50">{icon}</div>
                 <h3 className="font-display font-bold text-base mb-2 text-text-primary">{title}</h3>
                 <p className="text-text-secondary text-sm leading-relaxed">{desc}</p>
               </motion.div>
@@ -184,7 +184,7 @@ export default function LandingPage() {
               { value: '0', label: 'שורות קוד נדרשות' },
             ].map(({ value, label }) => (
               <motion.div key={label} variants={fadeUp}>
-                <div className="font-display font-extrabold text-3xl sm:text-4xl gradient-text mb-1">{value}</div>
+                <div className="font-display font-extrabold text-display-sm sm:text-display gradient-text mb-1">{value}</div>
                 <div className="text-text-secondary text-sm">{label}</div>
               </motion.div>
             ))}
@@ -204,7 +204,7 @@ export default function LandingPage() {
           </p>
           <Link
             href="/builder/demo"
-            className="inline-block px-10 py-4 rounded-2xl bg-gradient-primary text-white font-display font-bold text-xl hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-glow"
+            className="inline-block px-10 py-4 min-h-[48px] rounded-2xl bg-gradient-primary text-white font-display font-bold text-xl hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-glow press-effect"
           >
             התחל עכשיו — בחינם
           </Link>
@@ -212,7 +212,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-border text-center text-text-soft text-sm bg-surface">
+      <footer className="py-6 px-4 border-t border-border text-center text-text-soft text-sm bg-surface">
         <p>MobileForge &copy; {new Date().getFullYear()} &middot; בנה אפליקציות עם AI</p>
       </footer>
     </main>

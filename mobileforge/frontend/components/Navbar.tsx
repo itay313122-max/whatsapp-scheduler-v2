@@ -17,8 +17,8 @@ export default function Navbar() {
   if (isBuilder) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-white/80 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-white/80 backdrop-blur-xl elevation-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-8 h-8 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
@@ -68,13 +68,13 @@ export default function Navbar() {
             <>
               <Link
                 href="/auth"
-                className="text-text-secondary hover:text-primary text-sm font-medium transition-colors"
+                className="min-h-[44px] flex items-center text-text-secondary hover:text-primary text-sm font-medium transition-colors"
               >
                 התחברות
               </Link>
               <Link
                 href="/auth?mode=register"
-                className="px-4 py-2 rounded-xl bg-gradient-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow-glow"
+                className="min-h-[44px] flex items-center px-4 py-2 rounded-xl bg-gradient-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow-glow"
               >
                 התחל בחינם
               </Link>

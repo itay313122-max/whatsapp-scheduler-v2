@@ -46,12 +46,12 @@ export default function ProjectCard({
         style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}44)` }}
       />
 
-      <div className="p-5">
+      <div className="p-4">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-display font-bold text-lg shadow-card"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-display font-bold text-lg elevation-2"
               style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)` }}
             >
               {name.charAt(0).toUpperCase()}
@@ -106,7 +106,7 @@ export default function ProjectCard({
         <div className="flex items-center gap-2">
           <Link
             href={`/builder/${id}`}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+            className="flex-1 flex items-center justify-center gap-1.5 min-h-[44px] rounded-xl text-xs font-semibold text-white transition-all hover:opacity-90 press-effect"
             style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)` }}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +119,7 @@ export default function ProjectCard({
               href={`https://snack.expo.dev/@snack/${lastSnackId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-2 rounded-xl text-xs text-text-secondary hover:text-primary border border-border hover:border-primary/30 bg-surface-2 hover:bg-surface transition-all"
+              className="px-3 min-h-[44px] flex items-center rounded-xl text-xs text-text-secondary hover:text-primary border border-border hover:border-primary/30 bg-surface-2 hover:bg-surface transition-all"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

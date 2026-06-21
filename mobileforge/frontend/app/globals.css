@@ -143,7 +143,7 @@ code, pre, .font-code {
 
 /* ── Professional micro-interactions ───────────────────────────────────── */
 button, a, [role="button"] {
-  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 /* ── Resizable panel handles ──────────────────────────────────────────── */
@@ -196,4 +196,92 @@ button, a, [role="button"] {
 }
 .animate-gentle-pulse {
   animation: gentlePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ── Design System: Elevation Layers (Apple HIG 2025) ────────────────── */
+.layer-base { z-index: 0; }
+.layer-raised { z-index: 10; }
+.layer-overlay { z-index: 20; }
+
+/* ── Liquid Glass (Apple-inspired, 2025+) ────────────────────────────── */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px) saturate(1.8);
+  -webkit-backdrop-filter: blur(12px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 8px 32px rgba(31, 38, 135, 0.12),
+    inset 0 0 20px -5px rgba(255, 255, 255, 0.3);
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+.liquid-glass:hover {
+  box-shadow:
+    0 12px 40px rgba(31, 38, 135, 0.18),
+    inset 0 0 20px -5px rgba(255, 255, 255, 0.4);
+}
+
+/* ── Touch targets — accessibility ────────────────────────────────────── */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.touch-target-md {
+  min-height: 48px;
+  min-width: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Motion: spring-based transitions ─────────────────────────────────── */
+.motion-standard { transition-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+.motion-decelerate { transition-timing-function: cubic-bezier(0, 0, 0, 1); }
+.motion-spring { transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* ── Elevation tokens (Material Design 3) ─────────────────────────────── */
+.elevation-1 { box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1); }
+.elevation-2 { box-shadow: 0 2px 4px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.1); }
+.elevation-3 { box-shadow: 0 4px 8px rgba(0,0,0,0.06), 0 8px 16px rgba(0,0,0,0.1); }
+.elevation-4 { box-shadow: 0 8px 16px rgba(0,0,0,0.08), 0 16px 32px rgba(0,0,0,0.12); }
+
+/* ── Neumorphism (soft UI) ────────────────────────────────────────────── */
+.neu-raised {
+  background: #e8ecf1;
+  box-shadow: 6px 6px 12px #c5c9ce, -6px -6px 12px #ffffff;
+}
+.neu-inset {
+  background: #e8ecf1;
+  box-shadow: inset 4px 4px 8px #c5c9ce, inset -4px -4px 8px #ffffff;
+}
+
+/* ── Active/pressed state for touch ───────────────────────────────────── */
+.press-effect:active {
+  transform: scale(0.97);
+  transition: transform 100ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ── Stagger animation utility ────────────────────────────────────────── */
+.stagger-children > * {
+  animation: fadeInUp 0.4s ease-out forwards;
+  opacity: 0;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+
+/* ── Bottom sheet pull indicator ──────────────────────────────────────── */
+.pull-indicator {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  margin: 8px auto;
 }
