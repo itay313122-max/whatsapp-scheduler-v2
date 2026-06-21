@@ -12,9 +12,91 @@ interface Message {
   content: string;
   result?: GenerateResponse;
   isLoading?: boolean;
+  loadingStep?: number;
   sourceType?: 'text' | 'screenshot' | 'sketch' | 'voice';
   imagePreview?: string;
   timestamp: Date;
+}
+
+const LOADING_STEPS = [
+  { label: 'מנתח את הבקשה…', icon: '🧠', duration: 1200 },
+  { label: 'מעצב את הממשק…', icon: '🎨', duration: 2000 },
+  { label: 'בונה את הקוד…', icon: '⚡', duration: 3000 },
+  { label: 'סיום ועיצוב סופי…', icon: '✨', duration: 2000 },
+];
+
+type AppCategory = 'store' | 'restaurant' | 'fitness' | 'tasks' | 'finance' | 'social' | 'weather' | 'learning' | 'general';
+
+const QUICK_ACTIONS: Record<AppCategory, Array<{ label: string; prompt: string; icon: string }>> = {
+  store: [
+    { label: 'שנה צבעים', prompt: 'שנה את סכמת הצבעים לגוונים של סגול כהה וזהב', icon: '🎨' },
+    { label: 'הוסף מבצעים', prompt: 'הוסף באנר מבצעים בראש העמוד עם טיימר ספירה לאחור', icon: '🏷️' },
+    { label: 'מצב כהה', prompt: 'המר את העיצוב למצב כהה (dark mode) עם רקע כהה וטקסט בהיר', icon: '🌙' },
+    { label: 'הוסף חיפוש', prompt: 'הוסף שדה חיפוש מוצרים בראש העמוד עם אייקון זכוכית מגדלת', icon: '🔍' },
+  ],
+  restaurant: [
+    { label: 'הוסף דירוגים', prompt: 'הוסף דירוג כוכבים לכל מנה בתפריט', icon: '⭐' },
+    { label: 'מצב כהה', prompt: 'המר את העיצוב למצב כהה (dark mode)', icon: '🌙' },
+    { label: 'הוסף קופון', prompt: 'הוסף שדה קופון הנחה בסיכום ההזמנה', icon: '🎟️' },
+    { label: 'זמן אספקה', prompt: 'הוסף הצגת זמן אספקה משוער עם אנימציה', icon: '🕐' },
+  ],
+  fitness: [
+    { label: 'הוסף טיימר', prompt: 'הוסף טיימר אימון אינטראקטיבי עם כפתורי start/stop/reset', icon: '⏱️' },
+    { label: 'גרף התקדמות', prompt: 'הוסף גרף התקדמות שבועי עם עמודות צבעוניות', icon: '📊' },
+    { label: 'שנה צבעים', prompt: 'שנה את הצבעים לכתום ושחור — סגנון אנרגטי', icon: '🎨' },
+    { label: 'הוסף אתגר', prompt: 'הוסף סקשן אתגר יומי עם פס התקדמות', icon: '🏆' },
+  ],
+  tasks: [
+    { label: 'הוסף קטגוריות', prompt: 'הוסף סינון לפי קטגוריות צבעוניות (עבודה, אישי, קניות)', icon: '🏷️' },
+    { label: 'לוח שנה', prompt: 'הוסף תצוגת לוח שנה חודשי עם סימון ימים עמוסים', icon: '📅' },
+    { label: 'סטטיסטיקות', prompt: 'הוסף כרטיסיות סטטיסטיקה — הושלמו, בהמתנה, שיא רצף', icon: '📊' },
+    { label: 'מצב כהה', prompt: 'המר למצב כהה עם רקע כהה', icon: '🌙' },
+  ],
+  finance: [
+    { label: 'תרשים עוגה', prompt: 'הוסף תרשים עוגה צבעוני שמציג חלוקת הוצאות לפי קטגוריה', icon: '📊' },
+    { label: 'התראות', prompt: 'הוסף התראת חריגה מתקציב עם אנימציית shake', icon: '🔔' },
+    { label: 'יעדי חיסכון', prompt: 'הוסף מסך יעדי חיסכון עם פס התקדמות לכל יעד', icon: '🎯' },
+    { label: 'שנה צבעים', prompt: 'שנה לצבעים כחול כהה וזהב — סגנון פרימיום', icon: '🎨' },
+  ],
+  social: [
+    { label: 'סטוריז', prompt: 'הוסף שורת סטוריז עגולה בראש הפיד כמו אינסטגרם', icon: '⭕' },
+    { label: 'אנימציות', prompt: 'הוסף אנימציית לייק עם לב שמתנפח בלחיצה', icon: '❤️' },
+    { label: 'מצב כהה', prompt: 'המר למצב כהה — רקע שחור עם כרטיסים אפור כהה', icon: '🌙' },
+    { label: 'הודעות', prompt: 'הוסף מסך הודעות עם רשימת שיחות וזמן אחרון', icon: '💬' },
+  ],
+  weather: [
+    { label: 'תחזית שבועית', prompt: 'הוסף תחזית שבועית ל-7 ימים עם אייקונים ומינ/מקס', icon: '📅' },
+    { label: 'הוסף מפה', prompt: 'הוסף מפת מזג אוויר עם שכבות טמפרטורה צבעוניות', icon: '🗺️' },
+    { label: 'אנימציות', prompt: 'הוסף אנימציות — ענן זז, שמש מסתובבת, גשם יורד', icon: '✨' },
+    { label: 'התראות', prompt: 'הוסף התראת מזג אוויר קיצוני עם באנר אדום', icon: '⚠️' },
+  ],
+  learning: [
+    { label: 'פס התקדמות', prompt: 'הוסף פס התקדמות לכל קורס עם אחוזים ואנימציה', icon: '📊' },
+    { label: 'אישורי הרשמה', prompt: 'הוסף תג badges ותעודות עבור השלמת קורסים', icon: '🏅' },
+    { label: 'חיפוש', prompt: 'הוסף חיפוש וסינון קורסים לפי קטגוריה ורמת קושי', icon: '🔍' },
+    { label: 'מצב כהה', prompt: 'המר למצב כהה — רקע כהה עם אקסנט אינדיגו', icon: '🌙' },
+  ],
+  general: [
+    { label: 'שנה צבעים', prompt: 'שנה את סכמת הצבעים לגוונים חמים — כתום וקורל', icon: '🎨' },
+    { label: 'מצב כהה', prompt: 'המר את העיצוב למצב כהה', icon: '🌙' },
+    { label: 'הוסף ניווט', prompt: 'הוסף תפריט ניווט תחתון עם 4 אייקונים', icon: '📱' },
+    { label: 'הוסף אנימציות', prompt: 'הוסף אנימציות כניסה — fade in, slide up לכל כרטיס', icon: '✨' },
+  ],
+};
+
+function detectAppCategory(result: GenerateResponse): AppCategory {
+  const name = (result.appName || '').toLowerCase();
+  const features = (result.features || []).join(' ').toLowerCase();
+  const text = `${name} ${features}`;
+  if (text.includes('חנות') || text.includes('store') || text.includes('shop') || text.includes('מוצר')) return 'store';
+  if (text.includes('מסעדה') || text.includes('food') || text.includes('restaurant') || text.includes('תפריט')) return 'restaurant';
+  if (text.includes('כושר') || text.includes('fitness') || text.includes('אימון') || text.includes('sport')) return 'fitness';
+  if (text.includes('משימ') || text.includes('task') || text.includes('todo')) return 'tasks';
+  if (text.includes('תקציב') || text.includes('finance') || text.includes('כסף') || text.includes('הוצא')) return 'finance';
+  if (text.includes('חברת') || text.includes('social') || text.includes('פיד') || text.includes('פוסט')) return 'social';
+  if (text.includes('מזג') || text.includes('weather') || text.includes('טמפרטור')) return 'weather';
+  if (text.includes('למידה') || text.includes('learn') || text.includes('קורס') || text.includes('שיעור')) return 'learning';
+  return 'general';
 }
 
 interface ChatInterfaceProps {
@@ -361,6 +443,18 @@ export default function ChatInterface({
     setGenerating(true);
     if (inputRef.current) inputRef.current.style.height = 'auto';
 
+    // Animate loading steps
+    const loadingId = loadingMsg.id;
+    let stepIdx = 0;
+    const stepInterval = setInterval(() => {
+      stepIdx++;
+      if (stepIdx < LOADING_STEPS.length) {
+        setMessages((prev) =>
+          prev.map((m) => m.id === loadingId ? { ...m, loadingStep: stepIdx } : m)
+        );
+      }
+    }, LOADING_STEPS[0].duration);
+
     // Detect edit mode: if there is already a generated result (from messages or from loaded app), edit instead of regenerate
     const lastResultMsg = [...messages].reverse().find((m) => m.result);
     const lastResult = lastResultMsg?.result ?? currentAppResult;
@@ -401,6 +495,7 @@ export default function ChatInterface({
         },
       ]);
     } finally {
+      clearInterval(stepInterval);
       setGenerating(false);
     }
   }
@@ -476,12 +571,12 @@ export default function ChatInterface({
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full gap-5 text-center py-8">
               {/* Logo */}
-              <div className="w-14 h-14 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-glow">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-glow animate-fade-in-up">
                 <span className="text-white font-display font-bold text-xl">M</span>
               </div>
-              <div>
-                <h2 className="font-display font-bold text-xl text-text-primary mb-1">MobileForge AI</h2>
-                <p className="text-text-secondary text-sm">תאר מה אתה רוצה — או התחל מתבנית</p>
+              <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                <h2 className="font-display font-bold text-xl text-text-primary mb-1">היי! מה נבנה היום? 👋</h2>
+                <p className="text-text-secondary text-sm">בחר תבנית, צלם מסך, או פשוט ספר לי</p>
               </div>
 
               {/* Template Gallery */}
@@ -550,18 +645,37 @@ export default function ChatInterface({
 
               <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-1' : ''}`}>
                 {msg.isLoading ? (
-                  <div className="px-4 py-3 rounded-2xl glass-card">
-                    <div className="flex items-center gap-2">
-                      <div className="flex gap-1">
-                        {[0, 1, 2].map((i) => (
+                  <div className="px-4 py-3 rounded-2xl glass-card" dir="rtl">
+                    <div className="space-y-2">
+                      {LOADING_STEPS.map((step, i) => {
+                        const currentStep = msg.loadingStep || 0;
+                        const isDone = i < currentStep;
+                        const isActive = i === currentStep;
+                        return (
                           <div
                             key={i}
-                            className="w-2 h-2 rounded-full bg-primary animate-bounce"
-                            style={{ animationDelay: `${i * 0.15}s` }}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-text-secondary text-xs">מייצר את האפליקציה שלך…</span>
+                            className={`flex items-center gap-2 transition-all duration-300 ${
+                              isDone ? 'opacity-50' : isActive ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'
+                            }`}
+                          >
+                            {isDone ? (
+                              <span className="text-green-400 text-sm">✓</span>
+                            ) : (
+                              <span className="text-sm animate-pulse">{step.icon}</span>
+                            )}
+                            <span className={`text-xs ${isDone ? 'text-text-secondary line-through' : 'text-text-primary font-medium'}`}>
+                              {step.label}
+                            </span>
+                            {isActive && (
+                              <div className="flex gap-0.5 mr-auto">
+                                {[0, 1, 2].map((d) => (
+                                  <div key={d} className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: `${d * 0.15}s` }} />
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ) : (
@@ -592,54 +706,69 @@ export default function ChatInterface({
                       </div>
                     )}
 
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    {/* Show content — if result exists, show condensed summary */}
+                    {msg.result ? (
+                      <p className="text-sm leading-relaxed">{msg.content.split('\n')[0]}</p>
+                    ) : (
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    )}
 
                     {/* Assistant result actions */}
                     {msg.result && (
-                      <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+                      <div className="mt-3 pt-3 border-t border-border/50 space-y-3">
                         <div className="flex items-center gap-2">
                           <div
                             className="w-5 h-5 rounded flex-shrink-0"
                             style={{ background: msg.result.colorScheme?.primary || '#6C3AE8' }}
                           />
                           <span className="font-display font-semibold text-sm">{msg.result.appName}</span>
+                          <span className="text-[10px] text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-full mr-auto">מוכן ✓</span>
                         </div>
-                        {msg.result.features?.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {msg.result.features.map((f) => (
-                              <span
-                                key={f}
-                                className="px-2 py-0.5 rounded-full text-xs bg-primary/20 text-primary border border-primary/20"
-                              >
-                                {f}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                         <div className="flex gap-2">
                           {msg.result.embedUrl && onShowPreview && (
                             <button
                               onClick={() => onShowPreview(msg.result!)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent border border-accent/20 text-xs font-medium hover:bg-accent/20 transition-all"
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent/10 text-accent border border-accent/20 text-xs font-semibold hover:bg-accent/20 transition-all min-h-[36px]"
                             >
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18.5l-7-4.5V8.5L12 4l7 4.5v5.5L12 18.5z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                               </svg>
-                              הצג אפליקציה
+                              צפה בתוצאה
                             </button>
                           )}
                           {onShowCode && (
                             <button
                               onClick={() => onShowCode(msg.result!)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 text-xs font-medium hover:bg-primary/20 transition-all"
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary/10 text-primary border border-primary/20 text-xs font-semibold hover:bg-primary/20 transition-all min-h-[36px]"
                             >
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                               </svg>
-                              הצג קוד
+                              קוד
                             </button>
                           )}
                         </div>
+
+                        {/* Quick action chips — contextual suggestions */}
+                        {msg.id === [...messages].reverse().find((m) => m.result)?.id && (
+                          <div className="space-y-1.5">
+                            <p className="text-[11px] text-text-secondary font-medium">⚡ שיפורים מהירים:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {QUICK_ACTIONS[detectAppCategory(msg.result)].map((action) => (
+                                <button
+                                  key={action.label}
+                                  onClick={() => handleSubmit(action.prompt)}
+                                  disabled={isGenerating}
+                                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface border border-border text-xs font-medium text-text-primary hover:border-primary/40 hover:bg-primary/5 transition-all disabled:opacity-30 min-h-[32px]"
+                                >
+                                  <span>{action.icon}</span>
+                                  <span>{action.label}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -699,10 +828,10 @@ export default function ChatInterface({
           )}
 
           {/* Edit mode indicator */}
-          {(messages.some((m) => m.result) || currentAppResult) && (
-            <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20">
+          {(messages.some((m) => m.result) || currentAppResult) && !isGenerating && (
+            <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-xl bg-primary/5 border border-primary/15">
               <span className="text-primary text-xs">✏️</span>
-              <span className="text-primary text-xs font-medium">מצב עריכה — הודעה הבאה תעדכן את האפליקציה</span>
+              <span className="text-primary/80 text-[11px] font-medium">כתוב מה לשנות — או לחץ על שיפור מהיר למעלה</span>
             </div>
           )}
 
@@ -788,8 +917,8 @@ export default function ChatInterface({
             </button>
           </div>
 
-          <p className="text-text-secondary text-xs mt-2 text-center">
-            Enter לשליחה · Shift+Enter לשורה חדשה · 📷 צילום מסך · ✏️ סקיצה · 🎤 קול
+          <p className="text-text-secondary text-[10px] mt-1.5 text-center opacity-60">
+            Enter לשליחה · Shift+Enter לשורה חדשה
           </p>
         </div>
       </div>
