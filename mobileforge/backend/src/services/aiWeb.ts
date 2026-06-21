@@ -290,6 +290,101 @@ VISUAL POLISH:
 - Toggle: for on/off switches use .toggle, add .active class for on state.
 - Animations: .animate-spring for modals/new items, .animate-slide-up for list items.
 
+INTERACTIVE WIDGETS — use when the user requests specific functionality:
+  These patterns generate self-contained, interactive widgets using React hooks.
+  ALL widgets MUST follow the design system: card containers, 48px buttons, 8pt grid.
+
+  CLOCK (digital):
+    const [time, setTime] = useState(new Date());
+    useEffect(() => { const id = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(id); }, []);
+    Display: time.toLocaleTimeString('he-IL') in a card with monospace font.
+
+  CLOCK (analog SVG):
+    Draw SVG circle (r=80), 12 hour marks, hour/minute/second hands using transform: rotate().
+    Calculate angles: hours*(360/12) + minutes*(360/720), minutes*(360/60), seconds*(360/60).
+    Update every second via useEffect + setInterval.
+
+  TIMER / COUNTDOWN:
+    const [seconds, setSeconds] = useState(300);
+    const [running, setRunning] = useState(false);
+    useEffect with setInterval that decrements. Format as MM:SS. Buttons: start, stop, reset, +1m, +5m.
+
+  STOPWATCH:
+    Count UP from 0 with centiseconds. useState + setInterval(10ms).
+    Lap array: const [laps, setLaps] = useState([]). Display HH:MM:SS.cc.
+
+  CALENDAR:
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [selected, setSelected] = useState(new Date());
+    Calculate: daysInMonth = new Date(year, month+1, 0).getDate();
+    firstDayOfWeek = new Date(year, month, 1).getDay();
+    Render 7-column grid. Highlight today, selected day. Prev/next month buttons.
+
+  BAR CHART (SVG):
+    const data = [{label, value, color}...];
+    <svg viewBox="0 0 300 200"> with <rect> bars. Scale: (value/max) * maxHeight.
+    Labels below, values above bars. Use gradient fills.
+
+  PIE CHART (SVG donut):
+    Calculate cumulative angles. Use <circle> with stroke-dasharray and stroke-dashoffset.
+    Each slice: circumference * (value/total). Rotate each slice by cumulative angle.
+    Legend with colored dots + labels + percentages.
+
+  LINE CHART (SVG):
+    <polyline> with calculated points. <circle> at each data point.
+    Fill area below with <polygon> + gradient opacity.
+
+  CIRCULAR PROGRESS (SVG):
+    <circle> background (gray) + <circle> foreground with stroke-dashoffset.
+    offset = circumference - (percentage/100) * circumference.
+    Percentage text in center. Animate with CSS transition.
+
+  STAR RATING:
+    const [rating, setRating] = useState(0);
+    const [hover, setHover] = useState(0);
+    5 stars with onClick, onMouseEnter, onMouseLeave.
+    Filled: star <= (hover || rating). Size: 32px+. Color: #FFD700.
+
+  IMAGE CAROUSEL:
+    const [current, setCurrent] = useState(0);
+    Array of gradient backgrounds as placeholder images.
+    Left/right arrows, dot indicators. transition on slide change.
+
+  LOCATION:
+    navigator.geolocation.getCurrentPosition(pos => setLocation({lat, lng})).
+    Show in card with coordinates. Handle permission denied gracefully.
+
+  CONTACT FORM:
+    const [form, setForm] = useState({name:'', email:'', phone:'', message:''});
+    Validate on submit (required fields, email format). Success state after submit.
+    All inputs use .input-field class with min-height 48px.
+
+  SURVEY/QUIZ:
+    const [step, setStep] = useState(0);
+    Array of questions with type (radio, range, text).
+    Progress bar at top. Next/prev buttons. Summary screen at end.
+
+  SHARE BUTTONS:
+    Row of social buttons: WhatsApp (green), Facebook (blue), X (black), Email (red).
+    Each button opens a share URL in new tab. Use .btn-icon with brand colors.
+
+  PROFILE CARD:
+    Avatar (gradient circle), name, bio, stats row (posts/followers/following).
+    Follow/unfollow toggle button. Colored top strip.
+
+  CALCULATOR:
+    Grid of buttons (4 cols): 0-9, +, -, ×, ÷, =, AC, ±, %.
+    Display shows current input and result. eval() for simple calc or manual parsing.
+    Dark card background. Buttons with different colors for numbers vs operators.
+
+  NOTES:
+    CRUD operations on notes array. Each note: title, content, color, timestamp.
+    Grid layout (2 cols). Add new note modal. Color picker (4 preset colors).
+
+  HABIT TRACKER:
+    Array of habits with name, icon, completed (boolean), streak (number).
+    Toggle checkbox for each. Overall progress bar. Add new habit.
+
 RESPONSIVE:
 - Every app must look great on PHONE (420px) AND TABLET (768px+).
 - Use grid-2, grid-3 for phone; grid-tablet-3, grid-tablet-4 for tablet.

@@ -10,7 +10,7 @@ interface Screen {
   active: boolean;
 }
 
-type SidebarTab = 'ai' | 'gallery' | 'layers' | 'animations' | 'properties';
+type SidebarTab = 'ai' | 'gallery' | 'widgets' | 'layers' | 'animations' | 'properties';
 
 interface EditSidebarProps {
   onAIEdit: (prompt: string) => void;
