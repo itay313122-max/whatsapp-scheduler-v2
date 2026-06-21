@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 interface DesignPreset {
   id: string;
   name: string;
@@ -15,6 +17,8 @@ interface DesignGalleryProps {
 
 // Shared instruction — apply STYLE ONLY, keep all content/logic intact
 const STYLE_ONLY = 'חשוב מאוד: שמור על כל התוכן, הטקסטים, הנתונים, המבנה והלוגיקה הקיימים בדיוק כפי שהם. שנה אך ורק את העיצוב הויזואלי — צבעים, פונטים, מרווחים, צללים, עיגול פינות, וסגנון הרכיבים. אל תשנה מילה אחת של תוכן.';
+
+type GallerySection = 'styles' | 'apps' | 'shapes';
 
 // ── Mini visual previews ─────────────────────────────────────────────────────
 
@@ -125,6 +129,204 @@ function SocialPreview() {
   );
 }
 
+// ── New famous app previews ──────────────────────────────────────────────────
+
+function WhatsAppPreview() {
+  return (
+    <div className="w-full h-full rounded-lg overflow-hidden relative" style={{ background: '#111b21' }}>
+      <div className="absolute inset-x-0 top-0 h-3" style={{ background: '#1f2c34' }} />
+      <div className="absolute top-4 right-2 left-4 h-2 rounded-lg" style={{ background: '#005c4b' }} />
+      <div className="absolute top-7.5 right-4 left-2 h-2 rounded-lg" style={{ background: '#1f2c34' }} />
+      <div className="absolute bottom-2 right-2 w-5 h-5 rounded-full" style={{ background: '#00a884' }} />
+    </div>
+  );
+}
+
+function SpotifyPreview() {
+  return (
+    <div className="w-full h-full rounded-lg overflow-hidden relative" style={{ background: '#121212' }}>
+      <div className="absolute inset-x-2 top-2 h-4 rounded-md" style={{ background: 'linear-gradient(180deg,#3d2878,#121212)' }} />
+      <div className="absolute bottom-2 right-2 left-2 h-2.5 rounded-full" style={{ background: '#282828' }}>
+        <div className="absolute inset-y-0 right-0 w-3/5 rounded-full" style={{ background: '#1db954' }} />
+      </div>
+    </div>
+  );
+}
+
+function TikTokPreview() {
+  return (
+    <div className="w-full h-full rounded-lg overflow-hidden relative" style={{ background: '#000' }}>
+      <div className="absolute inset-2 rounded-md bg-gradient-to-b from-transparent to-black/60" />
+      <div className="absolute bottom-2 right-2 flex flex-col gap-1 items-center">
+        <div className="w-3 h-3 rounded-full border border-white/60" />
+        <div className="w-2 h-2 rounded-sm" style={{ background: '#fe2c55' }} />
+      </div>
+      <div className="absolute bottom-2 left-2 right-6 h-1 rounded-full bg-white/30" />
+    </div>
+  );
+}
+
+function ApplePreview() {
+  return (
+    <div className="w-full h-full rounded-lg overflow-hidden relative" style={{ background: '#f5f5f7' }}>
+      <div className="absolute inset-x-2 top-2 h-2 rounded-md bg-white" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.08)' }} />
+      <div className="absolute inset-x-2 top-5.5 h-3.5 rounded-xl bg-white" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }} />
+      <div className="absolute bottom-2 right-2 w-7 h-2.5 rounded-full" style={{ background: '#007aff' }} />
+    </div>
+  );
+}
+
+function UberPreview() {
+  return (
+    <div className="w-full h-full rounded-lg overflow-hidden relative bg-white">
+      <div className="absolute inset-x-2 top-2 h-4 rounded-md" style={{ background: '#f6f6f6' }}>
+        <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-black" />
+      </div>
+      <div className="absolute bottom-2 right-2 w-8 h-3 rounded-lg bg-black" />
+    </div>
+  );
+}
+
+function GooglePreview() {
+  return (
+    <div className="w-full h-full rounded-lg overflow-hidden relative bg-white">
+      <div className="absolute top-2 right-2 flex gap-0.5">
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#4285f4' }} />
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ea4335' }} />
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#fbbc04' }} />
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#34a853' }} />
+      </div>
+      <div className="absolute inset-x-2 bottom-2 h-3 rounded-full border border-gray-200" />
+    </div>
+  );
+}
+
+// ── Button shape visual previews ─────────────────────────────────────────────
+
+function ButtonShapePreview({ radius, shadow, border }: { radius: string; shadow?: string; border?: string }) {
+  return (
+    <div className="w-full h-7 flex items-center justify-center">
+      <div
+        className="w-14 h-5 flex items-center justify-center text-[8px] text-white font-bold"
+        style={{
+          background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+          borderRadius: radius,
+          boxShadow: shadow || '0 2px 6px rgba(0,0,0,0.15)',
+          border: border || 'none',
+        }}
+      >
+        כפתור
+      </div>
+    </div>
+  );
+}
+
+function CardShapePreview({ radius, shadow, border }: { radius: string; shadow?: string; border?: string }) {
+  return (
+    <div className="w-full h-7 flex items-center justify-center">
+      <div
+        className="w-14 h-5 bg-white flex items-start p-1 gap-1"
+        style={{
+          borderRadius: radius,
+          boxShadow: shadow || '0 2px 8px rgba(0,0,0,0.08)',
+          border: border || '1px solid #e5e7eb',
+        }}
+      >
+        <div className="w-2 h-2 rounded-sm bg-gray-200 flex-shrink-0" />
+        <div className="flex-1">
+          <div className="h-0.5 bg-gray-300 rounded-full mb-0.5 w-full" />
+          <div className="h-0.5 bg-gray-200 rounded-full w-3/4" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InputShapePreview({ radius, style: inputStyle }: { radius: string; style: string }) {
+  return (
+    <div className="w-full h-7 flex items-center justify-center">
+      <div
+        className="w-14 h-4 flex items-center px-1.5"
+        style={{
+          borderRadius: radius,
+          background: inputStyle === 'filled' ? '#f1f5f9' : 'white',
+          border: inputStyle === 'underline' ? 'none' : `1px solid ${inputStyle === 'filled' ? 'transparent' : '#d1d5db'}`,
+          borderBottom: inputStyle === 'underline' ? '2px solid #6366f1' : undefined,
+        }}
+      >
+        <div className="h-0.5 bg-gray-300 rounded-full w-3/5" />
+      </div>
+    </div>
+  );
+}
+
+// ── Data ─────────────────────────────────────────────────────────────────────
+
+const BUTTON_SHAPES = [
+  {
+    id: 'square', name: 'חד', preview: <ButtonShapePreview radius="4px" />,
+    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב חד (מרובע): border-radius: 4px, padding מרווח, צללים עדינים. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'rounded', name: 'מעוגל', preview: <ButtonShapePreview radius="12px" />,
+    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב מעוגל: border-radius: 12px, padding מרווח, צללים רכים. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'pill', name: 'כדור', preview: <ButtonShapePreview radius="9999px" />,
+    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב כדורי (pill): border-radius: 9999px, padding אופקי רחב, תחושת מודרנית. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'outline', name: 'מסגרת', preview: <ButtonShapePreview radius="10px" border="2px solid #6366f1" shadow="none" />,
+    prompt: `שנה את כל הכפתורים באפליקציה לסגנון מסגרת (outline): רקע שקוף, border: 2px solid עם הצבע הראשי, border-radius: 10px, טקסט בצבע הראשי. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'soft', name: 'רך', preview: <ButtonShapePreview radius="14px" shadow="0 4px 14px rgba(99,102,241,0.25)" />,
+    prompt: `שנה את כל הכפתורים לסגנון רך: border-radius: 14px, רקע gradient עדין, צל צבעוני רך (box-shadow עם צבע הכפתור), אפקט hover שמעלה את הכפתור למעלה. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'brutal-btn', name: 'ברוטלי', preview: <ButtonShapePreview radius="4px" shadow="3px 3px 0 #000" border="2px solid #000" />,
+    prompt: `שנה את כל הכפתורים לסגנון neo-brutalism: border: 2px solid #000, box-shadow: 3px 3px 0 #000, border-radius: 4px, רקע צבעוני חזק, טקסט מודגש. ${STYLE_ONLY}`,
+  },
+];
+
+const CARD_SHAPES = [
+  {
+    id: 'flat', name: 'שטוח', preview: <CardShapePreview radius="4px" shadow="none" border="1px solid #e5e7eb" />,
+    prompt: `שנה את כל הכרטיסים לעיצוב שטוח: ללא צללים, border דק (#e5e7eb), border-radius: 4px, רקע לבן. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'elevated', name: 'צל', preview: <CardShapePreview radius="12px" shadow="0 4px 16px rgba(0,0,0,0.08)" border="none" />,
+    prompt: `שנה את כל הכרטיסים לעיצוב מורם: box-shadow: 0 4px 16px rgba(0,0,0,0.08), ללא border, border-radius: 12px, רקע לבן. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'glass-card', name: 'זכוכית', preview: <CardShapePreview radius="16px" shadow="0 8px 32px rgba(0,0,0,0.06)" border="1px solid rgba(255,255,255,0.5)" />,
+    prompt: `שנה את כל הכרטיסים לסגנון זכוכית (glass): background: rgba(255,255,255,0.7), backdrop-filter: blur(12px), border: 1px solid rgba(255,255,255,0.5), border-radius: 16px, צל רך. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'bordered', name: 'מסגרת', preview: <CardShapePreview radius="8px" shadow="none" border="2px solid #e0e7ff" />,
+    prompt: `שנה את כל הכרטיסים לעיצוב מסגרת: border: 2px solid (צבע גבול עדין), ללא צל, border-radius: 8px, רקע לבן. ${STYLE_ONLY}`,
+  },
+];
+
+const INPUT_SHAPES = [
+  {
+    id: 'outlined', name: 'קווי', preview: <InputShapePreview radius="8px" style="outlined" />,
+    prompt: `שנה את כל שדות הקלט באפליקציה לסגנון קווי (outlined): border: 1px solid #d1d5db, border-radius: 8px, רקע לבן, focus עם border צבעוני. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'filled', name: 'מלא', preview: <InputShapePreview radius="8px" style="filled" />,
+    prompt: `שנה את כל שדות הקלט לסגנון מלא (filled): רקע אפור בהיר (#f1f5f9), ללא border, border-radius: 8px, focus עם רקע בהיר יותר. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'underline', name: 'קו תחתון', preview: <InputShapePreview radius="0px" style="underline" />,
+    prompt: `שנה את כל שדות הקלט לסגנון קו תחתון (underline): ללא border רגיל, רק border-bottom עם הצבע הראשי, רקע שקוף, מראה מינימלי. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'rounded-input', name: 'עגול', preview: <InputShapePreview radius="9999px" style="outlined" />,
+    prompt: `שנה את כל שדות הקלט לסגנון עגול: border-radius: 9999px, border דק, padding אופקי רחב, מראה מודרני. ${STYLE_ONLY}`,
+  },
+];
+
 const DESIGN_LANGUAGES: DesignPreset[] = [
   {
     id: 'glass', name: 'זכוכית', tag: 'Glassmorphism', preview: <GlassPreview />,
@@ -154,7 +356,31 @@ const DESIGN_LANGUAGES: DesignPreset[] = [
 
 const APP_STYLES: DesignPreset[] = [
   {
-    id: 'food', name: 'משלוחי אוכל', tag: 'Wolt / תן ביס', preview: <FoodPreview />,
+    id: 'whatsapp', name: 'WhatsApp', tag: 'מסרים', preview: <WhatsAppPreview />,
+    prompt: `החל עיצוב בסגנון WhatsApp: רקע כהה (#111b21), header ב-#1f2c34, בועות צ'אט ירוקות (#005c4b) למשתמש ואפורות כהות לצד שני, כפתור FAB עגול בירוק (#00a884), טיפוגרפיה נקייה, אייקונים דקים בלבן. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'spotify', name: 'Spotify', tag: 'מוזיקה', preview: <SpotifyPreview />,
+    prompt: `החל עיצוב בסגנון Spotify: רקע שחור (#121212), כרטיסים ב-#282828 עם פינות מעוגלות, אקסנט ירוק (#1db954) לכפתורים ו-progress bars, כותרות לבנות גדולות, gradient שיורד מצבע הכיסוי לשחור, הרגשת מוזיקה מודרנית. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'tiktok', name: 'TikTok', tag: 'וידאו', preview: <TikTokPreview />,
+    prompt: `החל עיצוב בסגנון TikTok: רקע שחור מלא (#000), טקסט לבן, אקסנט אדום-ורוד (#fe2c55) ו-cyan (#25f4ee), כפתורי אינטראקציה עגולים בצד, טיפוגרפיה מודגשת, תחושת פיד אינסופי וצעיר. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'apple', name: 'Apple', tag: 'מינימלי', preview: <ApplePreview />,
+    prompt: `החל עיצוב בסגנון Apple: רקע בהיר (#f5f5f7), כרטיסים לבנים עם פינות מעוגלות גדולות (16px), צללים עדינים מאוד, אקסנט כחול (#007aff), הרבה white space, טיפוגרפיה SF Pro style נקייה ומינימלית, תחושת פרימיום. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'uber', name: 'Uber', tag: 'נסיעות', preview: <UberPreview />,
+    prompt: `החל עיצוב בסגנון Uber: רקע לבן נקי, כפתורים שחורים מלאים עם פינות מעוגלות, כרטיסים עם רקע אפור בהיר (#f6f6f6), טיפוגרפיה מודגשת בשחור, נקודות מיקום עגולות, תחושת יעילות ופשטות. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'google', name: 'Material', tag: 'Google', preview: <GooglePreview />,
+    prompt: `החל עיצוב Material Design 3: רקע לבן, כרטיסים עם פינות מעוגלות (12px) ו-surface tones, כפתורים FAB עגולים, צבעי Google (כחול #4285f4, אדום #ea4335, צהוב #fbbc04, ירוק #34a853), שדות עם מסגרת עגולה, מרווחים 8px grid, צללים עדינים. ${STYLE_ONLY}`,
+  },
+  {
+    id: 'food', name: 'משלוחים', tag: 'Wolt / תן ביס', preview: <FoodPreview />,
     prompt: `החל עיצוב בסגנון אפליקציות משלוחי אוכל מובילות (כמו Wolt / תן ביס / Uber Eats): כרטיסים גדולים עם פינות מעוגלות, צבעי אקסנט חמים (כתום/אדום), הרבה מקום לתמונות, badges וצ'יפים מעוגלים, כפתורי הזמנה בולטים, טיפוגרפיה ידידותית, צללים רכים. ${STYLE_ONLY}`,
   },
   {
@@ -170,11 +396,11 @@ const APP_STYLES: DesignPreset[] = [
     prompt: `החל עיצוב בסגנון חנויות אונליין מובילות (כמו ASOS / Shopify): גריד מוצרים נקי, הרבה לבן, תמונות מוצר גדולות, מחירים ברורים, כפתורי "הוסף לסל" בולטים, תגיות מבצע, טיפוגרפיה אלגנטית, מיקוד בהמרה. ${STYLE_ONLY}`,
   },
   {
-    id: 'social', name: 'רשת חברתית', tag: 'Instagram / X', preview: <SocialPreview />,
+    id: 'social', name: 'חברתי', tag: 'Instagram / X', preview: <SocialPreview />,
     prompt: `החל עיצוב בסגנון רשתות חברתיות מובילות (כמו Instagram / X): כרטיסי feed נקיים, אווטארים עגולים עם טבעת gradient, אייקוני אינטראקציה (לייק/תגובה/שיתוף), הרבה לבן, מרווחים נדיבים, טיפוגרפיה קריאה, אקסנטים צבעוניים. ${STYLE_ONLY}`,
   },
   {
-    id: 'social2', name: 'הזמנות', tag: 'Airbnb / Booking', preview: <SocialPreview />,
+    id: 'booking', name: 'הזמנות', tag: 'Airbnb / Booking', preview: <SocialPreview />,
     prompt: `החל עיצוב בסגנון אפליקציות הזמנות מובילות (כמו Airbnb / Booking): כרטיסים נקיים עם תמונות גדולות מעוגלות, דירוגי כוכבים, אקסנט בצבע אחד חם (ורוד-אדום), הרבה white space, טיפוגרפיה ידידותית ואמינה, כפתורי הזמנה ברורים. ${STYLE_ONLY}`,
   },
 ];
@@ -205,46 +431,128 @@ function PresetCard({ preset, onApply, disabled }: { preset: DesignPreset; onApp
   );
 }
 
-export default function DesignGallery({ onApply, isGenerating }: DesignGalleryProps) {
+function ShapeCard({ name, preview, onApply, disabled }: { name: string; preview: React.ReactNode; onApply: () => void; disabled: boolean }) {
   return (
-    <div className="flex flex-col gap-4 p-4" dir="rtl">
-      <div>
-        <p className="text-xs text-text-secondary leading-relaxed">
-          בחר סגנון עיצוב — יוחל אוטומטית על האפליקציה שלך, <span className="font-semibold text-text-primary">בלי לשנות את התוכן</span>.
-        </p>
+    <button
+      onClick={onApply}
+      disabled={disabled}
+      className="group flex flex-col items-center gap-1 p-2 rounded-xl border border-border bg-surface
+        hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-all duration-200
+        disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      {preview}
+      <span className="text-[10px] font-medium text-text-secondary group-hover:text-primary">{name}</span>
+    </button>
+  );
+}
+
+export default function DesignGallery({ onApply, isGenerating }: DesignGalleryProps) {
+  const [section, setSection] = useState<GallerySection>('shapes');
+
+  return (
+    <div className="flex flex-col h-full" dir="rtl">
+      {/* Section tabs */}
+      <div className="flex gap-1 p-3 border-b border-border/50 flex-shrink-0">
+        {([
+          { id: 'shapes' as GallerySection, label: '🔲 צורות' },
+          { id: 'apps' as GallerySection, label: '📱 אפליקציות' },
+          { id: 'styles' as GallerySection, label: '🎨 שפות עיצוב' },
+        ]).map((s) => (
+          <button
+            key={s.id}
+            onClick={() => setSection(s.id)}
+            className={`flex-1 py-1.5 rounded-lg text-[10px] font-medium transition-all ${
+              section === s.id
+                ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm'
+                : 'text-text-secondary hover:text-text-primary hover:bg-surface-2 border border-transparent'
+            }`}
+          >
+            {s.label}
+          </button>
+        ))}
       </div>
 
-      {/* Design languages */}
-      <div>
-        <label className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2 block">
-          שפות עיצוב
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {DESIGN_LANGUAGES.map((p) => (
-            <PresetCard key={p.id} preset={p} onApply={onApply} disabled={isGenerating} />
-          ))}
-        </div>
-      </div>
+      <div className="flex-1 overflow-auto scrollbar-thin p-4">
+        {/* ── Component Shapes ──────────────────────────────────────── */}
+        {section === 'shapes' && (
+          <div className="flex flex-col gap-5">
+            <p className="text-xs text-text-secondary leading-relaxed">
+              בחר צורות לכפתורים, כרטיסים ושדות — <span className="font-semibold text-text-primary">כמו בפיגמה</span>.
+            </p>
 
-      <div className="h-px bg-border/60" />
+            {/* Button shapes */}
+            <div>
+              <label className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2 block">
+                צורת כפתורים
+              </label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {BUTTON_SHAPES.map((s) => (
+                  <ShapeCard key={s.id} name={s.name} preview={s.preview} onApply={() => onApply(s.prompt)} disabled={isGenerating} />
+                ))}
+              </div>
+            </div>
 
-      {/* App-inspired styles */}
-      <div>
-        <label className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-1 block">
-          עיצובים מאפליקציות מובילות
-        </label>
-        <p className="text-[10px] text-text-soft mb-2 leading-relaxed">
-          רק העיצוב — לא התוכן
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          {APP_STYLES.map((p) => (
-            <PresetCard key={p.id} preset={p} onApply={onApply} disabled={isGenerating} />
-          ))}
-        </div>
+            <div className="h-px bg-border/60" />
+
+            {/* Card shapes */}
+            <div>
+              <label className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2 block">
+                צורת כרטיסים
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {CARD_SHAPES.map((s) => (
+                  <ShapeCard key={s.id} name={s.name} preview={s.preview} onApply={() => onApply(s.prompt)} disabled={isGenerating} />
+                ))}
+              </div>
+            </div>
+
+            <div className="h-px bg-border/60" />
+
+            {/* Input shapes */}
+            <div>
+              <label className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2 block">
+                צורת שדות קלט
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {INPUT_SHAPES.map((s) => (
+                  <ShapeCard key={s.id} name={s.name} preview={s.preview} onApply={() => onApply(s.prompt)} disabled={isGenerating} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Famous App Styles ─────────────────────────────────────── */}
+        {section === 'apps' && (
+          <div className="flex flex-col gap-4">
+            <p className="text-xs text-text-secondary leading-relaxed">
+              בחר עיצוב מאפליקציה מוכרת — <span className="font-semibold text-text-primary">רק העיצוב, לא התוכן</span>.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {APP_STYLES.map((p) => (
+                <PresetCard key={p.id} preset={p} onApply={onApply} disabled={isGenerating} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Design Languages ─────────────────────────────────────── */}
+        {section === 'styles' && (
+          <div className="flex flex-col gap-4">
+            <p className="text-xs text-text-secondary leading-relaxed">
+              בחר שפת עיצוב — <span className="font-semibold text-text-primary">בלי לשנות את התוכן</span>.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {DESIGN_LANGUAGES.map((p) => (
+                <PresetCard key={p.id} preset={p} onApply={onApply} disabled={isGenerating} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {isGenerating && (
-        <div className="flex items-center justify-center gap-2 py-3 text-xs text-primary">
+        <div className="flex items-center justify-center gap-2 py-3 px-4 border-t border-border text-xs text-primary bg-primary/5">
           <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
