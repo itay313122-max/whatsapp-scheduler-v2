@@ -192,12 +192,33 @@ COMPONENTS:
   avatar           circular gradient avatar
   divider          thin horizontal rule
 
-TYPOGRAPHY (use for ALL text — do not use Tailwind font/color classes):
-  title            26px 800-weight heading
-  subtitle         16px 700-weight subheading
-  body             14px body text (muted color)
-  caption          12px helper text (light muted)
-  section-title    11px ALL-CAPS section label
+NEW COMPONENTS (2026 Design System):
+  glass-card       frosted glass card with backdrop-filter blur
+  fab              56×56px floating action button, gradient bg, fixed bottom-right
+  bottom-sheet     draggable bottom panel (overlay), use with bottom-sheet-handle
+  progress-bar     + progress-bar-fill for progress indicators (set width via style)
+  chip             pill-shaped tinted tag button, use for filters and categories
+  chip-outline     outlined version, add class "active" for selected
+  toggle           switch button (48×28px), add class "active" for on state
+  display          36px large heading for hero sections
+  title-md         20px medium heading
+  body-lg          16px larger body text
+  label            12px semibold label text
+  badge-success    green semantic badge
+  badge-warning    yellow semantic badge
+  badge-error      red semantic badge
+
+TYPOGRAPHY — Material Design 3 scale (use for ALL text — no Tailwind font/color):
+  display          36px 700-weight hero heading (line-height: 44px)
+  title            26px 800-weight heading (line-height: 32px)
+  title-md         20px 700-weight subheading (line-height: 28px)
+  subtitle         16px 700-weight label (line-height: 24px)
+  body-lg          16px 400-weight readable body (line-height: 24px)
+  body             14px 400-weight body text (line-height: 22px)
+  label            12px 600-weight label/tag (line-height: 16px)
+  caption          12px 400-weight helper text (line-height: 16px)
+  section-title    11px 700-weight ALL-CAPS section header
+  ALL line-heights are multiples of 8 (16, 22, 24, 28, 32, 44).
 
 LAYOUT with Tailwind (flex/grid ONLY — no color, no shadow, no font classes):
   flex, grid, gap-X, items-center, justify-between, overflow-y-auto,
@@ -214,7 +235,9 @@ COLOR PALETTE — set via <style> at top of App JSX (REQUIRED):
     }
   \`}</style>
   Choose palette for the domain: meditation→purple, food→orange, finance→emerald,
-  fitness→red, travel→teal, music→pink. Background: very light tint of the primary.
+  fitness→red, travel→teal, music→pink, health→teal, social→gradient(pink-purple),
+  education→blue, shopping→indigo. Background: very light tint of the primary.
+  Semantic colors available: var(--c-success) green, var(--c-warning) amber, var(--c-error) red.
 
 FONTS — for Hebrew apps use Heebo, Assistant, or Rubik (all pre-loaded):
   <style>{\`:root { --c-font: 'Heebo', system-ui, sans-serif; }\`}</style>
@@ -237,23 +260,35 @@ HIERARCHY & LAYOUT:
 - Less is more: one clear primary action per screen, no overloaded UI.
 - Visual hierarchy: use size, weight, color to guide the eye naturally.
 - Primary CTA (btn-primary) must be prominent and visible without scrolling.
-- Consistent spacing using var(--sp-3) through var(--sp-6).
+- Consistent spacing: use 8pt grid — var(--sp-2)=8px, var(--sp-3)=12px, var(--sp-4)=16px, var(--sp-6)=24px, var(--sp-8)=32px.
+- Margin/padding MUST be multiples of 4px (preferably 8px): 4, 8, 12, 16, 24, 32, 40, 48, 64.
 
 NAVIGATION:
 - Use bottom tab nav (app-nav + nav-tab) with max 5 tabs.
 - Active tab must be visually distinct (class "active").
 - Navigation must be predictable across all screens.
 
-TOUCH & ACCESSIBILITY:
-- Every interactive element minimum 44×44 px (enforced by design system).
+TOUCH & ACCESSIBILITY (WCAG 2.1 + Apple HIG):
+- All buttons: minimum height 48px (btn-primary is 48px, btn-icon is 44px).
+- All input fields: minimum height 48px.
+- Touch targets: minimum 44×44px with 8px spacing between them.
 - Font sizes: body text minimum 14px (caption 12px is ok for labels only).
-- High contrast: text on backgrounds must be readable.
+- Color contrast: WCAG AA minimum 4.5:1 for text, 3:1 for large text.
+- Semantic colors: use badge-success (green), badge-warning (yellow), badge-error (red).
 
 VISUAL POLISH:
 - Empty states: when a list is empty show an .empty-state div with icon, title, body text and a CTA button — never a blank screen.
 - Loading: use .skeleton / .skeleton-text / .skeleton-card classes for perceived performance.
-- Micro-interactions: buttons scale on :active — already in design system.
+- Elevation: use cards with layered shadows for depth. Cards lift on hover (elevation-2).
+- Micro-interactions: buttons scale on :active — already in design system. Lists lift on hover.
 - First screen must look professional and inviting (gradient-banner or rich header).
+- Glassmorphism: for overlays or premium cards use .glass-card class.
+- Bottom sheets: for secondary content (filters, settings, sharing) use .bottom-sheet + .bottom-sheet-handle.
+- FAB: for primary creation action (add item) use .fab class (fixed position).
+- Progress bars: use .progress-bar + .progress-bar-fill with width style.
+- Chips: for filters/tags use .chip or .chip-outline. Multiple active chips use .chip-outline.active.
+- Toggle: for on/off switches use .toggle, add .active class for on state.
+- Animations: .animate-spring for modals/new items, .animate-slide-up for list items.
 
 RESPONSIVE:
 - Every app must look great on PHONE (420px) AND TABLET (768px+).
@@ -321,9 +356,9 @@ function App() {
   const HomeScreen = () => (
     <>
       <div className="gradient-banner">
-        <p className="caption" style={{color:'rgba(255,255,255,0.8)'}}>מבצע מיוחד 🔥</p>
-        <h2 className="title" style={{color:'white',margin:'6px 0 4px'}}>20% הנחה</h2>
-        <p className="body" style={{color:'rgba(255,255,255,0.85)'}}>על הזמנה ראשונה</p>
+        <p className="label" style={{color:'rgba(255,255,255,0.85)'}}>מבצע מיוחד 🔥</p>
+        <h2 className="display" style={{color:'white',margin:'8px 0',fontSize:28}}>20% הנחה</h2>
+        <p className="body-lg" style={{color:'rgba(255,255,255,0.85)'}}>על הזמנה ראשונה</p>
         <button className="btn-secondary" style={{width:'auto',marginTop:14,padding:'9px 20px'}} onClick={()=>setTab('search')}>הזמן עכשיו</button>
       </div>
       <p className="section-title">פופולרי 🔥</p>

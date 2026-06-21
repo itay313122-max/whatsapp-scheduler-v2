@@ -42,6 +42,27 @@ const DESIGN_SYSTEM_CSS = `
   /* Spacing scale */
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
   --sp-5: 20px; --sp-6: 24px; --sp-7: 28px; --sp-8: 32px;
+  --sp-9: 36px; --sp-10: 40px; --sp-12: 48px; --sp-16: 64px;
+  /* Elevation shadows (Material Design 3) */
+  --elevation-1: 0 1px 2px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+  --elevation-2: 0 2px 4px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.1);
+  --elevation-3: 0 4px 8px rgba(0,0,0,0.06), 0 8px 16px rgba(0,0,0,0.1);
+  --elevation-4: 0 8px 16px rgba(0,0,0,0.08), 0 16px 32px rgba(0,0,0,0.12);
+  /* Motion tokens */
+  --duration-micro: 100ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Semantic colors */
+  --c-success: #22c55e;
+  --c-success-light: rgba(34,197,94,0.12);
+  --c-warning: #f59e0b;
+  --c-warning-light: rgba(245,158,11,0.12);
+  --c-error: #ef4444;
+  --c-error-light: rgba(239,68,68,0.12);
 }
 
 /* Reset */
@@ -99,13 +120,13 @@ body {
 /* ── Buttons ───────────────────────────────────────────────────────────── */
 .btn-primary {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 100%; padding: 15px 24px; min-height: 44px;
+  width: 100%; padding: 15px 24px; min-height: 48px;
   background: var(--btn-bg); color: var(--btn-color);
   font-weight: 700; font-size: 15px; font-family: inherit;
   border-radius: var(--btn-radius);
   border: var(--btn-border-width) solid var(--btn-border-color);
   cursor: pointer; box-shadow: var(--btn-shadow);
-  transition: transform 0.14s, opacity 0.14s; letter-spacing: 0.1px;
+  transition: transform var(--duration-fast) var(--ease-standard), opacity var(--duration-fast), box-shadow var(--duration-normal); letter-spacing: 0.1px;
 }
 .btn-primary:hover  { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.22); }
 .btn-primary:active { transform: scale(0.97); }
@@ -116,7 +137,8 @@ body {
   background: var(--c-primary-light); color: var(--c-primary);
   font-weight: 600; font-size: 14px; font-family: inherit;
   border-radius: var(--r-md); border: none; cursor: pointer;
-  transition: transform 0.14s, filter 0.14s;
+  transition: transform var(--duration-fast) var(--ease-standard), filter var(--duration-fast);
+  min-height: 48px;
 }
 .btn-secondary:active { transform: scale(0.97); }
 
@@ -125,19 +147,20 @@ body {
   width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
   background: var(--c-primary-light); color: var(--c-primary);
   font-size: 18px; border: none; cursor: pointer;
-  transition: transform 0.14s;
+  transition: transform var(--duration-micro) var(--ease-spring);
 }
 .btn-icon:active { transform: scale(0.9); }
 
 /* ── Cards ─────────────────────────────────────────────────────────────── */
 .card {
-  background: var(--card-bg); border-radius: var(--card-radius); padding: 18px;
+  background: var(--card-bg); border-radius: var(--card-radius); padding: var(--sp-4);
   box-shadow: var(--card-shadow); border: var(--card-border);
+  transition: box-shadow var(--duration-normal) var(--ease-standard), transform var(--duration-normal) var(--ease-standard);
 }
+.card:active { transform: scale(0.98); }
 .card-sm {
-  background: var(--card-bg); border-radius: var(--r-md); padding: 14px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.05);
-  border: var(--card-border);
+  background: var(--card-bg); border-radius: var(--r-md); padding: var(--sp-3);
+  box-shadow: var(--elevation-1); border: var(--card-border);
 }
 
 /* ── Banners ───────────────────────────────────────────────────────────── */
@@ -146,23 +169,27 @@ body {
   border-radius: var(--r-xl); padding: 24px 22px; color: #fff;
 }
 
-/* ── Typography ────────────────────────────────────────────────────────── */
-.title    { font-size: 26px; font-weight: 800; color: var(--c-text); letter-spacing: -0.5px; line-height: 1.2; }
-.subtitle { font-size: 16px; font-weight: 700; color: var(--c-text); line-height: 1.3; }
-.body     { font-size: 14px; font-weight: 400; color: var(--c-text-2); line-height: 1.55; }
-.caption  { font-size: 12px; font-weight: 400; color: var(--c-text-3); line-height: 1.4; }
+/* ── Typography (Material Design 3 scale) ─────────────────────────── */
+.display    { font-size: 36px; font-weight: 700; color: var(--c-text); letter-spacing: -0.5px; line-height: 44px; }
+.title      { font-size: 26px; font-weight: 800; color: var(--c-text); letter-spacing: -0.5px; line-height: 32px; }
+.title-md   { font-size: 20px; font-weight: 700; color: var(--c-text); line-height: 28px; }
+.subtitle   { font-size: 16px; font-weight: 700; color: var(--c-text); line-height: 24px; }
+.body       { font-size: 14px; font-weight: 400; color: var(--c-text-2); line-height: 22px; }
+.body-lg    { font-size: 16px; font-weight: 400; color: var(--c-text-2); line-height: 24px; }
+.caption    { font-size: 12px; font-weight: 400; color: var(--c-text-3); line-height: 16px; }
+.label      { font-size: 12px; font-weight: 600; color: var(--c-text-2); line-height: 16px; letter-spacing: 0.3px; }
 .section-title {
   font-size: 11px; font-weight: 700; color: var(--c-text-3);
-  text-transform: uppercase; letter-spacing: 1px;
+  text-transform: uppercase; letter-spacing: 1px; line-height: 16px;
 }
 
 /* ── List items ────────────────────────────────────────────────────────── */
 .list-item {
-  display: flex; align-items: center; gap: 14px;
+  display: flex; align-items: center; gap: var(--sp-3);
   background: var(--c-surface); border-radius: var(--r-md);
-  padding: 14px 16px;
+  padding: var(--sp-3) var(--sp-4);
   box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.05);
-  cursor: pointer; transition: transform 0.14s;
+  cursor: pointer; transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-normal);
 }
 .list-item:active { transform: scale(0.98); }
 
@@ -179,11 +206,11 @@ body {
   font-size: 12px; font-weight: 600;
 }
 .input-field {
-  width: 100%; padding: 14px 16px;
+  width: 100%; padding: var(--sp-3) var(--sp-4); min-height: 48px;
   background: #f1f5f9; border: 1.5px solid transparent;
   border-radius: var(--r-sm); font-size: 15px;
   outline: none; font-family: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  transition: border-color var(--duration-normal), box-shadow var(--duration-normal), background var(--duration-normal);
 }
 .input-field:focus {
   border-color: var(--c-primary);
@@ -198,6 +225,111 @@ body {
 }
 .divider { height: 1px; background: var(--c-border); }
 
+/* ── Status/Semantic badges ───────────────────────────────────────── */
+.badge-success { background: var(--c-success-light); color: var(--c-success); }
+.badge-warning { background: var(--c-warning-light); color: var(--c-warning); }
+.badge-error   { background: var(--c-error-light); color: var(--c-error); }
+
+/* ── Glassmorphism card ───────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(12px) saturate(1.6);
+  -webkit-backdrop-filter: blur(12px) saturate(1.6);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+  box-shadow: 0 8px 32px rgba(31,38,135,0.12);
+}
+
+/* ── Floating Action Button (FAB) ─────────────────────────────────── */
+.fab {
+  position: fixed; bottom: 80px; right: 20px;
+  width: 56px; height: 56px; border-radius: 16px;
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  color: #fff; font-size: 24px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer; z-index: 50;
+  box-shadow: var(--elevation-3);
+  transition: transform var(--duration-fast) var(--ease-spring), box-shadow var(--duration-normal);
+}
+.fab:hover { transform: scale(1.05); box-shadow: var(--elevation-4); }
+.fab:active { transform: scale(0.95); }
+
+/* ── Bottom sheet ─────────────────────────────────────────────────── */
+.bottom-sheet {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 420px;
+  background: var(--c-surface);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: var(--sp-4); padding-bottom: var(--sp-8);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+  z-index: 200;
+}
+.bottom-sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--c-border); margin: 0 auto var(--sp-4);
+}
+
+/* ── Progress bar ─────────────────────────────────────────────────── */
+.progress-bar {
+  height: 8px; border-radius: 4px; background: var(--c-border); overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--c-from), var(--c-to));
+  transition: width var(--duration-slow) var(--ease-decelerate);
+}
+
+/* ── Chip / Tag ───────────────────────────────────────────────────── */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 100px;
+  background: var(--c-primary-light); color: var(--c-primary);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  border: none; transition: background var(--duration-fast);
+}
+.chip:active { background: rgba(var(--c-from), 0.2); }
+.chip-outline {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: 100px;
+  background: transparent; color: var(--c-text-2);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  border: 1.5px solid var(--c-border);
+  transition: all var(--duration-fast);
+}
+.chip-outline:active, .chip-outline.active {
+  border-color: var(--c-primary); color: var(--c-primary); background: var(--c-primary-light);
+}
+
+/* ── Toggle / Switch ──────────────────────────────────────────────── */
+.toggle {
+  width: 48px; height: 28px; border-radius: 14px;
+  background: var(--c-border); border: none; cursor: pointer;
+  position: relative; transition: background var(--duration-normal);
+  padding: 0; flex-shrink: 0;
+}
+.toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; box-shadow: var(--elevation-1);
+  transition: transform var(--duration-normal) var(--ease-spring);
+}
+.toggle.active { background: var(--c-primary); }
+.toggle.active::after { transform: translateX(20px); }
+
+/* ── Spring animation ─────────────────────────────────────────────── */
+@keyframes springIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  70% { transform: scale(1.03); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes slideUp {
+  0% { transform: translateY(16px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-spring { animation: springIn 0.35s var(--ease-spring) forwards; }
+.animate-slide-up { animation: slideUp 0.3s var(--ease-standard) forwards; }
+
 /* ── Touch targets ─────────────────────────────────────────────────────── */
 .nav-tab { min-height: 44px; min-width: 44px; }
 .btn-icon { min-width: 44px; min-height: 44px; }
@@ -206,9 +338,11 @@ body {
 /* ── Micro-interactions ────────────────────────────────────────────────── */
 .btn-primary:hover  { opacity: 0.92; }
 .btn-primary:active { transform: scale(0.97); }
-.list-item { transition: transform 0.12s, box-shadow 0.12s; }
+.list-item { transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast); }
+.list-item:hover { box-shadow: var(--elevation-2); }
 .list-item:active { transform: scale(0.98); box-shadow: none; }
-.card { transition: box-shadow 0.15s; }
+.card { transition: box-shadow var(--duration-normal) var(--ease-standard); }
+.card:hover { box-shadow: var(--elevation-2); }
 
 /* ── Skeleton loader ───────────────────────────────────────────────────── */
 @keyframes shimmer {
@@ -248,6 +382,9 @@ body {
 
   .title    { font-size: 32px; }
   .subtitle { font-size: 18px; }
+  .display { font-size: 44px; line-height: 52px; }
+  .title-md { font-size: 24px; line-height: 32px; }
+  .body-lg { font-size: 17px; }
   .body     { font-size: 15px; }
 
   .card    { padding: 24px; }
