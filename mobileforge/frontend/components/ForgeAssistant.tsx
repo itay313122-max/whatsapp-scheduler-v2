@@ -117,7 +117,7 @@ export default function ForgeAssistant({
 
       {/* Sliding panel */}
       <div
-        className={`fixed inset-y-0 left-0 w-full sm:w-[380px] bg-white/90 backdrop-blur-xl border-r border-border z-50 flex flex-col transform transition-transform duration-300 ease-in-out shadow-card-hover ${
+        className={`fixed inset-y-0 left-0 w-full sm:w-[380px] glass-panel border-r border-border/50 z-50 flex flex-col transform transition-transform duration-300 ease-in-out shadow-2xl shadow-black/20 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         dir="rtl"

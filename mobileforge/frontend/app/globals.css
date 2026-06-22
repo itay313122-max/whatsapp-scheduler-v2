@@ -16,6 +16,28 @@
   --border: #E0E7FF;
 }
 
+/* ── Lovable-inspired Dark Mode ────────────────────────────────────────── */
+html.dark,
+.builder-dark {
+  --bg: #0A0A0B;
+  --surface: #141416;
+  --surface-2: #1A1A1E;
+  --primary: #8B5CF6;
+  --primary-light: #A78BFA;
+  --accent: #EC4899;
+  --accent-sky: #38BDF8;
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-soft: #6B7280;
+  --border: #2A2A2E;
+}
+
+/* ── Dark/Light mode transition ────────────────────────────────────────── */
+html {
+  transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+              color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -61,9 +83,63 @@ code, pre, .font-code {
   border-color: rgba(99, 102, 241, 0.22);
 }
 
+/* ── Glass card — dark mode ────────────────────────────────────────────── */
+html.dark .glass-card,
+.builder-dark .glass-card {
+  background: rgba(20, 20, 22, 0.8);
+  border: 1px solid rgba(139, 92, 246, 0.12);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+html.dark .glass-card:hover,
+.builder-dark .glass-card:hover {
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.18);
+  border-color: rgba(139, 92, 246, 0.25);
+}
+
+/* ── Glass panel — Lovable-style sidebar panels ────────────────────────── */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border: 1px solid rgba(99, 102, 241, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+html.dark .glass-panel,
+.builder-dark .glass-panel {
+  background: rgba(20, 20, 22, 0.85);
+  border: 1px solid rgba(42, 42, 46, 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+/* ── Glass header — Lovable-style top bar ──────────────────────────────── */
+.glass-header {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+html.dark .glass-header,
+.builder-dark .glass-header {
+  background: rgba(15, 15, 16, 0.9);
+  border-bottom: 1px solid rgba(42, 42, 46, 0.8);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
 /* ── Hero gradient bg ──────────────────────────────────────────────────── */
 .hero-bg {
   background: linear-gradient(135deg, #E0F2FE 0%, #FCE7F3 50%, #F3E8FF 100%);
+}
+html.dark .hero-bg,
+.builder-dark .hero-bg {
+  background: linear-gradient(135deg, #0F172A 0%, #1E1338 50%, #0F0F10 100%);
 }
 
 /* ── Phone frame — light ────────────────────────────────────────────────── */
@@ -91,11 +167,31 @@ code, pre, .font-code {
   z-index: 10;
 }
 
+/* ── Phone frame — dark mode ───────────────────────────────────────────── */
+html.dark .phone-frame,
+.builder-dark .phone-frame {
+  background: #1A1A1E;
+  box-shadow:
+    0 0 0 2px #2A2A2E,
+    0 0 0 4px rgba(10, 10, 11, 0.9),
+    0 30px 80px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(139, 92, 246, 0.06);
+}
+html.dark .phone-frame::before,
+.builder-dark .phone-frame::before {
+  background: #2A2A2E;
+}
+
 /* ── Loading shimmer — light ────────────────────────────────────────────── */
 .shimmer {
   background: linear-gradient(90deg, #EEF2FF 25%, #F8FAFF 50%, #EEF2FF 75%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
+}
+html.dark .shimmer,
+.builder-dark .shimmer {
+  background: linear-gradient(90deg, #1A1A1E 25%, #2A2A2E 50%, #1A1A1E 75%);
+  background-size: 200% 100%;
 }
 
 /* ── Animations ─────────────────────────────────────────────────────────── */
@@ -219,6 +315,20 @@ button, a, [role="button"] {
     0 12px 40px rgba(31, 38, 135, 0.18),
     inset 0 0 20px -5px rgba(255, 255, 255, 0.4);
 }
+html.dark .liquid-glass,
+.builder-dark .liquid-glass {
+  background: rgba(20, 20, 22, 0.55);
+  border: 1px solid rgba(42, 42, 46, 0.5);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 0 20px -5px rgba(139, 92, 246, 0.05);
+}
+html.dark .liquid-glass:hover,
+.builder-dark .liquid-glass:hover {
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    inset 0 0 20px -5px rgba(139, 92, 246, 0.1);
+}
 
 /* ── Touch targets — accessibility ────────────────────────────────────── */
 .touch-target {
@@ -256,6 +366,16 @@ button, a, [role="button"] {
   background: #e8ecf1;
   box-shadow: inset 4px 4px 8px #c5c9ce, inset -4px -4px 8px #ffffff;
 }
+html.dark .neu-raised,
+.builder-dark .neu-raised {
+  background: #1A1A1E;
+  box-shadow: 6px 6px 12px #0A0A0B, -6px -6px 12px #2A2A2E;
+}
+html.dark .neu-inset,
+.builder-dark .neu-inset {
+  background: #1A1A1E;
+  box-shadow: inset 4px 4px 8px #0A0A0B, inset -4px -4px 8px #2A2A2E;
+}
 
 /* ── Active/pressed state for touch ───────────────────────────────────── */
 .press-effect:active {
@@ -284,4 +404,102 @@ button, a, [role="button"] {
   border-radius: 2px;
   background: var(--border);
   margin: 8px auto;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DARK MODE OVERRIDES — Lovable-inspired
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Scrollbar — dark mode ─────────────────────────────────────────────── */
+html.dark ::-webkit-scrollbar-track,
+.builder-dark ::-webkit-scrollbar-track {
+  background: #141416;
+}
+html.dark ::-webkit-scrollbar-thumb,
+.builder-dark ::-webkit-scrollbar-thumb {
+  background: #2A2A2E;
+  border-radius: 3px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover,
+.builder-dark ::-webkit-scrollbar-thumb:hover {
+  background: #8B5CF6;
+}
+html.dark .scrollbar-thin::-webkit-scrollbar-track,
+.builder-dark .scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+html.dark .scrollbar-thin::-webkit-scrollbar-thumb,
+.builder-dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #2A2A2E;
+}
+html.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover,
+.builder-dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #A78BFA;
+}
+
+/* ── Gradient text — dark mode (brighter purple) ───────────────────────── */
+html.dark .gradient-text,
+.builder-dark .gradient-text {
+  background: linear-gradient(135deg, #8B5CF6, #EC4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Focus visible — dark mode ─────────────────────────────────────────── */
+html.dark :focus-visible,
+.builder-dark :focus-visible {
+  outline: 2px solid #8B5CF6;
+  outline-offset: 2px;
+}
+
+/* ── Hover lift — dark mode ────────────────────────────────────────────── */
+html.dark .hover-lift:hover,
+.builder-dark .hover-lift:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Data separator — dark mode ────────────────────────────────────────── */
+html.dark [data-separator]::after,
+.builder-dark [data-separator]::after {
+  background: #2A2A2E;
+}
+html.dark [data-separator]:hover::after,
+.builder-dark [data-separator]:hover::after {
+  background: #8B5CF6;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.35);
+}
+html.dark [data-separator]:hover,
+.builder-dark [data-separator]:hover {
+  background: rgba(139, 92, 246, 0.06);
+}
+
+/* ── Elevation tokens — dark mode ──────────────────────────────────────── */
+html.dark .elevation-1,
+.builder-dark .elevation-1 { box-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.3); }
+html.dark .elevation-2,
+.builder-dark .elevation-2 { box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.3); }
+html.dark .elevation-3,
+.builder-dark .elevation-3 { box-shadow: 0 4px 8px rgba(0,0,0,0.25), 0 8px 16px rgba(0,0,0,0.35); }
+html.dark .elevation-4,
+.builder-dark .elevation-4 { box-shadow: 0 8px 16px rgba(0,0,0,0.3), 0 16px 32px rgba(0,0,0,0.4); }
+
+/* ── Builder dark mode — auto-applies dark theme to builder UI ─────────── */
+.builder-dark {
+  background-color: var(--bg);
+  color: var(--text-primary);
+}
+
+/* ── Color-scheme hint for native elements (inputs, selects, etc.) ─────── */
+html.dark,
+.builder-dark {
+  color-scheme: dark;
+}
+
+/* ── Smooth transitions for all themed elements ────────────────────────── */
+html.dark *,
+.builder-dark * {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }

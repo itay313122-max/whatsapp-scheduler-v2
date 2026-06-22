@@ -45,9 +45,9 @@ export default function CodeViewer({ files, appName }: CodeViewerProps) {
   const language = langMap[ext] || 'tsx';
 
   return (
-    <div className="flex flex-col h-full bg-surface rounded-xl border border-border overflow-hidden">
+    <div className="flex flex-col h-full bg-[#0D0D0F] rounded-xl border border-[#2A2A2E] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface-2">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#2A2A2E] bg-[#141416]">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-red-500/70" />

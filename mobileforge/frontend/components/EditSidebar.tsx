@@ -66,8 +66,8 @@ function OptionButton({
       title={title}
       className={`py-2 px-2 min-h-[36px] rounded-lg text-[11px] font-medium border transition-all duration-150 select-none
         ${active
-          ? 'border-primary bg-primary/10 text-primary shadow-sm'
-          : 'border-border text-text-secondary hover:text-text-primary hover:border-primary/30 hover:bg-primary/5 active:scale-[0.97]'
+          ? 'border-primary/50 bg-primary/15 text-primary shadow-sm'
+          : 'border-border/40 text-text-secondary hover:text-text-primary hover:border-primary/30 hover:bg-primary/5 active:scale-[0.97]'
         }`}
     >
       {children}
@@ -408,8 +408,8 @@ export default function EditSidebar({
 
   return (
     <div className="flex flex-col h-full" dir="rtl">
-      {/* ── Tab bar — Figma-style with indicator ─────────────────────── */}
-      <div className="flex border-b border-border bg-surface flex-shrink-0">
+      {/* ── Tab bar — Lovable-style with indicator ─────────────────────── */}
+      <div className="flex border-b border-border/40 bg-surface/30 flex-shrink-0">
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -452,7 +452,7 @@ export default function EditSidebar({
                 }}
                 placeholder='למשל: "הפוך את הכפתורים לסגנון מודרני עם צללים"'
                 rows={3}
-                className="w-full px-3 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none placeholder:text-text-soft transition-all"
+                className="w-full px-3 py-2.5 rounded-xl bg-surface/50 border border-border/50 text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none placeholder:text-text-soft transition-all"
               />
               <button
                 onClick={handleAISubmit}
@@ -461,8 +461,8 @@ export default function EditSidebar({
                   isGenerating
                     ? 'bg-primary/20 text-primary/60 cursor-wait'
                     : aiPrompt.trim()
-                      ? 'bg-gradient-to-l from-primary to-accent text-white hover:shadow-glow active:scale-[0.98]'
-                      : 'bg-surface-2 text-text-soft cursor-not-allowed'
+                      ? 'bg-primary text-white hover:bg-primary/90 active:scale-[0.98]'
+                      : 'bg-surface/30 text-text-soft cursor-not-allowed'
                 }`}
               >
                 {isGenerating ? (
@@ -625,7 +625,7 @@ export default function EditSidebar({
                 }}
                 placeholder={'למשל: "הוסף ווידג\'ט מזג אוויר עם טמפרטורה ואייקון"'}
                 rows={2}
-                className="w-full px-3 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none placeholder:text-text-soft transition-all"
+                className="w-full px-3 py-2.5 rounded-xl bg-surface/50 border border-border/50 text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none placeholder:text-text-soft transition-all"
               />
               <button
                 onClick={handleAISubmit}
@@ -634,8 +634,8 @@ export default function EditSidebar({
                   isGenerating
                     ? 'bg-primary/20 text-primary/60 cursor-wait'
                     : aiPrompt.trim()
-                      ? 'bg-gradient-to-l from-primary to-accent text-white hover:shadow-glow active:scale-[0.98]'
-                      : 'bg-surface-2 text-text-soft cursor-not-allowed'
+                      ? 'bg-primary text-white hover:bg-primary/90 active:scale-[0.98]'
+                      : 'bg-surface/30 text-text-soft cursor-not-allowed'
                 }`}
               >
                 {isGenerating ? 'AI מוסיף...' : 'הוסף ווידג\'ט'}
@@ -759,7 +759,7 @@ export default function EditSidebar({
                 }}
                 placeholder='למשל: "הוסף אנימציית bounce לכפתור הראשי"'
                 rows={2}
-                className="w-full px-3 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none placeholder:text-text-soft transition-all"
+                className="w-full px-3 py-2.5 rounded-xl bg-surface/50 border border-border/50 text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none placeholder:text-text-soft transition-all"
               />
               <button
                 onClick={handleAISubmit}
@@ -768,8 +768,8 @@ export default function EditSidebar({
                   isGenerating
                     ? 'bg-primary/20 text-primary/60 cursor-wait'
                     : aiPrompt.trim()
-                      ? 'bg-gradient-to-l from-primary to-accent text-white hover:shadow-glow active:scale-[0.98]'
-                      : 'bg-surface-2 text-text-soft cursor-not-allowed'
+                      ? 'bg-primary text-white hover:bg-primary/90 active:scale-[0.98]'
+                      : 'bg-surface/30 text-text-soft cursor-not-allowed'
                 }`}
               >
                 {isGenerating ? 'AI מוסיף...' : 'החל אנימציה'}

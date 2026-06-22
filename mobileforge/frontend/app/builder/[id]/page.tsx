@@ -192,7 +192,7 @@ function RichEditPanel({
     onSettings({ ...settings, [k]: v });
 
   return (
-    <div className="border-b border-border bg-surface/80 backdrop-blur-sm flex-shrink-0" dir="rtl">
+    <div className="border-b border-border/50 bg-surface/30 backdrop-blur-md flex-shrink-0" dir="rtl">
       {/* ── compact bar ──────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 px-3 py-1.5 overflow-x-auto">
         {PALETTES.map((p) => (
@@ -214,7 +214,7 @@ function RichEditPanel({
 
       {/* ── expanded panel ───────────────────────────────────────────────── */}
       {open && (
-        <div className="px-3 pb-3 border-t border-border/50">
+        <div className="px-3 pb-3 border-t border-border/30">
           {/* Section tabs */}
           <div className="flex gap-1 pt-2 pb-2 overflow-x-auto">
             {(['colors', 'typography', 'components', 'structure'] as const).map((s) => (
@@ -391,7 +391,7 @@ function BuilderStepper({ currentStep, onStepClick }: {
   const currentIdx = stepOrder.indexOf(currentStep);
 
   return (
-    <div className="flex items-center gap-1 px-4 py-1.5 bg-surface/90 border-b border-border backdrop-blur-xl flex-shrink-0" dir="rtl">
+    <div className="flex items-center gap-1 px-4 py-1.5 bg-surface/30 border-b border-border/50 backdrop-blur-md flex-shrink-0" dir="rtl">
       {BUILDER_STEPS.map((step, i) => {
         const isActive = step.id === currentStep;
         const isDone = i < currentIdx;
@@ -732,7 +732,7 @@ function BuilderContent() {
   }
 
   return (
-    <div className="h-screen bg-bg text-text-primary flex flex-col overflow-hidden" dir="rtl">
+    <div className="h-screen bg-bg text-text-primary flex flex-col overflow-hidden builder-dark" dir="rtl">
       {/* Forge AI assistant */}
       <ForgeAssistant
         isOpen={showAssistant}
@@ -758,8 +758,8 @@ function BuilderContent() {
         />
       )}
 
-      {/* Top bar */}
-      <header className="flex-shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-border bg-surface/90 backdrop-blur-xl z-40">
+      {/* Top bar — Lovable-style glass header */}
+      <header className="flex-shrink-0 flex items-center justify-between px-4 py-2 glass-header z-40">
         {/* Left side */}
         <div className="flex items-center gap-3">
           <Link
@@ -769,14 +769,13 @@ function BuilderContent() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="hidden sm:inline">Dashboard</span>
           </Link>
-          <div className="h-4 w-px bg-border" />
+          <div className="h-4 w-px bg-border/50" />
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-gradient-primary flex items-center justify-center">
-              <span className="text-white font-bold text-xs">M</span>
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-sm">
+              <span className="text-white font-bold text-[10px]">MF</span>
             </div>
-            <span className="font-display font-semibold text-sm truncate max-w-[160px]">
+            <span className="font-display font-semibold text-sm truncate max-w-[200px]">
               {project?.name || 'טוען…'}
             </span>
           </div>
@@ -824,7 +823,7 @@ function BuilderContent() {
                     setTimeout(() => setShareStatus('idle'), 3000);
                   } catch { setShareStatus('idle'); }
                 }}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 text-xs font-medium transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20 hover:bg-primary/25 text-xs font-medium transition-all"
               >
                 {shareStatus === 'sharing' ? (
                   <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -905,13 +904,13 @@ function BuilderContent() {
 
       {/* Main layout — resizable panels */}
       <PanelGroup orientation="horizontal" className="flex-1 overflow-hidden">
-        {/* Chat panel */}
+        {/* Chat panel — Lovable-style glass sidebar */}
         <Panel
           id="chat"
           defaultSize="30%"
           minSize="20%"
           maxSize={currentResult ? '60%' : '100%'}
-          className="flex flex-col border-l border-border overflow-hidden"
+          className="flex flex-col border-l border-border/50 overflow-hidden glass-panel"
         >
           <ChatInterface
             projectId={projectId}
@@ -930,7 +929,7 @@ function BuilderContent() {
 
         {/* Right panel */}
         {currentResult && (
-          <Panel id="preview" defaultSize="70%" minSize="40%" className="hidden md:flex flex-col overflow-hidden bg-surface/30">
+          <Panel id="preview" defaultSize="70%" minSize="40%" className="hidden md:flex flex-col overflow-hidden bg-bg">
             {/* Builder progress stepper */}
             <BuilderStepper
               currentStep={builderStep}
@@ -941,7 +940,7 @@ function BuilderContent() {
             />
 
             {/* Preview / Code tabs */}
-            <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border bg-surface/80 backdrop-blur-sm flex-shrink-0">
+            <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border/50 bg-surface/40 backdrop-blur-md flex-shrink-0">
               <button
                 onClick={() => setRightPanel('preview')}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'preview' ? 'bg-primary/10 text-primary shadow-panel' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
@@ -973,7 +972,7 @@ function BuilderContent() {
 
                 {/* Multi-screen tabs */}
                 {appScreens.length > 1 && (
-                  <div className="flex items-center gap-1 px-3 py-1.5 border-b border-border bg-surface/60 flex-shrink-0 overflow-x-auto" dir="rtl">
+                  <div className="flex items-center gap-1 px-3 py-1.5 border-b border-border/50 bg-surface/20 backdrop-blur-sm flex-shrink-0 overflow-x-auto" dir="rtl">
                     {appScreens.map((screen) => (
                       <button
                         key={screen.index}
@@ -999,8 +998,8 @@ function BuilderContent() {
 
                 {(currentResult.htmlDoc || currentResult.embedUrl) ? (
                   <div className="flex-1 flex overflow-hidden">
-                    {/* Preview area */}
-                    <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-gradient-radial from-primary/5 via-bg to-bg relative">
+                    {/* Preview area — dark canvas like Lovable */}
+                    <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-[#0D0D0F] relative" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(139,92,246,0.06) 0%, transparent 60%)' }}>
                       <WebPreview
                         key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
                         htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', editSettings)}
@@ -1026,7 +1025,7 @@ function BuilderContent() {
                     </div>
 
                     {/* Edit Sidebar — AI design, layers, properties */}
-                    <div className="w-[280px] flex-shrink-0 border-r border-border bg-surface/60 overflow-hidden">
+                    <div className="w-[280px] flex-shrink-0 border-r border-border/50 glass-panel overflow-hidden">
                       <EditSidebar
                         onAIEdit={handleStructureEdit}
                         isGenerating={isGenerating}
@@ -1057,15 +1056,17 @@ function BuilderContent() {
           </Panel>
         )}
 
-        {/* Empty state */}
+        {/* Empty state — Lovable-inspired minimal */}
         {!currentResult && (
-          <Panel id="empty" defaultSize="70%" minSize="40%" className="hidden md:flex items-center justify-center text-text-secondary bg-surface/10">
-            <div className="text-center max-w-xs">
-              <div className="w-20 h-20 rounded-2xl bg-surface border border-border flex items-center justify-center text-4xl mx-auto mb-4 hover-lift">
-                💬
+          <Panel id="empty" defaultSize="70%" minSize="40%" className="hidden md:flex items-center justify-center text-text-secondary bg-[#0D0D0F]" style={{ backgroundImage: 'radial-gradient(circle at 50% 40%, rgba(139,92,246,0.08) 0%, transparent 50%)' }}>
+            <div className="text-center max-w-sm">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/20 flex items-center justify-center mx-auto mb-5">
+                <svg className="w-7 h-7 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+                </svg>
               </div>
-              <h3 className="font-display font-semibold text-text-primary mb-2">תאר את האפליקציה</h3>
-              <p className="text-sm leading-relaxed">
+              <h3 className="font-display font-semibold text-lg text-text-primary mb-2">תאר את האפליקציה שלך</h3>
+              <p className="text-sm leading-relaxed text-text-secondary">
                 כתוב, העלה צילום מסך, צייר סקיצה, או דבר — AI יבנה ויציג את הקוד כאן
               </p>
             </div>

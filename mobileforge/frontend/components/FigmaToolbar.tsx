@@ -99,9 +99,9 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
   return (
     <div ref={toolbarRef} className="flex flex-col items-center gap-1.5 animate-fade-in-up" dir="rtl">
       {/* Main toolbar */}
-      <div className="flex items-center gap-0.5 px-2 py-1.5 bg-surface/95 border border-border/80 rounded-2xl shadow-xl backdrop-blur-md">
+      <div className="flex items-center gap-0.5 px-2 py-1.5 bg-[#1A1A1E]/95 border border-[#2A2A2E] rounded-2xl shadow-2xl shadow-black/30 backdrop-blur-xl">
         {/* Element tag */}
-        <span className="text-[10px] text-text-soft font-mono px-2 py-0.5 bg-surface-2 rounded-lg select-none">
+        <span className="text-[10px] text-text-soft font-mono px-2 py-0.5 bg-white/5 rounded-lg select-none">
           {element.tag}
         </span>
 
@@ -112,7 +112,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           <button
             onClick={() => togglePopover('text')}
             className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-              popover === 'text' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-surface-2'
+              popover === 'text' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
             }`}
             title="ערוך טקסט"
           >
@@ -127,7 +127,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           <button
             onClick={() => togglePopover('color')}
             className={`flex items-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-              popover === 'color' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-surface-2'
+              popover === 'color' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
             }`}
             title="צבע טקסט"
           >
@@ -140,7 +140,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
         <button
           onClick={() => togglePopover('bgColor')}
           className={`flex items-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-            popover === 'bgColor' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-surface-2'
+            popover === 'bgColor' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
           }`}
           title="צבע רקע"
         >
@@ -158,7 +158,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           <button
             onClick={() => togglePopover('size')}
             className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-              popover === 'size' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-surface-2'
+              popover === 'size' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
             }`}
             title="גודל טקסט"
           >
@@ -173,7 +173,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
         <button
           onClick={() => togglePopover('shape')}
           className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-            popover === 'shape' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-surface-2'
+            popover === 'shape' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
           }`}
           title="צורה ופינות"
         >
@@ -186,7 +186,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
         <button
           onClick={() => togglePopover('spacing')}
           className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-            popover === 'spacing' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-surface-2'
+            popover === 'spacing' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
           }`}
           title="מרווח ומימדים"
         >
@@ -199,7 +199,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
         <button
           onClick={() => togglePopover('shadow')}
           className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-            popover === 'shadow' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-surface-2'
+            popover === 'shadow' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
           }`}
           title="צל"
         >
@@ -225,7 +225,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
 
       {/* Popovers */}
       {popover && (
-        <div className="bg-surface/95 border border-border/80 rounded-2xl shadow-xl backdrop-blur-md overflow-hidden animate-fade-in-up">
+        <div className="bg-[#1A1A1E]/95 border border-[#2A2A2E] rounded-2xl shadow-2xl shadow-black/30 backdrop-blur-xl overflow-hidden animate-fade-in-up">
           {/* Text edit popover */}
           {popover === 'text' && (
             <div className="p-3 w-[280px]">
@@ -242,7 +242,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
                   if (e.key === 'Escape') setPopover(null);
                 }}
                 rows={3}
-                className="w-full px-3 py-2 rounded-xl bg-surface-2 border border-border text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none"
+                className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none"
                 placeholder="הקלד טקסט..."
               />
               <div className="flex items-center justify-between mt-2">

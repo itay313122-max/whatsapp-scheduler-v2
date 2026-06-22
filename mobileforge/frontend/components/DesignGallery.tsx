@@ -499,8 +499,8 @@ function PresetCard({ preset, onApply, disabled }: { preset: DesignPreset; onApp
       onClick={() => onApply(preset.prompt)}
       disabled={disabled}
       title={preset.tag}
-      className="group flex flex-col gap-1.5 p-2 rounded-xl border border-border bg-surface
-        hover:border-primary/40 hover:shadow-card active:scale-[0.97] transition-all duration-200
+      className="group flex flex-col gap-1.5 p-2 rounded-xl border border-border/40 bg-surface/40
+        hover:border-primary/40 hover:bg-surface/60 active:scale-[0.97] transition-all duration-200
         disabled:opacity-40 disabled:cursor-not-allowed"
     >
       <div className="w-full aspect-[4/3] relative">
@@ -524,7 +524,7 @@ function ShapeCard({ name, preview, onApply, disabled }: { name: string; preview
     <button
       onClick={onApply}
       disabled={disabled}
-      className="group flex flex-col items-center gap-1 p-2 rounded-xl border border-border bg-surface
+      className="group flex flex-col items-center gap-1 p-2 rounded-xl border border-border/40 bg-surface/40
         hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-all duration-200
         disabled:opacity-40 disabled:cursor-not-allowed"
     >

@@ -567,19 +567,21 @@ export default function ChatInterface({
 
       <div className="flex flex-col h-full">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-thin">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full gap-5 text-center py-8">
-              {/* Logo */}
-              <div className="w-14 h-14 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-glow animate-fade-in-up">
-                <span className="text-white font-display font-bold text-xl">M</span>
+              {/* Logo — Lovable-style gradient icon */}
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center animate-fade-in-up shadow-lg shadow-violet-500/20">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+                </svg>
               </div>
               <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                <h2 className="font-display font-bold text-xl text-text-primary mb-1">היי! מה נבנה היום? 👋</h2>
+                <h2 className="font-display font-bold text-lg text-text-primary mb-1">מה נבנה היום?</h2>
                 <p className="text-text-secondary text-sm">בחר תבנית, צלם מסך, או פשוט ספר לי</p>
               </div>
 
-              {/* Template Gallery */}
+              {/* Template Gallery — Lovable-style cards */}
               <div className="w-full max-w-sm">
                 <p className="text-text-secondary text-xs font-medium mb-2 text-right">התחל מתבנית מוכנה</p>
                 <div className="grid grid-cols-2 gap-2">
@@ -588,13 +590,12 @@ export default function ChatInterface({
                       key={t.id}
                       onClick={() => {
                         setInput(t.prompt);
-                        // Auto-submit after a tick
                         setTimeout(() => handleSubmit(t.prompt), 50);
                       }}
                       disabled={isGenerating}
-                      className={`flex items-center gap-2.5 p-3 rounded-xl border bg-gradient-to-br text-right transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 ${t.gradient} ${t.border}`}
+                      className="flex items-center gap-2.5 p-3 rounded-xl border border-border/50 bg-surface/40 text-right transition-all hover:bg-surface/70 hover:border-primary/30 active:scale-[0.98] disabled:opacity-40"
                     >
-                      <div className="w-9 h-9 rounded-lg bg-white/60 flex items-center justify-center flex-shrink-0 text-lg shadow-sm">
+                      <div className="w-9 h-9 rounded-lg bg-surface/60 border border-border/30 flex items-center justify-center flex-shrink-0 text-lg">
                         {t.emoji}
                       </div>
                       <div className="min-w-0">
@@ -620,9 +621,9 @@ export default function ChatInterface({
                     key={f.title}
                     onClick={f.action}
                     disabled={f.disabled || isGenerating}
-                    className={`flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl border bg-gradient-to-br transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 ${f.color}`}
+                    className="flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border/50 bg-surface/30 transition-all hover:bg-surface/50 hover:border-primary/30 active:scale-[0.98] disabled:opacity-40"
                   >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-base ${f.iconBg}`}>
+                    <div className="w-8 h-8 rounded-lg bg-surface/40 flex items-center justify-center text-base">
                       {f.icon}
                     </div>
                     <p className="font-medium text-text-primary text-xs">{f.title}</p>
@@ -638,8 +639,10 @@ export default function ChatInterface({
               className={`flex animate-fade-in-up ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-lg bg-gradient-primary flex-shrink-0 flex items-center justify-center mr-3 mt-1 shadow-glow">
-                  <span className="text-white font-display font-bold text-xs">AI</span>
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex-shrink-0 flex items-center justify-center mr-3 mt-1 shadow-sm shadow-violet-500/20">
+                  <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                  </svg>
                 </div>
               )}
 
@@ -682,8 +685,8 @@ export default function ChatInterface({
                   <div
                     className={`px-4 py-3 rounded-2xl ${
                       msg.role === 'user'
-                        ? 'bg-gradient-primary text-white rounded-tr-sm'
-                        : 'glass-card text-text-primary rounded-tl-sm'
+                        ? 'bg-primary text-white rounded-tr-sm'
+                        : 'bg-surface/60 border border-border/30 text-text-primary rounded-tl-sm'
                     }`}
                     dir="rtl"
                   >
@@ -782,8 +785,8 @@ export default function ChatInterface({
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input area */}
-        <div className="p-4 border-t border-border">
+        {/* Input area — Lovable-style */}
+        <div className="p-4 border-t border-border/30">
           {/* Image preview */}
           {imagePreview && (
             <div className="flex items-center gap-2 mb-2 px-1">
@@ -835,8 +838,8 @@ export default function ChatInterface({
             </div>
           )}
 
-          {/* Main input row */}
-          <div className="flex items-end gap-2 p-3 rounded-2xl bg-white border border-border focus-within:border-primary focus-within:shadow-soft transition-all">
+          {/* Main input row — Lovable-style dark glass input */}
+          <div className="flex items-end gap-2 p-3 rounded-2xl bg-surface/60 border border-border/50 focus-within:border-primary/50 focus-within:shadow-[0_0_0_1px_rgba(139,92,246,0.2)] transition-all">
             {/* Viral feature buttons */}
             <div className="flex items-center gap-1 flex-shrink-0 mb-0.5">
               {/* Screenshot */}
@@ -902,7 +905,7 @@ export default function ChatInterface({
             <button
               onClick={() => handleSubmit()}
               disabled={(!input.trim() && !imageBase64) || isGenerating}
-              className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-primary text-white flex items-center justify-center hover:opacity-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-glow"
+              className="flex-shrink-0 w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">

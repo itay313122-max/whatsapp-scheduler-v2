@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -77,6 +78,12 @@ const config: Config = {
         'error-light': '#fee2e2',
         'info': '#3b82f6',
         'info-light': '#dbeafe',
+        'dark-bg': '#0A0A0B',
+        'dark-surface': '#141416',
+        'dark-surface-2': '#1A1A1E',
+        'dark-border': '#2A2A2E',
+        'dark-text': '#F9FAFB',
+        'dark-text-secondary': '#9CA3AF',
       },
       fontFamily: {
         display: ['var(--font-jakarta)', 'Plus Jakarta Sans', 'sans-serif'],
@@ -103,7 +110,7 @@ const config: Config = {
         'elevation-3': '0 4px 8px rgba(0,0,0,0.06), 0 8px 16px rgba(0,0,0,0.1)',
         'elevation-4': '0 8px 16px rgba(0,0,0,0.08), 0 16px 32px rgba(0,0,0,0.12)',
         'elevation-5': '0 12px 24px rgba(0,0,0,0.1), 0 24px 48px rgba(0,0,0,0.15)',
-        'glass': '0 8px 32px rgba(31,38,135,0.15)',
+        'glass': '0 8px 32px rgba(0,0,0,0.3)',
       },
       transitionTimingFunction: {
         'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
