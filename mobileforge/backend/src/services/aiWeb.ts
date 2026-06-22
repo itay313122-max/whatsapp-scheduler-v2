@@ -19,7 +19,7 @@ interface ChatMessage { role: string; content: string; }
 async function callGroq(messages: ChatMessage[]): Promise<string> {
   const response = await client.chat.completions.create({
     model: MODEL,
-    max_tokens: 8000,
+    max_tokens: 16000,
     messages: messages as Parameters<typeof client.chat.completions.create>[0]['messages'],
   });
   return response.choices[0]?.message?.content ?? '';
@@ -42,7 +42,7 @@ async function callGemini(messages: ChatMessage[]): Promise<string> {
       body: JSON.stringify({
         contents,
         ...(systemMsg && { systemInstruction: { parts: [{ text: systemMsg.content }] } }),
-        generationConfig: { maxOutputTokens: 8192, temperature: 0.7 },
+        generationConfig: { maxOutputTokens: 16384, temperature: 0.7 },
       }),
     }
   );
@@ -73,7 +73,7 @@ async function callOpenRouter(messages: ChatMessage[]): Promise<string> {
     body: JSON.stringify({
       model: 'meta-llama/llama-3.1-8b-instruct:free',
       messages,
-      max_tokens: 8000,
+      max_tokens: 16000,
     }),
   });
   if (!res.ok) {
@@ -411,12 +411,97 @@ RESPONSIVE:
 - Use grid-2, grid-3 for phone; grid-tablet-3, grid-tablet-4 for tablet.
 - app-shell expands to full width on tablet automatically.
 
+━━━ ADVANCED CAPABILITIES — NO LIMITATIONS ━━━
+You are NOT limited to simple UI apps. Generate COMPLEX, FEATURE-RICH apps.
+
+DEVICE & BROWSER APIs — use freely when relevant:
+  STEP COUNTER / PEDOMETER:
+    Use DeviceMotionEvent: window.addEventListener('devicemotion', handler).
+    Detect steps via acceleration threshold (>1.2g spike).
+    const [steps, setSteps] = useState(0);
+    Request permission on iOS: DeviceMotionEvent.requestPermission?.().
+    Fall back to manual input if sensors unavailable.
+
+  GEOLOCATION:
+    navigator.geolocation.getCurrentPosition / watchPosition.
+    Show coordinates, calculate distances, track movement.
+
+  CAMERA:
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).
+    Display in <video> element. Capture frame to <canvas>.
+
+  NOTIFICATIONS:
+    Notification.requestPermission(). new Notification(title, { body, icon }).
+    Use for reminders, achievements, alerts.
+
+  VIBRATION:
+    navigator.vibrate(200) for haptic feedback on actions.
+
+  SPEECH:
+    SpeechSynthesis: window.speechSynthesis.speak(new SpeechSynthesisUtterance(text)).
+    SpeechRecognition: for voice input.
+
+  SHARE:
+    navigator.share({ title, text, url }) for native sharing.
+
+DATA PERSISTENCE — use localStorage for ALL user data:
+  Save: localStorage.setItem('app-data', JSON.stringify(state));
+  Load: JSON.parse(localStorage.getItem('app-data') || 'null');
+  Auto-save on every state change via useEffect.
+  This makes apps REAL — data survives page refresh.
+
+  useEffect(() => {
+    const saved = localStorage.getItem('myapp-data');
+    if (saved) { try { setState(JSON.parse(saved)); } catch {} }
+  }, []);
+  useEffect(() => {
+    localStorage.setItem('myapp-data', JSON.stringify(state));
+  }, [state]);
+
+GAMIFICATION — implement when relevant:
+  Points system: actions earn points (steps, completions, streaks).
+  Levels: point thresholds unlock new levels/titles.
+  Achievements/badges: milestone rewards with emoji icons.
+  Streaks: consecutive day tracking with streak counter.
+  Leaderboard: local ranking with mock data.
+  Progress bars: visual XP/level progress.
+  Animations: confetti on achievement, bounce on level up.
+
+COMPLEX STATE PATTERNS:
+  Reducer pattern for complex state:
+    const reducer = (state, action) => { switch(action.type) {...} };
+    const [state, dispatch] = React.useReducer(reducer, initialState);
+
+  Computed values with useMemo:
+    const stats = useMemo(() => calculateStats(data), [data]);
+
+  Timers and intervals:
+    useEffect with setInterval for real-time updates.
+    Cleanup: return () => clearInterval(id);
+
+  Drag and drop: onTouchStart/onTouchMove/onTouchEnd handlers.
+
+COMPLEX APP PATTERNS — use for sophisticated requests:
+  MULTI-STEP WIZARDS: step state + progress bar + validation per step.
+  REAL-TIME DASHBOARDS: multiple stat cards + charts updating via intervals.
+  SOCIAL FEATURES: likes, comments, shares, follow/unfollow, stories.
+  E-COMMERCE: cart, checkout flow, order tracking, coupons, favorites.
+  HEALTH/FITNESS: tracking, goals, history charts, daily/weekly views.
+  FINANCE: transactions, budgets, categories, pie charts, trends.
+  EDUCATION: courses, lessons, quizzes, progress, certificates.
+  PRODUCTIVITY: kanban boards, timers, pomodoro, notes, calendars.
+
+THERE ARE NO LIMITS on complexity. If the user asks for it, BUILD IT.
+Generate as much code as needed. Use multiple helper components.
+The app should feel REAL and COMPLETE, not a demo or mockup.
+
 ━━━ CONTENT RULES ━━━
 - Hebrew if user writes Hebrew; add dir="rtl" to app-shell div
-- 3-5 realistic sample data items with real content (not lorem ipsum)
+- Generate RICH sample data: 5-10 realistic items, not just 3
 - All navigation works (useState)
 - Emoji as icons, no libraries
 - Empty state for every list (use .empty-state)
+- localStorage persistence for user data when relevant
 
 ━━━ INTERACTIVITY — MANDATORY ━━━
 Every button MUST have a working onClick handler.
@@ -873,7 +958,7 @@ export async function* streamGenerateWebApp(
   try {
   const stream = await client.chat.completions.create({
     model: MODEL,
-    max_tokens: 8000,
+    max_tokens: 16000,
     stream: true,
     messages: msgs,
   });
