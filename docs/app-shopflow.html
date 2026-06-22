@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#6366f1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>ShopFlow - חנות אונליין</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --c-from: #6366f1;
+  --c-to: #8b5cf6;
+  --c-primary: #6366f1;
+  --c-bg: #f8f9fc;
+  --c-card: #ffffff;
+  --c-text: #1e1e2e;
+  --c-text-secondary: #6b7280;
+  --c-border: #e5e7eb;
+  --c-success: #10b981;
+  --c-danger: #ef4444;
+  --radius: 16px;
+  --shadow: 0 4px 16px rgba(99, 102, 241, 0.1);
+  --shadow-lg: 0 8px 32px rgba(99, 102, 241, 0.15);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--c-bg);
+  color: var(--c-text);
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  padding: 48px 20px 24px;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.header p {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* Search Bar */
+.search-container {
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: var(--c-bg);
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--c-card);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--c-border);
+  transition: var(--transition);
+}
+
+.search-bar:focus-within {
+  border-color: var(--c-primary);
+  box-shadow: var(--shadow-lg);
+}
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  background: transparent;
+  color: var(--c-text);
+  direction: rtl;
+}
+
+.search-bar input::placeholder {
+  color: var(--c-text-secondary);
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  opacity: 0.5;
+}
+
+/* Tab Content */
+.tab-content {
+  padding-bottom: 90px;
+  min-height: calc(100vh - 200px);
+}
+
+.tab-page {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.tab-page.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Product Grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 0 20px 20px;
+}
+
+.product-card {
+  background: var(--c-card);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.product-card:active {
+  transform: scale(0.96);
+}
+
+.product-emoji {
+  font-size: 48px;
+  margin-bottom: 12px;
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.product-card:hover .product-emoji {
+  transform: scale(1.1);
+}
+
+.product-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--c-text);
+}
+
+.product-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--c-primary);
+  margin-bottom: 12px;
+}
+
+.add-to-cart-btn {
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.add-to-cart-btn:active {
+  transform: scale(0.92);
+}
+
+.add-to-cart-btn.added {
+  background: var(--c-success);
+  animation: springPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes springPop {
+  0% { transform: scale(0.92); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 420px;
+  background: var(--c-card);
+  border-top: 1px solid var(--c-border);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  z-index: 1000;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  min-height: 44px;
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--c-text-secondary);
+  transition: var(--transition);
+  position: relative;
+  border-radius: 12px;
+}
+
+.nav-item.active {
+  color: var(--c-primary);
+}
+
+.nav-item:active {
+  transform: scale(0.9);
+}
+
+.nav-item svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 3px;
+}
+
+.nav-item span {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.nav-badge {
+  position: absolute;
+  top: 2px;
+  right: 12px;
+  background: var(--c-danger);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  opacity: 0;
+  transform: scale(0);
+  transition: var(--transition);
+}
+
+.nav-badge.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.nav-badge.bounce {
+  animation: badgeBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes badgeBounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.5); }
+  50% { transform: scale(0.8); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Cart View */
+.cart-page {
+  padding: 20px;
+}
+
+.cart-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--c-text-secondary);
+}
+
+.cart-empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.cart-empty h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: var(--c-text);
+}
+
+.cart-item {
+  background: var(--c-card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.cart-item-emoji {
+  font-size: 36px;
+  flex-shrink: 0;
+}
+
+.cart-item-details {
+  flex: 1;
+}
+
+.cart-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.cart-item-price {
+  font-size: 14px;
+  color: var(--c-primary);
+  font-weight: 600;
+}
+
+.cart-item-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qty-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--c-border);
+  background: var(--c-card);
+  color: var(--c-text);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.qty-btn:active {
+  transform: scale(0.85);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+
+.qty-value {
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+}
+
+.cart-total {
+  background: var(--c-card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-total-label {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cart-total-price {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--c-primary);
+}
+
+.checkout-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  min-height: 52px;
+  transition: var(--transition);
+}
+
+.checkout-btn:active {
+  transform: scale(0.97);
+}
+
+/* Profile Page */
+.profile-page {
+  padding: 20px;
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: white;
+  box-shadow: var(--shadow-lg);
+}
+
+.profile-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.profile-email {
+  font-size: 14px;
+  color: var(--c-text-secondary);
+  margin-bottom: 24px;
+}
+
+.profile-menu-item {
+  background: var(--c-card);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: right;
+  cursor: pointer;
+  transition: var(--transition);
+  min-height: 52px;
+}
+
+.profile-menu-item:active {
+  transform: scale(0.98);
+}
+
+.profile-menu-icon {
+  font-size: 20px;
+}
+
+.profile-menu-text {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Category chips */
+.categories {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.categories::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--transition);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.chip.active {
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  color: white;
+  border-color: transparent;
+}
+
+.chip:active {
+  transform: scale(0.95);
+}
+
+/* Section title */
+.section-title {
+  padding: 0 20px 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* No results */
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--c-text-secondary);
+}
+
+.no-results-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--c-text);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2000;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>ShopFlow</h1>
+  <p>הקניות שלך, פשוט יותר</p>
+</div>
+
+<!-- Tab Pages -->
+<div class="tab-content">
+  <!-- Home Page -->
+  <div class="tab-page active" id="page-home">
+    <div class="search-container">
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="חפש מוצרים..." oninput="filterProducts()">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </div>
+    </div>
+    <div class="categories">
+      <div class="chip active">הכל</div>
+      <div class="chip">אביזרים</div>
+      <div class="chip">אלקטרוניקה</div>
+      <div class="chip">אופנה</div>
+    </div>
+    <h2 class="section-title">מוצרים מומלצים</h2>
+    <div class="products-grid" id="products-grid"></div>
+    <div class="no-results" id="no-results" style="display:none;">
+      <div class="no-results-icon">🔍</div>
+      <p>לא נמצאו מוצרים</p>
+    </div>
+  </div>
+
+  <!-- Search Page -->
+  <div class="tab-page" id="page-search">
+    <div class="search-container">
+      <div class="search-bar">
+        <input type="text" id="search-input-2" placeholder="חפש מוצרים..." oninput="filterProductsFromSearch()">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </div>
+    </div>
+    <h2 class="section-title">תוצאות חיפוש</h2>
+    <div class="products-grid" id="search-products-grid"></div>
+    <div class="no-results" id="search-no-results" style="display:none;">
+      <div class="no-results-icon">🔍</div>
+      <p>הקלד לחיפוש מוצרים</p>
+    </div>
+  </div>
+
+  <!-- Cart Page -->
+  <div class="tab-page" id="page-cart">
+    <div class="cart-page" id="cart-content"></div>
+  </div>
+
+  <!-- Profile Page -->
+  <div class="tab-page" id="page-profile">
+    <div class="profile-page">
+      <div class="profile-avatar">👤</div>
+      <div class="profile-name">משתמש ShopFlow</div>
+      <div class="profile-email">shopflow@example.com</div>
+      <div class="profile-menu-item">
+        <span class="profile-menu-icon">📦</span>
+        <span class="profile-menu-text">ההזמנות שלי</span>
+      </div>
+      <div class="profile-menu-item">
+        <span class="profile-menu-icon">❤️</span>
+        <span class="profile-menu-text">מועדפים</span>
+      </div>
+      <div class="profile-menu-item">
+        <span class="profile-menu-icon">📍</span>
+        <span class="profile-menu-text">כתובות משלוח</span>
+      </div>
+      <div class="profile-menu-item">
+        <span class="profile-menu-icon">💳</span>
+        <span class="profile-menu-text">אמצעי תשלום</span>
+      </div>
+      <div class="profile-menu-item">
+        <span class="profile-menu-icon">⚙️</span>
+        <span class="profile-menu-text">הגדרות</span>
+      </div>
+      <div class="profile-menu-item">
+        <span class="profile-menu-icon">🚪</span>
+        <span class="profile-menu-text">התנתקות</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="switchTab('home')" data-tab="home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>
+    </svg>
+    <span>ראשי</span>
+  </button>
+  <button class="nav-item" onclick="switchTab('search')" data-tab="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <span>חיפוש</span>
+  </button>
+  <button class="nav-item" onclick="switchTab('cart')" data-tab="cart">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+    </svg>
+    <span>עגלה</span>
+    <div class="nav-badge" id="cart-badge">0</div>
+  </button>
+  <button class="nav-item" onclick="switchTab('profile')" data-tab="profile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg>
+    <span>פרופיל</span>
+  </button>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// Product data
+const products = [
+  { id: 1, name: 'נעלי ספורט', emoji: '👟', price: 299 },
+  { id: 2, name: 'תיק יד', emoji: '👜', price: 189 },
+  { id: 3, name: 'שעון חכם', emoji: '⌚', price: 449 },
+  { id: 4, name: 'אוזניות', emoji: '🎧', price: 179 },
+  { id: 5, name: 'משקפי שמש', emoji: '🕶️', price: 159 },
+  { id: 6, name: 'כובע', emoji: '🧢', price: 89 }
+];
+
+// Cart state
+let cart = [];
+
+// Initialize
+function init() {
+  renderProducts(products, 'products-grid');
+  renderProducts(products, 'search-products-grid');
+  renderCart();
+}
+
+// Render products grid
+function renderProducts(productList, containerId) {
+  const grid = document.getElementById(containerId);
+  if (productList.length === 0) {
+    grid.innerHTML = '';
+    if (containerId === 'products-grid') {
+      document.getElementById('no-results').style.display = 'block';
+    } else {
+      document.getElementById('search-no-results').style.display = 'block';
+    }
+    return;
+  }
+
+  if (containerId === 'products-grid') {
+    document.getElementById('no-results').style.display = 'none';
+  } else {
+    document.getElementById('search-no-results').style.display = 'none';
+  }
+
+  grid.innerHTML = productList.map(product => `
+    <div class="product-card">
+      <div class="product-emoji">${product.emoji}</div>
+      <div class="product-name">${product.name}</div>
+      <div class="product-price">₪${product.price}</div>
+      <button class="add-to-cart-btn" onclick="addToCart(${product.id}, this)" id="btn-${containerId}-${product.id}">
+        הוסף לעגלה +
+      </button>
+    </div>
+  `).join('');
+}
+
+// Add to cart
+function addToCart(productId, btnElement) {
+  const product = products.find(p => p.id === productId);
+  const existingItem = cart.find(item => item.id === productId);
+
+  if (existingItem) {
+    existingItem.quantity++;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+
+  // Button animation
+  btnElement.classList.add('added');
+  btnElement.textContent = '✓ נוסף!';
+  setTimeout(() => {
+    btnElement.classList.remove('added');
+    btnElement.textContent = 'הוסף לעגלה +';
+  }, 1200);
+
+  updateCartBadge();
+  showToast(`${product.name} נוסף לעגלה`);
+}
+
+// Update cart badge
+function updateCartBadge() {
+  const badge = document.getElementById('cart-badge');
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  badge.textContent = totalItems;
+
+  if (totalItems > 0) {
+    badge.classList.add('visible');
+    badge.classList.remove('bounce');
+    void badge.offsetWidth; // trigger reflow
+    badge.classList.add('bounce');
+  } else {
+    badge.classList.remove('visible');
+  }
+}
+
+// Render cart
+function renderCart() {
+  const container = document.getElementById('cart-content');
+
+  if (cart.length === 0) {
+    container.innerHTML = `
+      <div class="cart-empty">
+        <div class="cart-empty-icon">🛒</div>
+        <h3>העגלה ריקה</h3>
+        <p>הוסף מוצרים לעגלה כדי להתחיל</p>
+      </div>
+    `;
+    return;
+  }
+
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  container.innerHTML = `
+    <h2 class="section-title" style="padding:0 0 12px;">העגלה שלי</h2>
+    ${cart.map(item => `
+      <div class="cart-item">
+        <div class="cart-item-emoji">${item.emoji}</div>
+        <div class="cart-item-details">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">₪${item.price * item.quantity}</div>
+        </div>
+        <div class="cart-item-controls">
+          <button class="qty-btn" onclick="changeQuantity(${item.id}, -1)">−</button>
+          <span class="qty-value">${item.quantity}</span>
+          <button class="qty-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+        </div>
+      </div>
+    `).join('')}
+    <div class="cart-total">
+      <span class="cart-total-label">סה"כ לתשלום</span>
+      <span class="cart-total-price">₪${total}</span>
+    </div>
+    <button class="checkout-btn" onclick="checkout()">לתשלום</button>
+  `;
+}
+
+// Change quantity
+function changeQuantity(productId, delta) {
+  const item = cart.find(i => i.id === productId);
+  if (!item) return;
+
+  item.quantity += delta;
+  if (item.quantity <= 0) {
+    cart = cart.filter(i => i.id !== productId);
+  }
+
+  updateCartBadge();
+  renderCart();
+}
+
+// Checkout
+function checkout() {
+  showToast('ההזמנה נשלחה בהצלחה! 🎉');
+  cart = [];
+  updateCartBadge();
+  renderCart();
+}
+
+// Filter products (home page)
+function filterProducts() {
+  const query = document.getElementById('search-input').value.trim();
+  const filtered = products.filter(p => p.name.includes(query));
+  renderProducts(filtered, 'products-grid');
+}
+
+// Filter products (search page)
+function filterProductsFromSearch() {
+  const query = document.getElementById('search-input-2').value.trim();
+  if (query === '') {
+    renderProducts(products, 'search-products-grid');
+    return;
+  }
+  const filtered = products.filter(p => p.name.includes(query));
+  renderProducts(filtered, 'search-products-grid');
+}
+
+// Switch tabs
+function switchTab(tabName) {
+  // Hide all pages
+  document.querySelectorAll('.tab-page').forEach(page => {
+    page.classList.remove('active');
+  });
+
+  // Deactivate all nav items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+
+  // Show target page
+  document.getElementById(`page-${tabName}`).classList.add('active');
+
+  // Activate nav item
+  document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+  // Re-render cart when switching to cart tab
+  if (tabName === 'cart') {
+    renderCart();
+  }
+
+  // Focus search input when switching to search tab
+  if (tabName === 'search') {
+    setTimeout(() => {
+      document.getElementById('search-input-2').focus();
+    }, 300);
+  }
+}
+
+// Show toast
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2000);
+}
+
+// Initialize app
+init();
+</script>
+</body>
+</html>
