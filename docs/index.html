@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#6C3AE8"/>
+<title>MobileForge — דוגמאות אפליקציות</title>
+<link rel="manifest" href="manifest.json"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#6C3AE8;--bg:#f8f7ff;--surface:#fff;--text:#1a1a2e;--text2:#64748b;--border:#e2e8f0;--radius:16px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:linear-gradient(135deg,#6C3AE8,#8B5CF6,#A78BFA);color:#fff;padding:60px 24px 32px;text-align:center}
+.header h1{font-size:28px;font-weight:800;margin-bottom:4px}
+.header p{font-size:14px;opacity:.85}
+.logo{width:56px;height:56px;background:rgba(255,255,255,.2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;font-weight:800;backdrop-filter:blur(8px)}
+.apps{padding:20px 16px;display:flex;flex-direction:column;gap:16px;max-width:480px;margin:0 auto}
+.app-card{background:var(--surface);border-radius:20px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.08);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.app-card:active{transform:scale(.97)}
+.app-card a{text-decoration:none;color:inherit;display:block}
+.app-preview{height:200px;position:relative;overflow:hidden}
+.app-preview iframe{width:420px;height:800px;border:none;transform:scale(.48);transform-origin:top left;pointer-events:none}
+.app-info{padding:16px}
+.app-name{font-size:18px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.app-desc{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:12px}
+.app-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600;background:rgba(108,58,232,.08);color:var(--primary)}
+.open-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#6C3AE8,#8B5CF6);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px;box-shadow:0 4px 14px rgba(108,58,232,.3);transition:transform .15s}
+.open-btn:active{transform:scale(.96)}
+.footer{text-align:center;padding:32px 16px;color:var(--text2);font-size:12px}
+.badge{position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(255,255,255,.9);color:var(--primary);backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">M</div>
+  <h1>MobileForge</h1>
+  <p>אפליקציות שנוצרו ב-AI — פתח ונסה</p>
+</div>
+
+<div class="apps">
+
+  <div class="app-card">
+    <a href="app-shopflow.html">
+      <div class="app-preview" style="background:linear-gradient(135deg,#6366f1,#a78bfa)">
+        <div class="badge">🛍️ חנות</div>
+        <iframe src="app-shopflow.html" loading="lazy"></iframe>
+      </div>
+      <div class="app-info">
+        <div class="app-name">🛍️ ShopFlow</div>
+        <div class="app-desc">חנות אונליין מעוצבת עם קטלוג מוצרים, סל קניות וניווט תחתון</div>
+        <div class="app-tags">
+          <span class="tag">קטלוג</span>
+          <span class="tag">סל קניות</span>
+          <span class="tag">ניווט</span>
+        </div>
+        <button class="open-btn">פתח אפליקציה →</button>
+      </div>
+    </a>
+  </div>
+
+  <div class="app-card">
+    <a href="app-taskmaster.html">
+      <div class="app-preview" style="background:linear-gradient(135deg,#2563eb,#60a5fa)">
+        <div class="badge">✅ משימות</div>
+        <iframe src="app-taskmaster.html" loading="lazy"></iframe>
+      </div>
+      <div class="app-info">
+        <div class="app-name">✅ TaskMaster</div>
+        <div class="app-desc">מנהל משימות חכם עם קטגוריות, סטטיסטיקה ופס התקדמות</div>
+        <div class="app-tags">
+          <span class="tag">משימות</span>
+          <span class="tag">סטטיסטיקה</span>
+          <span class="tag">התקדמות</span>
+        </div>
+        <button class="open-btn">פתח אפליקציה →</button>
+      </div>
+    </a>
+  </div>
+
+  <div class="app-card">
+    <a href="app-foodie.html">
+      <div class="app-preview" style="background:linear-gradient(135deg,#f97316,#fdba74)">
+        <div class="badge">🍕 אוכל</div>
+        <iframe src="app-foodie.html" loading="lazy"></iframe>
+      </div>
+      <div class="app-info">
+        <div class="app-name">🍕 Foodie</div>
+        <div class="app-desc">הזמנת אוכל ממסעדות עם תפריט, מבצעים וסטטוס משלוח</div>
+        <div class="app-tags">
+          <span class="tag">תפריט</span>
+          <span class="tag">הזמנות</span>
+          <span class="tag">משלוח</span>
+        </div>
+        <button class="open-btn">פתח אפליקציה →</button>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+<div class="footer">
+  ⚡ נבנה עם MobileForge AI<br/>
+  כל האפליקציות נוצרו אוטומטית מתיאור טקסטואלי
+</div>
+
+</body>
+</html>

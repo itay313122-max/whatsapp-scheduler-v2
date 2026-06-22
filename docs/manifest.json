@@ -1,0 +1,10 @@
+{
+  "name": "MobileForge Demos",
+  "short_name": "MobileForge",
+  "description": "Demo apps built with MobileForge AI",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f8f7ff",
+  "theme_color": "#6C3AE8",
+  "icons": []
+}
