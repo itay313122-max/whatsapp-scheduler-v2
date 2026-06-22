@@ -4,105 +4,45 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#2563eb">
+<meta name="theme-color" content="#fafafa">
 <meta name="application-name" content="TaskMaster">
 <meta name="apple-mobile-web-app-title" content="TaskMaster">
-<meta name="description" content="TaskMaster - ניהול משימות חכם">
+<meta name="description" content="TaskMaster - ניהול משימות">
 <meta name="format-detection" content="telephone=no">
-<link rel="manifest" href="data:application/json,{}">
-<title>TaskMaster - ניהול משימות</title>
+<title>TaskMaster</title>
 <style>
-/* ── CSS Variables & Theme ── */
 :root {
-  --c-from: #2563eb;
-  --c-to: #3b82f6;
-  --c-primary: #2563eb;
-  --c-primary-light: #dbeafe;
-  --c-primary-dark: #1d4ed8;
-  --c-accent: #818cf8;
-  --c-bg: #f0f4ff;
-  --c-bg-elevated: #ffffff;
-  --c-card: #ffffff;
-  --c-card-hover: #f8fafc;
-  --c-text: #1e293b;
-  --c-text-secondary: #64748b;
-  --c-text-light: #94a3b8;
-  --c-border: #e2e8f0;
-  --c-success: #22c55e;
-  --c-success-light: #dcfce7;
-  --c-warning: #f59e0b;
-  --c-warning-light: #fef3c7;
-  --c-danger: #ef4444;
-  --c-danger-light: #fee2e2;
-  --c-orange: #f97316;
-  --c-orange-light: #fff7ed;
-  --c-glass-bg: rgba(255,255,255,0.12);
-  --c-glass-border: rgba(255,255,255,0.18);
-  --c-glass-card-bg: rgba(255,255,255,0.72);
-  --c-glass-card-border: rgba(255,255,255,0.5);
-  --c-nav-bg: rgba(255,255,255,0.78);
-  --c-nav-border: rgba(255,255,255,0.5);
-  --c-filter-bg: rgba(255,255,255,0.65);
-  --c-shimmer: rgba(255,255,255,0.4);
-  --c-glow-number: rgba(37,99,235,0.5);
-  --c-input-bg: #f0f4ff;
-  --c-input-focus-bg: #ffffff;
-  --c-toast-bg: #1e293b;
-  --c-toast-text: #ffffff;
-  --radius: 20px;
-  --radius-sm: 14px;
-  --radius-xs: 10px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
-  --shadow-lg: 0 4px 6px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.06);
-  --shadow-xl: 0 8px 24px rgba(0,0,0,0.08), 0 24px 48px rgba(0,0,0,0.06);
-  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --bg: #fafafa;
+  --bg-card: #ffffff;
+  --text-primary: #1d1d1f;
+  --text-secondary: #86868b;
+  --text-tertiary: #aeaeb2;
+  --accent: #007AFF;
+  --separator: #f0f0f0;
+  --nav-bg: rgba(250,250,250,0.92);
+  --checkbox-border: #d1d1d6;
+  --tag-bg: #f2f2f7;
+  --tag-text: #86868b;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --c-from: #3b82f6;
-    --c-to: #60a5fa;
-    --c-primary: #60a5fa;
-    --c-primary-light: rgba(59,130,246,0.15);
-    --c-primary-dark: #3b82f6;
-    --c-accent: #a5b4fc;
-    --c-bg: #0f172a;
-    --c-bg-elevated: #1e293b;
-    --c-card: #1e293b;
-    --c-card-hover: #253348;
-    --c-text: #f1f5f9;
-    --c-text-secondary: #94a3b8;
-    --c-text-light: #64748b;
-    --c-border: rgba(148,163,184,0.12);
-    --c-success: #4ade80;
-    --c-success-light: rgba(74,222,128,0.12);
-    --c-warning: #fbbf24;
-    --c-warning-light: rgba(251,191,36,0.12);
-    --c-danger: #f87171;
-    --c-danger-light: rgba(248,113,113,0.12);
-    --c-orange: #fb923c;
-    --c-orange-light: rgba(251,146,60,0.12);
-    --c-glass-bg: rgba(255,255,255,0.06);
-    --c-glass-border: rgba(255,255,255,0.1);
-    --c-glass-card-bg: rgba(30,41,59,0.72);
-    --c-glass-card-border: rgba(148,163,184,0.12);
-    --c-nav-bg: rgba(15,23,42,0.82);
-    --c-nav-border: rgba(148,163,184,0.1);
-    --c-filter-bg: rgba(30,41,59,0.65);
-    --c-shimmer: rgba(255,255,255,0.12);
-    --c-glow-number: rgba(96,165,250,0.6);
-    --c-input-bg: rgba(15,23,42,0.6);
-    --c-input-focus-bg: #0f172a;
-    --c-toast-bg: #f1f5f9;
-    --c-toast-text: #0f172a;
+    --bg: #000000;
+    --bg-card: #000000;
+    --text-primary: #f5f5f7;
+    --text-secondary: #98989d;
+    --text-tertiary: #636366;
+    --accent: #0A84FF;
+    --separator: #1c1c1e;
+    --nav-bg: rgba(0,0,0,0.92);
+    --checkbox-border: #48484a;
+    --tag-bg: #1c1c1e;
+    --tag-text: #98989d;
   }
 }
 
-/* ── Reset ── */
 * {
   margin: 0;
   padding: 0;
@@ -116,10 +56,10 @@ html, body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
-  background: var(--c-bg);
-  color: var(--c-text);
-  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.5;
   direction: rtl;
   max-width: 420px;
   margin: 0 auto;
@@ -131,798 +71,318 @@ body {
 
 body::-webkit-scrollbar { width: 0; }
 
-/* ── Keyframes ── */
-@keyframes springIn {
-  0% { opacity: 0; transform: translateX(40px) scale(0.92); }
-  60% { opacity: 1; transform: translateX(-6px) scale(1.02); }
-  80% { transform: translateX(2px) scale(0.99); }
-  100% { opacity: 1; transform: translateX(0) scale(1); }
-}
-
-@keyframes springInFromRight {
-  0% { opacity: 0; transform: translateX(80px) scale(0.88); }
-  50% { opacity: 1; transform: translateX(-10px) scale(1.03); }
-  70% { transform: translateX(4px) scale(0.99); }
-  100% { opacity: 1; transform: translateX(0) scale(1); }
-}
-
-@keyframes slideOutLeft {
-  0% { opacity: 1; transform: translateX(0) scale(1); }
-  30% { transform: translateX(12px) scale(1.01); }
-  100% { opacity: 0; transform: translateX(-120px) scale(0.85); max-height: 0; padding: 0; margin: 0; overflow: hidden; }
-}
-
-@keyframes checkSpring {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.25); }
-  70% { transform: scale(0.95); }
-  100% { transform: scale(1); }
-}
-
-@keyframes confettiBurst {
-  0% { transform: translate(0,0) scale(1) rotate(0deg); opacity: 1; }
-  70% { opacity: 0.8; }
-  100% { opacity: 0; }
-}
-
-@keyframes shimmerSlide {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-@keyframes glowPulse {
-  0%, 100% { text-shadow: 0 0 8px var(--c-glow-number); }
-  50% { text-shadow: 0 0 20px var(--c-glow-number); }
-}
-
-@keyframes fabGlow {
-  0%, 100% { box-shadow: 0 4px 20px rgba(37,99,235,0.4), 0 0 0 0 rgba(129,140,248,0); }
-  50% { box-shadow: 0 4px 28px rgba(37,99,235,0.55), 0 0 40px 4px rgba(129,140,248,0.2); }
-}
-
-@keyframes iconFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-
-@keyframes iconPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.08); opacity: 0.85; }
-}
-
-@keyframes iconBounce {
-  0%, 100% { transform: translateY(0); }
-  25% { transform: translateY(-4px); }
-  50% { transform: translateY(0); }
-  75% { transform: translateY(-2px); }
-}
-
-@keyframes orbDrift1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(18px, -12px) scale(1.06); }
-  66% { transform: translate(-12px, 10px) scale(0.94); }
-}
-
-@keyframes orbDrift2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-14px, 14px) scale(1.1); }
-  66% { transform: translate(10px, -16px) scale(0.9); }
-}
-
-@keyframes orbDrift3 {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(12px, 12px) scale(1.12); }
-}
-
-@keyframes filterIndicatorSlide {
-  0% { transform: scaleX(0.5); opacity: 0.5; }
-  60% { transform: scaleX(1.06); }
-  100% { transform: scaleX(1); opacity: 1; }
-}
-
-@keyframes emptyFloat {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-14px) rotate(2deg); }
-}
-
-@keyframes emptyOrb {
-  0%, 100% { transform: scale(1); opacity: 0.4; }
-  50% { transform: scale(1.25); opacity: 0.7; }
-}
-
-@keyframes statCardGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
-  50% { box-shadow: 0 0 16px 2px rgba(255,255,255,0.12); }
-}
-
-/* ── Glass Mixin Classes ── */
-.glass {
-  background: var(--c-glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--c-glass-border);
-  border-radius: 20px;
-}
-
-.glass-card {
-  background: var(--c-glass-card-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--c-glass-card-border);
-  border-radius: var(--radius);
-}
-
-/* ── Header ── */
+/* Header */
 .header {
-  background: linear-gradient(135deg, var(--c-from) 0%, var(--c-to) 45%, var(--c-accent) 100%);
-  padding: 22px 20px 34px;
-  position: relative;
-  overflow: hidden;
-}
-
-.header-orb {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.header-orb-1 {
-  top: -35px; left: -35px;
-  width: 130px; height: 130px;
-  background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.02) 70%);
-  animation: orbDrift1 9s ease-in-out infinite;
-}
-
-.header-orb-2 {
-  bottom: -30px; right: 15px;
-  width: 100px; height: 100px;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.01) 70%);
-  animation: orbDrift2 11s ease-in-out infinite;
-}
-
-.header-orb-3 {
-  top: 18px; right: 38%;
-  width: 55px; height: 55px;
-  background: radial-gradient(circle, rgba(255,255,255,0.09) 0%, transparent 70%);
-  animation: orbDrift3 7s ease-in-out infinite;
-}
-
-.header-orb-4 {
-  bottom: 35px; left: 28%;
-  width: 38px; height: 38px;
-  background: radial-gradient(circle, rgba(255,255,255,0.11) 0%, transparent 70%);
-  animation: orbDrift1 8s ease-in-out infinite reverse;
-}
-
-.header-orb-5 {
-  top: 45px; left: 68%;
-  width: 28px; height: 28px;
-  background: radial-gradient(circle, rgba(255,255,255,0.13) 0%, transparent 70%);
-  animation: orbDrift2 10s ease-in-out infinite;
+  padding: 16px 20px 0;
+  background: var(--bg);
 }
 
 .header-top {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-  position: relative;
-  z-index: 1;
+  align-items: flex-start;
+}
+
+.header-right {
+  flex: 1;
 }
 
 .header-title {
-  color: #fff;
-  font-size: 24px;
-  font-weight: 800;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
   letter-spacing: -0.5px;
 }
 
-.header-subtitle {
-  color: rgba(255,255,255,0.82);
+.header-date {
   font-size: 13px;
-  font-weight: 500;
+  color: var(--text-secondary);
+  font-weight: 400;
   margin-top: 2px;
 }
 
-.header-date {
-  color: rgba(255,255,255,0.92);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 7px 16px;
-  border-radius: 24px;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.18);
+.header-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 4px;
 }
 
-/* ── Stat Cards (Glass over header) ── */
+.header-avatar svg {
+  width: 18px;
+  height: 18px;
+  fill: #fff;
+}
+
+/* Stats */
 .stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  position: relative;
-  z-index: 1;
+  display: flex;
+  gap: 0;
+  padding: 20px 20px 0;
 }
 
-.stat-card {
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 16px;
-  padding: 16px 8px;
+.stat-item {
+  flex: 1;
   text-align: center;
-  transition: transform 0.2s var(--spring);
-  animation: statCardGlow 4s ease-in-out infinite;
 }
 
-.stat-card:nth-child(2) { animation-delay: 1.3s; }
-.stat-card:nth-child(3) { animation-delay: 2.6s; }
-
-.stat-card:active { transform: scale(0.95); }
+.stat-item:not(:last-child) {
+  border-left: 1px solid var(--separator);
+}
 
 .stat-number {
   font-size: 28px;
-  font-weight: 800;
-  color: #fff;
+  font-weight: 700;
+  color: var(--text-primary);
   line-height: 1.1;
-  animation: glowPulse 3s ease-in-out infinite;
-  --c-glow-number: rgba(255,255,255,0.35);
+  letter-spacing: -0.5px;
 }
 
 .stat-label {
   font-size: 11px;
-  color: rgba(255,255,255,0.85);
-  font-weight: 600;
+  color: var(--text-secondary);
+  font-weight: 500;
   margin-top: 4px;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.1px;
 }
 
-/* ── Progress Card (Glass, overlapping header) ── */
+/* Progress */
 .progress-section {
-  padding: 0 20px;
-  margin-top: -14px;
-  position: relative;
-  z-index: 2;
-}
-
-.progress-card {
-  background: var(--c-glass-card-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--c-glass-card-border);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  box-shadow: var(--shadow-lg);
+  padding: 18px 20px 0;
 }
 
 .progress-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .progress-title {
   font-size: 13px;
-  font-weight: 700;
-  color: var(--c-text);
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
 .progress-percent {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--c-primary);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .progress-bar-bg {
-  height: 10px;
-  background: var(--c-primary-light);
-  border-radius: 10px;
+  height: 4px;
+  background: var(--separator);
+  border-radius: 2px;
   overflow: hidden;
-  position: relative;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--c-from), var(--c-to), var(--c-accent));
-  background-size: 200% 100%;
-  border-radius: 10px;
-  transition: width 0.8s var(--spring);
-  position: relative;
-  overflow: hidden;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s ease;
 }
 
-/* Shimmer overlay on progress bar */
-.progress-bar-fill::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, var(--c-shimmer) 50%, transparent 100%);
-  animation: shimmerSlide 2s infinite linear;
-}
-
-/* ── Filter Tabs (Glass container) ── */
+/* Filter Tabs */
 .filter-section {
-  padding: 16px 20px 0;
+  padding: 20px 20px 0;
 }
 
 .filter-tabs {
   display: flex;
   gap: 0;
-  background: var(--c-filter-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--c-glass-card-border);
-  border-radius: 16px;
-  padding: 4px;
-  position: relative;
-  box-shadow: var(--shadow);
-}
-
-.filter-indicator {
-  position: absolute;
-  top: 4px;
-  height: calc(100% - 8px);
-  background: var(--c-primary);
-  border-radius: 12px;
-  transition: all 0.45s var(--spring);
-  box-shadow: 0 2px 12px rgba(37,99,235,0.35);
-  z-index: 0;
-  animation: filterIndicatorSlide 0.4s var(--spring);
+  border-bottom: 1px solid var(--separator);
 }
 
 .filter-tab {
   flex: 1;
-  padding: 10px 6px;
+  padding: 10px 0;
   border: none;
   background: transparent;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--c-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.3s ease;
   font-family: inherit;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
   position: relative;
-  z-index: 1;
+  transition: color 0.2s ease;
 }
 
 .filter-tab.active {
-  color: #fff;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.filter-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px 1px 0 0;
 }
 
 .filter-tab:not(.active):active {
-  background: var(--c-primary-light);
-  border-radius: 12px;
+  color: var(--text-secondary);
 }
 
-.filter-count {
-  font-size: 11px;
-  font-weight: 700;
-  background: rgba(255,255,255,0.25);
-  padding: 1px 7px;
-  border-radius: 8px;
-  min-width: 18px;
-  text-align: center;
-}
-
-.filter-tab:not(.active) .filter-count {
-  background: var(--c-border);
-  color: var(--c-text-secondary);
-}
-
-/* ── Add Task Section ── */
-.add-section {
-  padding: 14px 20px 0;
-}
-
-.add-card {
-  background: var(--c-card);
-  border-radius: var(--radius);
-  padding: 14px;
-  box-shadow: var(--shadow);
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  border: 1px solid var(--c-border);
-}
-
-.add-input-wrapper {
-  flex: 1;
-  position: relative;
-}
-
-.add-input {
-  width: 100%;
-  border: 2px solid var(--c-border);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  font-size: 14px;
-  font-family: inherit;
-  color: var(--c-text);
-  background: var(--c-input-bg);
-  transition: all var(--transition);
-  direction: rtl;
-  min-height: 44px;
-}
-
-.add-input:focus {
-  outline: none;
-  border-color: var(--c-primary);
-  background: var(--c-input-focus-bg);
-  box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
-}
-
-.add-input::placeholder {
-  color: var(--c-text-light);
-}
-
-.add-btn {
-  width: 48px;
-  height: 48px;
-  border: none;
-  background: linear-gradient(135deg, var(--c-from), var(--c-accent));
-  color: #fff;
-  border-radius: var(--radius-sm);
-  font-size: 24px;
-  font-weight: 400;
-  cursor: pointer;
-  transition: all 0.2s var(--spring);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 2px 10px rgba(37,99,235,0.35);
-}
-
-.add-btn:active {
-  transform: scale(0.88);
-}
-
-/* ── Category / Priority Selectors ── */
-.category-selector {
-  display: flex;
-  gap: 6px;
-  margin-top: 10px;
-  padding: 0 2px;
-}
-
-.cat-option {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 2px solid var(--c-border);
-  background: var(--c-card);
-  cursor: pointer;
-  transition: all 0.2s var(--spring);
-  font-family: inherit;
-  min-height: 32px;
-  color: var(--c-text-secondary);
-}
-
-.cat-option.selected { border-color: currentColor; }
-.cat-option[data-cat="work"] { color: var(--c-primary); }
-.cat-option[data-cat="work"].selected { background: var(--c-primary-light); border-color: var(--c-primary); }
-.cat-option[data-cat="personal"] { color: var(--c-success); }
-.cat-option[data-cat="personal"].selected { background: var(--c-success-light); border-color: var(--c-success); }
-.cat-option[data-cat="shopping"] { color: var(--c-orange); }
-.cat-option[data-cat="shopping"].selected { background: var(--c-orange-light); border-color: var(--c-orange); }
-
-.priority-selector {
-  display: flex;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 0 2px;
-}
-
-.pri-option {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 2px solid var(--c-border);
-  background: var(--c-card);
-  cursor: pointer;
-  transition: all 0.2s var(--spring);
-  font-family: inherit;
-  min-height: 32px;
-  color: var(--c-text-secondary);
-}
-
-.pri-option.selected { border-color: currentColor; }
-.pri-option[data-pri="high"] { color: var(--c-danger); }
-.pri-option[data-pri="high"].selected { background: var(--c-danger-light); border-color: var(--c-danger); }
-.pri-option[data-pri="medium"] { color: var(--c-warning); }
-.pri-option[data-pri="medium"].selected { background: var(--c-warning-light); border-color: var(--c-warning); }
-.pri-option[data-pri="low"] { color: var(--c-success); }
-.pri-option[data-pri="low"].selected { background: var(--c-success-light); border-color: var(--c-success); }
-
-/* ── Task List ── */
+/* Task List */
 .task-list {
-  padding: 14px 20px;
-  padding-bottom: 150px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  padding: 8px 20px;
+  padding-bottom: 140px;
 }
 
-/* ── Task Card ── */
-.task-card {
-  background: var(--c-card);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  box-shadow: var(--shadow);
+/* Task Item */
+.task-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-  position: relative;
-  overflow: hidden;
-  animation: springIn 0.55s var(--spring) both;
-  touch-action: pan-y;
-  cursor: pointer;
-  border: 1px solid var(--c-border);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--separator);
+  transition: opacity 0.2s ease;
 }
 
-/* Staggered animation delays */
-.task-card:nth-child(1) { animation-delay: 0s; }
-.task-card:nth-child(2) { animation-delay: 0.04s; }
-.task-card:nth-child(3) { animation-delay: 0.08s; }
-.task-card:nth-child(4) { animation-delay: 0.12s; }
-.task-card:nth-child(5) { animation-delay: 0.16s; }
-.task-card:nth-child(6) { animation-delay: 0.2s; }
-.task-card:nth-child(7) { animation-delay: 0.24s; }
-.task-card:nth-child(8) { animation-delay: 0.28s; }
-
-.task-card.new-task {
-  animation: springInFromRight 0.6s var(--spring) both;
+.task-item:last-child {
+  border-bottom: none;
 }
 
-.task-card.removing {
-  animation: slideOutLeft 0.45s var(--ease-out) forwards;
-}
-
-.task-card.completed {
-  opacity: 0.6;
-}
-
-.task-card:active {
-  transform: scale(0.985);
-}
-
-/* ── Category Icon (right side in RTL) ── */
-.task-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
+/* Checkbox */
+.task-checkbox {
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
+  cursor: pointer;
+  margin-top: 1px;
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  order: -1;
 }
 
-.task-icon span {
-  position: relative;
-  z-index: 1;
-  line-height: 1;
+.task-checkbox svg {
+  width: 22px;
+  height: 22px;
 }
 
-.task-icon-work {
-  background: linear-gradient(135deg, #3b82f6, #93c5fd);
+.task-checkbox .cb-circle {
+  fill: none;
+  stroke: var(--checkbox-border);
+  stroke-width: 1.5;
 }
 
-.task-icon-work span {
-  animation: iconFloat 3s ease-in-out infinite;
+.task-checkbox .cb-fill {
+  fill: var(--accent);
+  stroke: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
-.task-icon-personal {
-  background: linear-gradient(135deg, #22c55e, #86efac);
+.task-checkbox .cb-check {
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
-.task-icon-personal span {
-  animation: iconPulse 2.5s ease-in-out infinite;
+.task-checkbox.checked .cb-fill {
+  opacity: 1;
 }
 
-.task-icon-shopping {
-  background: linear-gradient(135deg, #f97316, #fdba74);
+.task-checkbox.checked .cb-check {
+  opacity: 1;
 }
 
-.task-icon-shopping span {
-  animation: iconBounce 2s ease-in-out infinite;
+.task-checkbox.checked .cb-circle {
+  stroke: var(--accent);
 }
 
-.task-card.completed .task-icon {
-  opacity: 0.45;
-  filter: grayscale(0.5);
-}
-
-.task-card.completed .task-icon span {
-  animation: none;
-}
-
-/* ── Task Content (middle) ── */
+/* Task Content */
 .task-content {
   flex: 1;
   min-width: 0;
+  cursor: pointer;
 }
 
 .task-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--c-text);
-  transition: all var(--transition);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-primary);
   line-height: 1.4;
+  transition: color 0.2s ease;
 }
 
-.task-card.completed .task-title {
+.task-item.completed .task-title {
   text-decoration: line-through;
-  color: var(--c-text-light);
+  color: var(--text-tertiary);
+}
+
+.task-item.completed {
+  opacity: 0.7;
 }
 
 .task-meta {
   display: flex;
-  gap: 6px;
-  margin-top: 5px;
-  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
   align-items: center;
 }
 
-.tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+.task-category {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tag-text);
+  background: var(--tag-bg);
+  padding: 1px 8px;
+  border-radius: 4px;
 }
 
-.tag-work { background: var(--c-primary-light); color: var(--c-primary); }
-.tag-personal { background: var(--c-success-light); color: var(--c-success); }
-.tag-shopping { background: var(--c-orange-light); color: var(--c-orange); }
-
-.priority-badge {
-  padding: 2px 10px;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+.task-due {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 400;
 }
 
-.priority-high { background: var(--c-danger-light); color: var(--c-danger); }
-.priority-medium { background: var(--c-warning-light); color: var(--c-warning); }
-.priority-low { background: var(--c-success-light); color: var(--c-success); }
-
-/* ── Checkbox ── */
-.task-checkbox {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2.5px solid var(--c-border);
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  min-width: 44px;
-  min-height: 44px;
-  background-clip: content-box;
-  padding: 10px;
-  box-sizing: content-box;
-  margin: -10px;
-  margin-right: -6px;
-}
-
-.task-checkbox::after {
-  content: '';
-  width: 9px;
-  height: 5px;
-  border-bottom: 2.5px solid #fff;
-  border-left: 2.5px solid #fff;
-  border-right: none;
-  transform: rotate(45deg) scale(0);
-  transition: transform 0.25s var(--spring);
-  margin-top: -2px;
-}
-
-.task-checkbox.checked {
-  background-color: var(--c-success);
-  border-color: var(--c-success);
-}
-
-.task-checkbox.checked::after {
-  transform: rotate(45deg) scale(1);
-}
-
-.task-checkbox.pop {
-  animation: checkSpring 0.35s var(--spring);
-}
-
-/* ── Delete Button (left side in RTL) ── */
-.task-delete {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: transparent;
-  color: var(--c-text-light);
-  border-radius: var(--radius-xs);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 18px;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 6px;
-  margin: -6px;
-  margin-left: 0;
-}
-
-.task-delete:hover,
-.task-delete:active {
-  background: var(--c-danger-light);
-  color: var(--c-danger);
-}
-
-/* ── Confetti Particles ── */
-.confetti-particle {
-  position: absolute;
-  pointer-events: none;
-  font-size: 16px;
-  z-index: 10;
-  animation: confettiBurst 0.75s ease-out forwards;
-}
-
-/* ── FAB Button ── */
+/* FAB */
 .fab {
   position: fixed;
-  bottom: 86px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 58px;
-  height: 58px;
+  bottom: 80px;
+  left: 24px;
+  width: 50px;
+  height: 50px;
   border: none;
-  background: linear-gradient(135deg, var(--c-from), var(--c-accent));
+  background: var(--accent);
   color: #fff;
   border-radius: 50%;
-  font-size: 30px;
+  font-size: 26px;
   font-weight: 300;
   cursor: pointer;
   z-index: 100;
-  transition: transform 0.2s var(--spring);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fabGlow 2.8s ease-in-out infinite;
+  box-shadow: 0 2px 8px rgba(0,122,255,0.3);
+  transition: transform 0.15s ease;
 }
 
-@media (min-width: 421px) {
-  .fab { left: calc(50%); }
+@media (prefers-color-scheme: dark) {
+  .fab {
+    box-shadow: 0 2px 8px rgba(10,132,255,0.4);
+  }
 }
 
 .fab:active {
-  transform: translateX(-50%) scale(0.88) rotate(90deg);
-  animation: none;
+  transform: scale(0.92);
 }
 
-/* ── Bottom Nav (Glass with blur) ── */
+/* Bottom Nav */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -930,16 +390,15 @@ body::-webkit-scrollbar { width: 0; }
   transform: translateX(-50%);
   width: 100%;
   max-width: 420px;
-  background: var(--c-nav-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid var(--c-nav-border);
-  padding: 8px 16px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--separator);
+  padding: 6px 0;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
   display: flex;
   justify-content: space-around;
   z-index: 99;
-  box-shadow: 0 -2px 24px rgba(0,0,0,0.04);
 }
 
 .nav-item {
@@ -947,150 +406,84 @@ body::-webkit-scrollbar { width: 0; }
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 6px 12px;
+  padding: 4px 16px;
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
   font-family: inherit;
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 12px;
-  color: var(--c-text-light);
+  color: var(--text-tertiary);
+  transition: color 0.15s ease;
 }
 
 .nav-item.active {
-  color: var(--c-primary);
+  color: var(--accent);
 }
 
 .nav-item:active {
-  background: var(--c-primary-light);
+  opacity: 0.6;
 }
 
 .nav-icon {
-  font-size: 22px;
-  line-height: 1;
+  width: 24px;
+  height: 24px;
+}
+
+.nav-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .nav-label {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
-/* ── Empty State ── */
+/* Empty State */
 .empty-state {
   text-align: center;
-  padding: 40px 20px;
-  color: var(--c-text-light);
-  position: relative;
-}
-
-.empty-illustration {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.empty-main-icon {
-  font-size: 52px;
-  animation: emptyFloat 3s ease-in-out infinite;
-  position: relative;
-  z-index: 2;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
-}
-
-.empty-orb {
-  position: absolute;
-  border-radius: 50%;
-  animation: emptyOrb 3s ease-in-out infinite;
-}
-
-.empty-orb-1 {
-  width: 24px; height: 24px;
-  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-  top: 8px; right: 8px;
-}
-
-.empty-orb-2 {
-  width: 16px; height: 16px;
-  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-  bottom: 12px; left: 10px;
-  animation-delay: 0.5s;
-}
-
-.empty-orb-3 {
-  width: 20px; height: 20px;
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  top: 20px; left: 5px;
-  animation-delay: 1s;
-}
-
-.empty-orb-4 {
-  width: 12px; height: 12px;
-  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-  bottom: 20px; right: 15px;
-  animation-delay: 1.5s;
+  padding: 60px 20px;
 }
 
 .empty-text {
   font-size: 15px;
-  font-weight: 700;
-  color: var(--c-text-secondary);
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
 .empty-subtext {
   font-size: 13px;
+  color: var(--text-tertiary);
   margin-top: 4px;
-  color: var(--c-text-light);
 }
 
-/* ── Toast ── */
+/* Toast */
 .toast {
   position: fixed;
-  bottom: 155px;
+  bottom: 100px;
   left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--c-toast-bg);
-  color: var(--c-toast-text);
-  padding: 12px 24px;
-  border-radius: 14px;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--text-primary);
+  color: var(--bg);
+  padding: 10px 20px;
+  border-radius: 10px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   font-family: inherit;
   z-index: 200;
   opacity: 0;
-  transition: all 0.35s var(--spring);
+  transition: all 0.25s ease;
   pointer-events: none;
   white-space: nowrap;
-  box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
-}
-
-/* ── Swipe delete background ── */
-.swipe-bg {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: var(--c-danger);
-  border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 0 20px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 14px;
-  z-index: -1;
 }
 </style>
 </head>
@@ -1098,83 +491,50 @@ body::-webkit-scrollbar { width: 0; }
 
 <!-- Header -->
 <header class="header">
-  <div class="header-orb header-orb-1"></div>
-  <div class="header-orb header-orb-2"></div>
-  <div class="header-orb header-orb-3"></div>
-  <div class="header-orb header-orb-4"></div>
-  <div class="header-orb header-orb-5"></div>
   <div class="header-top">
-    <div>
+    <div class="header-right">
       <div class="header-title">TaskMaster</div>
-      <div class="header-subtitle">ניהול משימות חכם</div>
+      <div class="header-date" id="headerDate"></div>
     </div>
-    <div class="header-date" id="headerDate"></div>
-  </div>
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-number" id="statTotal">0</div>
-      <div class="stat-label">סה"כ</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number" id="statCompleted">0</div>
-      <div class="stat-label">הושלמו</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number" id="statPending">0</div>
-      <div class="stat-label">פעילות</div>
+    <div class="header-avatar">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
     </div>
   </div>
 </header>
 
-<!-- Progress Bar -->
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-item">
+    <div class="stat-number" id="statTotal">0</div>
+    <div class="stat-label">סה"כ</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" id="statCompleted">0</div>
+    <div class="stat-label">הושלמו</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" id="statPending">0</div>
+    <div class="stat-label">נותרו</div>
+  </div>
+</div>
+
+<!-- Progress -->
 <div class="progress-section">
-  <div class="progress-card glass-card">
-    <div class="progress-header">
-      <span class="progress-title">התקדמות יומית</span>
-      <span class="progress-percent" id="progressPercent">0%</span>
-    </div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
-    </div>
+  <div class="progress-header">
+    <span class="progress-title">התקדמות</span>
+    <span class="progress-percent" id="progressPercent">0%</span>
+  </div>
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
   </div>
 </div>
 
 <!-- Filter Tabs -->
 <div class="filter-section">
   <div class="filter-tabs" id="filterTabs">
-    <div class="filter-indicator" id="filterIndicator"></div>
-    <button class="filter-tab active" data-filter="all">
-      הכל
-      <span class="filter-count" id="countAll">0</span>
-    </button>
-    <button class="filter-tab" data-filter="active">
-      פעילות
-      <span class="filter-count" id="countActive">0</span>
-    </button>
-    <button class="filter-tab" data-filter="completed">
-      הושלמו
-      <span class="filter-count" id="countCompleted">0</span>
-    </button>
-  </div>
-</div>
-
-<!-- Add Task -->
-<div class="add-section">
-  <div class="add-card">
-    <div class="add-input-wrapper">
-      <input type="text" class="add-input" id="addInput" placeholder="הוסף משימה חדשה..." autocomplete="off">
-      <div class="category-selector" id="catSelector">
-        <button class="cat-option selected" data-cat="work">עבודה</button>
-        <button class="cat-option" data-cat="personal">אישי</button>
-        <button class="cat-option" data-cat="shopping">קניות</button>
-      </div>
-      <div class="priority-selector" id="priSelector">
-        <button class="pri-option" data-pri="high">גבוה</button>
-        <button class="pri-option selected" data-pri="medium">בינוני</button>
-        <button class="pri-option" data-pri="low">נמוך</button>
-      </div>
-    </div>
-    <button class="add-btn" id="addBtn" aria-label="הוסף משימה">+</button>
+    <button class="filter-tab active" data-filter="all">הכל</button>
+    <button class="filter-tab" data-filter="active">פעילות</button>
+    <button class="filter-tab" data-filter="completed">הושלמו</button>
   </div>
 </div>
 
@@ -1182,7 +542,9 @@ body::-webkit-scrollbar { width: 0; }
 <div class="task-list" id="taskList"></div>
 
 <!-- FAB -->
-<button class="fab" id="fabBtn" aria-label="משימה חדשה">+</button>
+<button class="fab" id="fabBtn" aria-label="משימה חדשה">
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="11" y1="3" x2="11" y2="19"/><line x1="3" y1="11" x2="19" y2="11"/></svg>
+</button>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
@@ -1190,19 +552,19 @@ body::-webkit-scrollbar { width: 0; }
 <!-- Bottom Navigation -->
 <nav class="bottom-nav">
   <button class="nav-item active" data-nav="tasks">
-    <span class="nav-icon">&#9776;</span>
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M9 5h11M9 12h11M9 19h11"/><circle cx="4.5" cy="5" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="19" r="1"/></svg></span>
     <span class="nav-label">משימות</span>
   </button>
   <button class="nav-item" data-nav="calendar">
-    <span class="nav-icon">&#128197;</span>
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
     <span class="nav-label">לוח שנה</span>
   </button>
-  <button class="nav-item" data-nav="stats">
-    <span class="nav-icon">&#128200;</span>
-    <span class="nav-label">סטטיסטיקה</span>
+  <button class="nav-item" data-nav="search">
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></span>
+    <span class="nav-label">חיפוש</span>
   </button>
   <button class="nav-item" data-nav="settings">
-    <span class="nav-icon">&#9881;</span>
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
     <span class="nav-label">הגדרות</span>
   </button>
 </nav>
@@ -1211,86 +573,55 @@ body::-webkit-scrollbar { width: 0; }
 (function() {
   'use strict';
 
-  // ── Data ──
   var CATEGORIES = {
-    work:     { label: 'עבודה',  tagClass: 'tag-work',     iconClass: 'task-icon-work',     emoji: '💼' },
-    personal: { label: 'אישי',   tagClass: 'tag-personal', iconClass: 'task-icon-personal', emoji: '🌟' },
-    shopping: { label: 'קניות',  tagClass: 'tag-shopping', iconClass: 'task-icon-shopping', emoji: '🛒' }
+    work:     { label: 'עבודה' },
+    personal: { label: 'אישי' },
+    home:     { label: 'בית' },
+    shopping: { label: 'קניות' }
   };
-
-  var PRIORITIES = {
-    high:   { label: 'גבוה',  badgeClass: 'priority-high' },
-    medium: { label: 'בינוני', badgeClass: 'priority-medium' },
-    low:    { label: 'נמוך',   badgeClass: 'priority-low' }
-  };
-
-  var CONFETTI_EMOJIS = ['✨', '⭐', '✅', '🎉', '💜', '🌟'];
 
   var tasks = [
-    { id: 1, title: 'להכין מצגת לפגישת צוות', completed: false, category: 'work', priority: 'high' },
-    { id: 2, title: 'לקנות מתנת יום הולדת לדנה', completed: false, category: 'personal', priority: 'medium' },
-    { id: 3, title: 'לשלוח דוח חודשי למנהל', completed: true, category: 'work', priority: 'high' },
-    { id: 4, title: 'חלב, ביצים, לחם, גבינה', completed: false, category: 'shopping', priority: 'low' },
-    { id: 5, title: 'לתאם פגישה עם לקוח חדש', completed: false, category: 'work', priority: 'medium' },
-    { id: 6, title: 'לסיים קורס אונליין - פרק 5', completed: true, category: 'personal', priority: 'medium' },
-    { id: 7, title: 'לעדכן קורות חיים', completed: true, category: 'personal', priority: 'low' },
-    { id: 8, title: 'להזמין מסעדה לערב שישי', completed: false, category: 'personal', priority: 'medium' }
+    { id: 1,  title: 'להכין מצגת לפגישת צוות',       completed: false, category: 'work',     due: 'היום' },
+    { id: 2,  title: 'לשלוח דוח חודשי למנהל',         completed: true,  category: 'work',     due: null },
+    { id: 3,  title: 'לקנות מתנת יום הולדת לדנה',     completed: false, category: 'personal', due: 'מחר' },
+    { id: 4,  title: 'לתאם פגישה עם לקוח חדש',        completed: false, category: 'work',     due: 'יום רביעי' },
+    { id: 5,  title: 'חלב, ביצים, לחם, גבינה',         completed: false, category: 'shopping', due: 'היום' },
+    { id: 6,  title: 'לתקן את הברז במטבח',             completed: true,  category: 'home',     due: null },
+    { id: 7,  title: 'לסיים קורס אונליין - פרק 5',    completed: true,  category: 'personal', due: null },
+    { id: 8,  title: 'לעדכן קורות חיים',               completed: false, category: 'personal', due: 'השבוע' },
+    { id: 9,  title: 'להזמין מסעדה לערב שישי',         completed: false, category: 'personal', due: 'יום חמישי' },
+    { id: 10, title: 'לסדר את הארון בחדר שינה',        completed: true,  category: 'home',     due: null }
   ];
 
-  var nextId = 9;
+  var nextId = 11;
   var currentFilter = 'all';
-  var selectedCategory = 'work';
-  var selectedPriority = 'medium';
 
-  // ── DOM Refs ──
-  var taskListEl     = document.getElementById('taskList');
-  var addInputEl     = document.getElementById('addInput');
-  var addBtnEl       = document.getElementById('addBtn');
-  var fabEl          = document.getElementById('fabBtn');
-  var toastEl        = document.getElementById('toast');
-  var headerDateEl   = document.getElementById('headerDate');
-  var progressBar    = document.getElementById('progressBar');
-  var progressPct    = document.getElementById('progressPercent');
-  var statTotal      = document.getElementById('statTotal');
-  var statCompleted  = document.getElementById('statCompleted');
-  var statPending    = document.getElementById('statPending');
-  var countAll       = document.getElementById('countAll');
-  var countActive    = document.getElementById('countActive');
-  var countCompleted = document.getElementById('countCompleted');
-  var filterTabsEl   = document.getElementById('filterTabs');
-  var filterIndicator = document.getElementById('filterIndicator');
+  var taskListEl    = document.getElementById('taskList');
+  var toastEl       = document.getElementById('toast');
+  var headerDateEl  = document.getElementById('headerDate');
+  var progressBar   = document.getElementById('progressBar');
+  var progressPct   = document.getElementById('progressPercent');
+  var statTotal     = document.getElementById('statTotal');
+  var statCompleted = document.getElementById('statCompleted');
+  var statPending   = document.getElementById('statPending');
+  var fabEl         = document.getElementById('fabBtn');
 
-  // ── Set Date ──
   function setDate() {
     var now = new Date();
     var days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
     var months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-    headerDateEl.textContent = 'יום ' + days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()];
+    headerDateEl.textContent = 'יום ' + days[now.getDay()] + ', ' + now.getDate() + ' ב' + months[now.getMonth()];
   }
   setDate();
 
-  // ── Filter Indicator Position ──
-  function updateFilterIndicator() {
-    var activeTab = filterTabsEl.querySelector('.filter-tab.active');
-    if (!activeTab) return;
-    var tabsRect = filterTabsEl.getBoundingClientRect();
-    var activeRect = activeTab.getBoundingClientRect();
-    filterIndicator.style.width = activeRect.width + 'px';
-    // In RTL, use right-based positioning
-    filterIndicator.style.right = (tabsRect.right - activeRect.right) + 'px';
-    filterIndicator.style.left = 'auto';
-  }
-
-  // ── Toast ──
   var toastTimer = null;
   function showToast(msg) {
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function() { toastEl.classList.remove('show'); }, 2200);
+    toastTimer = setTimeout(function() { toastEl.classList.remove('show'); }, 2000);
   }
 
-  // ── Stats ──
   function updateStats() {
     var total = tasks.length;
     var done = tasks.filter(function(t) { return t.completed; }).length;
@@ -1302,13 +633,8 @@ body::-webkit-scrollbar { width: 0; }
     statPending.textContent = pending;
     progressPct.textContent = pct + '%';
     progressBar.style.width = pct + '%';
-
-    countAll.textContent = total;
-    countActive.textContent = pending;
-    countCompleted.textContent = done;
   }
 
-  // ── Filter ──
   function getFilteredTasks() {
     if (currentFilter === 'active') {
       return tasks.filter(function(t) { return !t.completed; });
@@ -1319,206 +645,101 @@ body::-webkit-scrollbar { width: 0; }
     return tasks.slice();
   }
 
-  // ── Confetti Burst ──
-  function spawnConfetti(card) {
-    var cardW = card.offsetWidth;
-    var cardH = card.offsetHeight;
-
-    for (var i = 0; i < 6; i++) {
-      var particle = document.createElement('span');
-      particle.className = 'confetti-particle';
-      particle.textContent = CONFETTI_EMOJIS[i % CONFETTI_EMOJIS.length];
-
-      // Random start position near center
-      var startX = cardW * 0.3 + Math.random() * cardW * 0.4;
-      var startY = cardH * 0.2 + Math.random() * cardH * 0.6;
-
-      // Random trajectory
-      var angle = (Math.PI * 2 / 6) * i + (Math.random() - 0.5) * 0.6;
-      var distance = 40 + Math.random() * 50;
-      var endX = startX + Math.cos(angle) * distance;
-      var endY = startY + Math.sin(angle) * distance - 30;
-
-      particle.style.left = startX + 'px';
-      particle.style.top = startY + 'px';
-      particle.style.setProperty('--end-x', endX + 'px');
-      particle.style.setProperty('--end-y', endY + 'px');
-
-      // Custom trajectory via inline animation
-      var rotation = Math.round(Math.random() * 360);
-      particle.style.animation = 'none';
-      particle.style.opacity = '1';
-      card.appendChild(particle);
-
-      // Trigger reflow then animate
-      (function(el, ex, ey, rot, delay) {
-        setTimeout(function() {
-          el.style.transition = 'all 0.65s cubic-bezier(0.16, 1, 0.3, 1)';
-          el.style.left = ex + 'px';
-          el.style.top = ey + 'px';
-          el.style.transform = 'scale(0) rotate(' + rot + 'deg)';
-          el.style.opacity = '0';
-        }, delay);
-      })(particle, endX, endY, rotation, i * 50 + 10);
-    }
-
-    setTimeout(function() {
-      var leftovers = card.querySelectorAll('.confetti-particle');
-      for (var j = 0; j < leftovers.length; j++) {
-        leftovers[j].remove();
-      }
-    }, 900);
-  }
-
-  // ── Render ──
-  function renderTasks(newTaskId) {
-    var filtered = getFilteredTasks();
-    taskListEl.innerHTML = '';
-
-    if (filtered.length === 0) {
-      var empty = document.createElement('div');
-      empty.className = 'empty-state';
-
-      var mainEmoji = currentFilter === 'completed' ? '🏆' : (currentFilter === 'active' ? '🎉' : '📋');
-      var text = currentFilter === 'completed' ? 'אין משימות שהושלמו' : (currentFilter === 'active' ? 'כל המשימות הושלמו!' : 'אין משימות עדיין');
-      var sub = currentFilter === 'active' ? 'כל הכבוד! סיימת הכל' : 'לחץ על + כדי להוסיף משימה';
-
-      empty.innerHTML =
-        '<div class="empty-illustration">' +
-          '<span class="empty-main-icon">' + mainEmoji + '</span>' +
-          '<div class="empty-orb empty-orb-1"></div>' +
-          '<div class="empty-orb empty-orb-2"></div>' +
-          '<div class="empty-orb empty-orb-3"></div>' +
-          '<div class="empty-orb empty-orb-4"></div>' +
-        '</div>' +
-        '<div class="empty-text">' + text + '</div>' +
-        '<div class="empty-subtext">' + sub + '</div>';
-      taskListEl.appendChild(empty);
-      updateStats();
-      return;
-    }
-
-    filtered.forEach(function(task, i) {
-      var card = document.createElement('div');
-      card.className = 'task-card' + (task.completed ? ' completed' : '');
-      if (newTaskId && task.id === newTaskId) {
-        card.className += ' new-task';
-      }
-      card.dataset.id = task.id;
-      card.style.animationDelay = (i * 0.04) + 's';
-
-      var cat = CATEGORIES[task.category] || CATEGORIES.work;
-      var pri = PRIORITIES[task.priority] || PRIORITIES.medium;
-
-      // Layout: icon (right) | content (middle) | delete (left) + checkbox near delete
-      card.innerHTML =
-        '<div class="task-icon ' + cat.iconClass + '">' +
-          '<span>' + cat.emoji + '</span>' +
-        '</div>' +
-        '<div class="task-content" data-action="toggle">' +
-          '<div class="task-title">' + escapeHtml(task.title) + '</div>' +
-          '<div class="task-meta">' +
-            '<span class="tag ' + cat.tagClass + '">' + cat.label + '</span>' +
-            '<span class="priority-badge ' + pri.badgeClass + '">' + pri.label + '</span>' +
-          '</div>' +
-        '</div>' +
-        '<button class="task-delete" data-action="delete" aria-label="מחק משימה">&times;</button>' +
-        '<div class="task-checkbox' + (task.completed ? ' checked' : '') + '" data-action="toggle"></div>';
-
-      taskListEl.appendChild(card);
-    });
-
-    updateStats();
-  }
-
   function escapeHtml(str) {
     var div = document.createElement('div');
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
   }
 
-  // ── Task Actions ──
+  function createCheckboxSVG(checked) {
+    if (checked) {
+      return '<svg viewBox="0 0 22 22">' +
+        '<circle class="cb-fill" cx="11" cy="11" r="10" opacity="1"/>' +
+        '<circle class="cb-circle" cx="11" cy="11" r="10" stroke="var(--accent)"/>' +
+        '<polyline class="cb-check" points="6.5,11 9.5,14 15.5,8" opacity="1"/>' +
+        '</svg>';
+    }
+    return '<svg viewBox="0 0 22 22">' +
+      '<circle class="cb-fill" cx="11" cy="11" r="10"/>' +
+      '<circle class="cb-circle" cx="11" cy="11" r="10"/>' +
+      '<polyline class="cb-check" points="6.5,11 9.5,14 15.5,8"/>' +
+      '</svg>';
+  }
+
+  function renderTasks() {
+    var filtered = getFilteredTasks();
+    taskListEl.innerHTML = '';
+
+    if (filtered.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      var text, sub;
+      if (currentFilter === 'completed') {
+        text = 'אין משימות שהושלמו';
+        sub = '';
+      } else if (currentFilter === 'active') {
+        text = 'כל המשימות הושלמו';
+        sub = 'כל הכבוד!';
+      } else {
+        text = 'אין משימות';
+        sub = 'לחץ + כדי להוסיף';
+      }
+      empty.innerHTML = '<div class="empty-text">' + text + '</div>' +
+        (sub ? '<div class="empty-subtext">' + sub + '</div>' : '');
+      taskListEl.appendChild(empty);
+      updateStats();
+      return;
+    }
+
+    filtered.forEach(function(task) {
+      var item = document.createElement('div');
+      item.className = 'task-item' + (task.completed ? ' completed' : '');
+      item.dataset.id = task.id;
+
+      var cat = CATEGORIES[task.category] || CATEGORIES.work;
+      var metaHtml = '<span class="task-category">' + cat.label + '</span>';
+      if (task.due && !task.completed) {
+        metaHtml += '<span class="task-due">' + escapeHtml(task.due) + '</span>';
+      }
+
+      item.innerHTML =
+        '<div class="task-checkbox' + (task.completed ? ' checked' : '') + '" data-action="toggle">' +
+          createCheckboxSVG(task.completed) +
+        '</div>' +
+        '<div class="task-content" data-action="toggle">' +
+          '<div class="task-title">' + escapeHtml(task.title) + '</div>' +
+          '<div class="task-meta">' + metaHtml + '</div>' +
+        '</div>';
+
+      taskListEl.appendChild(item);
+    });
+
+    updateStats();
+  }
+
   function toggleTask(id) {
     var task = tasks.find(function(t) { return t.id === id; });
     if (!task) return;
     task.completed = !task.completed;
 
-    var card = taskListEl.querySelector('[data-id="' + id + '"]');
-    if (card) {
-      var cb = card.querySelector('.task-checkbox');
-      cb.classList.add('pop');
-      setTimeout(function() { cb.classList.remove('pop'); }, 350);
-
-      if (task.completed) {
-        spawnConfetti(card);
-      }
-    }
-
     if (task.completed) {
-      showToast('משימה הושלמה! ✓');
+      showToast('המשימה הושלמה');
     } else {
       showToast('המשימה חזרה לפעילות');
     }
 
-    setTimeout(function() { renderTasks(); }, 220);
+    renderTasks();
   }
-
-  function deleteTask(id) {
-    var card = taskListEl.querySelector('[data-id="' + id + '"]');
-    if (card) {
-      card.classList.add('removing');
-      setTimeout(function() {
-        tasks = tasks.filter(function(t) { return t.id !== id; });
-        renderTasks();
-        showToast('המשימה נמחקה');
-      }, 450);
-    } else {
-      tasks = tasks.filter(function(t) { return t.id !== id; });
-      renderTasks();
-    }
-  }
-
-  function addTask() {
-    var title = addInputEl.value.trim();
-    if (!title) {
-      addInputEl.focus();
-      addInputEl.style.borderColor = 'var(--c-danger)';
-      setTimeout(function() { addInputEl.style.borderColor = ''; }, 1000);
-      return;
-    }
-
-    var task = {
-      id: nextId++,
-      title: title,
-      completed: false,
-      category: selectedCategory,
-      priority: selectedPriority
-    };
-
-    tasks.unshift(task);
-    addInputEl.value = '';
-    renderTasks(task.id);
-    showToast('משימה חדשה נוספה!');
-    taskListEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  // ── Event Listeners ──
 
   // Task list delegation
   taskListEl.addEventListener('click', function(e) {
     var target = e.target;
     while (target && target !== taskListEl) {
-      var action = target.dataset.action;
-      if (action) {
-        var card = target.closest('.task-card');
-        if (card) {
-          var id = parseInt(card.dataset.id, 10);
-          if (action === 'toggle') {
-            toggleTask(id);
-          } else if (action === 'delete') {
-            e.stopPropagation();
-            deleteTask(id);
-          }
+      var action = target.dataset ? target.dataset.action : null;
+      if (action === 'toggle') {
+        var item = target.closest('.task-item');
+        if (item) {
+          toggleTask(parseInt(item.dataset.id, 10));
         }
         return;
       }
@@ -1526,52 +747,29 @@ body::-webkit-scrollbar { width: 0; }
     }
   });
 
-  // Add button
-  addBtnEl.addEventListener('click', function(e) {
-    e.preventDefault();
-    addTask();
-  });
-
-  // Enter key
-  addInputEl.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addTask();
+  // FAB - show a prompt to add task
+  fabEl.addEventListener('click', function() {
+    var title = prompt('משימה חדשה:');
+    if (title && title.trim()) {
+      tasks.unshift({
+        id: nextId++,
+        title: title.trim(),
+        completed: false,
+        category: 'personal',
+        due: null
+      });
+      renderTasks();
+      showToast('משימה נוספה');
     }
   });
 
-  // FAB
-  fabEl.addEventListener('click', function() {
-    addInputEl.focus();
-    addInputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  });
-
-  // Filter tabs with sliding indicator
+  // Filter tabs
   document.querySelectorAll('.filter-tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
       document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
       tab.classList.add('active');
       currentFilter = tab.dataset.filter;
-      updateFilterIndicator();
       renderTasks();
-    });
-  });
-
-  // Category selector
-  document.querySelectorAll('.cat-option').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.cat-option').forEach(function(b) { b.classList.remove('selected'); });
-      btn.classList.add('selected');
-      selectedCategory = btn.dataset.cat;
-    });
-  });
-
-  // Priority selector
-  document.querySelectorAll('.pri-option').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.pri-option').forEach(function(b) { b.classList.remove('selected'); });
-      btn.classList.add('selected');
-      selectedPriority = btn.dataset.pri;
     });
   });
 
@@ -1581,81 +779,13 @@ body::-webkit-scrollbar { width: 0; }
       document.querySelectorAll('.nav-item').forEach(function(i) { i.classList.remove('active'); });
       item.classList.add('active');
       if (item.dataset.nav !== 'tasks') {
-        showToast('בקרוב: ' + item.querySelector('.nav-label').textContent);
+        showToast(item.querySelector('.nav-label').textContent);
       }
     });
   });
 
-  // ── Swipe to Delete ──
-  (function initSwipe() {
-    var startX = 0, startY = 0, currentCard = null, isDragging = false;
-
-    taskListEl.addEventListener('touchstart', function(e) {
-      var card = e.target.closest('.task-card');
-      if (!card || e.target.closest('.task-delete')) return;
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      currentCard = card;
-      isDragging = false;
-    }, { passive: true });
-
-    taskListEl.addEventListener('touchmove', function(e) {
-      if (!currentCard) return;
-      var dx = e.touches[0].clientX - startX;
-      var dy = e.touches[0].clientY - startY;
-
-      if (!isDragging) {
-        if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-          isDragging = true;
-        } else if (Math.abs(dy) > 10) {
-          currentCard = null;
-          return;
-        }
-      }
-
-      if (isDragging) {
-        var offset = dx;
-        if (offset > 0) offset = 0;
-        currentCard.style.transform = 'translateX(' + offset + 'px)';
-        currentCard.style.transition = 'none';
-        e.preventDefault();
-      }
-    }, { passive: false });
-
-    taskListEl.addEventListener('touchend', function() {
-      if (!currentCard) return;
-      if (isDragging) {
-        var transform = currentCard.style.transform;
-        var match = transform.match(/translateX\((-?\d+(\.\d+)?)px\)/);
-        var offset = match ? parseFloat(match[1]) : 0;
-
-        currentCard.style.transition = 'transform 0.35s ' + 'cubic-bezier(0.34, 1.56, 0.64, 1)';
-
-        if (offset < -100) {
-          var id = parseInt(currentCard.dataset.id, 10);
-          deleteTask(id);
-        } else {
-          currentCard.style.transform = '';
-        }
-      }
-      currentCard = null;
-      isDragging = false;
-    }, { passive: true });
-  })();
-
-  // ── Initial Render ──
+  // Initial render
   renderTasks();
-
-  // Position filter indicator after layout settles
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-      updateFilterIndicator();
-    });
-  });
-
-  // Update indicator on resize
-  window.addEventListener('resize', updateFilterIndicator);
-
 })();
 </script>
 </body>
