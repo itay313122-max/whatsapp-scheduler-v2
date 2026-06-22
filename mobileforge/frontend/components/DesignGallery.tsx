@@ -351,7 +351,7 @@ const INPUT_SHAPES = [
 const SCREEN_TEMPLATES = [
   {
     id: 'login-modern', name: 'התחברות מודרנית', icon: '🔐', tag: 'Auth',
-    prompt: 'הוסף מסך התחברות מודרני ברמת Figma: לוגו אפליקציה מונפש למעלה, שדות email וסיסמה עם אייקונים, כפתור "התחבר" gradient מלא, קו "או" עם כפתורי Google/Apple, לינק "שכחתי סיסמה", לינק "הרשמה". כל שדה 48dp מינימום, מרווחים 8px grid, אנימציות כניסה staggered. שמור/ולידט ב-localStorage.',
+    prompt: 'הוסף מסך התחברות נקי: לוגו טקסט למעלה, שדות email וסיסמה (48px height) עם placeholder, כפתור "התחבר" solid color מלא, separator "או" עם כפתורי Google/Apple, לינקים "שכחתי סיסמה" ו"הרשמה". עיצוב מינימלי ללא gradient.',
   },
   {
     id: 'signup-flow', name: 'הרשמה רב-שלבית', icon: '📝', tag: 'Auth',
@@ -359,11 +359,11 @@ const SCREEN_TEMPLATES = [
   },
   {
     id: 'profile-premium', name: 'פרופיל פרימיום', icon: '👤', tag: 'Profile',
-    prompt: 'הוסף מסך פרופיל ברמת אפסטור: header gradient עם אווטאר גדול עגול עם טבעת gradient, שם ותיאור, 3 סטטיסטיקות בשורה (פוסטים/עוקבים/עוקב), כפתור "ערוך פרופיל" outline, tabs לתוכן (פוסטים/מועדפים/אודות), גריד תמונות. כל הכפתורים 48dp.',
+    prompt: 'הוסף מסך פרופיל מקצועי: אווטאר עגול (80px), שם ותיאור, 3 סטטיסטיקות בשורה (מספרים גדולים + תוויות קטנות), כפתור "ערוך פרופיל" outline, tabs לתוכן. עיצוב נקי ללא gradient.',
   },
   {
     id: 'dashboard-analytics', name: 'דשבורד אנליטיקס', icon: '📊', tag: 'Dashboard',
-    prompt: 'הוסף מסך דשבורד אנליטיקס: greeting header עם שם משתמש ותאריך, 4 כרטיסי KPI בגריד (הכנסות/משתמשים/הזמנות/צפיות) עם אייקונים ושינוי באחוזים (ירוק/אדום), גרף SVG עם 7 נקודות נתונים, רשימת "פעולות אחרונות". עיצוב glass cards, אנימציות stagger.',
+    prompt: 'הוסף דשבורד אנליטיקס נקי: greeting header עם שם ותאריך, 4 כרטיסי KPI (מספר גדול bold + שינוי באחוזים ירוק/אדום + תווית קטנה), גרף SVG עם נקודות נתונים, רשימת "פעולות אחרונות". עיצוב מינימלי, ללא glass, ללא gradient.',
   },
   {
     id: 'settings-ios', name: 'הגדרות iOS', icon: '⚙️', tag: 'Settings',
@@ -371,7 +371,7 @@ const SCREEN_TEMPLATES = [
   },
   {
     id: 'product-detail', name: 'דף מוצר', icon: '🛍️', tag: 'E-Commerce',
-    prompt: 'הוסף מסך דף מוצר ברמת SHEIN/Zara: תמונת מוצר גדולה עם dots indicator, שם מוצר ומחיר גדול, badges (חדש/מבצע), בוחר צבע (עיגולים צבעוניים), בוחר מידה (chips), כפתור "הוסף לסל" sticky למטה עם gradient ואנימציה, דירוג כוכבים, תיאור מתקפל. תמונות מ-picsum.photos.',
+    prompt: 'הוסף דף מוצר מקצועי: תמונה גדולה עם dots, שם מוצר ומחיר bold, בוחר צבע (עיגולים), בוחר מידה (chips), כפתור "הוסף לסל" solid sticky למטה, דירוג כוכבים, תיאור. עיצוב נקי כמו ZARA, ללא gradient.',
   },
   {
     id: 'chat-ui', name: 'צ\'אט', icon: '💬', tag: 'Messaging',
@@ -379,7 +379,7 @@ const SCREEN_TEMPLATES = [
   },
   {
     id: 'onboarding', name: 'Onboarding', icon: '🚀', tag: 'Flow',
-    prompt: 'הוסף מסך onboarding עם 3 שלבים: כל שלב עם איור CSS מונפש גדול, כותרת, תיאור קצר. dots indicator למטה, כפתור "הבא"/"התחל". מעבר חלק עם swipe animation. אנימציות CSS בלבד (ללא תמונות). עיצוב מודרני צבעוני.',
+    prompt: 'הוסף מסך onboarding עם 3 שלבים: כל שלב עם איור CSS גדול, כותרת bold, תיאור קצר. dots indicator, כפתור "הבא"/"התחל". עיצוב מינימלי נקי.',
   },
   {
     id: 'checkout', name: 'תשלום', icon: '💳', tag: 'E-Commerce',
@@ -402,7 +402,7 @@ const SCREEN_TEMPLATES = [
 const DESIGN_LANGUAGES: DesignPreset[] = [
   {
     id: 'glass', name: 'זכוכית', tag: 'Glassmorphism', preview: <GlassPreview />,
-    prompt: `החל סגנון Glassmorphism על האפליקציה: רקעים שקופים-למחצה עם backdrop-filter blur, מסגרות לבנות עדינות (rgba(255,255,255,0.3)), צללים רכים, gradient רקע צבעוני מאחורי הכל, ועיגול פינות גדול. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
+    prompt: `החל סגנון Glassmorphism על האפליקציה: רקעים שקופים-למחצה עם backdrop-filter blur, מסגרות לבנות עדינות (rgba(255,255,255,0.3)), צללים רכים, gradient רקע צבעוני מאחורי הכל, ועיגול פינות גדול. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ללא אימוג'ים. ${STYLE_ONLY}`,
   },
   {
     id: 'liquid-glass', name: 'זכוכית נוזלית', tag: 'Liquid Glass', preview: <LiquidGlassPreview />,
@@ -418,11 +418,11 @@ const DESIGN_LANGUAGES: DesignPreset[] = [
   },
   {
     id: 'darkpro', name: 'כהה מקצועי', tag: 'Dark Pro', preview: <DarkProPreview />,
-    prompt: `החל סגנון Dark Mode מקצועי: רקע כהה עמוק (#0a0a14, #1a1a2e), אקסנטים בצבעי ניאון (teal/cyan), זוהר עדין סביב כפתורים (glow), כרטיסים כהים עם מסגרות דקות מאירות, ניגודיות גבוהה לטקסט. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
+    prompt: `החל סגנון Dark Mode מקצועי: רקע שחור אמיתי (#000), surface (#1c1c1e), אקסנט כחול (#0A84FF), כרטיסים כהים עם border: 1px solid #38383a, ניגודיות גבוהה, ללא glow, ללא ניאון. ${STYLE_ONLY}`,
   },
   {
     id: 'gradient', name: 'גרדיאנטים', tag: 'Gradient Rich', preview: <GradientPreview />,
-    prompt: `החל סגנון עשיר בגרדיאנטים: gradient רקע צבעוני וחי, כפתורים עם gradient, כותרות עם gradient text, כרטיסים עם gradient עדין, צבעים תוססים ומודרניים (סגול/ורוד/כחול). השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
+    prompt: `החל סגנון גרדיאנט עדין: gradient רקע בהיר מושתק (#f8f9ff → #fff5f5), כפתורים עם gradient עדין, כרטיסים לבנים, צללים רכים. לא צבעים רועשים. ${STYLE_ONLY}`,
   },
   {
     id: 'neu', name: 'רך (Soft UI)', tag: 'Neumorphism', preview: <NeuPreview />,

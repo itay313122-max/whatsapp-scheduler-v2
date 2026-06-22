@@ -154,7 +154,7 @@ const DISPLAY_OPTIONS = [
   { label: 'Inline', value: 'inline-flex' },
 ];
 
-const FONT_SIZES = ['11px', '12px', '14px', '16px', '20px', '24px', '28px', '32px'];
+const FONT_SIZES = ['11px', '12px', '13px', '15px', '17px', '20px', '24px', '28px', '34px'];
 
 const BUTTON_SIZE_PRESETS = [
   { id: 'sm', label: 'S', padding: '8px 16px', fontSize: '12px' },
@@ -165,10 +165,10 @@ const BUTTON_SIZE_PRESETS = [
 
 const SHADOW_PRESETS = [
   { id: 'none', label: 'ללא', value: 'none' },
-  { id: 'sm', label: 'עדין', value: '0 1px 2px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1)' },
-  { id: 'md', label: 'בינוני', value: '0 2px 4px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.1)' },
-  { id: 'lg', label: 'חזק', value: '0 4px 8px rgba(0,0,0,0.06), 0 8px 16px rgba(0,0,0,0.1)' },
-  { id: 'glow', label: 'זוהר', value: '0 0 20px rgba(99,102,241,0.4)' },
+  { id: 'xs', label: 'עדין', value: '0 1px 2px rgba(0,0,0,0.04)' },
+  { id: 'sm', label: 'קטן', value: '0 1px 3px rgba(0,0,0,0.08)' },
+  { id: 'md', label: 'בינוני', value: '0 4px 12px rgba(0,0,0,0.1)' },
+  { id: 'lg', label: 'גדול', value: '0 8px 24px rgba(0,0,0,0.12)' },
 ];
 
 const AI_RECOMMENDATIONS = [
@@ -181,10 +181,10 @@ const AI_RECOMMENDATIONS = [
 ];
 
 const ICON_LIBRARY = [
-  '🏠', '⭐', '❤️', '🔍', '🛒', '👤', '⚙️', '🔔',
-  '📅', '📍', '💬', '📷', '🎵', '🍕', '☕', '🛍️',
-  '💪', '🏃', '🔥', '✅', '📊', '💰', '🎁', '🚀',
-  '📱', '✏️', '🗑️', '➕', '➡️', '⬅️', '✨', '👍',
+  '⊕', '⊖', '◉', '○', '□', '△', '▽', '◇',
+  '→', '←', '↑', '↓', '↗', '↙', '⟳', '⟲',
+  '✓', '✕', '⊘', '⊜', '≡', '⋮', '⊞', '⊟',
+  '♡', '☆', '⚙', '⌂', '⌕', '✎', '⊛', '⌗',
 ];
 
 const ANIMATION_PRESETS = [
@@ -306,10 +306,10 @@ const WIDGET_CATEGORIES = [
 ];
 
 const PRESET_SCREENS = [
-  { id: 'settings', label: 'הגדרות', icon: '⚙️' },
-  { id: 'profile', label: 'פרופיל', icon: '👤' },
-  { id: 'about', label: 'אודות', icon: 'ℹ️' },
-  { id: 'contact', label: 'צור קשר', icon: '💬' },
+  { id: 'settings', label: 'הגדרות', icon: '⚙' },
+  { id: 'profile',  label: 'פרופיל',  icon: '○' },
+  { id: 'about',    label: 'אודות',   icon: '⊘' },
+  { id: 'contact',  label: 'צור קשר', icon: '✉' },
 ];
 
 export default function EditSidebar({

@@ -248,17 +248,38 @@ LAYOUT with Tailwind (flex/grid ONLY — no color, no shadow, no font classes):
 COLOR PALETTE — set via <style> at top of App JSX (REQUIRED):
   <style>{\`
     :root {
-      --c-from: #HEX;                        /* gradient start */
-      --c-to: #HEX;                          /* gradient end   */
+      --c-from: #HEX;                        /* primary color (same as --c-to for flat look) */
+      --c-to: #HEX;                          /* same as --c-from — NO gradients              */
       --c-primary: #HEX;                     /* brand color    */
-      --c-primary-light: rgba(r,g,b,0.12);   /* tinted bg      */
-      --c-bg: #HEX;                          /* page bg        */
+      --c-primary-light: rgba(r,g,b,0.08);   /* tinted bg      */
+      --c-bg: #ffffff;                        /* page bg — white or very light gray #fafafa   */
     }
   \`}</style>
-  Choose palette for the domain: meditation→purple, food→orange, finance→emerald,
-  fitness→red, travel→teal, music→pink, health→teal, social→gradient(pink-purple),
-  education→blue, shopping→indigo. Background: very light tint of the primary.
+
+  CRITICAL COLOR RULES (based on top 100 App Store apps):
+  - Use ONE flat accent color only. Set --c-from and --c-to to THE SAME value — no gradients.
+  - 90% of top apps use: white background + dark text + single accent color.
+  - Palette by domain: food→#00B37E (Wolt green) or #FF3008 (DoorDash red),
+    finance→#0052FF (Coinbase) or #00C805 (Robinhood), fitness→#FC4C02 (Strava),
+    travel→#FF5A5F (Airbnb), music→#1DB954 (Spotify green), health→#4EAAF3 (Calm blue),
+    social→#000000 (Threads/X), shopping→#000000 (ZARA), AI→#10A37F (ChatGPT teal),
+    productivity→#E44332 (Todoist) or #000000 (Notion), education→#58CC02 (Duolingo).
+  - Background: #ffffff (light mode) or #000000 (dark mode). Never bright tinted backgrounds.
   Semantic colors available: var(--c-success) green, var(--c-warning) amber, var(--c-error) red.
+
+  PROFESSIONAL DESIGN RULES (based on analysis of top 100 App Store apps):
+  ⚠️ NEVER use emojis as icons in the UI — use SVG icons or CSS shapes instead.
+  ⚠️ NEVER use gradient backgrounds on buttons or headers — use flat solid colors.
+  ⚠️ NEVER use shimmer/glow/pulse/confetti animations — they look toy-like.
+  ⚠️ NEVER use bright candy-colored backgrounds (pink, purple, neon) — use white/black + one accent.
+  ⚠️ NEVER use heavy box-shadows (>3px blur) — max shadow: 0 1px 3px rgba(0,0,0,0.08).
+  ✓ DO use flat solid accent color for CTAs and interactive elements only.
+  ✓ DO use generous white space — padding 16px+, gap 8-12px between cards.
+  ✓ DO use typography hierarchy: 28px bold headings, 15px regular body, 12px gray captions.
+  ✓ DO use letter-spacing: -0.5px on large headings for a professional look.
+  ✓ DO use border-radius: 12px for cards, 8px for buttons, 9999px for pills/avatars.
+  ✓ DO use bottom tab bar with 4-5 items, SVG stroke icons (24x24, stroke-width: 1.5).
+  ✓ DO support dark mode: black (#000) bg, #1c1c1e surface, #38383a borders, white text.
 
 FONTS — for Hebrew apps use Heebo, Assistant, or Rubik (all pre-loaded):
   <style>{\`:root { --c-font: 'Heebo', system-ui, sans-serif; }\`}</style>
@@ -266,7 +287,7 @@ FONTS — for Hebrew apps use Heebo, Assistant, or Rubik (all pre-loaded):
 
 EMPTY STATES — use for every list that can be empty:
   <div className="empty-state">
-    <div className="empty-state-icon">🛒</div>
+    <div className="empty-state-icon" style={{fontSize:'48px',opacity:0.3}}>○</div>
     <p className="empty-state-title">הרשימה ריקה</p>
     <p className="empty-state-body">לחץ + כדי להוסיף את הפריט הראשון</p>
     <button className="btn-primary" style={{width:'auto',padding:'12px 24px'}} onClick={...}>הוסף</button>
@@ -302,8 +323,8 @@ VISUAL POLISH:
 - Loading: use .skeleton / .skeleton-text / .skeleton-card classes for perceived performance.
 - Elevation: use cards with layered shadows for depth. Cards lift on hover (elevation-2).
 - Micro-interactions: buttons scale on :active — already in design system. Lists lift on hover.
-- First screen must look professional and inviting (gradient-banner or rich header).
-- Glassmorphism: for overlays or premium cards use .glass-card class.
+- First screen must look clean and professional — white background, bold heading, no gradient banner.
+- Glass effects: use sparingly for overlays only, not for regular cards.
 - Bottom sheets: for secondary content (filters, settings, sharing) use .bottom-sheet + .bottom-sheet-handle.
 - FAB: for primary creation action (add item) use .fab class (fixed position).
 - Progress bars: use .progress-bar + .progress-bar-fill with width style.

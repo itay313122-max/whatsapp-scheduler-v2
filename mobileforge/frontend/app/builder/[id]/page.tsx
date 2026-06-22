@@ -27,33 +27,33 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 // ── Rich Edit Panel — data ────────────────────────────────────────────────────
 
 const PALETTES = [
-  { id: 'indigo',  label: 'Indigo',   from: '#6366f1', to: '#8b5cf6',
-    vars: { '--c-from':'#6366f1','--c-to':'#8b5cf6','--c-primary':'#6366f1','--c-primary-light':'rgba(99,102,241,0.12)' } },
-  { id: 'ocean',   label: 'Ocean',    from: '#0284c7', to: '#0ea5e9',
-    vars: { '--c-from':'#0284c7','--c-to':'#0ea5e9','--c-primary':'#0284c7','--c-primary-light':'rgba(2,132,199,0.12)' } },
-  { id: 'forest',  label: 'Forest',   from: '#15803d', to: '#22c55e',
-    vars: { '--c-from':'#15803d','--c-to':'#22c55e','--c-primary':'#15803d','--c-primary-light':'rgba(21,128,61,0.12)' } },
-  { id: 'sunset',  label: 'Sunset',   from: '#b45309', to: '#f59e0b',
-    vars: { '--c-from':'#b45309','--c-to':'#f59e0b','--c-primary':'#b45309','--c-primary-light':'rgba(180,83,9,0.12)' } },
-  { id: 'crimson', label: 'Crimson',  from: '#be123c', to: '#f43f5e',
-    vars: { '--c-from':'#be123c','--c-to':'#f43f5e','--c-primary':'#be123c','--c-primary-light':'rgba(190,18,60,0.12)' } },
-  { id: 'violet',  label: 'Violet',   from: '#7c3aed', to: '#a855f7',
-    vars: { '--c-from':'#7c3aed','--c-to':'#a855f7','--c-primary':'#7c3aed','--c-primary-light':'rgba(124,58,237,0.12)' } },
-  { id: 'teal',    label: 'Teal',     from: '#0d9488', to: '#06b6d4',
-    vars: { '--c-from':'#0d9488','--c-to':'#06b6d4','--c-primary':'#0d9488','--c-primary-light':'rgba(13,148,136,0.12)' } },
-  { id: 'mono',    label: 'Mono',     from: '#374151', to: '#6b7280',
-    vars: { '--c-from':'#374151','--c-to':'#6b7280','--c-primary':'#374151','--c-primary-light':'rgba(55,65,81,0.12)' } },
+  { id: 'noir',    label: 'Noir',     from: '#000000', to: '#000000',
+    vars: { '--c-from':'#000000','--c-to':'#000000','--c-primary':'#000000','--c-primary-light':'rgba(0,0,0,0.06)' } },
+  { id: 'blue',    label: 'Blue',     from: '#007AFF', to: '#007AFF',
+    vars: { '--c-from':'#007AFF','--c-to':'#007AFF','--c-primary':'#007AFF','--c-primary-light':'rgba(0,122,255,0.1)' } },
+  { id: 'green',   label: 'Green',    from: '#00B37E', to: '#00B37E',
+    vars: { '--c-from':'#00B37E','--c-to':'#00B37E','--c-primary':'#00B37E','--c-primary-light':'rgba(0,179,126,0.1)' } },
+  { id: 'red',     label: 'Red',      from: '#E50914', to: '#E50914',
+    vars: { '--c-from':'#E50914','--c-to':'#E50914','--c-primary':'#E50914','--c-primary-light':'rgba(229,9,20,0.1)' } },
+  { id: 'indigo',  label: 'Indigo',   from: '#5856D6', to: '#5856D6',
+    vars: { '--c-from':'#5856D6','--c-to':'#5856D6','--c-primary':'#5856D6','--c-primary-light':'rgba(88,86,214,0.1)' } },
+  { id: 'teal',    label: 'Teal',     from: '#0D9488', to: '#0D9488',
+    vars: { '--c-from':'#0D9488','--c-to':'#0D9488','--c-primary':'#0D9488','--c-primary-light':'rgba(13,148,136,0.1)' } },
+  { id: 'orange',  label: 'Orange',   from: '#FF5722', to: '#FF5722',
+    vars: { '--c-from':'#FF5722','--c-to':'#FF5722','--c-primary':'#FF5722','--c-primary-light':'rgba(255,87,34,0.1)' } },
+  { id: 'coral',   label: 'Coral',    from: '#FF6B6B', to: '#FF6B6B',
+    vars: { '--c-from':'#FF6B6B','--c-to':'#FF6B6B','--c-primary':'#FF6B6B','--c-primary-light':'rgba(255,107,107,0.1)' } },
 ] as const;
 
 type PaletteId = (typeof PALETTES)[number]['id'];
 
 const DARK_VARS: Record<string, string> = {
-  '--c-bg':      '#0f172a',
-  '--c-surface': '#1e293b',
-  '--c-border':  '#334155',
-  '--c-text':    '#f8fafc',
-  '--c-text-2':  '#94a3b8',
-  '--c-text-3':  '#64748b',
+  '--c-bg':      '#000000',
+  '--c-surface': '#1c1c1e',
+  '--c-border':  '#38383a',
+  '--c-text':    '#ffffff',
+  '--c-text-2':  '#8e8e93',
+  '--c-text-3':  '#636366',
 };
 
 const FONTS = [
@@ -61,32 +61,36 @@ const FONTS = [
   { id: 'heebo',     label: 'Heebo',     family: 'Heebo, system-ui, sans-serif',     cssValue: "'Heebo', system-ui, sans-serif" },
   { id: 'assistant', label: 'Assistant', family: 'Assistant, system-ui, sans-serif', cssValue: "'Assistant', system-ui, sans-serif" },
   { id: 'rubik',     label: 'Rubik',     family: 'Rubik, system-ui, sans-serif',     cssValue: "'Rubik', system-ui, sans-serif" },
+  { id: 'poppins',   label: 'Poppins',  family: 'Poppins, system-ui, sans-serif',   cssValue: "'Poppins', system-ui, sans-serif" },
+  { id: 'dm-sans',   label: 'DM Sans',  family: '"DM Sans", system-ui, sans-serif', cssValue: "'DM Sans', system-ui, sans-serif" },
 ];
 
 const TEXT_SIZES = [
-  { id: 'sm', label: 'קטן',   value: '12px' },
-  { id: 'md', label: 'בינוני', value: '14px' },
-  { id: 'lg', label: 'גדול',  value: '16px' },
+  { id: 'sm', label: 'קומפקטי',  value: '13px' },
+  { id: 'md', label: 'רגיל',     value: '15px' },
+  { id: 'lg', label: 'נגיש',     value: '17px' },
 ];
 
 const BUTTON_STYLES = [
-  { id: 'rounded', label: 'עגול',    vars: { '--btn-radius':'16px', '--btn-bg':'linear-gradient(135deg,var(--c-from),var(--c-to))', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'0 4px 14px rgba(0,0,0,0.18)' } },
-  { id: 'sharp',   label: 'חד',      vars: { '--btn-radius':'4px',  '--btn-bg':'linear-gradient(135deg,var(--c-from),var(--c-to))', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'0 4px 14px rgba(0,0,0,0.18)' } },
-  { id: 'outline', label: 'קו',      vars: { '--btn-radius':'12px', '--btn-bg':'transparent', '--btn-color':'var(--c-primary)', '--btn-border-width':'2px', '--btn-border-color':'var(--c-primary)', '--btn-shadow':'none' } },
-  { id: 'soft',    label: 'רך',      vars: { '--btn-radius':'12px', '--btn-bg':'var(--c-primary-light)', '--btn-color':'var(--c-primary)', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+  { id: 'rounded', label: 'מעוגל',  vars: { '--btn-radius':'12px', '--btn-bg':'var(--c-primary)', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+  { id: 'pill',    label: 'כדור',   vars: { '--btn-radius':'9999px', '--btn-bg':'var(--c-primary)', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+  { id: 'sharp',   label: 'חד',     vars: { '--btn-radius':'4px',  '--btn-bg':'var(--c-primary)', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+  { id: 'outline', label: 'מסגרת',  vars: { '--btn-radius':'12px', '--btn-bg':'transparent', '--btn-color':'var(--c-primary)', '--btn-border-width':'1.5px', '--btn-border-color':'var(--c-primary)', '--btn-shadow':'none' } },
+  { id: 'soft',    label: 'רך',     vars: { '--btn-radius':'12px', '--btn-bg':'var(--c-primary-light)', '--btn-color':'var(--c-primary)', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+  { id: 'noir',    label: 'שחור',   vars: { '--btn-radius':'12px', '--btn-bg':'#000', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
 ];
 
 const CARD_STYLES = [
-  { id: 'elevated', label: 'צל',     vars: { '--card-shadow':'0 1px 2px rgba(0,0,0,0.04),0 4px 16px rgba(0,0,0,0.06)', '--card-border':'none' } },
-  { id: 'flat',     label: 'שטוח',   vars: { '--card-shadow':'none', '--card-border':'none' } },
-  { id: 'bordered', label: 'מסגרת',  vars: { '--card-shadow':'none', '--card-border':'1px solid var(--c-border)' } },
-  { id: 'glass',    label: 'זכוכית', vars: { '--card-bg':'rgba(255,255,255,0.72)', '--card-shadow':'0 8px 32px rgba(0,0,0,0.08)', '--card-border':'1px solid rgba(255,255,255,0.6)' } },
+  { id: 'elevated', label: 'צל',      vars: { '--card-shadow':'0 1px 3px rgba(0,0,0,0.08)', '--card-border':'none' } },
+  { id: 'flat',     label: 'שטוח',    vars: { '--card-shadow':'none', '--card-border':'none' } },
+  { id: 'bordered', label: 'מסגרת',   vars: { '--card-shadow':'none', '--card-border':'1px solid var(--c-border)' } },
+  { id: 'subtle',   label: 'עדין',    vars: { '--card-shadow':'0 1px 2px rgba(0,0,0,0.04)', '--card-border':'1px solid rgba(0,0,0,0.04)' } },
 ];
 
 const RADIUS_PRESETS = [
-  { id: 'sharp',  label: 'חד',     vars: { '--r-sm':'4px','--r-md':'6px','--r-lg':'8px','--r-xl':'10px','--btn-radius':'4px','--card-radius':'8px' } },
+  { id: 'sharp',  label: 'חד',     vars: { '--r-sm':'2px','--r-md':'4px','--r-lg':'6px','--r-xl':'8px','--btn-radius':'6px','--card-radius':'8px' } },
   { id: 'medium', label: 'בינוני', vars: {} as Record<string, string> },
-  { id: 'round',  label: 'עגול',   vars: { '--r-sm':'20px','--r-md':'24px','--r-lg':'28px','--r-xl':'32px','--btn-radius':'24px','--card-radius':'28px' } },
+  { id: 'round',  label: 'עגול',   vars: { '--r-sm':'12px','--r-md':'16px','--r-lg':'20px','--r-xl':'24px','--btn-radius':'16px','--card-radius':'20px' } },
 ];
 
 const PRESET_SCREENS = [
@@ -114,7 +118,7 @@ export interface EditSettings {
 }
 
 const DEFAULT_SETTINGS: EditSettings = {
-  paletteId: 'indigo',
+  paletteId: 'noir',
   darkMode: false,
   fontId: 'inter',
   textSize: 'md',
