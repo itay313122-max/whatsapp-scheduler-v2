@@ -495,90 +495,178 @@ THERE ARE NO LIMITS on complexity. If the user asks for it, BUILD IT.
 Generate as much code as needed. Use multiple helper components.
 The app should feel REAL and COMPLETE, not a demo or mockup.
 
-━━━ VISUAL CONTENT — ANIMATED IMAGES & ILLUSTRATIONS ━━━
-Do NOT rely on plain emojis alone. Create RICH VISUAL content:
+━━━ 2026 VISUAL DESIGN — APP STORE QUALITY ━━━
+Design like Uber Eats, SHEIN, Wolt — NOT like a demo. Follow these 2026 trends:
 
-ANIMATED CSS ILLUSTRATIONS — use for product/item cards:
-  Each item card should have a visually rich image area:
-  .item-visual {
-    width: 100%; height: 140px; border-radius: 16px;
-    background: linear-gradient(135deg, #color1, #color2);
-    display: flex; align-items: center; justify-content: center;
+═══ REAL IMAGES — ALWAYS USE PHOTOS ═══
+NEVER use plain emojis as product/item images. Use REAL PHOTOS:
+
+  PHOTO CARDS with gradient overlay (like Uber Eats):
+  .card-img {
+    width: 100%; height: 180px; border-radius: 16px;
+    background: url('https://picsum.photos/seed/KEYWORD/400/300') center/cover;
     position: relative; overflow: hidden;
   }
-  .item-visual .icon { font-size: 56px; animation: float 3s ease-in-out infinite; }
-  @keyframes float {
-    0%,100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-8px) scale(1.05); }
+  .card-img::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+    border-radius: 16px;
   }
 
-  Add decorative animated elements:
-  .item-visual::before {
-    content: ''; position: absolute; width: 60px; height: 60px;
-    background: rgba(255,255,255,0.15); border-radius: 50%;
-    top: -15px; right: -15px; animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse { 0%,100%{transform:scale(1);opacity:.3} 50%{transform:scale(1.3);opacity:.1} }
+  Use https://picsum.photos/seed/{keyword}/{width}/{height} for photos.
+  Keywords should match the item: shoes, bag, watch, burger, pizza, sushi, gym, etc.
+  ALWAYS add gradient overlay so text on top is readable.
+  ALWAYS add skeleton loading placeholder while image loads.
 
-SHIMMER LOADING EFFECT — use on image placeholders:
-  .shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  React pattern for image with fallback:
+  const [loaded, setLoaded] = useState(false);
+  <div className="img-wrap" style={{background:'linear-gradient(135deg,#eee,#ddd)'}}>
+    <img src={url} onLoad={()=>setLoaded(true)}
+      style={{opacity:loaded?1:0,transition:'opacity 0.4s'}} />
+    {!loaded && <div className="skeleton-shimmer" />}
+  </div>
+
+═══ LIQUID GLASS / GLASSMORPHISM (iOS 26 style) ═══
+Use on navigation bars, cards, modals, and overlays:
+
+  .glass {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+  }
+
+  Use glass on: bottom nav, header, floating buttons, modal overlays, stat cards.
+  Glassmorphism works best over colorful/image backgrounds.
+
+═══ SKELETON LOADING (like Instagram/Facebook) ═══
+Show skeleton placeholders instead of spinners:
+
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+    animation: skeleton 1.5s ease-in-out infinite;
+    border-radius: 8px;
   }
-  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  @keyframes skeleton {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
 
-ANIMATED PRODUCT PATTERNS — use these for different app types:
-  E-COMMERCE products:
-    Gradient card + large centered icon + floating animation + sparkle particles.
-    Each product gets unique gradient colors matching its category.
-    .product-img { background: linear-gradient(135deg, #colorA 0%, #colorB 100%); }
-    Add ::after pseudo-element with small decorative dots/circles.
+  Use skeleton rectangles matching the content layout (image area, text lines, buttons).
 
-  FOOD items:
-    Warm gradient (oranges, reds) + steam animation on hot items.
-    .steam { animation: steam 2s ease-in-out infinite; opacity: 0.6; }
-    @keyframes steam { 0%{transform:translateY(0);opacity:.6} 100%{transform:translateY(-15px);opacity:0} }
-    3 small steam lines rising from food icon.
+═══ SPRING PHYSICS ANIMATIONS ═══
+Use natural spring easing instead of linear/ease:
 
-  FITNESS/HEALTH:
-    Pulsing rings + activity animations.
-    .ring { border: 3px solid; border-radius: 50%; animation: ringPulse 2s infinite; }
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-  SOCIAL MEDIA:
-    Animated avatar borders, story-ring gradient rotation.
-    .story-ring { background: conic-gradient(#ff5722, #ff9800, #ffeb3b, #4caf50, #2196f3, #9c27b0, #ff5722);
-      animation: rotate 3s linear infinite; }
+  Card entrance: transform 0.5s var(--spring)
+  Button press: transform 0.15s var(--bounce)
+  Page transition: opacity 0.3s var(--smooth), transform 0.4s var(--spring)
 
-IMAGE URL SUPPORT — when internet is available:
-  Use placeholder image services for realistic visuals:
-  <img src="https://picsum.photos/seed/{keyword}/300/200" alt="..."
-    style="width:100%;height:160px;object-fit:cover;border-radius:16px;" />
+  @keyframes springIn {
+    0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+    60% { transform: translateY(-4px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
 
-  Add loading animation while image loads:
-  onLoad={() => setLoaded(true)} with opacity transition.
+═══ DARK MODE SUPPORT ═══
+Every app should support dark mode via prefers-color-scheme:
 
-  ALWAYS provide CSS gradient fallback if image fails to load:
-  .img-container { background: linear-gradient(...); } /* shows while loading */
+  :root {
+    --bg: #ffffff; --surface: #f8f9fa; --text: #1a1a2e;
+    --text2: #64748b; --border: #e2e8f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --text: #f1f5f9;
+      --text2: #94a3b8; --border: #2d2d44;
+    }
+  }
 
-LOTTIE ANIMATIONS — for complex animations:
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@2/dist/lottie-player.js"></script>
-  <lottie-player src="URL" background="transparent" speed="1" loop autoplay
-    style="width:120px;height:120px;"></lottie-player>
-  Use only when the user specifically requests rich animations.
+  Use CSS variables for ALL colors. Body and cards use var(--bg), var(--surface).
+  Dark mode is AUTOMATIC — no toggle needed (but you can add one).
 
-RULE: Every item/product/card MUST have a visually rich image area with:
-  1. Colorful gradient background (unique per item)
-  2. At least one CSS animation (float, pulse, bounce, shimmer, rotate)
-  3. Decorative pseudo-elements (circles, dots, glow)
-  4. The icon/emoji displayed LARGE (48-64px) with animation
-  Never show a raw emoji as plain text — always wrap in an animated visual container.
+═══ MICRO-INTERACTIONS (like top apps) ═══
+  Button press: transform: scale(0.96) on :active with 0.1s transition.
+  Add to cart: icon bounces + button flashes green + toast slides up.
+  Pull to refresh: custom SVG spinner that rotates.
+  Swipe actions: card slides to reveal delete/archive with spring snap-back.
+  Tab switch: indicator bar slides smoothly between tabs.
+  Like button: heart fills with scale(1.3) then settles to scale(1).
+  Success state: checkmark draws itself with stroke-dasharray animation.
+  Loading: 3-dot pulse or skeleton shimmer, NEVER a plain spinner.
+
+═══ CARD DESIGN (like SHEIN / Uber Eats) ═══
+  PRODUCT CARD (e-commerce):
+    Image area: 65% of card height, full-width photo, 16px border-radius top.
+    Gradient overlay at bottom of image for text readability.
+    Below image: name (16px bold), price (18px bold primary color), rating stars.
+    Add-to-cart button: full-width, gradient background, min-height 44px.
+    On touch: card scales to 0.97 with spring easing.
+
+  FOOD CARD (restaurant/delivery):
+    Horizontal layout: photo (100x100px rounded) on right, info on left.
+    Photo with warm gradient overlay. Price in bold primary color.
+    Rating: star icon + number + review count in parentheses.
+    Bottom: "+ Add" circle button (44x44) with gradient.
+
+  TASK/LIST CARD:
+    Category icon in colored circle (44x44px) on the side.
+    Title + subtitle + category tag + priority badge.
+    Swipe-to-delete with red background reveal.
+    Checkbox with spring animation on toggle.
+
+═══ ANIMATED ICON CONTAINERS ═══
+When photos are not appropriate (e.g. categories, status icons), use animated containers:
+  .icon-container {
+    width: 56px; height: 56px; border-radius: 16px;
+    background: linear-gradient(135deg, #color1, #color2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; position: relative; overflow: hidden;
+  }
+  .icon-container::before {
+    content: ''; position: absolute; width: 40px; height: 40px;
+    background: rgba(255,255,255,0.15); border-radius: 50%;
+    top: -10px; right: -10px;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:.3} 50%{transform:scale(1.4);opacity:.1} }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+RULE: Use REAL PHOTOS for products/food/places. Use animated icon containers
+only for abstract concepts (categories, settings, status). Never raw emoji as text.
 
 ━━━ CONTENT RULES ━━━
 - Hebrew if user writes Hebrew; add dir="rtl" to app-shell div
 - Generate RICH sample data: 5-10 realistic items, not just 3
 - All navigation works (useState)
-- Emoji as icons when no images available, but ALWAYS in animated visual containers
+- Use real photos from picsum.photos with gradient overlays
+- Glass effects on nav bars and overlays
+- Dark mode via CSS variables + prefers-color-scheme
+- Skeleton loading for all async content
+- Spring physics animations on all interactions
 - Empty state for every list (use .empty-state)
 - localStorage persistence for user data when relevant
 
