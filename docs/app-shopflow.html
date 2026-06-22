@@ -131,6 +131,33 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Animated Visual Keyframes */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.15); opacity: 0.15; }
+}
+
 /* Product Grid */
 .products-grid {
   display: grid;
@@ -142,29 +169,148 @@ body {
 .product-card {
   background: var(--c-card);
   border-radius: var(--radius);
-  padding: 20px 16px;
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: var(--transition);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease;
   position: relative;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.product-card:nth-child(1) { animation-delay: 0.0s; }
+.product-card:nth-child(2) { animation-delay: 0.08s; }
+.product-card:nth-child(3) { animation-delay: 0.16s; }
+.product-card:nth-child(4) { animation-delay: 0.24s; }
+.product-card:nth-child(5) { animation-delay: 0.32s; }
+.product-card:nth-child(6) { animation-delay: 0.40s; }
+
+.product-card:hover,
+.product-card:active {
+  transform: scale(1.03);
+  box-shadow: 0 12px 36px rgba(99, 102, 241, 0.22);
+}
+
+/* Product Visual Area */
+.product-visual {
+  width: 100%;
+  height: 150px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 }
 
-.product-card:active {
-  transform: scale(0.96);
+.product-visual::before {
+  content: '';
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  top: -15px;
+  right: -15px;
+  animation: pulse 3s ease-in-out infinite;
 }
 
-.product-emoji {
-  font-size: 48px;
-  margin-bottom: 12px;
-  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+.product-visual::after {
+  content: '';
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  bottom: -10px;
+  left: -10px;
+  animation: pulse 3.5s ease-in-out infinite 0.5s;
 }
 
-.product-card:hover .product-emoji {
-  transform: scale(1.1);
+.visual-deco {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.visual-deco::before {
+  content: '';
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  top: 50%;
+  left: 20%;
+  transform: translateY(-50%);
+  animation: pulse 4s ease-in-out infinite 1s;
+}
+
+.visual-deco::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  bottom: 20px;
+  right: 25%;
+  animation: pulse 3s ease-in-out infinite 1.5s;
+}
+
+.product-icon {
+  font-size: 60px;
+  display: block;
+  position: relative;
+  z-index: 2;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  line-height: 1;
+}
+
+.product-card:nth-child(2) .product-icon { animation-delay: 0.3s; }
+.product-card:nth-child(3) .product-icon { animation-delay: 0.6s; }
+.product-card:nth-child(4) .product-icon { animation-delay: 0.9s; }
+.product-card:nth-child(5) .product-icon { animation-delay: 1.2s; }
+.product-card:nth-child(6) .product-icon { animation-delay: 1.5s; }
+
+.visual-shimmer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.visual-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+.product-card:nth-child(2) .visual-shimmer::after { animation-delay: 0.4s; }
+.product-card:nth-child(3) .visual-shimmer::after { animation-delay: 0.8s; }
+.product-card:nth-child(4) .visual-shimmer::after { animation-delay: 1.2s; }
+.product-card:nth-child(5) .visual-shimmer::after { animation-delay: 1.6s; }
+.product-card:nth-child(6) .visual-shimmer::after { animation-delay: 2.0s; }
+
+.product-info {
+  padding: 14px 16px 20px;
+  width: 100%;
 }
 
 .product-name {
@@ -709,14 +855,14 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-// Product data
+// Product data with gradient colors
 const products = [
-  { id: 1, name: 'נעלי ספורט', emoji: '👟', price: 299 },
-  { id: 2, name: 'תיק יד', emoji: '👜', price: 189 },
-  { id: 3, name: 'שעון חכם', emoji: '⌚', price: 449 },
-  { id: 4, name: 'אוזניות', emoji: '🎧', price: 179 },
-  { id: 5, name: 'משקפי שמש', emoji: '🕶️', price: 159 },
-  { id: 6, name: 'כובע', emoji: '🧢', price: 89 }
+  { id: 1, name: 'נעלי ספורט', emoji: '👟', price: 299, gradient: ['#6366f1', '#818cf8'] },
+  { id: 2, name: 'תיק יד', emoji: '👜', price: 189, gradient: ['#ec4899', '#f472b6'] },
+  { id: 3, name: 'שעון חכם', emoji: '⌚', price: 449, gradient: ['#0ea5e9', '#38bdf8'] },
+  { id: 4, name: 'אוזניות', emoji: '🎧', price: 179, gradient: ['#8b5cf6', '#a78bfa'] },
+  { id: 5, name: 'משקפי שמש', emoji: '🕶️', price: 159, gradient: ['#f59e0b', '#fbbf24'] },
+  { id: 6, name: 'כובע', emoji: '🧢', price: 89, gradient: ['#10b981', '#34d399'] }
 ];
 
 // Cart state
@@ -750,12 +896,18 @@ function renderProducts(productList, containerId) {
 
   grid.innerHTML = productList.map(product => `
     <div class="product-card">
-      <div class="product-emoji">${product.emoji}</div>
-      <div class="product-name">${product.name}</div>
-      <div class="product-price">₪${product.price}</div>
-      <button class="add-to-cart-btn" onclick="addToCart(${product.id}, this)" id="btn-${containerId}-${product.id}">
-        הוסף לעגלה +
-      </button>
+      <div class="product-visual" style="background:linear-gradient(135deg, ${product.gradient[0]}, ${product.gradient[1]})">
+        <div class="visual-deco"></div>
+        <span class="product-icon">${product.emoji}</span>
+        <div class="visual-shimmer"></div>
+      </div>
+      <div class="product-info">
+        <div class="product-name">${product.name}</div>
+        <div class="product-price">₪${product.price}</div>
+        <button class="add-to-cart-btn" onclick="addToCart(${product.id}, this)" id="btn-${containerId}-${product.id}">
+          הוסף לעגלה +
+        </button>
+      </div>
     </div>
   `).join('');
 }
