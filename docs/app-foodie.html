@@ -11,20 +11,50 @@
 <title>Foodie - הזמנת אוכל</title>
 <style>
 :root {
-  --c-from: #f97316;
-  --c-to: #fb923c;
   --c-primary: #f97316;
+  --c-primary-light: #fb923c;
+  --c-primary-dark: #ea580c;
   --c-bg: #fafafa;
+  --c-surface: #ffffff;
   --c-card: #ffffff;
-  --c-text: #1f2937;
+  --c-text: #1a1a2e;
   --c-text-secondary: #6b7280;
-  --c-border: #f3f4f6;
+  --c-text-muted: #9ca3af;
+  --c-border: #f0f0f0;
   --c-star: #fbbf24;
+  --c-success: #10b981;
+  --c-skeleton: #e5e7eb;
+  --c-skeleton-shine: #f3f4f6;
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   --radius: 16px;
-  --shadow: 0 2px 12px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
-  --nav-height: 64px;
-  --order-bar-height: 68px;
+  --radius-sm: 12px;
+  --radius-lg: 24px;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --nav-height: 72px;
+  --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --spring-smooth: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-bg: #0f1724;
+    --c-surface: #1a2332;
+    --c-card: #1e2a3a;
+    --c-text: #f1f5f9;
+    --c-text-secondary: #94a3b8;
+    --c-text-muted: #64748b;
+    --c-border: #2a3a4a;
+    --c-skeleton: #2a3a4a;
+    --c-skeleton-shine: #3a4a5a;
+    --glass-bg: rgba(26, 35, 50, 0.78);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
 }
 
 * {
@@ -41,16 +71,18 @@ body {
   max-width: 420px;
   margin: 0 auto;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
-  padding-bottom: calc(var(--nav-height) + 16px);
+  padding-bottom: calc(var(--nav-height) + 20px);
   position: relative;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Header */
+/* ===== HEADER ===== */
 .header {
-  background: linear-gradient(135deg, var(--c-from), var(--c-to));
-  padding: 48px 20px 24px;
-  border-radius: 0 0 24px 24px;
+  background: linear-gradient(145deg, var(--c-primary-dark), var(--c-primary), var(--c-primary-light));
+  padding: 52px 20px 28px;
+  border-radius: 0 0 28px 28px;
   position: relative;
   overflow: hidden;
 }
@@ -58,22 +90,22 @@ body {
 .header::before {
   content: '';
   position: absolute;
-  top: -30px;
-  left: -30px;
-  width: 120px;
-  height: 120px;
-  background: rgba(255,255,255,0.1);
+  top: -40px;
+  left: -40px;
+  width: 150px;
+  height: 150px;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 50%;
 }
 
 .header::after {
   content: '';
   position: absolute;
-  bottom: -20px;
-  right: -20px;
-  width: 80px;
-  height: 80px;
-  background: rgba(255,255,255,0.08);
+  bottom: -30px;
+  right: -30px;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 50%;
 }
 
@@ -81,86 +113,123 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 2;
 }
 
 .header-title {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 800;
   color: white;
   letter-spacing: -0.5px;
 }
 
 .header-subtitle {
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  position: relative;
+  z-index: 2;
 }
 
 .avatar {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Search */
+/* ===== SEARCH (Frosted Glass) ===== */
 .search-container {
   position: relative;
+  z-index: 2;
 }
 
 .search-input {
   width: 100%;
-  padding: 14px 44px 14px 16px;
-  border: none;
-  border-radius: 12px;
+  padding: 14px 48px 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-sm);
   font-size: 15px;
-  background: rgba(255,255,255,0.95);
-  color: var(--c-text);
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: white;
   outline: none;
   direction: rtl;
-  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
 .search-input::placeholder {
-  color: var(--c-text-secondary);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-input:focus {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .search-icon {
   position: absolute;
-  right: 14px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 18px;
-  opacity: 0.5;
+  font-size: 16px;
+  opacity: 0.8;
+  pointer-events: none;
 }
 
-/* Promo Banner */
+/* ===== PROMO BANNER ===== */
 .promo-banner {
   margin: 16px 16px 0;
-  padding: 14px 18px;
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f97316, #f59e0b, #f97316);
+  background-size: 200% 200%;
   border-radius: var(--radius);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 14px;
-  font-weight: 600;
-  color: #92400e;
-  box-shadow: var(--shadow);
-  animation: slideIn 0.5s ease;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 4px 20px rgba(249, 115, 22, 0.25);
+  animation: promoPulse 3s ease-in-out infinite, promoGradient 4s ease infinite;
+  position: relative;
+  overflow: hidden;
 }
 
-.promo-banner .promo-icon {
-  font-size: 24px;
+.promo-banner::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+  animation: promoShine 4s ease-in-out infinite;
+}
+
+.promo-icon {
+  font-size: 26px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
-/* Categories */
+.promo-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== CATEGORIES ===== */
 .categories {
   padding: 16px 16px 0;
   display: flex;
@@ -176,44 +245,46 @@ body {
 
 .category-chip {
   flex-shrink: 0;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border-radius: 24px;
   font-size: 14px;
   font-weight: 600;
-  background: var(--c-card);
+  background: var(--c-surface);
   color: var(--c-text-secondary);
   border: 1.5px solid var(--c-border);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s var(--spring);
   min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   user-select: none;
   white-space: nowrap;
 }
 
 .category-chip.active {
-  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  background: linear-gradient(135deg, var(--c-primary-dark), var(--c-primary));
   color: white;
   border-color: transparent;
-  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.35);
   transform: scale(1.05);
 }
 
 .category-chip:active {
-  transform: scale(0.95);
+  transform: scale(0.9);
+  transition: transform 0.15s var(--spring);
 }
 
-/* Menu Grid */
+/* ===== MENU SECTION ===== */
 .menu-section {
   padding: 20px 16px;
 }
 
 .menu-section-title {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 21px;
+  font-weight: 800;
   margin-bottom: 16px;
+  letter-spacing: -0.3px;
 }
 
 .menu-grid {
@@ -222,158 +293,110 @@ body {
   gap: 12px;
 }
 
-/* Menu Card */
+/* ===== MENU CARD (Uber Eats Style) ===== */
 .menu-card {
   background: var(--c-card);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 14px;
   box-shadow: var(--shadow);
   display: flex;
   gap: 14px;
   align-items: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: fadeInUp 0.4s ease forwards;
-  opacity: 0;
   position: relative;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(24px) scale(0.97);
+  animation: springIn 0.6s var(--spring-smooth) forwards;
+  border: 1px solid var(--c-border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.menu-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  animation: shimmer 4s ease-in-out infinite;
-  pointer-events: none;
+.menu-card:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-md);
 }
 
 .menu-card:nth-child(1) { animation-delay: 0.05s; }
-.menu-card:nth-child(1)::before { animation-delay: 0s; }
-.menu-card:nth-child(2) { animation-delay: 0.1s; }
-.menu-card:nth-child(2)::before { animation-delay: 0.7s; }
-.menu-card:nth-child(3) { animation-delay: 0.15s; }
-.menu-card:nth-child(3)::before { animation-delay: 1.4s; }
-.menu-card:nth-child(4) { animation-delay: 0.2s; }
-.menu-card:nth-child(4)::before { animation-delay: 2.1s; }
-.menu-card:nth-child(5) { animation-delay: 0.25s; }
-.menu-card:nth-child(5)::before { animation-delay: 2.8s; }
-.menu-card:nth-child(6) { animation-delay: 0.3s; }
-.menu-card:nth-child(6)::before { animation-delay: 3.5s; }
+.menu-card:nth-child(2) { animation-delay: 0.12s; }
+.menu-card:nth-child(3) { animation-delay: 0.19s; }
+.menu-card:nth-child(4) { animation-delay: 0.26s; }
+.menu-card:nth-child(5) { animation-delay: 0.33s; }
+.menu-card:nth-child(6) { animation-delay: 0.40s; }
 
 .menu-card.hidden {
   display: none;
 }
 
-.menu-card:active {
-  transform: scale(0.98);
-}
-
-/* Food Visual Area */
-.food-visual {
-  width: 110px;
+/* ===== FOOD PHOTO ===== */
+.food-photo-wrap {
+  width: 100px;
   height: 100px;
   border-radius: 14px;
   flex-shrink: 0;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
+  background: var(--c-skeleton);
 }
 
-.visual-bubbles {
+.food-photo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.4s ease;
+}
+
+.food-photo-wrap img.loading {
+  opacity: 0;
+}
+
+.food-photo-wrap::after {
+  content: '';
   position: absolute;
   inset: 0;
+  background: linear-gradient(135deg, transparent 60%, rgba(0, 0, 0, 0.08) 100%);
   pointer-events: none;
+  border-radius: 14px;
 }
 
-.visual-bubbles::before {
-  content: '';
+/* Gradient overlay on edges */
+.food-photo-gradient {
   position: absolute;
-  width: 30px;
-  height: 30px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 50%;
-  top: -8px;
-  right: -5px;
-}
-
-.visual-bubbles::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background: rgba(255,255,255,0.12);
-  border-radius: 50%;
-  bottom: 5px;
-  left: 5px;
-}
-
-.visual-bubble-sm {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 50%;
-  top: 50%;
-  left: 18px;
-}
-
-.food-icon {
-  font-size: 52px;
-  line-height: 1;
-  display: block;
-  position: relative;
+  inset: 0;
+  border-radius: 14px;
+  background:
+    linear-gradient(to left, rgba(0, 0, 0, 0.04), transparent 30%),
+    linear-gradient(to bottom, transparent 70%, rgba(0, 0, 0, 0.06));
+  pointer-events: none;
   z-index: 2;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
 }
 
-.food-icon.hot {
-  animation: float 3s infinite ease-in-out;
-}
-
-.food-icon.cold {
-  animation: wobble 3s infinite ease-in-out;
-}
-
-/* Steam Lines */
-.steam-lines {
+/* ===== SKELETON LOADING ===== */
+.skeleton {
   position: absolute;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-  z-index: 3;
+  inset: 0;
+  background: var(--c-skeleton);
+  border-radius: 14px;
+  overflow: hidden;
+  z-index: 1;
+  transition: opacity 0.3s ease;
+}
+
+.skeleton.hidden {
+  opacity: 0;
   pointer-events: none;
 }
 
-.steam-lines span {
-  display: block;
-  width: 2px;
-  background: rgba(255,255,255,0.6);
-  border-radius: 2px;
-  animation: steam 2s infinite ease-out;
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--c-skeleton-shine), transparent);
+  animation: shimmer 1.5s infinite;
+  transform: translateX(-100%);
 }
 
-.steam-lines span:nth-child(1) {
-  height: 18px;
-  animation-delay: 0s;
-}
-
-.steam-lines span:nth-child(2) {
-  height: 24px;
-  animation-delay: 0.3s;
-}
-
-.steam-lines span:nth-child(3) {
-  height: 15px;
-  animation-delay: 0.6s;
-}
-
+/* ===== CARD INFO ===== */
 .menu-card-info {
   flex: 1;
   min-width: 0;
@@ -382,22 +405,24 @@ body {
 .menu-card-name {
   font-size: 16px;
   font-weight: 700;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
+  line-height: 1.3;
 }
 
 .menu-card-desc {
   font-size: 13px;
   color: var(--c-text-secondary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.4;
 }
 
 .menu-card-bottom {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
 }
 
 .menu-card-price {
@@ -411,55 +436,62 @@ body {
   align-items: center;
   gap: 3px;
   font-size: 12px;
-  color: var(--c-text-secondary);
+  color: var(--c-text-muted);
+  font-weight: 500;
 }
 
 .menu-card-rating .star {
   color: var(--c-star);
+  font-size: 13px;
 }
 
+/* ===== ADD BUTTON ===== */
 .add-btn {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  background: linear-gradient(135deg, var(--c-primary-dark), var(--c-primary));
   color: white;
   border: none;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 300;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  transition: all 0.2s var(--spring);
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+  line-height: 1;
 }
 
 .add-btn:active {
-  transform: scale(0.85);
+  transform: scale(0.8);
 }
 
 .add-btn.added {
-  animation: springPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: springBounce 0.6s var(--spring);
 }
 
-/* Order Bar */
+/* ===== ORDER BAR (Liquid Glass) ===== */
 .order-bar {
   position: fixed;
-  bottom: calc(var(--nav-height) + 12px);
+  bottom: calc(var(--nav-height) + 14px);
   left: 50%;
-  transform: translateX(-50%) translateY(120px);
+  transform: translateX(-50%) translateY(140px);
   width: calc(100% - 32px);
   max-width: 388px;
-  background: linear-gradient(135deg, var(--c-from), var(--c-to));
-  border-radius: 20px;
+  background: rgba(249, 115, 22, 0.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 22px;
   padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 8px 32px rgba(249, 115, 22, 0.4);
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 40px rgba(249, 115, 22, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: transform 0.6s var(--spring-smooth);
   z-index: 100;
   cursor: pointer;
 }
@@ -475,9 +507,11 @@ body {
 }
 
 .order-count {
-  width: 28px;
-  height: 28px;
-  background: rgba(255,255,255,0.25);
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -485,11 +519,11 @@ body {
   font-size: 14px;
   font-weight: 700;
   color: white;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .order-count.bounce {
-  animation: bounceCount 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: bounceCount 0.5s var(--spring);
 }
 
 .order-bar-text {
@@ -500,22 +534,11 @@ body {
 
 .order-bar-total {
   color: white;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 800;
 }
 
-.view-order-btn {
-  background: rgba(255,255,255,0.2);
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* Bottom Nav */
+/* ===== BOTTOM NAV (Liquid Glass) ===== */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -524,24 +547,27 @@ body {
   width: 100%;
   max-width: 420px;
   height: var(--nav-height);
-  background: var(--c-card);
-  border-top: 1px solid var(--c-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-top: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: space-around;
   z-index: 200;
   padding-bottom: env(safe-area-inset-bottom, 0);
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.05);
 }
 
 .nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   cursor: pointer;
   padding: 8px 16px;
-  border-radius: 12px;
-  transition: all 0.2s ease;
+  border-radius: var(--radius-sm);
+  transition: all 0.3s var(--spring);
   min-width: 44px;
   min-height: 44px;
   justify-content: center;
@@ -551,12 +577,21 @@ body {
   color: var(--c-primary);
 }
 
+.nav-item.active .nav-icon {
+  transform: scale(1.1);
+}
+
 .nav-item:not(.active) {
-  color: var(--c-text-secondary);
+  color: var(--c-text-muted);
+}
+
+.nav-item:active {
+  transform: scale(0.9);
 }
 
 .nav-icon {
   font-size: 22px;
+  transition: transform 0.3s var(--spring);
 }
 
 .nav-label {
@@ -564,18 +599,20 @@ body {
   font-weight: 600;
 }
 
-/* Modal */
+/* ===== MODAL (Liquid Glass Backdrop) ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 500;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.35s ease;
 }
 
 .modal-overlay.visible {
@@ -584,15 +621,16 @@ body {
 }
 
 .modal {
-  background: var(--c-card);
+  background: var(--c-surface);
   width: 100%;
   max-width: 420px;
-  max-height: 80vh;
-  border-radius: 24px 24px 0 0;
-  padding: 24px 20px;
+  max-height: 82vh;
+  border-radius: 28px 28px 0 0;
+  padding: 20px 20px 28px;
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.55s var(--spring-smooth);
   overflow-y: auto;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.15);
 }
 
 .modal-overlay.visible .modal {
@@ -601,9 +639,9 @@ body {
 
 .modal-handle {
   width: 40px;
-  height: 4px;
-  background: #d1d5db;
-  border-radius: 2px;
+  height: 5px;
+  background: var(--c-border);
+  border-radius: 3px;
   margin: 0 auto 20px;
 }
 
@@ -632,8 +670,11 @@ body {
   gap: 12px;
 }
 
-.order-item-emoji {
-  font-size: 28px;
+.order-item-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
 }
 
 .order-item-name {
@@ -644,12 +685,7 @@ body {
 .order-item-qty {
   font-size: 13px;
   color: var(--c-text-secondary);
-}
-
-.order-item-price {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--c-primary);
+  margin-top: 2px;
 }
 
 .order-item-controls {
@@ -659,8 +695,8 @@ body {
 }
 
 .qty-btn {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: 2px solid var(--c-border);
   background: transparent;
@@ -670,19 +706,26 @@ body {
   align-items: center;
   justify-content: center;
   color: var(--c-text);
-  transition: all 0.2s;
+  transition: all 0.2s var(--spring);
 }
 
 .qty-btn:active {
-  transform: scale(0.9);
+  transform: scale(0.85);
   background: var(--c-border);
 }
 
 .qty-display {
   font-size: 16px;
   font-weight: 700;
-  min-width: 20px;
+  min-width: 22px;
   text-align: center;
+}
+
+.order-item-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--c-primary);
+  margin-right: 8px;
 }
 
 .order-total-section {
@@ -697,16 +740,18 @@ body {
   align-items: center;
   margin-bottom: 8px;
   font-size: 15px;
+  color: var(--c-text-secondary);
 }
 
 .order-total-row.total {
   font-size: 20px;
   font-weight: 800;
   margin-top: 12px;
+  color: var(--c-text);
 }
 
-.order-total-row .free-delivery {
-  color: #16a34a;
+.free-delivery {
+  color: var(--c-success);
   font-weight: 600;
 }
 
@@ -714,15 +759,15 @@ body {
   width: 100%;
   padding: 18px;
   border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--c-primary-dark), var(--c-primary));
   color: white;
   font-size: 17px;
   font-weight: 700;
   cursor: pointer;
   margin-top: 20px;
-  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3);
-  transition: all 0.2s;
+  box-shadow: 0 6px 24px rgba(249, 115, 22, 0.35);
+  transition: all 0.2s var(--spring);
 }
 
 .checkout-btn:active {
@@ -736,7 +781,7 @@ body {
 }
 
 .empty-order-icon {
-  font-size: 48px;
+  font-size: 52px;
   margin-bottom: 12px;
 }
 
@@ -745,95 +790,73 @@ body {
   font-weight: 500;
 }
 
-/* Animations */
-@keyframes fadeInUp {
-  from {
+/* ===== ANIMATIONS ===== */
+@keyframes springIn {
+  0% {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(24px) scale(0.97);
   }
-  to {
+  60% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-4px) scale(1.01);
+  }
+  80% {
+    transform: translateY(2px) scale(0.995);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes springPop {
+@keyframes springBounce {
   0% { transform: scale(1); }
-  30% { transform: scale(1.3); }
-  50% { transform: scale(0.9); }
-  70% { transform: scale(1.1); }
+  20% { transform: scale(0.8); }
+  40% { transform: scale(1.3); }
+  60% { transform: scale(0.95); }
+  80% { transform: scale(1.08); }
   100% { transform: scale(1); }
 }
 
 @keyframes bounceCount {
   0% { transform: scale(1); }
-  40% { transform: scale(1.4); }
-  70% { transform: scale(0.9); }
+  30% { transform: scale(1.4); }
+  60% { transform: scale(0.85); }
+  80% { transform: scale(1.1); }
   100% { transform: scale(1); }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
-@keyframes steam {
-  0% {
-    opacity: 0.6;
-    transform: translateY(0) scaleX(1);
-  }
-  50% {
-    opacity: 0.3;
-    transform: translateY(-10px) scaleX(1.2);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-20px) scaleX(0.8);
-  }
 }
 
 @keyframes shimmer {
   0% {
-    left: -100%;
+    transform: translateX(-100%);
   }
-  50%, 100% {
-    left: 100%;
+  100% {
+    transform: translateX(100%);
   }
 }
 
-@keyframes wobble {
+@keyframes promoPulse {
   0%, 100% {
-    transform: rotate(0deg) translateY(0);
-  }
-  25% {
-    transform: rotate(-3deg) translateY(-2px);
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.25);
   }
   50% {
-    transform: rotate(0deg) translateY(-4px);
+    box-shadow: 0 4px 28px rgba(249, 115, 22, 0.4);
   }
-  75% {
-    transform: rotate(3deg) translateY(-2px);
-  }
+}
+
+@keyframes promoGradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes promoShine {
+  0%, 100% { transform: translate(-30%, -30%) rotate(0deg); }
+  50% { transform: translate(30%, 30%) rotate(180deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </style>
 </head>
@@ -844,34 +867,40 @@ body {
   <div class="header-top">
     <div>
       <h1 class="header-title">Foodie</h1>
-      <p class="header-subtitle">מה בא לך לאכול היום? 😋</p>
+      <p class="header-subtitle">מה בא לך לאכול היום?</p>
     </div>
-    <div class="avatar">👤</div>
+    <div class="avatar">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
   </div>
   <div class="search-container">
-    <span class="search-icon">🔍</span>
+    <span class="search-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    </span>
     <input type="text" class="search-input" placeholder="חיפוש מנות..." id="searchInput">
   </div>
 </header>
 
 <!-- Promo Banner -->
 <div class="promo-banner">
-  <span class="promo-icon">🚚</span>
-  <span>משלוח חינם! בהזמנה מעל ₪80</span>
+  <span class="promo-icon">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h2a2 2 0 0 1 2 2v2M7 6h10l4 4v4a2 2 0 0 1-2 2h-1"/><circle cx="7.5" cy="18.5" r="2.5"/><circle cx="16.5" cy="18.5" r="2.5"/></svg>
+  </span>
+  <span class="promo-text">משלוח חינם בהזמנה מעל 80 שקלים!</span>
 </div>
 
 <!-- Categories -->
 <div class="categories" id="categories">
-  <button class="category-chip active" data-category="all">🍕 הכל</button>
-  <button class="category-chip" data-category="burger">🍔 המבורגר</button>
-  <button class="category-chip" data-category="sushi">🍣 סושי</button>
-  <button class="category-chip" data-category="israeli">🥙 ישראלי</button>
-  <button class="category-chip" data-category="pasta">🍝 פסטה</button>
+  <button class="category-chip active" data-category="all">הכל</button>
+  <button class="category-chip" data-category="burger">המבורגר</button>
+  <button class="category-chip" data-category="sushi">סושי</button>
+  <button class="category-chip" data-category="israeli">ישראלי</button>
+  <button class="category-chip" data-category="pasta">פסטה</button>
 </div>
 
 <!-- Menu -->
 <section class="menu-section">
-  <h2 class="menu-section-title">תפריט 🔥</h2>
+  <h2 class="menu-section-title">פופולרי עכשיו</h2>
   <div class="menu-grid" id="menuGrid"></div>
 </section>
 
@@ -881,25 +910,33 @@ body {
     <div class="order-count" id="orderCount">0</div>
     <span class="order-bar-text">צפה בהזמנה</span>
   </div>
-  <div class="order-bar-total" id="orderTotal">₪0</div>
+  <div class="order-bar-total" id="orderTotal">&#8362;0</div>
 </div>
 
 <!-- Bottom Navigation -->
 <nav class="bottom-nav">
   <div class="nav-item active">
-    <span class="nav-icon">🏠</span>
+    <span class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z"/></svg>
+    </span>
     <span class="nav-label">בית</span>
   </div>
   <div class="nav-item">
-    <span class="nav-icon">🔍</span>
+    <span class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    </span>
     <span class="nav-label">חיפוש</span>
   </div>
   <div class="nav-item">
-    <span class="nav-icon">📋</span>
+    <span class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    </span>
     <span class="nav-label">הזמנות</span>
   </div>
   <div class="nav-item">
-    <span class="nav-icon">👤</span>
+    <span class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </span>
     <span class="nav-label">חשבון</span>
   </div>
 </nav>
@@ -908,100 +945,88 @@ body {
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
-    <h2 class="modal-title">ההזמנה שלך 🛒</h2>
+    <h2 class="modal-title">ההזמנה שלך</h2>
     <div id="orderItems"></div>
     <div class="order-total-section" id="orderTotalSection" style="display:none;">
       <div class="order-total-row">
         <span>סכום ביניים</span>
-        <span id="subtotalDisplay">₪0</span>
+        <span id="subtotalDisplay">&#8362;0</span>
       </div>
       <div class="order-total-row">
         <span>משלוח</span>
         <span id="deliveryDisplay" class="free-delivery">חינם</span>
       </div>
       <div class="order-total-row total">
-        <span>סה"כ</span>
-        <span id="totalDisplay">₪0</span>
+        <span>סה"כ לתשלום</span>
+        <span id="totalDisplay">&#8362;0</span>
       </div>
-      <button class="checkout-btn" onclick="checkout()">לתשלום 💳</button>
+      <button class="checkout-btn" onclick="checkout()">לתשלום</button>
     </div>
   </div>
 </div>
 
 <script>
-// Menu data
+// Menu data with real food photo URLs
 const menuItems = [
   {
     id: 1,
     name: 'המבורגר קלאסי',
-    emoji: '🍔',
+    photo: 'https://picsum.photos/seed/burger/200/200',
     desc: '200 גרם בקר, חסה, עגבניה, בצל ורוטב סודי',
     price: 52,
     rating: 4.8,
     reviews: 124,
-    category: 'burger',
-    gradient: ['#dc2626', '#ef4444'],
-    isHot: true
+    category: 'burger'
   },
   {
     id: 2,
     name: 'פיצה מרגריטה',
-    emoji: '🍕',
+    photo: 'https://picsum.photos/seed/pizza/200/200',
     desc: 'רוטב עגבניות, מוצרלה טרייה ובזיליקום',
     price: 48,
     rating: 4.6,
     reviews: 98,
-    category: 'pasta',
-    gradient: ['#ea580c', '#f97316'],
-    isHot: true
+    category: 'pasta'
   },
   {
     id: 3,
     name: 'שווארמה בפיתה',
-    emoji: '🥙',
+    photo: 'https://picsum.photos/seed/kebab/200/200',
     desc: 'שווארמה טרייה עם חומוס, טחינה וסלט',
     price: 38,
     rating: 4.9,
     reviews: 201,
-    category: 'israeli',
-    gradient: ['#ca8a04', '#eab308'],
-    isHot: true
+    category: 'israeli'
   },
   {
     id: 4,
     name: 'סושי מיקס',
-    emoji: '🍣',
+    photo: 'https://picsum.photos/seed/sushi/200/200',
     desc: '12 יחידות מגוונות - סלמון, טונה ואבוקדו',
     price: 68,
     rating: 4.7,
     reviews: 87,
-    category: 'sushi',
-    gradient: ['#0d9488', '#14b8a6'],
-    isHot: false
+    category: 'sushi'
   },
   {
     id: 5,
     name: 'פסטה ברוטב',
-    emoji: '🍝',
+    photo: 'https://picsum.photos/seed/pasta/200/200',
     desc: 'פסטה טרייה ברוטב שמנת פטריות וכמהין',
     price: 42,
     rating: 4.5,
     reviews: 76,
-    category: 'pasta',
-    gradient: ['#c2410c', '#ea580c'],
-    isHot: true
+    category: 'pasta'
   },
   {
     id: 6,
     name: 'שקשוקה',
-    emoji: '🍳',
+    photo: 'https://picsum.photos/seed/shakshuka/200/200',
     desc: 'ביצים ברוטב עגבניות חריף עם טחינה ולחם',
     price: 36,
     rating: 4.8,
     reviews: 156,
-    category: 'israeli',
-    gradient: ['#b91c1c', '#dc2626'],
-    isHot: true
+    category: 'israeli'
   }
 ];
 
@@ -1016,7 +1041,8 @@ function renderMenu() {
 
   grid.innerHTML = '';
 
-  menuItems.forEach((item, index) => {
+  let visibleIndex = 0;
+  menuItems.forEach((item) => {
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
     const matchesSearch = !searchQuery || item.name.includes(searchQuery) || item.desc.includes(searchQuery);
 
@@ -1024,34 +1050,28 @@ function renderMenu() {
 
     const card = document.createElement('div');
     card.className = 'menu-card';
-    card.style.animationDelay = `${index * 0.05}s`;
-
-    const steamHTML = item.isHot
-      ? '<div class="steam-lines"><span></span><span></span><span></span></div>'
-      : '';
-
-    const iconClass = item.isHot ? 'hot' : 'cold';
+    card.style.animationDelay = `${visibleIndex * 0.07}s`;
 
     card.innerHTML = `
-      <div class="food-visual" style="background:linear-gradient(135deg, ${item.gradient[0]}, ${item.gradient[1]})">
-        <div class="visual-bubbles"></div>
-        <div class="visual-bubble-sm"></div>
-        <span class="food-icon ${iconClass}">${item.emoji}</span>
-        ${steamHTML}
+      <div class="food-photo-wrap">
+        <div class="skeleton" id="skeleton-${item.id}"></div>
+        <img src="${item.photo}" alt="${item.name}" class="loading" onload="this.classList.remove('loading'); document.getElementById('skeleton-${item.id}').classList.add('hidden');" onerror="this.classList.remove('loading'); document.getElementById('skeleton-${item.id}').classList.add('hidden');">
+        <div class="food-photo-gradient"></div>
       </div>
       <div class="menu-card-info">
         <div class="menu-card-name">${item.name}</div>
         <div class="menu-card-desc">${item.desc}</div>
         <div class="menu-card-bottom">
-          <span class="menu-card-price">₪${item.price}</span>
+          <span class="menu-card-price">&#8362;${item.price}</span>
           <span class="menu-card-rating">
-            <span class="star">★</span> ${item.rating} (${item.reviews})
+            <span class="star">&#9733;</span> ${item.rating} (${item.reviews})
           </span>
         </div>
       </div>
       <button class="add-btn" onclick="addToOrder(${item.id}, this)" aria-label="הוסף לסל">+</button>
     `;
     grid.appendChild(card);
+    visibleIndex++;
   });
 }
 
@@ -1063,9 +1083,9 @@ function addToOrder(id, btn) {
     order[id] = 1;
   }
 
-  // Animate button
+  // Spring bounce animation
   btn.classList.remove('added');
-  void btn.offsetWidth; // Force reflow
+  void btn.offsetWidth;
   btn.classList.add('added');
 
   updateOrderBar();
@@ -1124,7 +1144,9 @@ function renderOrderModal() {
   if (orderEntries.length === 0) {
     container.innerHTML = `
       <div class="empty-order">
-        <div class="empty-order-icon">🛒</div>
+        <div class="empty-order-icon">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--c-text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </div>
         <div class="empty-order-text">ההזמנה ריקה</div>
       </div>
     `;
@@ -1145,7 +1167,7 @@ function renderOrderModal() {
     html += `
       <div class="order-item">
         <div class="order-item-right">
-          <span class="order-item-emoji">${item.emoji}</span>
+          <img class="order-item-img" src="${item.photo}" alt="${item.name}">
           <div>
             <div class="order-item-name">${item.name}</div>
             <div class="order-item-qty">₪${item.price} ליח'</div>
@@ -1193,19 +1215,26 @@ function checkout() {
   const totalItems = Object.values(order).reduce((a, b) => a + b, 0);
   if (totalItems === 0) return;
 
-  alert('ההזמנה נשלחה בהצלחה! 🎉\nתודה שהזמנת מ-Foodie');
+  alert('ההזמנה נשלחה בהצלחה!\nתודה שהזמנת מ-Foodie');
   order = {};
   updateOrderBar();
   closeModal({ target: document.getElementById('modalOverlay'), currentTarget: document.getElementById('modalOverlay') });
 }
 
-// Category click
+// Category click with spring animation
 document.getElementById('categories').addEventListener('click', function(e) {
   const chip = e.target.closest('.category-chip');
   if (!chip) return;
 
   document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
   chip.classList.add('active');
+
+  // Spring scale effect on tap
+  chip.style.transform = 'scale(0.9)';
+  setTimeout(() => {
+    chip.style.transform = '';
+  }, 150);
+
   activeCategory = chip.dataset.category;
   renderMenu();
 });
