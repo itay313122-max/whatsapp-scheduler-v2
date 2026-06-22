@@ -495,11 +495,90 @@ THERE ARE NO LIMITS on complexity. If the user asks for it, BUILD IT.
 Generate as much code as needed. Use multiple helper components.
 The app should feel REAL and COMPLETE, not a demo or mockup.
 
+━━━ VISUAL CONTENT — ANIMATED IMAGES & ILLUSTRATIONS ━━━
+Do NOT rely on plain emojis alone. Create RICH VISUAL content:
+
+ANIMATED CSS ILLUSTRATIONS — use for product/item cards:
+  Each item card should have a visually rich image area:
+  .item-visual {
+    width: 100%; height: 140px; border-radius: 16px;
+    background: linear-gradient(135deg, #color1, #color2);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .item-visual .icon { font-size: 56px; animation: float 3s ease-in-out infinite; }
+  @keyframes float {
+    0%,100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-8px) scale(1.05); }
+  }
+
+  Add decorative animated elements:
+  .item-visual::before {
+    content: ''; position: absolute; width: 60px; height: 60px;
+    background: rgba(255,255,255,0.15); border-radius: 50%;
+    top: -15px; right: -15px; animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:.3} 50%{transform:scale(1.3);opacity:.1} }
+
+SHIMMER LOADING EFFECT — use on image placeholders:
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+ANIMATED PRODUCT PATTERNS — use these for different app types:
+  E-COMMERCE products:
+    Gradient card + large centered icon + floating animation + sparkle particles.
+    Each product gets unique gradient colors matching its category.
+    .product-img { background: linear-gradient(135deg, #colorA 0%, #colorB 100%); }
+    Add ::after pseudo-element with small decorative dots/circles.
+
+  FOOD items:
+    Warm gradient (oranges, reds) + steam animation on hot items.
+    .steam { animation: steam 2s ease-in-out infinite; opacity: 0.6; }
+    @keyframes steam { 0%{transform:translateY(0);opacity:.6} 100%{transform:translateY(-15px);opacity:0} }
+    3 small steam lines rising from food icon.
+
+  FITNESS/HEALTH:
+    Pulsing rings + activity animations.
+    .ring { border: 3px solid; border-radius: 50%; animation: ringPulse 2s infinite; }
+
+  SOCIAL MEDIA:
+    Animated avatar borders, story-ring gradient rotation.
+    .story-ring { background: conic-gradient(#ff5722, #ff9800, #ffeb3b, #4caf50, #2196f3, #9c27b0, #ff5722);
+      animation: rotate 3s linear infinite; }
+
+IMAGE URL SUPPORT — when internet is available:
+  Use placeholder image services for realistic visuals:
+  <img src="https://picsum.photos/seed/{keyword}/300/200" alt="..."
+    style="width:100%;height:160px;object-fit:cover;border-radius:16px;" />
+
+  Add loading animation while image loads:
+  onLoad={() => setLoaded(true)} with opacity transition.
+
+  ALWAYS provide CSS gradient fallback if image fails to load:
+  .img-container { background: linear-gradient(...); } /* shows while loading */
+
+LOTTIE ANIMATIONS — for complex animations:
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@2/dist/lottie-player.js"></script>
+  <lottie-player src="URL" background="transparent" speed="1" loop autoplay
+    style="width:120px;height:120px;"></lottie-player>
+  Use only when the user specifically requests rich animations.
+
+RULE: Every item/product/card MUST have a visually rich image area with:
+  1. Colorful gradient background (unique per item)
+  2. At least one CSS animation (float, pulse, bounce, shimmer, rotate)
+  3. Decorative pseudo-elements (circles, dots, glow)
+  4. The icon/emoji displayed LARGE (48-64px) with animation
+  Never show a raw emoji as plain text — always wrap in an animated visual container.
+
 ━━━ CONTENT RULES ━━━
 - Hebrew if user writes Hebrew; add dir="rtl" to app-shell div
 - Generate RICH sample data: 5-10 realistic items, not just 3
 - All navigation works (useState)
-- Emoji as icons, no libraries
+- Emoji as icons when no images available, but ALWAYS in animated visual containers
 - Empty state for every list (use .empty-state)
 - localStorage persistence for user data when relevant
 
