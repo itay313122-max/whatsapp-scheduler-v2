@@ -68,7 +68,133 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Header Banner */
+/* ── Keyframe Animations ── */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(255,255,255,0.15); }
+  50% { box-shadow: 0 0 20px rgba(255,255,255,0.35); }
+}
+
+@keyframes confetti {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.3) rotate(10deg); opacity: 0.8; }
+  100% { transform: scale(0) rotate(25deg); opacity: 0; }
+}
+
+@keyframes iconPulse {
+  0%, 100% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes iconSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+  50% { transform: translateY(0); }
+  70% { transform: translateY(-3px); }
+}
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(15px, -10px) scale(1.05); }
+  66% { transform: translate(-10px, 8px) scale(0.95); }
+}
+
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-12px, 12px) scale(1.08); }
+  66% { transform: translate(8px, -15px) scale(0.92); }
+}
+
+@keyframes orbFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(10px, 10px) scale(1.1); }
+}
+
+@keyframes statGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+  50% { box-shadow: 0 0 12px 2px rgba(255,255,255,0.15); }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes shimmerOverlay {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideOut {
+  to {
+    opacity: 0;
+    transform: translateX(-100px) scale(0.9);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: -10px;
+  }
+}
+
+@keyframes fabPulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(37,99,235,0.4); }
+  50% { box-shadow: 0 4px 24px rgba(37,99,235,0.6), 0 0 40px rgba(129,140,248,0.3); }
+}
+
+@keyframes checkPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+@keyframes emptyFloat {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+@keyframes emptyOrb {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.2); opacity: 0.6; }
+}
+
+@keyframes celebrateStar {
+  0% { transform: scale(0) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 0.8; }
+  100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+@keyframes filterSlide {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+/* ── Header Banner ── */
 .header {
   background: linear-gradient(135deg, var(--c-from) 0%, var(--c-to) 50%, #818cf8 100%);
   padding: 20px 20px 28px;
@@ -76,26 +202,56 @@ body {
   overflow: hidden;
 }
 
-.header::before {
-  content: '';
+/* Animated decorative orbs in header */
+.header-orb {
   position: absolute;
-  top: -40px;
-  left: -40px;
-  width: 120px;
-  height: 120px;
-  background: rgba(255,255,255,0.08);
   border-radius: 50%;
+  pointer-events: none;
 }
 
-.header::after {
-  content: '';
-  position: absolute;
-  bottom: -20px;
-  right: 30px;
-  width: 80px;
-  height: 80px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 50%;
+.header-orb-1 {
+  top: -30px;
+  left: -30px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 70%);
+  animation: orbFloat1 8s ease-in-out infinite;
+}
+
+.header-orb-2 {
+  bottom: -25px;
+  right: 20px;
+  width: 90px;
+  height: 90px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.01) 70%);
+  animation: orbFloat2 10s ease-in-out infinite;
+}
+
+.header-orb-3 {
+  top: 15px;
+  right: 40%;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  animation: orbFloat3 6s ease-in-out infinite;
+}
+
+.header-orb-4 {
+  bottom: 30px;
+  left: 30%;
+  width: 35px;
+  height: 35px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: orbFloat1 7s ease-in-out infinite reverse;
+}
+
+.header-orb-5 {
+  top: 40px;
+  left: 70%;
+  width: 25px;
+  height: 25px;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+  animation: orbFloat2 9s ease-in-out infinite;
 }
 
 .header-top {
@@ -148,6 +304,15 @@ body {
   text-align: center;
   border: 1px solid rgba(255,255,255,0.12);
   transition: transform var(--transition);
+  animation: statGlow 3s ease-in-out infinite;
+}
+
+.stat-card:nth-child(2) {
+  animation-delay: 1s;
+}
+
+.stat-card:nth-child(3) {
+  animation-delay: 2s;
 }
 
 .stat-card:active {
@@ -218,11 +383,18 @@ body {
   transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   animation: shimmer 2s infinite linear;
+  overflow: hidden;
 }
 
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  animation: shimmerOverlay 2s infinite linear;
 }
 
 /* Filter Tabs */
@@ -237,6 +409,7 @@ body {
   border-radius: 14px;
   padding: 5px;
   box-shadow: var(--shadow);
+  position: relative;
 }
 
 .filter-tab {
@@ -249,19 +422,22 @@ body {
   font-weight: 600;
   color: var(--c-text-secondary);
   cursor: pointer;
-  transition: all var(--transition);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   font-family: inherit;
   min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
+  position: relative;
+  z-index: 1;
 }
 
 .filter-tab.active {
   background: var(--c-primary);
   color: #fff;
   box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+  animation: filterSlide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .filter-tab:not(.active):active {
@@ -432,31 +608,9 @@ body {
   transition: all var(--transition);
   position: relative;
   overflow: hidden;
-  animation: slideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   touch-action: pan-y;
   cursor: pointer;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-  }
-}
-
-@keyframes slideOut {
-  to {
-    opacity: 0;
-    transform: translateX(-100px) scale(0.9);
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-bottom: -10px;
-  }
 }
 
 .task-card.removing {
@@ -469,6 +623,85 @@ body {
 
 .task-card:active {
   transform: scale(0.985);
+}
+
+/* Completion celebration */
+.task-card.celebrating {
+  position: relative;
+}
+
+.celebrate-particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 14px;
+  z-index: 10;
+  animation: celebrateStar 0.7s ease-out forwards;
+}
+
+/* Task Icon (per category) */
+.task-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.task-icon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+.task-icon span {
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+}
+
+.task-icon-work {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+}
+
+.task-icon-work span {
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+.task-icon-personal {
+  background: linear-gradient(135deg, #22c55e, #4ade80);
+}
+
+.task-icon-personal span {
+  animation: iconSpin 8s linear infinite;
+}
+
+.task-icon-shopping {
+  background: linear-gradient(135deg, #f97316, #fb923c);
+}
+
+.task-icon-shopping span {
+  animation: iconBounce 2s ease-in-out infinite;
+}
+
+.task-card.completed .task-icon {
+  opacity: 0.5;
+  filter: grayscale(0.4);
+}
+
+.task-card.completed .task-icon::after {
+  animation: none;
+}
+
+.task-card.completed .task-icon span {
+  animation: none;
 }
 
 /* Custom Checkbox */
@@ -487,7 +720,6 @@ body {
   position: relative;
   min-width: 44px;
   min-height: 44px;
-  /* Keep visual size but expand touch area */
   background-clip: content-box;
   padding: 9px;
   box-sizing: content-box;
@@ -500,14 +732,10 @@ body {
   width: 10px;
   height: 6px;
   border-bottom: 2.5px solid #fff;
-  border-right: 2.5px solid #fff;
-  transform: rotate(-45deg) scale(0);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  /* Flip for RTL */
-  border-bottom: 2.5px solid #fff;
   border-left: 2.5px solid #fff;
   border-right: none;
   transform: rotate(45deg) scale(0);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   margin-top: -2px;
 }
 
@@ -518,12 +746,6 @@ body {
 
 .task-checkbox.checked::after {
   transform: rotate(45deg) scale(1);
-}
-
-@keyframes checkPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.25); }
-  100% { transform: scale(1); }
 }
 
 .task-checkbox.pop {
@@ -654,6 +876,7 @@ body {
   align-items: center;
   justify-content: center;
   max-width: 420px;
+  animation: fabPulse 2.5s ease-in-out infinite;
 }
 
 @media (min-width: 421px) {
@@ -664,6 +887,7 @@ body {
 
 .fab:active {
   transform: translateX(-50%) scale(0.9) rotate(90deg);
+  animation: none;
 }
 
 /* Bottom Nav */
@@ -724,12 +948,67 @@ body {
   text-align: center;
   padding: 40px 20px;
   color: var(--c-text-light);
+  position: relative;
 }
 
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
-  opacity: 0.5;
+.empty-illustration {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-illustration .empty-main-icon {
+  font-size: 52px;
+  animation: emptyFloat 3s ease-in-out infinite;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+.empty-illustration .empty-orb {
+  position: absolute;
+  border-radius: 50%;
+  animation: emptyOrb 3s ease-in-out infinite;
+}
+
+.empty-illustration .empty-orb-1 {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  top: 8px;
+  right: 8px;
+  animation-delay: 0s;
+}
+
+.empty-illustration .empty-orb-2 {
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  bottom: 12px;
+  left: 10px;
+  animation-delay: 0.5s;
+}
+
+.empty-illustration .empty-orb-3 {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  top: 20px;
+  left: 5px;
+  animation-delay: 1s;
+}
+
+.empty-illustration .empty-orb-4 {
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  bottom: 20px;
+  right: 15px;
+  animation-delay: 1.5s;
 }
 
 .empty-text {
@@ -808,6 +1087,11 @@ body::-webkit-scrollbar {
 
 <!-- Header -->
 <header class="header">
+  <div class="header-orb header-orb-1"></div>
+  <div class="header-orb header-orb-2"></div>
+  <div class="header-orb header-orb-3"></div>
+  <div class="header-orb header-orb-4"></div>
+  <div class="header-orb header-orb-5"></div>
   <div class="header-top">
     <div>
       <div class="header-title">TaskMaster</div>
@@ -916,19 +1200,19 @@ body::-webkit-scrollbar {
   'use strict';
 
   // ── Data ──
-  const CATEGORIES = {
-    work:     { label: 'עבודה',  class: 'tag-work' },
-    personal: { label: 'אישי',   class: 'tag-personal' },
-    shopping: { label: 'קניות',  class: 'tag-shopping' }
+  var CATEGORIES = {
+    work:     { label: 'עבודה',  class: 'tag-work',     iconClass: 'task-icon-work',     emoji: '💼' },
+    personal: { label: 'אישי',   class: 'tag-personal', iconClass: 'task-icon-personal', emoji: '🌟' },
+    shopping: { label: 'קניות',  class: 'tag-shopping', iconClass: 'task-icon-shopping', emoji: '🛒' }
   };
 
-  const PRIORITIES = {
+  var PRIORITIES = {
     high:   { label: 'גבוה',  class: 'priority-high' },
     medium: { label: 'בינוני', class: 'priority-medium' },
     low:    { label: 'נמוך',   class: 'priority-low' }
   };
 
-  let tasks = [
+  var tasks = [
     { id: 1, title: 'להכין מצגת לפגישת צוות', completed: false, category: 'work', priority: 'high' },
     { id: 2, title: 'לקנות מתנת יום הולדת לדנה', completed: false, category: 'personal', priority: 'medium' },
     { id: 3, title: 'לשלוח דוח חודשי למנהל', completed: true, category: 'work', priority: 'high' },
@@ -939,26 +1223,26 @@ body::-webkit-scrollbar {
     { id: 8, title: 'להזמין מסעדה לערב שישי', completed: false, category: 'personal', priority: 'medium' }
   ];
 
-  let nextId = 9;
-  let currentFilter = 'all';
-  let selectedCategory = 'work';
-  let selectedPriority = 'medium';
+  var nextId = 9;
+  var currentFilter = 'all';
+  var selectedCategory = 'work';
+  var selectedPriority = 'medium';
 
   // ── DOM Refs ──
-  const taskListEl    = document.getElementById('taskList');
-  const addInputEl    = document.getElementById('addInput');
-  const addBtnEl      = document.getElementById('addBtn');
-  const fabEl         = document.getElementById('fabBtn');
-  const toastEl       = document.getElementById('toast');
-  const headerDateEl  = document.getElementById('headerDate');
-  const progressBar   = document.getElementById('progressBar');
-  const progressPct   = document.getElementById('progressPercent');
-  const statTotal     = document.getElementById('statTotal');
-  const statCompleted = document.getElementById('statCompleted');
-  const statPending   = document.getElementById('statPending');
-  const countAll      = document.getElementById('countAll');
-  const countActive   = document.getElementById('countActive');
-  const countCompleted= document.getElementById('countCompleted');
+  var taskListEl    = document.getElementById('taskList');
+  var addInputEl    = document.getElementById('addInput');
+  var addBtnEl      = document.getElementById('addBtn');
+  var fabEl         = document.getElementById('fabBtn');
+  var toastEl       = document.getElementById('toast');
+  var headerDateEl  = document.getElementById('headerDate');
+  var progressBar   = document.getElementById('progressBar');
+  var progressPct   = document.getElementById('progressPercent');
+  var statTotal     = document.getElementById('statTotal');
+  var statCompleted = document.getElementById('statCompleted');
+  var statPending   = document.getElementById('statPending');
+  var countAll      = document.getElementById('countAll');
+  var countActive   = document.getElementById('countActive');
+  var countCompleted= document.getElementById('countCompleted');
 
   // ── Set Date ──
   function setDate() {
@@ -970,7 +1254,7 @@ body::-webkit-scrollbar {
   setDate();
 
   // ── Toast ──
-  let toastTimer = null;
+  var toastTimer = null;
   function showToast(msg) {
     toastEl.textContent = msg;
     toastEl.classList.add('show');
@@ -1007,6 +1291,32 @@ body::-webkit-scrollbar {
     return tasks.slice();
   }
 
+  // ── Celebration particles ──
+  function spawnCelebration(card) {
+    var particles = ['✨', '⭐', '✅', '🎉', '❤️'];
+    var rect = card.getBoundingClientRect();
+    var cardRect = { width: card.offsetWidth, height: card.offsetHeight };
+
+    for (var i = 0; i < 6; i++) {
+      var particle = document.createElement('span');
+      particle.className = 'celebrate-particle';
+      particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+      particle.style.left = (Math.random() * cardRect.width * 0.6 + cardRect.width * 0.2) + 'px';
+      particle.style.top = (Math.random() * cardRect.height * 0.6 + cardRect.height * 0.2) + 'px';
+      particle.style.animationDelay = (i * 0.08) + 's';
+      card.appendChild(particle);
+    }
+
+    card.classList.add('celebrating');
+    setTimeout(function() {
+      card.classList.remove('celebrating');
+      var leftover = card.querySelectorAll('.celebrate-particle');
+      for (var j = 0; j < leftover.length; j++) {
+        leftover[j].remove();
+      }
+    }, 800);
+  }
+
   // ── Render ──
   function renderTasks() {
     var filtered = getFilteredTasks();
@@ -1015,10 +1325,21 @@ body::-webkit-scrollbar {
     if (filtered.length === 0) {
       var empty = document.createElement('div');
       empty.className = 'empty-state';
-      var icon = currentFilter === 'completed' ? '&#127942;' : (currentFilter === 'active' ? '&#127881;' : '&#128203;');
+
+      var mainEmoji = currentFilter === 'completed' ? '🏆' : (currentFilter === 'active' ? '🎉' : '📋');
       var text = currentFilter === 'completed' ? 'אין משימות שהושלמו' : (currentFilter === 'active' ? 'כל המשימות הושלמו!' : 'אין משימות עדיין');
       var sub = currentFilter === 'active' ? 'כל הכבוד! סיימת הכל' : 'לחץ על + כדי להוסיף משימה';
-      empty.innerHTML = '<div class="empty-icon">' + icon + '</div><div class="empty-text">' + text + '</div><div class="empty-subtext">' + sub + '</div>';
+
+      empty.innerHTML =
+        '<div class="empty-illustration">' +
+          '<span class="empty-main-icon">' + mainEmoji + '</span>' +
+          '<div class="empty-orb empty-orb-1"></div>' +
+          '<div class="empty-orb empty-orb-2"></div>' +
+          '<div class="empty-orb empty-orb-3"></div>' +
+          '<div class="empty-orb empty-orb-4"></div>' +
+        '</div>' +
+        '<div class="empty-text">' + text + '</div>' +
+        '<div class="empty-subtext">' + sub + '</div>';
       taskListEl.appendChild(empty);
       updateStats();
       return;
@@ -1041,6 +1362,9 @@ body::-webkit-scrollbar {
             '<span class="tag ' + cat.class + '">' + cat.label + '</span>' +
             '<span class="priority-badge ' + pri.class + '">' + pri.label + '</span>' +
           '</div>' +
+        '</div>' +
+        '<div class="task-icon ' + cat.iconClass + '">' +
+          '<span>' + cat.emoji + '</span>' +
         '</div>' +
         '<button class="task-delete" data-action="delete" aria-label="מחק משימה">&times;</button>';
 
@@ -1067,10 +1391,15 @@ body::-webkit-scrollbar {
       var cb = card.querySelector('.task-checkbox');
       cb.classList.add('pop');
       setTimeout(function() { cb.classList.remove('pop'); }, 300);
+
+      // Spawn celebration particles when completing
+      if (task.completed) {
+        spawnCelebration(card);
+      }
     }
 
     if (task.completed) {
-      showToast('משימה הושלמה! &#10003;');
+      showToast('משימה הושלמה! ✓');
     } else {
       showToast('המשימה חזרה לפעילות');
     }
