@@ -120,6 +120,40 @@ const AI_QUICK_ACTIONS = [
   },
 ];
 
+const SHAPE_PRESETS = [
+  { id: 'square', label: 'מרובע', radius: '0px', icon: (
+    <div className="w-5 h-5 border-2 border-current" style={{ borderRadius: 0 }} />
+  )},
+  { id: 'rounded-sm', label: 'עגול קטן', radius: '8px', icon: (
+    <div className="w-5 h-5 border-2 border-current" style={{ borderRadius: 4 }} />
+  )},
+  { id: 'rounded', label: 'עגול', radius: '16px', icon: (
+    <div className="w-5 h-5 border-2 border-current" style={{ borderRadius: 8 }} />
+  )},
+  { id: 'pill', label: 'כמוסה', radius: '9999px', icon: (
+    <div className="w-7 h-4 border-2 border-current" style={{ borderRadius: 9999 }} />
+  )},
+  { id: 'circle', label: 'עיגול', radius: '50%', icon: (
+    <div className="w-5 h-5 border-2 border-current" style={{ borderRadius: '50%' }} />
+  )},
+];
+
+const LINK_TEMPLATES = [
+  { id: 'screen-nav', label: 'קישור למסך', icon: '📱', prompt: (text: string) => `הפוך את "${text}" ללחצן ניווט שמעביר למסך אחר באפליקציה. הוסף אנימציית מעבר חלקה.` },
+  { id: 'url-link', label: 'קישור חיצוני', icon: '🔗', prompt: (text: string) => `הפוך את "${text}" ללינק חיצוני שנפתח בחלון חדש. הוסף אייקון קישור קטן.` },
+  { id: 'form-save', label: 'שמירת טופס', icon: '💾', prompt: (text: string) => `הפוך את "${text}" לכפתור שמירה שאוסף את כל שדות הטופס ושומר ב-localStorage. הוסף הודעת הצלחה.` },
+  { id: 'auth-login', label: 'התחברות', icon: '🔐', prompt: (text: string) => `הפוך את "${text}" לכפתור התחברות עם טופס email וסיסמה, validation, וטיפול בשגיאות. שמור מצב auth ב-localStorage.` },
+  { id: 'add-to-cart', label: 'הוסף לסל', icon: '🛒', prompt: (text: string) => `הפוך את "${text}" לכפתור "הוסף לסל" עם אנימציית הוספה, עדכון badge בניווט, ושמירת סל ב-localStorage.` },
+  { id: 'share', label: 'שיתוף', icon: '📤', prompt: (text: string) => `הפוך את "${text}" לכפתור שיתוף עם Web Share API (או fallback עם העתקת לינק). הוסף אנימציית feedback.` },
+];
+
+const DISPLAY_OPTIONS = [
+  { label: 'Block', value: 'block' },
+  { label: 'Flex', value: 'flex' },
+  { label: 'Grid', value: 'grid' },
+  { label: 'Inline', value: 'inline-flex' },
+];
+
 const FONT_SIZES = ['11px', '12px', '14px', '16px', '20px', '24px', '28px', '32px'];
 
 const BUTTON_SIZE_PRESETS = [
@@ -779,6 +813,71 @@ export default function EditSidebar({
                     />
                   </Section>
                 )}
+
+                {/* Shape presets — Figma-style */}
+                <Section label="צורה">
+                  <div className="flex gap-1.5">
+                    {SHAPE_PRESETS.map((shape) => (
+                      <button
+                        key={shape.id}
+                        onClick={() => onStyleChange(selectedElement.path, 'borderRadius', shape.radius)}
+                        title={shape.label}
+                        className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg border-2 transition-all ${
+                          selectedElement.styles.borderRadius === shape.radius
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border/60 text-text-soft hover:border-primary/30 hover:text-primary hover:bg-primary/5'
+                        }`}
+                      >
+                        {shape.icon}
+                        <span className="text-[8px] font-medium">{shape.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-[10px] text-text-soft w-6 flex-shrink-0">
+                      {parseInt(selectedElement.styles.borderRadius) || 0}
+                    </span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="50"
+                      value={parseInt(selectedElement.styles.borderRadius) > 50 ? 50 : parseInt(selectedElement.styles.borderRadius) || 0}
+                      onChange={(e) => onStyleChange(selectedElement.path, 'borderRadius', `${e.target.value}px`)}
+                      className="flex-1 h-1.5 rounded-full accent-primary"
+                    />
+                  </div>
+                </Section>
+
+                {/* Layout / Display */}
+                <Section label="תצוגה">
+                  <OptionGrid cols="grid-cols-4">
+                    {DISPLAY_OPTIONS.map((d) => (
+                      <OptionButton key={d.value} onClick={() => onStyleChange(selectedElement.path, 'display', d.value)}>
+                        {d.label}
+                      </OptionButton>
+                    ))}
+                  </OptionGrid>
+                </Section>
+
+                {/* Connections & Linking */}
+                <Section label="קישורים ופעולות">
+                  <p className="text-[10px] text-text-soft mb-1.5 leading-relaxed">חבר רכיב לפעולה או מסך</p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {LINK_TEMPLATES.map((link) => (
+                      <button
+                        key={link.id}
+                        onClick={() => onAIEdit(link.prompt(selectedElement.text || selectedElement.tag))}
+                        disabled={isGenerating}
+                        className="flex items-center gap-1.5 py-2 px-2.5 rounded-lg text-[10px] font-medium border border-border text-text-secondary
+                          hover:text-primary hover:border-primary/30 hover:bg-primary/5
+                          active:scale-[0.97] transition-all duration-150 text-right disabled:opacity-40 leading-tight"
+                      >
+                        <span className="text-sm flex-shrink-0">{link.icon}</span>
+                        <span>{link.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </Section>
 
                 {/* Icon picker — click to add icon to element */}
                 <Section label="הוסף אייקון">

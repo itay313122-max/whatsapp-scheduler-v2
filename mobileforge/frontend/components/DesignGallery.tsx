@@ -18,7 +18,7 @@ interface DesignGalleryProps {
 // Shared instruction — apply STYLE ONLY, keep all content/logic intact
 const STYLE_ONLY = 'חשוב מאוד: שמור על כל התוכן, הטקסטים, הנתונים, המבנה והלוגיקה הקיימים בדיוק כפי שהם. שנה אך ורק את העיצוב הויזואלי — צבעים, פונטים, מרווחים, צללים, עיגול פינות, וסגנון הרכיבים. אל תשנה מילה אחת של תוכן.';
 
-type GallerySection = 'styles' | 'apps' | 'shapes';
+type GallerySection = 'shapes' | 'templates' | 'apps' | 'styles';
 
 // ── Mini visual previews ─────────────────────────────────────────────────────
 
@@ -348,6 +348,57 @@ const INPUT_SHAPES = [
   },
 ];
 
+const SCREEN_TEMPLATES = [
+  {
+    id: 'login-modern', name: 'התחברות מודרנית', icon: '🔐', tag: 'Auth',
+    prompt: 'הוסף מסך התחברות מודרני ברמת Figma: לוגו אפליקציה מונפש למעלה, שדות email וסיסמה עם אייקונים, כפתור "התחבר" gradient מלא, קו "או" עם כפתורי Google/Apple, לינק "שכחתי סיסמה", לינק "הרשמה". כל שדה 48dp מינימום, מרווחים 8px grid, אנימציות כניסה staggered. שמור/ולידט ב-localStorage.',
+  },
+  {
+    id: 'signup-flow', name: 'הרשמה רב-שלבית', icon: '📝', tag: 'Auth',
+    prompt: 'הוסף מסך הרשמה רב-שלבי (multi-step): שלב 1 - שם ואימייל, שלב 2 - סיסמה, שלב 3 - בחירת העדפות (chips בחירה). progress bar מונפש למעלה, כפתורי הבא/חזור, validation בזמן אמת, אנימציית מעבר בין שלבים. עיצוב מודרני עם Liquid Glass.',
+  },
+  {
+    id: 'profile-premium', name: 'פרופיל פרימיום', icon: '👤', tag: 'Profile',
+    prompt: 'הוסף מסך פרופיל ברמת אפסטור: header gradient עם אווטאר גדול עגול עם טבעת gradient, שם ותיאור, 3 סטטיסטיקות בשורה (פוסטים/עוקבים/עוקב), כפתור "ערוך פרופיל" outline, tabs לתוכן (פוסטים/מועדפים/אודות), גריד תמונות. כל הכפתורים 48dp.',
+  },
+  {
+    id: 'dashboard-analytics', name: 'דשבורד אנליטיקס', icon: '📊', tag: 'Dashboard',
+    prompt: 'הוסף מסך דשבורד אנליטיקס: greeting header עם שם משתמש ותאריך, 4 כרטיסי KPI בגריד (הכנסות/משתמשים/הזמנות/צפיות) עם אייקונים ושינוי באחוזים (ירוק/אדום), גרף SVG עם 7 נקודות נתונים, רשימת "פעולות אחרונות". עיצוב glass cards, אנימציות stagger.',
+  },
+  {
+    id: 'settings-ios', name: 'הגדרות iOS', icon: '⚙️', tag: 'Settings',
+    prompt: 'הוסף מסך הגדרות בסגנון iOS: grouped list עם כותרות קטנות, כל פריט עם אייקון עגול צבעוני, label, וחץ ימני. toggles (switches) אמיתיים ל-3 הגדרות, section "חשבון" עם אווטאר, section "כללי", section "התראות", כפתור "התנתק" אדום למטה. רקע אפור בהיר, כרטיסים לבנים.',
+  },
+  {
+    id: 'product-detail', name: 'דף מוצר', icon: '🛍️', tag: 'E-Commerce',
+    prompt: 'הוסף מסך דף מוצר ברמת SHEIN/Zara: תמונת מוצר גדולה עם dots indicator, שם מוצר ומחיר גדול, badges (חדש/מבצע), בוחר צבע (עיגולים צבעוניים), בוחר מידה (chips), כפתור "הוסף לסל" sticky למטה עם gradient ואנימציה, דירוג כוכבים, תיאור מתקפל. תמונות מ-picsum.photos.',
+  },
+  {
+    id: 'chat-ui', name: 'צ\'אט', icon: '💬', tag: 'Messaging',
+    prompt: 'הוסף מסך צ\'אט: header עם אווטאר עגול + שם + online indicator ירוק, רשימת הודעות (בועות כחולות ימין למשתמש, אפורות שמאל), timestamps, read indicators (✓✓), שדה הקלדה sticky למטה עם כפתור שלח מונפש ואייקון attach. רקע pattern עדין.',
+  },
+  {
+    id: 'onboarding', name: 'Onboarding', icon: '🚀', tag: 'Flow',
+    prompt: 'הוסף מסך onboarding עם 3 שלבים: כל שלב עם איור CSS מונפש גדול, כותרת, תיאור קצר. dots indicator למטה, כפתור "הבא"/"התחל". מעבר חלק עם swipe animation. אנימציות CSS בלבד (ללא תמונות). עיצוב מודרני צבעוני.',
+  },
+  {
+    id: 'checkout', name: 'תשלום', icon: '💳', tag: 'E-Commerce',
+    prompt: 'הוסף מסך תשלום: סיכום הזמנה (פריטים + מחירים), שדות כרטיס אשראי מעוצבים (מספר/תוקף/CVV) עם אייקוני כרטיס, כפתורי Apple Pay ו-Google Pay, כפתור "שלם" gradient גדול עם סכום, הנפשת loading בלחיצה. כל שדה 48dp מינימום.',
+  },
+  {
+    id: 'search-explore', name: 'חיפוש וגילוי', icon: '🔍', tag: 'Discovery',
+    prompt: 'הוסף מסך חיפוש וגילוי: שדה חיפוש sticky עגול עם אייקון, chips קטגוריות scrollable, "חיפושים פופולריים" כרשימה, "מומלצים" בגריד 2 עמודות עם כרטיסי תמונה מ-picsum.photos. אנימציית תוצאות חיפוש מיידיות, empty state מעוצב.',
+  },
+  {
+    id: 'notifications', name: 'התראות', icon: '🔔', tag: 'Social',
+    prompt: 'הוסף מסך התראות: tabs (הכל/לא נקראו), כל התראה עם אווטאר, טקסט, זמן יחסי (לפני 5 דק), ונקודה כחולה ל-unread. סוגי התראות: לייק, תגובה, עוקב חדש, מערכת. swipe to dismiss. empty state עם אייקון פעמון.',
+  },
+  {
+    id: 'map-view', name: 'מפה ומיקום', icon: '📍', tag: 'Location',
+    prompt: 'הוסף מסך מפה: מפה CSS (גריד רחובות) עם סמני מיקום מונפשים (pulse), כרטיס bottom sheet שעולה עם פרטי מיקום, שדה חיפוש כתובת למעלה, כפתור "מיקום נוכחי" צף. אנימציית pin drop.',
+  },
+];
+
 const DESIGN_LANGUAGES: DesignPreset[] = [
   {
     id: 'glass', name: 'זכוכית', tag: 'Glassmorphism', preview: <GlassPreview />,
@@ -484,8 +535,9 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
       <div className="flex gap-1 p-3 border-b border-border/50 flex-shrink-0">
         {([
           { id: 'shapes' as GallerySection, label: '🔲 צורות' },
+          { id: 'templates' as GallerySection, label: '📐 תבניות' },
           { id: 'apps' as GallerySection, label: '📱 אפליקציות' },
-          { id: 'styles' as GallerySection, label: '🎨 שפות עיצוב' },
+          { id: 'styles' as GallerySection, label: '🎨 עיצוב' },
         ]).map((s) => (
           <button
             key={s.id}
@@ -547,6 +599,41 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
                   <ShapeCard key={s.id} name={s.name} preview={s.preview} onApply={() => onApply(s.prompt)} disabled={isGenerating} />
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Screen Templates (Figma-quality) ─────────────────────── */}
+        {section === 'templates' && (
+          <div className="flex flex-col gap-4">
+            <p className="text-xs text-text-secondary leading-relaxed">
+              תבניות מסך ברמת <span className="font-semibold text-text-primary">Figma</span> — לחץ להוסיף מסך מוכן עם קישורים ופעולות.
+            </p>
+            <div className="flex flex-col gap-1.5">
+              {SCREEN_TEMPLATES.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => onApply(t.prompt)}
+                  disabled={isGenerating}
+                  className="group flex items-center gap-3 py-3 px-3 rounded-xl border border-border bg-surface
+                    hover:border-primary/40 hover:bg-primary/5 active:scale-[0.98] transition-all duration-200
+                    disabled:opacity-40 disabled:cursor-not-allowed text-right"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
+                    {t.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-semibold text-text-primary">{t.name}</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{t.tag}</span>
+                    </div>
+                    <p className="text-[10px] text-text-soft mt-0.5 line-clamp-1">{t.prompt.slice(0, 60)}...</p>
+                  </div>
+                  <svg className="w-4 h-4 text-text-soft group-hover:text-primary flex-shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+              ))}
             </div>
           </div>
         )}

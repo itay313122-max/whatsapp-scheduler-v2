@@ -10,6 +10,7 @@ import type { PreviewScreen, PreviewSelectedElement } from '@/components/WebPrev
 import CodeViewer from '@/components/CodeViewer';
 import EditSidebar from '@/components/EditSidebar';
 import type { SelectedElement } from '@/components/PropertyPanel';
+import FigmaToolbar from '@/components/FigmaToolbar';
 import ForgeAssistant from '@/components/ForgeAssistant';
 import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
@@ -1007,62 +1008,15 @@ function BuilderContent() {
                         iframeRef={iframeRef}
                       />
 
-                      {/* Visual editing floating toolbar */}
+                      {/* Figma-style visual editing toolbar */}
                       {selectedElement && (
-                        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-2 py-1.5 bg-surface border border-border rounded-xl shadow-lg animate-fade-in-up" dir="rtl">
-                          <span className="text-[10px] text-text-secondary px-1.5 border-l border-border ml-1">
-                            {selectedElement.tag}
-                          </span>
-                          {selectedElement.text && (
-                            <button
-                              onClick={() => {
-                                const newText = prompt('ערוך טקסט:', selectedElement.text);
-                                if (newText !== null) handleTextChange(selectedElement.path, newText);
-                              }}
-                              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-text-primary hover:bg-primary/10 transition-all"
-                              title="ערוך טקסט"
-                            >
-                              ✏️ טקסט
-                            </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              const color = prompt('צבע רקע (hex):', selectedElement.styles.backgroundColor || '#ffffff');
-                              if (color) handleStyleChange(selectedElement.path, 'backgroundColor', color);
-                            }}
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-text-primary hover:bg-primary/10 transition-all"
-                            title="שנה צבע רקע"
-                          >
-                            🎨 צבע
-                          </button>
-                          <button
-                            onClick={() => {
-                              const size = prompt('גודל פונט (px):', selectedElement.styles.fontSize || '14px');
-                              if (size) handleStyleChange(selectedElement.path, 'fontSize', size);
-                            }}
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-text-primary hover:bg-primary/10 transition-all"
-                            title="שנה גודל"
-                          >
-                            🔤 גודל
-                          </button>
-                          <button
-                            onClick={() => {
-                              const radius = prompt('עיגול פינות (px):', selectedElement.styles.borderRadius || '0px');
-                              if (radius) handleStyleChange(selectedElement.path, 'borderRadius', radius);
-                            }}
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-text-primary hover:bg-primary/10 transition-all"
-                            title="עיגול פינות"
-                          >
-                            ◻️ פינות
-                          </button>
-                          <div className="h-4 w-px bg-border" />
-                          <button
-                            onClick={handleDeselectElement}
-                            className="flex items-center px-1.5 py-1 rounded-lg text-[11px] text-text-secondary hover:text-red-400 hover:bg-red-500/10 transition-all"
-                            title="בטל בחירה"
-                          >
-                            ✕
-                          </button>
+                        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
+                          <FigmaToolbar
+                            element={selectedElement}
+                            onStyleChange={handleStyleChange}
+                            onTextChange={handleTextChange}
+                            onDeselect={handleDeselectElement}
+                          />
                         </div>
                       )}
                     </div>
