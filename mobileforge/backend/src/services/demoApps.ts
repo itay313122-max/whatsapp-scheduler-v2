@@ -660,6 +660,7 @@ const RESTAURANT_APP: DemoApp = {
                   </button>
                 ))}
               </div>
+              <div className="grid-tablet-2">
               {menu[category].map(item => (
                 <div key={item.id} className="list-item" style={{gap:12}}>
                   <div style={{width:48,height:48,borderRadius:10,overflow:'hidden',flexShrink:0}}>
@@ -673,6 +674,7 @@ const RESTAURANT_APP: DemoApp = {
                   <button className="btn-icon" style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'50%',background:'var(--c-primary-light)',color:'var(--c-primary)'}} onClick={() => addToOrder(item)}><PlusIcon size={16} /></button>
                 </div>
               ))}
+              </div>
             </>
           ) : (
             <>
@@ -842,6 +844,7 @@ const STOCKS_APP: DemoApp = {
           </div>
         )}
 
+        <div className="grid-tablet-2">
         {heldSyms.map(sym => {
           const price = prices[sym]||0;
           const ch = ((price-baseOf(sym))/baseOf(sym))*100;
@@ -871,6 +874,7 @@ const STOCKS_APP: DemoApp = {
             </div>
           );
         })}
+        </div>
       </div>
     </>
   );
@@ -884,6 +888,7 @@ const STOCKS_APP: DemoApp = {
         </div>
       </div>
       <div className="app-content">
+        <div className="grid-tablet-2">
         {MARKET.map(s => {
           const price = prices[s.sym]||0;
           const ch = ((price-s.base)/s.base)*100;
@@ -907,6 +912,7 @@ const STOCKS_APP: DemoApp = {
             </div>
           );
         })}
+        </div>
         <p className="caption" style={{textAlign:'center',color:'#94a3b8',marginTop:12}}>הקש + כדי להוסיף מניה לתיק שלך</p>
       </div>
     </>

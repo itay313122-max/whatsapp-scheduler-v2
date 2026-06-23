@@ -918,6 +918,24 @@ describe('Demo mode — getDemoResponse', () => {
     expect(html).toContain('ReactDOM.createRoot');
     expect(html).toContain('__mf_toolbar');
   });
+
+  it('returns stocks app for "מניות"', () => {
+    const raw = getDemoResponse('בנה אפליקציית מניות');
+    const parsed = parseGroqResponse(raw);
+    expect(parsed.appName).toBe('StockFolio');
+  });
+
+  // List-based demos must reflow into multiple columns on tablet/iPad
+  // (grid-tablet-*), not just stretch the phone layout. Device-adaptive.
+  it.each([
+    ['מניות', 'StockFolio'],
+    ['מסעדה תפריט', 'FoodHub'],
+  ])('%s demo uses tablet grid for device-adaptive layout', (prompt, name) => {
+    const parsed = parseGroqResponse(getDemoResponse(prompt));
+    expect(parsed.appName).toBe(name);
+    const appCode = parsed.files['App.jsx'] || '';
+    expect(appCode).toContain('grid-tablet-2');
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
