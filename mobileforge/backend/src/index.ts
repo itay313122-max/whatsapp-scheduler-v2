@@ -12,6 +12,10 @@ import liveRouter from './routes/live';
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// Behind a proxy/load balancer in production — needed for correct client IPs
+// (used by the rate limiter).
+app.set('trust proxy', 1);
+
 // Init Firebase
 initFirebase();
 

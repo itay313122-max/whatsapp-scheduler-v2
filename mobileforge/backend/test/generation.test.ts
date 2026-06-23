@@ -1168,3 +1168,51 @@ describe('Live sync route', () => {
     expect(res.text).toContain('srcdoc');
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Rate limiting — cost/abuse guard
+// ═══════════════════════════════════════════════════════════════════════════
+describe('Rate limit middleware', () => {
+  let app: any;
+  let request: any;
+  let reset: () => void;
+
+  beforeAll(() => {
+    process.env.RATE_LIMIT_PER_MIN = '3';
+    process.env.RATE_LIMIT_PER_DAY = '1000';
+    process.env.GLOBAL_DAILY_CAP = '100000';
+    const express = require('express');
+    const { rateLimit, __resetRateLimit } = require('../src/middleware/rateLimit');
+    reset = __resetRateLimit;
+    app = express();
+    app.use(express.json());
+    app.use('/g', rateLimit, (_req: any, res: any) => res.json({ ok: true }));
+    request = require('supertest')(app);
+  });
+
+  beforeEach(() => reset());
+
+  it('allows requests under the per-minute limit', async () => {
+    for (let i = 0; i < 3; i++) {
+      const res = await request.post('/g').set('Authorization', 'Bearer client-A');
+      expect(res.status).toBe(200);
+    }
+  });
+
+  it('returns 429 with a Hebrew message once the burst limit is exceeded', async () => {
+    for (let i = 0; i < 3; i++) await request.post('/g').set('Authorization', 'Bearer client-B');
+    const res = await request.post('/g').set('Authorization', 'Bearer client-B');
+    expect(res.status).toBe(429);
+    expect(res.body.error).toBe('RATE_LIMITED');
+    expect(res.body.message).toMatch(/בקשות/);
+    expect(res.headers['retry-after']).toBe('60');
+  });
+
+  it('limits each client independently', async () => {
+    for (let i = 0; i < 3; i++) await request.post('/g').set('Authorization', 'Bearer client-C');
+    const blocked = await request.post('/g').set('Authorization', 'Bearer client-C');
+    expect(blocked.status).toBe(429);
+    const other = await request.post('/g').set('Authorization', 'Bearer client-D');
+    expect(other.status).toBe(200);
+  });
+});

@@ -8,9 +8,13 @@ import {
 } from '../services/aiWeb';
 import { buildHtmlDocument } from '../services/webRenderer';
 import { getFirestore } from '../services/firebase-admin';
+import { rateLimit } from '../middleware/rateLimit';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
+
+// Cost/abuse guard on every (LLM-backed) generation endpoint.
+router.use(rateLimit);
 
 /** Extract the App component code from the parsed files. */
 function extractAppCode(files: Record<string, string>): string {
