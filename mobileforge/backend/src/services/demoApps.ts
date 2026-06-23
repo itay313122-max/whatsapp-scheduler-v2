@@ -785,7 +785,7 @@ const STOCKS_APP: DemoApp = {
     if (!data || data.length < 2) return React.createElement('div',{style:{width:w,height:h}});
     const min=Math.min.apply(null,data), max=Math.max.apply(null,data), range=(max-min)||1;
     const pts = data.map((v,i)=>{ const x=(i/(data.length-1))*w; const y=h-((v-min)/range)*(h-4)-2; return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
-    return React.createElement('svg',{width:w,height:h,viewBox:'0 0 '+w+' '+h},React.createElement('polyline',{points:pts,fill:'none',stroke:up?'#16C784':'#EA3943',strokeWidth:1.6,strokeLinecap:'round',strokeLinejoin:'round'}));
+    return React.createElement('svg',{width:w,height:h,viewBox:'0 0 '+w+' '+h,style:{flexShrink:0}},React.createElement('polyline',{points:pts,fill:'none',stroke:up?'#16C784':'#EA3943',strokeWidth:1.6,strokeLinecap:'round',strokeLinejoin:'round'}));
   };
 
   const BigChart = ({data}) => {
@@ -848,16 +848,16 @@ const STOCKS_APP: DemoApp = {
           const up = ch>=0;
           return (
             <div key={sym} className="card" style={{marginBottom:10,padding:'14px 16px'}}>
-              <div style={{display:'flex',alignItems:'center',gap:12}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
                 <div style={{width:44,height:44,borderRadius:12,background:'#0B1426',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,flexShrink:0}}>{sym.slice(0,4)}</div>
-                <div style={{flex:1,minWidth:0}}>
-                  <p className="subtitle" style={{fontSize:15,margin:0}}>{sym}</p>
-                  <p className="caption" style={{margin:0,color:'#94a3b8'}}>{holdings[sym]} מניות · {nameOf(sym)}</p>
+                <div style={{flex:1,minWidth:0,overflow:'hidden'}}>
+                  <p className="subtitle" style={{fontSize:15,margin:0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{sym}</p>
+                  <p className="caption" style={{margin:0,color:'#94a3b8',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{holdings[sym]} מניות · {nameOf(sym)}</p>
                 </div>
-                <Spark data={history[sym]} up={up} />
-                <div style={{textAlign:'left',minWidth:78}}>
-                  <p className="subtitle" style={{fontSize:15,margin:0}}>{fmt(price)}</p>
-                  <p style={{margin:0,fontSize:12,fontWeight:600,color:up?'#16C784':'#EA3943'}}>{pct(ch)}</p>
+                <Spark data={history[sym]} up={up} w={52} h={26} />
+                <div style={{textAlign:'left',minWidth:76,flexShrink:0}}>
+                  <p className="subtitle" style={{fontSize:15,margin:0,whiteSpace:'nowrap'}}>{fmt(price)}</p>
+                  <p style={{margin:0,fontSize:12,fontWeight:600,color:up?'#16C784':'#EA3943',whiteSpace:'nowrap'}}>{pct(ch)}</p>
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:12,paddingTop:12,borderTop:'1px solid #f1f5f9'}}>
@@ -890,16 +890,16 @@ const STOCKS_APP: DemoApp = {
           const up = ch>=0;
           const held = holdings[s.sym]>0;
           return (
-            <div key={s.sym} className="list-item" style={{marginBottom:8}}>
+            <div key={s.sym} className="list-item" style={{marginBottom:8,gap:10}}>
               <div style={{width:40,height:40,borderRadius:10,background:'#0B1426',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:12,flexShrink:0}}>{s.sym.slice(0,4)}</div>
-              <div style={{flex:1,minWidth:0}}>
-                <p className="subtitle" style={{fontSize:14,margin:0}}>{s.sym}</p>
-                <p className="caption" style={{margin:0,color:'#94a3b8'}}>{s.name}</p>
+              <div style={{flex:1,minWidth:0,overflow:'hidden'}}>
+                <p className="subtitle" style={{fontSize:14,margin:0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{s.sym}</p>
+                <p className="caption" style={{margin:0,color:'#94a3b8',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{s.name}</p>
               </div>
-              <Spark data={history[s.sym]} up={up} />
-              <div style={{textAlign:'left',minWidth:74}}>
-                <p className="subtitle" style={{fontSize:14,margin:0}}>{fmt(price)}</p>
-                <p style={{margin:0,fontSize:12,fontWeight:600,color:up?'#16C784':'#EA3943'}}>{pct(ch)}</p>
+              <Spark data={history[s.sym]} up={up} w={48} h={24} />
+              <div style={{textAlign:'left',minWidth:72,flexShrink:0}}>
+                <p className="subtitle" style={{fontSize:14,margin:0,whiteSpace:'nowrap'}}>{fmt(price)}</p>
+                <p style={{margin:0,fontSize:12,fontWeight:600,color:up?'#16C784':'#EA3943',whiteSpace:'nowrap'}}>{pct(ch)}</p>
               </div>
               <button className="btn-icon" style={{width:34,height:34,background:held?'#16C78420':'var(--c-primary)',flexShrink:0}} onClick={()=>addShare(s.sym)}>
                 <PlusIcon size={17} color={held?'#16C784':'#fff'} />
