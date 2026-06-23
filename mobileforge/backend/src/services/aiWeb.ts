@@ -1291,6 +1291,7 @@ export function getDemoPlan(userPrompt: string): PlanResult {
 
   const lower = p.toLowerCase();
   const cat =
+    /מניות|מניה|בורסה|stock|portfolio|השקעות|invest|trading|מסחר|תיק מניות/.test(lower) ? 'stocks' :
     /חנות|store|shop|מוצר|אופנה|בגד/.test(lower) ? 'store' :
     /מסעדה|food|אוכל|תפריט|restaurant|קפה/.test(lower) ? 'food' :
     /כושר|אימון|fitness|sport|ספורט/.test(lower) ? 'fitness' :
@@ -1311,6 +1312,7 @@ export function getDemoPlan(userPrompt: string): PlanResult {
       : ['שימוש אישי', 'צוות/עסק', 'קהל רחב'],
   };
   const featureByCat: Record<string, PlanQuestion> = {
+    stocks:  { id: 'feature', q: 'גרפים בזמן אמת?',     options: ['כן, גרפים חיים', 'מספרים בלבד', 'שניהם'] },
     store:   { id: 'feature', q: 'מה הכי חשוב בחנות?',  options: ['סל קניות', 'מבצעים', 'חיפוש מוצרים'] },
     food:    { id: 'feature', q: 'מה הכי חשוב בתפריט?',  options: ['הזמנה ומשלוח', 'דירוגים', 'קטגוריות'] },
     fitness: { id: 'feature', q: 'מה הכי חשוב באימון?',  options: ['טיימר', 'מעקב התקדמות', 'תוכניות'] },

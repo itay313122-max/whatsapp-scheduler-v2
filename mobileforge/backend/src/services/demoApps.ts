@@ -720,7 +720,229 @@ const RESTAURANT_APP: DemoApp = {
 }`,
 };
 
-const DEMO_APPS: DemoApp[] = [CLOTHING_STORE, TODO_APP, WEATHER_APP, RESTAURANT_APP, CALCULATOR_APP];
+const STOCKS_APP: DemoApp = {
+  keywords: ['מניות', 'מניה', 'בורסה', 'stock', 'stocks', 'portfolio', 'תיק השקעות', 'השקעות', 'invest', 'trading', 'מסחר', 'תיק מניות'],
+  metadata: {
+    appName: 'StockFolio',
+    description: 'תיק מניות אינטראקטיבי עם מחירים וגרפים מתעדכנים בזמן אמת',
+    colorScheme: { primary: '#16C784', background: '#ffffff', text: '#0B1426', accent: '#EA3943' },
+    features: ['תיק מניות עם שווי כולל ושינוי יומי', 'גרפים חיים שמתעדכנים בזמן אמת', 'הוספה והסרה של מניות', 'מעקב שוק עם 8 מניות אמיתיות'],
+    hebrewSummary: 'תיק מניות אינטראקטיבי — מחירים וגרפים מתעדכנים בזמן אמת, הוספה/הסרה של מניות ומעקב שוק חי',
+  },
+  code: `function App() {
+  const { useState, useEffect } = React;
+
+  const PlusIcon = ({size=18,color='currentColor'}) => React.createElement('svg',{width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:color,strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round'},React.createElement('path',{d:'M12 5v14M5 12h14'}));
+  const MinusIcon = ({size=18,color='currentColor'}) => React.createElement('svg',{width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:color,strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round'},React.createElement('path',{d:'M5 12h14'}));
+  const TrashIcon = ({size=16,color='#EA3943'}) => React.createElement('svg',{width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:color,strokeWidth:1.6,strokeLinecap:'round',strokeLinejoin:'round'},React.createElement('path',{d:'M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2'}));
+  const WalletIcon = ({size=20,color='currentColor'}) => React.createElement('svg',{width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:color,strokeWidth:1.6,strokeLinecap:'round',strokeLinejoin:'round'},React.createElement('path',{d:'M20 12V8H6a2 2 0 010-4h12v4'}),React.createElement('path',{d:'M4 6v12a2 2 0 002 2h14v-4'}),React.createElement('path',{d:'M18 12a2 2 0 000 4h4v-4z'}));
+  const BarIcon = ({size=20,color='currentColor'}) => React.createElement('svg',{width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:color,strokeWidth:1.6,strokeLinecap:'round',strokeLinejoin:'round'},React.createElement('path',{d:'M18 20V10M12 20V4M6 20v-6'}));
+
+  const MARKET = [
+    { sym:'AAPL',  name:'Apple',      base:229.87 },
+    { sym:'NVDA',  name:'NVIDIA',     base:131.26 },
+    { sym:'TSLA',  name:'Tesla',      base:248.50 },
+    { sym:'MSFT',  name:'Microsoft',  base:430.16 },
+    { sym:'AMZN',  name:'Amazon',     base:186.40 },
+    { sym:'GOOGL', name:'Alphabet',   base:178.35 },
+    { sym:'META',  name:'Meta',       base:563.27 },
+    { sym:'AMD',   name:'AMD',        base:148.92 },
+  ];
+  const baseOf = (sym) => { const m = MARKET.find(x=>x.sym===sym); return m ? m.base : 0; };
+  const nameOf = (sym) => { const m = MARKET.find(x=>x.sym===sym); return m ? m.name : sym; };
+
+  const seed = (base) => { const a=[]; let p=base*0.985; for(let i=0;i<14;i++){ p += (Math.random()-0.42)*base*0.006; a.push(p); } a.push(base); return a; };
+
+  const [tab, setTab] = useState('portfolio');
+  const [prices, setPrices] = useState(() => { const o={}; MARKET.forEach(s=>o[s.sym]=s.base); return o; });
+  const [history, setHistory] = useState(() => { const o={}; MARKET.forEach(s=>o[s.sym]=seed(s.base)); return o; });
+  const [holdings, setHoldings] = useState({ AAPL:5, NVDA:10, TSLA:3 });
+  const [totalHist, setTotalHist] = useState([]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setPrices(prev => {
+        const next = Object.assign({}, prev);
+        MARKET.forEach(s => { const p = prev[s.sym]; next[s.sym] = Math.max(1, p + (Math.random()-0.48)*p*0.005); });
+        setHistory(h => { const nh = Object.assign({}, h); MARKET.forEach(s => { nh[s.sym] = (h[s.sym]||[]).concat(next[s.sym]).slice(-30); }); return nh; });
+        return next;
+      });
+    }, 1500);
+    return () => clearInterval(id);
+  }, []);
+
+  const totalValue = Object.keys(holdings).reduce((sum,sym) => sum + holdings[sym]*(prices[sym]||0), 0);
+  const investedBase = Object.keys(holdings).reduce((sum,sym) => sum + holdings[sym]*baseOf(sym), 0);
+  const dayChange = totalValue - investedBase;
+  const dayPct = investedBase ? (dayChange/investedBase)*100 : 0;
+
+  useEffect(() => { setTotalHist(t => t.concat(totalValue).slice(-30)); }, [prices]);
+
+  const fmt = (n) => '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const pct = (n) => (n>=0?'+':'') + n.toFixed(2) + '%';
+
+  const Spark = ({data, w=68, h=26, up}) => {
+    if (!data || data.length < 2) return React.createElement('div',{style:{width:w,height:h}});
+    const min=Math.min.apply(null,data), max=Math.max.apply(null,data), range=(max-min)||1;
+    const pts = data.map((v,i)=>{ const x=(i/(data.length-1))*w; const y=h-((v-min)/range)*(h-4)-2; return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+    return React.createElement('svg',{width:w,height:h,viewBox:'0 0 '+w+' '+h},React.createElement('polyline',{points:pts,fill:'none',stroke:up?'#16C784':'#EA3943',strokeWidth:1.6,strokeLinecap:'round',strokeLinejoin:'round'}));
+  };
+
+  const BigChart = ({data}) => {
+    const w=320,h=96;
+    if (!data || data.length < 2) return React.createElement('div',{style:{height:h}});
+    const min=Math.min.apply(null,data), max=Math.max.apply(null,data), range=(max-min)||1;
+    const xy = data.map((v,i)=>{ const x=(i/(data.length-1))*w; const y=h-((v-min)/range)*(h-16)-8; return [x,y]; });
+    const line = xy.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    const area = 'M0,'+h+' L'+xy.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' L')+' L'+w+','+h+' Z';
+    const up = data[data.length-1] >= data[0];
+    const c = up?'#16C784':'#EA3943';
+    return React.createElement('svg',{width:'100%',height:h,viewBox:'0 0 '+w+' '+h,preserveAspectRatio:'none'},
+      React.createElement('defs',null,React.createElement('linearGradient',{id:'bg-grad',x1:'0',y1:'0',x2:'0',y2:'1'},
+        React.createElement('stop',{offset:'0%',stopColor:c,stopOpacity:0.28}),
+        React.createElement('stop',{offset:'100%',stopColor:c,stopOpacity:0}))),
+      React.createElement('path',{d:area,fill:'url(#bg-grad)'}),
+      React.createElement('polyline',{points:line,fill:'none',stroke:c,strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round'}));
+  };
+
+  const addShare = (sym) => setHoldings(h => Object.assign({}, h, { [sym]: (h[sym]||0)+1 }));
+  const subShare = (sym) => setHoldings(h => { const n=(h[sym]||0)-1; const c=Object.assign({}, h); if(n<=0) delete c[sym]; else c[sym]=n; return c; });
+  const removeStock = (sym) => setHoldings(h => { const c=Object.assign({}, h); delete c[sym]; return c; });
+
+  const heldSyms = Object.keys(holdings);
+
+  const PortfolioTab = () => (
+    <>
+      <div style={{background:'linear-gradient(135deg,#0B1426,#16243C)',padding:'22px 20px 24px',color:'#fff'}}>
+        <p style={{color:'rgba(255,255,255,0.6)',fontSize:13,marginBottom:6}}>שווי התיק</p>
+        <p style={{fontSize:38,fontWeight:700,lineHeight:1,letterSpacing:-1}}>{fmt(totalValue)}</p>
+        <div style={{display:'flex',alignItems:'center',gap:6,marginTop:10}}>
+          <span style={{background:dayChange>=0?'rgba(22,199,132,0.18)':'rgba(234,57,67,0.18)',color:dayChange>=0?'#16C784':'#EA3943',padding:'3px 10px',borderRadius:20,fontSize:13,fontWeight:600}}>
+            {(dayChange>=0?'▲ ':'▼ ')+pct(dayPct)}
+          </span>
+          <span style={{color:'rgba(255,255,255,0.7)',fontSize:13}}>{(dayChange>=0?'+':'')+fmt(dayChange).replace('$','$')}  היום</span>
+        </div>
+        <div style={{marginTop:14,marginLeft:-20,marginRight:-20}}><BigChart data={totalHist} /></div>
+      </div>
+
+      <div className="app-content">
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+          <p className="section-title" style={{margin:0}}>האחזקות שלי</p>
+          <span style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:12,color:'#16C784',fontWeight:600}}>
+            <span style={{width:7,height:7,borderRadius:'50%',background:'#16C784',display:'inline-block',animation:'mfpulse 1.5s infinite'}}></span>בזמן אמת
+          </span>
+        </div>
+
+        {heldSyms.length===0 && (
+          <div className="empty-state">
+            <div className="empty-state-icon" style={{opacity:0.3}}><WalletIcon size={40} color="#94a3b8" /></div>
+            <p className="empty-state-title">התיק ריק</p>
+            <p className="empty-state-body">עבור ללשונית השוק כדי להוסיף מניות</p>
+            <button className="btn-primary" style={{width:'auto',padding:'12px 24px',marginTop:4}} onClick={()=>setTab('market')}>גלה מניות</button>
+          </div>
+        )}
+
+        {heldSyms.map(sym => {
+          const price = prices[sym]||0;
+          const ch = ((price-baseOf(sym))/baseOf(sym))*100;
+          const up = ch>=0;
+          return (
+            <div key={sym} className="card" style={{marginBottom:10,padding:'14px 16px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:12}}>
+                <div style={{width:44,height:44,borderRadius:12,background:'#0B1426',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,flexShrink:0}}>{sym.slice(0,4)}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <p className="subtitle" style={{fontSize:15,margin:0}}>{sym}</p>
+                  <p className="caption" style={{margin:0,color:'#94a3b8'}}>{holdings[sym]} מניות · {nameOf(sym)}</p>
+                </div>
+                <Spark data={history[sym]} up={up} />
+                <div style={{textAlign:'left',minWidth:78}}>
+                  <p className="subtitle" style={{fontSize:15,margin:0}}>{fmt(price)}</p>
+                  <p style={{margin:0,fontSize:12,fontWeight:600,color:up?'#16C784':'#EA3943'}}>{pct(ch)}</p>
+                </div>
+              </div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:12,paddingTop:12,borderTop:'1px solid #f1f5f9'}}>
+                <span className="caption" style={{color:'#64748b'}}>שווי אחזקה: <strong style={{color:'#0B1426'}}>{fmt(price*holdings[sym])}</strong></span>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <button className="btn-icon" style={{width:30,height:30,border:'1px solid #e2e8f0'}} onClick={()=>subShare(sym)}><MinusIcon size={15} color="#0B1426" /></button>
+                  <button className="btn-icon" style={{width:30,height:30,border:'1px solid #e2e8f0'}} onClick={()=>addShare(sym)}><PlusIcon size={15} color="#0B1426" /></button>
+                  <button className="btn-icon" style={{width:30,height:30}} onClick={()=>removeStock(sym)}><TrashIcon size={15} /></button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+
+  const MarketTab = () => (
+    <>
+      <div className="app-header">
+        <div>
+          <p className="caption" style={{color:'#6b7280'}}>מעקב שוק</p>
+          <h1 className="subtitle">מניות פופולריות</h1>
+        </div>
+      </div>
+      <div className="app-content">
+        {MARKET.map(s => {
+          const price = prices[s.sym]||0;
+          const ch = ((price-s.base)/s.base)*100;
+          const up = ch>=0;
+          const held = holdings[s.sym]>0;
+          return (
+            <div key={s.sym} className="list-item" style={{marginBottom:8}}>
+              <div style={{width:40,height:40,borderRadius:10,background:'#0B1426',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:12,flexShrink:0}}>{s.sym.slice(0,4)}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <p className="subtitle" style={{fontSize:14,margin:0}}>{s.sym}</p>
+                <p className="caption" style={{margin:0,color:'#94a3b8'}}>{s.name}</p>
+              </div>
+              <Spark data={history[s.sym]} up={up} />
+              <div style={{textAlign:'left',minWidth:74}}>
+                <p className="subtitle" style={{fontSize:14,margin:0}}>{fmt(price)}</p>
+                <p style={{margin:0,fontSize:12,fontWeight:600,color:up?'#16C784':'#EA3943'}}>{pct(ch)}</p>
+              </div>
+              <button className="btn-icon" style={{width:34,height:34,background:held?'#16C78420':'var(--c-primary)',flexShrink:0}} onClick={()=>addShare(s.sym)}>
+                <PlusIcon size={17} color={held?'#16C784':'#fff'} />
+              </button>
+            </div>
+          );
+        })}
+        <p className="caption" style={{textAlign:'center',color:'#94a3b8',marginTop:12}}>הקש + כדי להוסיף מניה לתיק שלך</p>
+      </div>
+    </>
+  );
+
+  const navItems = [
+    { id:'portfolio', label:'התיק', icon:WalletIcon },
+    { id:'market',    label:'שוק',  icon:BarIcon },
+  ];
+
+  return (
+    <>
+      <style>{\`
+        :root {
+          --c-from:#16C784; --c-to:#16C784;
+          --c-primary:#16C784; --c-primary-light:rgba(22,199,132,0.1);
+          --c-bg:#ffffff;
+        }
+        @keyframes mfpulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+      \`}</style>
+      <div className="app-shell" dir="rtl">
+        {tab==='portfolio' ? <PortfolioTab /> : <MarketTab />}
+        <div className="app-nav">
+          {navItems.map(t => (
+            <button key={t.id} onClick={()=>setTab(t.id)} className={'nav-tab'+(tab===t.id?' active':'')}>
+              {React.createElement(t.icon, { size:20, color: tab===t.id ? '#16C784' : '#94a3b8' })}{t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}`,
+};
+
+const DEMO_APPS: DemoApp[] = [CLOTHING_STORE, TODO_APP, WEATHER_APP, RESTAURANT_APP, STOCKS_APP, CALCULATOR_APP];
 
 /**
  * Returns a complete AI response in the format parseGroqResponse expects.
