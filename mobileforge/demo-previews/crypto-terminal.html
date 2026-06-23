@@ -895,129 +895,130 @@ body {
   const ChartIco = (c) => Ico('M3 3v18h18 M7 14l3-3 3 3 5-6', 20, c, 1.8);
   const BookIco = (c) => Ico('M4 4h7v16H4z M13 4h7v16h-7z', 20, c, 1.6);
   const WalletIco = (c) => Ico('M20 12V8H6a2 2 0 010-4h12v4 M4 6v12a2 2 0 002 2h14v-4 M18 12a2 2 0 000 4h4v-4z', 20, c, 1.6);
-  const BellIco = (c) => Ico('M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9 M13.7 21a2 2 0 01-3.4 0', 18, c, 1.6);
+  const ChevIco = (c) => Ico('m15 18-6-6 6-6', 16, c, 1.8);
 
-  const COINS = [
-    { sym:'BTC', name:'Bitcoin',  px:67432, ch:+2.14 },
-    { sym:'ETH', name:'Ethereum', px:3521,  ch:+1.32 },
-    { sym:'SOL', name:'Solana',   px:178.4, ch:-0.86 },
-    { sym:'BNB', name:'BNB',      px:604.2, ch:+0.41 },
-    { sym:'XRP', name:'XRP',      px:0.612, ch:-1.74 },
-    { sym:'ADA', name:'Cardano',  px:0.452, ch:+3.05 },
-  ];
+  const BASE = { BTC:67432, ETH:3521, SOL:178.4, BNB:604.2, XRP:0.612, ADA:0.452 };
+  const NAMES = { BTC:'Bitcoin', ETH:'Ethereum', SOL:'Solana', BNB:'BNB', XRP:'XRP', ADA:'Cardano' };
+  const INIT_CH = { BTC:2.14, ETH:1.32, SOL:-0.86, BNB:0.41, XRP:-1.74, ADA:3.05 };
+  const SYMS = Object.keys(BASE);
+  const TFS = { '15m':{n:40,v:0.020}, '1H':{n:26,v:0.045}, '4H':{n:20,v:0.060}, '1D':{n:16,v:0.082}, '1W':{n:12,v:0.110} };
+  const TF_LIST = Object.keys(TFS);
 
-  const genCandles = (n, start) => { let p=start; const out=[]; for(let i=0;i<n;i++){ const o=p; const c=o*(1+(Math.random()-0.5)*0.045); const hi=Math.max(o,c)*(1+Math.random()*0.018); const lo=Math.min(o,c)*(1-Math.random()*0.018); out.push({o:o,c:c,hi:hi,lo:lo}); p=c; } return out; };
+  function seededRand(seed) { var s = seed % 233280; return function(){ s = (s*9301 + 49297) % 233280; return s/233280; }; }
+  function genCandles(pair, tf) {
+    var cfg = TFS[tf], base = BASE[pair] || 100;
+    var seed = TF_LIST.indexOf(tf)*1000 + 7;
+    for (var i=0;i<pair.length;i++) seed += pair.charCodeAt(i)*31;
+    var rng = seededRand(seed+1);
+    var p = base*(0.94 + rng()*0.04), out = [];
+    for (var j=0;j<cfg.n;j++){ var o=p; var c=o*(1+(rng()-0.45)*cfg.v); var hi=Math.max(o,c)*(1+rng()*cfg.v*0.45); var lo=Math.min(o,c)*(1-rng()*cfg.v*0.45); out.push({o:o,c:c,hi:hi,lo:lo}); p=c; }
+    return out;
+  }
 
   const [tab, setTab] = useState('trade');
+  const [pair, setPair] = useState('BTC');
   const [tf, setTf] = useState('1H');
   const [side, setSide] = useState('buy');
   const [amount, setAmount] = useState('0.05');
-  const [candles, setCandles] = useState(() => genCandles(26, 65800));
-  const [coins, setCoins] = useState(COINS);
+  const [coins, setCoins] = useState(() => SYMS.map(s => ({ sym:s, name:NAMES[s], px:BASE[s], ch:INIT_CH[s] })));
+  const [candles, setCandles] = useState(() => genCandles('BTC','1H'));
+  const [positions, setPositions] = useState([
+    { id:1, sym:'BTC', side:'Long', size:0.12, entry:64210 },
+    { id:2, sym:'ETH', side:'Short', size:1.40, entry:3580 },
+  ]);
+  const [toast, setToast] = useState('');
 
-  const last = candles[candles.length-1].c;
-  const first = candles[0].o;
-  const dayPct = ((last-first)/first)*100;
+  // regenerate chart when pair or timeframe changes
+  useEffect(() => { setCandles(genCandles(pair, tf)); }, [pair, tf]);
 
+  // live price + last-candle drift
   useEffect(() => {
     const id = setInterval(() => {
-      setCandles(prev => {
-        const arr = prev.slice();
-        const lastC = arr[arr.length-1];
-        const nc = lastC.c*(1+(Math.random()-0.5)*0.012);
-        arr[arr.length-1] = { o:lastC.o, c:nc, hi:Math.max(lastC.hi,nc), lo:Math.min(lastC.lo,nc) };
-        return arr;
-      });
-      setCoins(prev => prev.map(c => ({ ...c, px: c.px*(1+(Math.random()-0.5)*0.004), ch: c.ch+(Math.random()-0.5)*0.1 })));
+      setCoins(prev => prev.map(c => ({ ...c, px: Math.max(0.0001, c.px*(1+(Math.random()-0.5)*0.004)), ch: c.ch+(Math.random()-0.5)*0.08 })));
+      setCandles(prev => { if(!prev.length) return prev; const a=prev.slice(); const l=a[a.length-1]; const nc=l.c*(1+(Math.random()-0.5)*0.01); a[a.length-1]={o:l.o,c:nc,hi:Math.max(l.hi,nc),lo:Math.min(l.lo,nc)}; return a; });
     }, 1400);
     return () => clearInterval(id);
   }, []);
 
+  const coin = coins.find(c => c.sym===pair) || coins[0];
+  const price = coin.px;
+  const dayPct = coin.ch;
+  const avail = 1.284;
+  const pxOf = (sym) => { const c = coins.find(x=>x.sym===sym); return c ? c.px : (BASE[sym]||0); };
+
   const fmtUsd = (n) => '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   const fmtPx = (n) => n>=1000 ? n.toLocaleString('en-US',{maximumFractionDigits:0}) : n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:n<10?3:2});
 
-  // ---- Candlestick chart ----
+  const openCoin = (sym) => { setPair(sym); setTab('trade'); };
+  const setPct = (p) => { setAmount((avail*p).toFixed(4)); };
+  const doTrade = () => {
+    const sz = parseFloat(amount) || 0;
+    if (sz <= 0) { setToast('הזן כמות תקינה'); setTimeout(()=>setToast(''),1500); return; }
+    setPositions(prev => [{ id:Date.now(), sym:pair, side: side==='buy'?'Long':'Short', size:sz, entry:price }, ...prev]);
+    setToast((side==='buy'?'✓ נפתחה פוזיציית לונג · ':'✓ נפתחה פוזיציית שורט · ') + sz.toFixed(3) + ' ' + pair);
+    setTimeout(()=>setToast(''), 2200);
+  };
+  const closePos = (id) => setPositions(prev => prev.filter(p => p.id !== id));
+
   const Candles = () => {
     const W=326, H=150, pad=6;
-    const lows=candles.map(c=>c.lo), highs=candles.map(c=>c.hi);
-    const min=Math.min.apply(null,lows), max=Math.max.apply(null,highs), range=(max-min)||1;
+    const lo=candles.map(c=>c.lo), hi=candles.map(c=>c.hi);
+    const mn=Math.min.apply(null,lo), mx=Math.max.apply(null,hi), rg=(mx-mn)||1;
     const cw=W/candles.length;
-    const yOf=(v)=> pad + (H-2*pad) - ((v-min)/range)*(H-2*pad);
+    const yOf=(v)=> pad + (H-2*pad) - ((v-mn)/rg)*(H-2*pad);
     return React.createElement('svg',{width:'100%',height:H,viewBox:'0 0 '+W+' '+H,preserveAspectRatio:'none'},
-      candles.map((c,i)=>{
-        const up=c.c>=c.o; const col=up?'#16C784':'#EA3943';
-        const x=i*cw+cw/2;
-        const bodyTop=yOf(Math.max(c.o,c.c)), bodyBot=yOf(Math.min(c.o,c.c));
+      candles.map((c,i)=>{ const up=c.c>=c.o; const col=up?'#16C784':'#EA3943'; const x=i*cw+cw/2; const bt=yOf(Math.max(c.o,c.c)), bb=yOf(Math.min(c.o,c.c));
         return React.createElement('g',{key:i},
           React.createElement('line',{x1:x,y1:yOf(c.hi),x2:x,y2:yOf(c.lo),stroke:col,strokeWidth:1}),
-          React.createElement('rect',{x:x-cw*0.3,y:bodyTop,width:cw*0.6,height:Math.max(1,bodyBot-bodyTop),fill:col,rx:1})
-        );
-      })
-    );
+          React.createElement('rect',{x:x-cw*0.3,y:bt,width:cw*0.6,height:Math.max(1,bb-bt),fill:col,rx:1}));
+      }));
   };
 
-  // ---- Order book ----
-  const mid = last;
-  const asks = [0.0008,0.0019,0.0031,0.0046,0.0062].map((d,i)=>({ px: mid*(1+d), amt: (Math.random()*1.8+0.2), depth: (5-i)/5 }));
-  const bids = [0.0006,0.0017,0.0029,0.0044,0.0060].map((d,i)=>({ px: mid*(1-d), amt: (Math.random()*1.8+0.2), depth: (5-i)/5 }));
-
-  const obRow = (r, type) => {
-    const col = type==='ask' ? '#EA3943' : '#16C784';
-    const bg = type==='ask' ? 'rgba(234,57,67,0.10)' : 'rgba(22,199,132,0.10)';
-    return (
-      <div style={{position:'relative',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'4px 10px',height:24,overflow:'hidden'}}>
-        <div style={{position:'absolute',top:0,bottom:0,right:0,width:(r.depth*100)+'%',background:bg}} />
-        <span style={{position:'relative',fontSize:12,fontWeight:600,color:col,fontVariantNumeric:'tabular-nums'}}>{fmtPx(r.px)}</span>
-        <span style={{position:'relative',fontSize:12,color:'#94a3b8',fontVariantNumeric:'tabular-nums'}}>{r.amt.toFixed(3)}</span>
-      </div>
-    );
+  const mid = price;
+  const asks = [0.0008,0.0019,0.0031,0.0046,0.0062].map((d,i)=>({ px: mid*(1+d), amt:(((i*37+13)%50)/20+0.2), depth:(5-i)/5 }));
+  const bids = [0.0006,0.0017,0.0029,0.0044,0.0060].map((d,i)=>({ px: mid*(1-d), amt:(((i*29+9)%50)/20+0.2), depth:(5-i)/5 }));
+  const obRow = (r,type) => { const col=type==='ask'?'#EA3943':'#16C784'; const bg=type==='ask'?'rgba(234,57,67,0.10)':'rgba(22,199,132,0.10)';
+    return (<div style={{position:'relative',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'4px 12px',height:24,overflow:'hidden'}}>
+      <div style={{position:'absolute',top:0,bottom:0,right:0,width:(r.depth*100)+'%',background:bg}} />
+      <span style={{position:'relative',fontSize:12,fontWeight:600,color:col}}>{fmtPx(r.px)}</span>
+      <span style={{position:'relative',fontSize:12,color:'#94a3b8'}}>{r.amt.toFixed(3)}</span></div>);
   };
-
-  const positions = [
-    { sym:'BTC', side:'Long', size:'0.12', entry:64210, pnl:+386.4, pnlPct:+4.8 },
-    { sym:'ETH', side:'Short', size:'1.40', entry:3580, pnl:-82.6, pnlPct:-1.6 },
-  ];
 
   const TradeTab = () => (
     <div className="app-content" style={{paddingBottom:90}}>
-      {/* ticker tape */}
       <div style={{display:'flex',gap:8,overflowX:'auto',paddingBottom:10,marginBottom:6}}>
         {coins.map(c=>(
-          <div key={c.sym} style={{flexShrink:0,display:'flex',alignItems:'center',gap:6,padding:'6px 10px',borderRadius:10,background:'#fff',border:'1px solid #eef1f5'}}>
-            <span style={{fontSize:12,fontWeight:700,color:'#0B1426'}}>{c.sym}</span>
+          <button key={c.sym} onClick={()=>setPair(c.sym)} style={{flexShrink:0,display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:10,background:c.sym===pair?'#0B1426':'#fff',border:'1px solid '+(c.sym===pair?'#0B1426':'#eef1f5'),cursor:'pointer'}}>
+            <span style={{fontSize:12,fontWeight:700,color:c.sym===pair?'#fff':'#0B1426'}}>{c.sym}</span>
             <span style={{fontSize:12,color:c.ch>=0?'#16C784':'#EA3943',fontWeight:600}}>{(c.ch>=0?'+':'')+c.ch.toFixed(2)+'%'}</span>
-          </div>
+          </button>
         ))}
       </div>
 
-      {/* pair header */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
         <div style={{display:'flex',alignItems:'center',gap:10,minWidth:0}}>
-          <div style={{width:40,height:40,borderRadius:'50%',background:'#F7931A',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:800,fontSize:14,flexShrink:0}}>₿</div>
+          <div style={{width:40,height:40,borderRadius:'50%',background:'#F7931A',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:800,fontSize:13,flexShrink:0}}>{pair.slice(0,1)}</div>
           <div style={{minWidth:0}}>
-            <p className="subtitle" style={{margin:0,fontSize:15}}>BTC/USDT</p>
-            <p className="caption" style={{margin:0,color:'#94a3b8'}}>Bitcoin · Perpetual</p>
+            <p className="subtitle" style={{margin:0,fontSize:15}}>{pair}/USDT</p>
+            <p className="caption" style={{margin:0,color:'#94a3b8'}}>{coin.name} · {tf}</p>
           </div>
         </div>
         <div style={{textAlign:'left',flexShrink:0}}>
-          <p className="subtitle" style={{margin:0,fontSize:16,color:dayPct>=0?'#16C784':'#EA3943',whiteSpace:'nowrap'}}>{fmtUsd(last)}</p>
+          <p className="subtitle" style={{margin:0,fontSize:16,color:dayPct>=0?'#16C784':'#EA3943',whiteSpace:'nowrap'}}>{fmtUsd(price)}</p>
           <p style={{margin:0,fontSize:12,fontWeight:600,color:dayPct>=0?'#16C784':'#EA3943',whiteSpace:'nowrap'}}>{(dayPct>=0?'▲ +':'▼ ')+dayPct.toFixed(2)+'%'}</p>
         </div>
       </div>
 
-      {/* timeframe tabs */}
       <div style={{display:'flex',gap:6,marginBottom:8}}>
-        {['15m','1H','4H','1D','1W'].map(t=>(
-          <button key={t} onClick={()=>setTf(t)} style={{flex:1,padding:'6px 0',borderRadius:8,border:'1px solid '+(tf===t?'#F7931A':'#e2e8f0'),background:tf===t?'rgba(247,147,26,0.1)':'#fff',color:tf===t?'#F7931A':'#64748b',fontSize:12,fontWeight:600}}>{t}</button>
+        {TF_LIST.map(t=>(
+          <button key={t} onClick={()=>setTf(t)} style={{flex:1,padding:'7px 0',borderRadius:8,border:'1px solid '+(tf===t?'#F7931A':'#e2e8f0'),background:tf===t?'rgba(247,147,26,0.12)':'#fff',color:tf===t?'#F7931A':'#64748b',fontSize:12,fontWeight:700,cursor:'pointer'}}>{t}</button>
         ))}
       </div>
 
-      {/* candlestick chart */}
       <div className="card" style={{padding:'10px 6px',marginBottom:10}}>
         <Candles />
       </div>
 
-      {/* order book */}
       <div className="card" style={{padding:0,marginBottom:10,overflow:'hidden'}}>
         <div style={{display:'flex',justifyContent:'space-between',padding:'10px 12px 6px',borderBottom:'1px solid #f1f5f9'}}>
           <span className="caption" style={{color:'#64748b',fontWeight:600}}>ספר פקודות</span>
@@ -1031,47 +1032,48 @@ body {
         {bids.map((r,i)=><div key={'b'+i}>{obRow(r,'bid')}</div>)}
       </div>
 
-      {/* buy / sell */}
       <div className="card" style={{marginBottom:10}}>
-        <div style={{display:'flex',gap:0,marginBottom:12,borderRadius:10,overflow:'hidden',border:'1px solid #e2e8f0'}}>
-          {['buy','sell'].map(s=>(
-            <button key={s} onClick={()=>setSide(s)} style={{flex:1,padding:'9px 0',border:'none',fontSize:13,fontWeight:700,color:side===s?'#fff':'#64748b',background:side===s?(s==='buy'?'#16C784':'#EA3943'):'#fff'}}>{s==='buy'?'קנייה':'מכירה'}</button>
+        <div style={{display:'flex',marginBottom:12,borderRadius:10,overflow:'hidden',border:'1px solid #e2e8f0'}}>
+          {['buy','sell'].map(sd=>(
+            <button key={sd} onClick={()=>setSide(sd)} style={{flex:1,padding:'9px 0',border:'none',fontSize:13,fontWeight:700,cursor:'pointer',color:side===sd?'#fff':'#64748b',background:side===sd?(sd==='buy'?'#16C784':'#EA3943'):'#fff'}}>{sd==='buy'?'קנייה':'מכירה'}</button>
           ))}
         </div>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
-          <span className="caption" style={{color:'#64748b'}}>כמות (BTC)</span>
-          <span className="caption" style={{color:'#94a3b8'}}>זמין: 1.284 BTC</span>
+          <span className="caption" style={{color:'#64748b'}}>כמות ({pair})</span>
+          <span className="caption" style={{color:'#94a3b8'}}>זמין: {avail} BTC</span>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',borderRadius:10,border:'1px solid #e2e8f0',marginBottom:10}}>
-          <input value={amount} onChange={e=>setAmount(e.target.value)} style={{flex:1,border:'none',outline:'none',fontSize:15,fontWeight:600,color:'#0B1426',background:'transparent'}} />
-          <span style={{fontSize:13,color:'#94a3b8'}}>BTC</span>
+          <input value={amount} onChange={e=>setAmount(e.target.value)} inputMode="decimal" style={{flex:1,border:'none',outline:'none',fontSize:15,fontWeight:600,color:'#0B1426',background:'transparent',width:'100%'}} />
+          <span style={{fontSize:13,color:'#94a3b8'}}>{pair}</span>
         </div>
         <div style={{display:'flex',gap:6,marginBottom:12}}>
-          {['25%','50%','75%','100%'].map(p=>(
-            <button key={p} style={{flex:1,padding:'5px 0',borderRadius:7,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,fontWeight:600}}>{p}</button>
+          {[['25%',0.25],['50%',0.5],['75%',0.75],['100%',1]].map(([lbl,p])=>(
+            <button key={lbl} onClick={()=>setPct(p)} style={{flex:1,padding:'6px 0',borderRadius:7,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,fontWeight:600,cursor:'pointer'}}>{lbl}</button>
           ))}
         </div>
-        <button style={{width:'100%',padding:'13px 0',borderRadius:12,border:'none',color:'#fff',fontSize:15,fontWeight:700,background:side==='buy'?'#16C784':'#EA3943'}}>
-          {side==='buy'?'קנה BTC':'מכור BTC'} · {amount} BTC
+        <button onClick={doTrade} style={{width:'100%',padding:'13px 0',borderRadius:12,border:'none',color:'#fff',fontSize:15,fontWeight:700,cursor:'pointer',background:side==='buy'?'#16C784':'#EA3943'}}>
+          {side==='buy'?'קנה':'מכור'} {amount} {pair}
         </button>
       </div>
 
-      {/* open positions */}
-      <p className="section-title" style={{marginBottom:8}}>פוזיציות פתוחות</p>
-      {positions.map((p,i)=>{
-        const up=p.pnl>=0;
+      <p className="section-title" style={{marginBottom:8}}>פוזיציות פתוחות ({positions.length})</p>
+      {positions.map(p=>{
+        const cur=pxOf(p.sym); const dir=p.side==='Long'?1:-1; const pnl=(cur-p.entry)*p.size*dir; const pnlPct=((cur-p.entry)/p.entry)*100*dir; const up=pnl>=0;
         return (
-          <div key={i} className="card" style={{marginBottom:8,padding:'12px 14px'}}>
+          <div key={p.id} className="card" style={{marginBottom:8,padding:'12px 14px'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0}}>
                 <span style={{fontSize:14,fontWeight:700,color:'#0B1426'}}>{p.sym}/USDT</span>
                 <span style={{fontSize:11,fontWeight:700,padding:'2px 7px',borderRadius:6,color:p.side==='Long'?'#16C784':'#EA3943',background:p.side==='Long'?'rgba(22,199,132,0.12)':'rgba(234,57,67,0.12)'}}>{p.side==='Long'?'לונג':'שורט'} {p.size}</span>
               </div>
-              <span style={{fontSize:14,fontWeight:700,color:up?'#16C784':'#EA3943',whiteSpace:'nowrap'}}>{(up?'+':'')+fmtUsd(p.pnl).replace('$','$')}</span>
+              <span style={{fontSize:14,fontWeight:700,color:up?'#16C784':'#EA3943',whiteSpace:'nowrap'}}>{(up?'+':'')+fmtUsd(pnl)}</span>
             </div>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:8,paddingTop:8,borderTop:'1px solid #f1f5f9'}}>
               <span className="caption" style={{color:'#64748b'}}>כניסה: <strong style={{color:'#0B1426'}}>{fmtUsd(p.entry)}</strong></span>
-              <span style={{fontSize:12,fontWeight:700,color:up?'#16C784':'#EA3943'}}>{(up?'+':'')+p.pnlPct.toFixed(1)+'%'}</span>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <span style={{fontSize:12,fontWeight:700,color:up?'#16C784':'#EA3943'}}>{(up?'+':'')+pnlPct.toFixed(2)+'%'}</span>
+                <button onClick={()=>closePos(p.id)} style={{fontSize:11,fontWeight:600,color:'#64748b',background:'#f1f5f9',border:'none',borderRadius:7,padding:'4px 10px',cursor:'pointer'}}>סגור</button>
+              </div>
             </div>
           </div>
         );
@@ -1083,9 +1085,9 @@ body {
     <div className="app-content" style={{paddingBottom:90}}>
       <p className="section-title" style={{marginBottom:10}}>שוק הקריפטו</p>
       {coins.map(c=>(
-        <div key={c.sym} className="list-item" style={{marginBottom:8,gap:10}}>
+        <button key={c.sym} onClick={()=>openCoin(c.sym)} className="list-item" style={{marginBottom:8,gap:10,width:'100%',textAlign:'inherit',border:'1px solid transparent',cursor:'pointer'}}>
           <div style={{width:40,height:40,borderRadius:'50%',background:'#0B1426',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:12,flexShrink:0}}>{c.sym}</div>
-          <div style={{flex:1,minWidth:0,overflow:'hidden'}}>
+          <div style={{flex:1,minWidth:0,overflow:'hidden',textAlign:'right'}}>
             <p className="subtitle" style={{fontSize:14,margin:0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{c.sym}/USDT</p>
             <p className="caption" style={{margin:0,color:'#94a3b8',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{c.name}</p>
           </div>
@@ -1093,6 +1095,25 @@ body {
             <p className="subtitle" style={{fontSize:14,margin:0,whiteSpace:'nowrap'}}>{fmtUsd(c.px)}</p>
             <p style={{margin:0,fontSize:12,fontWeight:600,color:c.ch>=0?'#16C784':'#EA3943',whiteSpace:'nowrap'}}>{(c.ch>=0?'+':'')+c.ch.toFixed(2)+'%'}</p>
           </div>
+          <span style={{flexShrink:0,marginInlineStart:2}}>{ChevIco('#cbd5e1')}</span>
+        </button>
+      ))}
+      <p className="caption" style={{textAlign:'center',color:'#94a3b8',marginTop:12}}>הקש על מטבע כדי לפתוח אותו במסך המסחר</p>
+    </div>
+  );
+
+  const WalletTab = () => (
+    <div className="app-content" style={{paddingBottom:90}}>
+      <div style={{background:'linear-gradient(135deg,#0B1426,#16243C)',borderRadius:16,padding:'20px',color:'#fff',marginBottom:14}}>
+        <p style={{margin:0,fontSize:13,color:'rgba(255,255,255,0.6)'}}>יתרה כוללת</p>
+        <p style={{margin:'6px 0 0',fontSize:30,fontWeight:700}}>$48,217.40</p>
+      </div>
+      <p className="section-title" style={{marginBottom:8}}>הנכסים שלי</p>
+      {coins.slice(0,4).map(c=>(
+        <div key={c.sym} className="list-item" style={{marginBottom:8,gap:10}}>
+          <div style={{width:38,height:38,borderRadius:'50%',background:'#0B1426',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:12,flexShrink:0}}>{c.sym}</div>
+          <div style={{flex:1,minWidth:0}}><p className="subtitle" style={{fontSize:14,margin:0}}>{c.name}</p><p className="caption" style={{margin:0,color:'#94a3b8'}}>{(Math.random()*2+0.1).toFixed(3)} {c.sym}</p></div>
+          <p className="subtitle" style={{fontSize:14,margin:0,flexShrink:0}}>{fmtUsd(c.px)}</p>
         </div>
       ))}
     </div>
@@ -1113,14 +1134,10 @@ body {
             <p className="caption" style={{color:'#6b7280'}}>שווי תיק</p>
             <h1 className="subtitle" style={{fontSize:18}}>$48,217.40</h1>
           </div>
-          <div style={{display:'flex',gap:8,alignItems:'center'}}>
-            <span style={{fontSize:12,fontWeight:700,color:'#16C784',background:'rgba(22,199,132,0.12)',padding:'4px 9px',borderRadius:20}}>+5.2% היום</span>
-            <button className="btn-icon" style={{width:36,height:36}}>{BellIco('#0B1426')}</button>
-          </div>
+          <span style={{fontSize:12,fontWeight:700,color:'#16C784',background:'rgba(22,199,132,0.12)',padding:'4px 9px',borderRadius:20}}>+5.2% היום</span>
         </div>
-        {tab==='trade' ? <TradeTab/> : tab==='markets' ? <MarketsTab/> : (
-          <div className="app-content"><div className="empty-state"><p className="empty-state-title">הארנק שלך</p><p className="empty-state-body">יתרות והיסטוריה</p></div></div>
-        )}
+        {tab==='trade' ? <TradeTab/> : tab==='markets' ? <MarketsTab/> : <WalletTab/>}
+        {toast ? (<div style={{position:'fixed',bottom:84,left:'50%',transform:'translateX(-50%)',background:'#0B1426',color:'#fff',padding:'10px 18px',borderRadius:24,fontSize:13,fontWeight:600,zIndex:9999,boxShadow:'0 8px 24px rgba(0,0,0,0.25)',whiteSpace:'nowrap'}}>{toast}</div>) : null}
         <div className="app-nav">
           {navItems.map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} className={'nav-tab'+(tab===t.id?' active':'')}>
