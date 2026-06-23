@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { Plus_Jakarta_Sans, Heebo } from 'next/font/google';
 
 const jakarta = Plus_Jakarta_Sans({
@@ -27,7 +28,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="he" dir="rtl" className={`${jakarta.variable} ${heebo.variable}`}>
       <body className="bg-bg text-text-primary min-h-screen font-body">
-        <Providers>{children}</Providers>
+        <ErrorBoundary>
+          <Providers>{children}</Providers>
+        </ErrorBoundary>
       </body>
     </html>
   );

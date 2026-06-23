@@ -18,6 +18,7 @@ import { getProject, generateApp, shareApp, pushLive, liveUrl } from '@/lib/api'
 import type { GenerateResponse, ProjectContext } from '@/lib/api';
 import { saveLocalProject, getLocalProject } from '@/lib/localProjects';
 import Link from 'next/link';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const DeviceSync = dynamic(() => import('@/components/DeviceSync'), { ssr: false });
 
@@ -1046,14 +1047,16 @@ function BuilderContent() {
           maxSize={currentResult ? '60%' : '100%'}
           className="flex flex-col border-l border-border/50 overflow-hidden glass-panel"
         >
-          <ChatInterface
-            projectId={projectId}
-            initialPrompt={searchParams.get('prompt') || undefined}
-            currentAppResult={currentResult}
-            onAppGenerated={handleAppGenerated}
-            onShowPreview={handleShowPreview}
-            onGeneratingChange={handleGeneratingChange}
-          />
+          <ErrorBoundary fallbackTitle="שגיאה בצ'אט">
+            <ChatInterface
+              projectId={projectId}
+              initialPrompt={searchParams.get('prompt') || undefined}
+              currentAppResult={currentResult}
+              onAppGenerated={handleAppGenerated}
+              onShowPreview={handleShowPreview}
+              onGeneratingChange={handleGeneratingChange}
+            />
+          </ErrorBoundary>
         </Panel>
 
         {/* Resize handle */}
@@ -1134,16 +1137,18 @@ function BuilderContent() {
                   <div className="flex-1 flex overflow-hidden">
                     {/* Preview area — dark canvas like Lovable */}
                     <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-[#0D0D0F] relative" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(139,92,246,0.06) 0%, transparent 60%)' }}>
-                      <WebPreview
-                        key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
-                        htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', editSettings)}
-                        appName={currentResult.appName}
-                        refreshKey={JSON.stringify(editSettings)}
-                        onScreensChanged={handleScreensChanged}
-                        onElementSelected={handleElementSelected}
-                        onElementDeselected={handleElementDeselected}
-                        iframeRef={iframeRef}
-                      />
+                      <ErrorBoundary fallbackTitle="שגיאה בתצוגה מקדימה">
+                        <WebPreview
+                          key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
+                          htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', editSettings)}
+                          appName={currentResult.appName}
+                          refreshKey={JSON.stringify(editSettings)}
+                          onScreensChanged={handleScreensChanged}
+                          onElementSelected={handleElementSelected}
+                          onElementDeselected={handleElementDeselected}
+                          iframeRef={iframeRef}
+                        />
+                      </ErrorBoundary>
 
                       {/* Figma-style visual editing toolbar */}
                       {selectedElement && (
@@ -1213,20 +1218,22 @@ function BuilderContent() {
 
 export default function BuilderPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="h-screen bg-bg flex items-center justify-center">
-          <div className="flex items-center gap-3 text-text-secondary">
-            <svg className="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            <span className="font-display">טוען MobileForge…</span>
+    <ErrorBoundary fallbackTitle="הבילדר נתקל בשגיאה">
+      <Suspense
+        fallback={
+          <div className="h-screen bg-bg flex items-center justify-center">
+            <div className="flex items-center gap-3 text-text-secondary">
+              <svg className="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span className="font-display">טוען MobileForge…</span>
+            </div>
           </div>
-        </div>
-      }
-    >
-      <BuilderContent />
-    </Suspense>
+        }
+      >
+        <BuilderContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
