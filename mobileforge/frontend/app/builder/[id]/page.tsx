@@ -458,6 +458,8 @@ function BuilderContent() {
   const [currentResult, setCurrentResult] = useState<GenerateResponse | null>(null);
   const [rightPanel, setRightPanel] = useState<RightPanel>('preview');
   const [showDeviceSync, setShowDeviceSync] = useState(false);
+  const [deviceSyncUrl, setDeviceSyncUrl] = useState('');
+  const [phoneStatus, setPhoneStatus] = useState<'idle' | 'preparing'>('idle');
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [showAssistant, setShowAssistant] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -748,12 +750,11 @@ function BuilderContent() {
         unreadCount={unreadCount}
       />
 
-      {/* DeviceSync modal */}
-      {showDeviceSync && currentResult?.snackId && (
+      {/* DeviceSync modal — open the live web app on a phone via QR */}
+      {showDeviceSync && deviceSyncUrl && (
         <DeviceSync
-          snackId={currentResult.snackId}
-          shareUrl={currentResult.shareUrl}
-          appName={currentResult.appName}
+          shareUrl={deviceSyncUrl}
+          appName={currentResult?.appName}
           onClose={() => setShowDeviceSync(false)}
         />
       )}
@@ -811,6 +812,34 @@ function BuilderContent() {
 
           {currentResult && currentResult.htmlDoc && (
             <>
+              {/* Open on phone button */}
+              <button
+                onClick={async () => {
+                  if (phoneStatus !== 'idle') return;
+                  setPhoneStatus('preparing');
+                  try {
+                    const { shareUrl } = await shareApp(currentResult.htmlDoc, currentResult.appName);
+                    setDeviceSyncUrl(shareUrl);
+                    setShowDeviceSync(true);
+                  } catch { /* ignore — keep modal closed */ }
+                  finally { setPhoneStatus('idle'); }
+                }}
+                title="פתח בטלפון"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 text-xs font-medium transition-all"
+              >
+                {phoneStatus === 'preparing' ? (
+                  <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                ) : (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                )}
+                <span className="hidden sm:inline">טלפון</span>
+              </button>
+
               {/* Share button */}
               <button
                 onClick={async () => {
