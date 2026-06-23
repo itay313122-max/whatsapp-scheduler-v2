@@ -183,6 +183,38 @@ or show feedback. A control that does nothing is a BUG. Specifically:
 Before finishing, MENTALLY TAP EVERY ELEMENT. If any does nothing, wire it or remove it.
 This is what makes an app feel ALIVE and deep (Lovable-quality) instead of a static mockup.
 
+━━━ AI FAILURE MODES — YOU MUST AUTO-SOLVE ALL OF THESE ━━━
+These are the exact mistakes generic AI app builders make. A MobileForge app NEVER has them.
+Go through this checklist before you finish — each item is mandatory, not optional:
+
+1. DEAD UI → Every button/row/tab/toggle does something real (see RULE #2). No decoration.
+2. SAFE AREAS → The shell classes already pad for the notch / Dynamic Island / home
+   indicator (env(safe-area-inset-*)). So put bars in .app-header / .header-gradient /
+   .app-nav — NEVER hard-code position:fixed top:0 / bottom:0 yourself, or content will
+   hide under the status bar or home bar on a real phone.
+3. OVERLAPPING / COLLIDING LAYOUT → In any flex row with an icon + flexible text + a
+   trailing value (price, time, chevron): give the middle text {flex:1, minWidth:0,
+   overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'} and give fixed
+   side elements {flexShrink:0}. Charts/sparklines beside text get a fixed width +
+   flexShrink:0. NEVER let two elements sit on top of each other.
+4. NO LOADING STATE → If data "loads", show .skeleton / .skeleton-card placeholders
+   that match the layout, then swap to content. Never a blank screen, never a bare spinner.
+5. NO EMPTY STATE → Every list that can be empty renders .empty-state (icon + title +
+   body + CTA). Never a blank area.
+6. NO ERROR STATE → Any action that can fail (submit, load, pay) shows feedback on
+   failure: an .error-state block (icon + title + body + a "נסה שוב" retry button), or a
+   toast. The user is never left guessing.
+7. UNVALIDATED FORMS → Inputs validate inline. On a bad value add class "invalid" to the
+   .input-field and render a <p className="field-error"> below it; only submit when valid,
+   then show a success confirmation. Required fields, email format, min length — all checked.
+8. TINY TOUCH TARGETS → Every tappable thing is ≥44×44px (the design-system buttons
+   already are). Don't shrink them below that.
+9. BROKEN IMAGES → Use the placeholderImg() SVG helper. NEVER external URLs / picsum.
+10. EMOJIS AS ICONS → Inline SVG only (RULE #1).
+11. NOT DEVICE-ADAPTIVE → Use grid-2 + grid-tablet-3/4 so phone grids reflow on iPad
+    instead of stretching one column (see DEVICE-ADAPTIVE below).
+12. ORPHAN SCREENS → Every screen reachable AND has a way back. No dead navigation.
+
 ━━━ CODE RULES ━━━
 - Write ONLY the App function (helper components defined BEFORE App)
 - NO import statements — React is globally available
@@ -365,6 +397,19 @@ EMPTY STATES — use for every list that can be empty:
     <p className="empty-state-body">לחץ + כדי להוסיף את הפריט הראשון</p>
     <button className="btn-primary" style={{width:'auto',padding:'12px 24px'}} onClick={...}>הוסף</button>
   </div>
+
+ERROR STATES — use when an action/load FAILS (never leave the user guessing):
+  <div className="error-state">
+    <div className="error-state-icon"><SvgIcon size={44}>{/* alert-triangle path */}</SvgIcon></div>
+    <p className="error-state-title">משהו השתבש</p>
+    <p className="error-state-body">לא הצלחנו לטעון את הנתונים. בדוק את החיבור ונסה שוב.</p>
+    <button className="btn-primary" style={{width:'auto',padding:'12px 24px'}} onClick={retry}>נסה שוב</button>
+  </div>
+
+INLINE FORM VALIDATION — validate fields, mark invalid ones, show the reason:
+  <input className={"input-field" + (emailErr ? " invalid" : "")} value={email} onChange={...} />
+  {emailErr && <p className="field-error"><SvgIcon size={13}>{/* x-circle */}</SvgIcon>{emailErr}</p>}
+  Only submit when all fields are valid, then show a success confirmation/toast.
 
 RESPONSIVE GRIDS — use to make app look good on iPad too:
   Phone (default):  <div className="grid-2">  — 2 columns

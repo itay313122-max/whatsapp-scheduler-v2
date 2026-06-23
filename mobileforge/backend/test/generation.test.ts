@@ -757,6 +757,26 @@ describe('Responsive design in buildHtmlDocument', () => {
   it('includes empty-state class', () => {
     expect(html).toContain('.empty-state');
   });
+
+  it('includes error-state and inline form-validation classes', () => {
+    expect(html).toContain('.error-state');
+    expect(html).toContain('.field-error');
+  });
+});
+
+// Safe-area handling — generated apps must clear the notch / Dynamic Island
+// and the home indicator on real phones (a common AI app-builder failure mode).
+describe('Safe-area handling in buildHtmlDocument', () => {
+  const html = buildHtmlDocument('function App() { return <div className="app-shell" />; }', 'Test');
+
+  it('opts into safe areas via viewport-fit=cover', () => {
+    expect(html).toContain('viewport-fit=cover');
+  });
+
+  it('pads the header for the notch and the nav for the home indicator', () => {
+    expect(html).toContain('safe-area-inset-top');
+    expect(html).toContain('safe-area-inset-bottom');
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

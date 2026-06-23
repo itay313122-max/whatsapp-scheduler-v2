@@ -85,12 +85,15 @@ body {
   position: sticky; top: 0; z-index: 10;
   background: var(--c-surface);
   border-bottom: 1px solid var(--c-border);
-  padding: 14px 20px;
+  /* Safe area: clear the notch / Dynamic Island on real phones */
+  padding: calc(14px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px)) 14px calc(20px + env(safe-area-inset-left, 0px));
   display: flex; align-items: center; justify-content: space-between;
 }
 .app-content {
   flex: 1; overflow-y: auto;
-  padding: 16px; padding-bottom: 90px;
+  padding: 16px; padding-left: calc(16px + env(safe-area-inset-left, 0px)); padding-right: calc(16px + env(safe-area-inset-right, 0px));
+  /* Clear the fixed bottom nav + home indicator */
+  padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
   display: flex; flex-direction: column; gap: 14px;
 }
 .app-nav {
@@ -101,10 +104,14 @@ body {
   border-top: 1px solid var(--c-border);
   display: flex; z-index: 100;
   box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+  /* Safe area: lift tabs above the home indicator */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .header-gradient {
   background: linear-gradient(135deg, var(--c-from), var(--c-to));
-  color: #fff; padding: 18px 20px;
+  color: #fff;
+  /* Safe area: gradient hero also clears the notch */
+  padding: calc(18px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px)) 18px calc(20px + env(safe-area-inset-left, 0px));
 }
 
 /* ── Nav tabs ──────────────────────────────────────────────────────────── */
@@ -367,6 +374,22 @@ body {
 .empty-state-icon { font-size: 48px; }
 .empty-state-title { font-size: 18px; font-weight: 700; color: var(--c-text); }
 .empty-state-body  { font-size: 14px; color: var(--c-text-2); max-width: 260px; }
+
+/* ── Error state (a failed action — show a clear message + retry) ───────── */
+.error-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 24px; text-align: center; gap: 12px;
+}
+.error-state-icon  { color: var(--c-error); opacity: 0.9; }
+.error-state-title { font-size: 17px; font-weight: 700; color: var(--c-text); }
+.error-state-body  { font-size: 14px; color: var(--c-text-2); max-width: 260px; line-height: 20px; }
+
+/* ── Inline form validation (field-level error feedback) ───────────────── */
+.input-field.invalid { border-color: var(--c-error); }
+.field-error {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--c-error); margin-top: 5px; line-height: 16px;
+}
 
 /* ── Grid helpers ──────────────────────────────────────────────────────── */
 .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
@@ -856,7 +879,7 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
 <html lang="he">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>${safeName}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
