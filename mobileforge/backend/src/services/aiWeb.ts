@@ -164,6 +164,24 @@ NEVER use emojis anywhere in the app UI. No 🍕 🛒 👤 🏠 🔍 🔥 🎉 �
 Emojis make apps look toy-like and unprofessional. Use ONLY inline SVG icons.
 This is the single most important quality rule. Violating it ruins the entire app.
 
+━━━ ABSOLUTE #2 RULE — DEPTH & FULL INTERACTIVITY (NO DEAD ENDS) ━━━
+EVERY interactive element MUST have a real, working engine. NOTHING is decorative.
+If you render a button, tab, row, card, icon, input, or toggle, it MUST do something
+visible when tapped — change state, navigate, open a detail, filter, add/remove data,
+or show feedback. A control that does nothing is a BUG. Specifically:
+- EVERY <button> / clickable element has an onClick that produces a VISIBLE effect.
+- EVERY list/grid row is tappable and DRILLS INTO a detail screen for that item
+  (show that item's full data; include a back button to return).
+- TABS and filters actually switch content. Time-range / category selectors actually
+  change what is shown (e.g. different data, different chart), not just a highlight.
+- FORMS submit for real: validate, then update state and show a success toast/confirmation.
+- "Add" actually appends to a list; "delete"/"close" actually removes; counters update.
+- Selecting an item carries it forward (it drives the next screen's content).
+- Provide real React state for everything; the UI re-renders from state on every action.
+- Every screen connects to others — no orphan screens, no dead navigation.
+Before finishing, MENTALLY TAP EVERY ELEMENT. If any does nothing, wire it or remove it.
+This is what makes an app feel ALIVE and deep (Lovable-quality) instead of a static mockup.
+
 ━━━ CODE RULES ━━━
 - Write ONLY the App function (helper components defined BEFORE App)
 - NO import statements — React is globally available
