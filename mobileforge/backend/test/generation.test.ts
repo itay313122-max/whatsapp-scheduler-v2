@@ -1117,3 +1117,54 @@ describe('Share route', () => {
     expect(res.headers['content-disposition']).toContain('pwa');
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Live sync route — push from builder, devices reload (SSE)
+// ═══════════════════════════════════════════════════════════════════════════
+describe('Live sync route', () => {
+  let app: any;
+  let request: any;
+
+  beforeAll(() => {
+    const express = require('express');
+    const liveRouter = require('../src/routes/live').default;
+    app = express();
+    app.use(express.json());
+    app.use('/api/live', liveRouter);
+    request = require('supertest')(app);
+  });
+
+  it('rejects a push without htmlDoc', async () => {
+    const res = await request.post('/api/live/sess1').send({});
+    expect(res.status).toBe(400);
+  });
+
+  it('accepts a push and bumps the version', async () => {
+    const r1 = await request.post('/api/live/sess2').send({ htmlDoc: '<h1>v1</h1>', appName: 'A' });
+    expect(r1.status).toBe(200);
+    expect(r1.body.version).toBe(1);
+    const r2 = await request.post('/api/live/sess2').send({ htmlDoc: '<h1>v2</h1>' });
+    expect(r2.body.version).toBe(2);
+  });
+
+  it('serves the latest doc for a session', async () => {
+    await request.post('/api/live/sess3').send({ htmlDoc: '<h1>hello-live</h1>' });
+    const res = await request.get('/api/live/sess3/doc');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('hello-live');
+  });
+
+  it('serves a waiting placeholder for an unknown session doc', async () => {
+    const res = await request.get('/api/live/never-seen/doc');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('ממתין');
+  });
+
+  it('serves the wrapper page that connects to the live stream', async () => {
+    const res = await request.get('/api/live/sess4');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('EventSource');
+    expect(res.text).toContain('/api/live/');
+    expect(res.text).toContain('srcdoc');
+  });
+});

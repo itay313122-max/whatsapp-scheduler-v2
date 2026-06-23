@@ -14,7 +14,7 @@ import FigmaToolbar from '@/components/FigmaToolbar';
 import ForgeAssistant from '@/components/ForgeAssistant';
 import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
-import { getProject, generateApp, shareApp } from '@/lib/api';
+import { getProject, generateApp, shareApp, pushLive, liveUrl } from '@/lib/api';
 import type { GenerateResponse, ProjectContext } from '@/lib/api';
 import { saveLocalProject, getLocalProject } from '@/lib/localProjects';
 import Link from 'next/link';
@@ -460,6 +460,8 @@ function BuilderContent() {
   const [showDeviceSync, setShowDeviceSync] = useState(false);
   const [deviceSyncUrl, setDeviceSyncUrl] = useState('');
   const [phoneStatus, setPhoneStatus] = useState<'idle' | 'preparing'>('idle');
+  const [liveSessionId, setLiveSessionId] = useState('');
+  const liveOn = !!liveSessionId;
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [showAssistant, setShowAssistant] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -699,6 +701,28 @@ function BuilderContent() {
     setSelectedElement(null);
   }, []);
 
+  // Live sync: whenever the app changes and a live session is active, push the
+  // latest HTML so any device watching the live URL reloads in real time.
+  useEffect(() => {
+    if (!liveSessionId || !currentResult?.htmlDoc) return;
+    pushLive(liveSessionId, currentResult.htmlDoc, currentResult.appName);
+  }, [liveSessionId, currentResult?.htmlDoc, currentResult?.appName]);
+
+  // Start (or re-open) a live session and show its QR for the phone.
+  const handleStartLive = useCallback(() => {
+    if (!currentResult?.htmlDoc) return;
+    let id = liveSessionId;
+    if (!id) {
+      id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2) + Date.now().toString(36);
+      setLiveSessionId(id);
+    }
+    pushLive(id, currentResult.htmlDoc, currentResult.appName);
+    setDeviceSyncUrl(liveUrl(id));
+    setShowDeviceSync(true);
+  }, [currentResult?.htmlDoc, currentResult?.appName, liveSessionId]);
+
   const handleAddScreen = useCallback((prompt: string) => {
     handleStructureEdit(prompt);
   }, [handleStructureEdit]);
@@ -838,6 +862,20 @@ function BuilderContent() {
                   </svg>
                 )}
                 <span className="hidden sm:inline">טלפון</span>
+              </button>
+
+              {/* Live sync button — push changes to a watching device in real time */}
+              <button
+                onClick={handleStartLive}
+                title="סנכרון חי לטלפון — שינויים מופיעים מיד"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                  liveOn
+                    ? 'bg-green-500/15 text-green-400 border-green-500/30'
+                    : 'border-border text-text-secondary hover:text-text-primary hover:border-primary/30'
+                }`}
+              >
+                <span className={`w-2 h-2 rounded-full ${liveOn ? 'bg-green-400 animate-pulse' : 'bg-text-secondary'}`} />
+                <span className="hidden sm:inline">{liveOn ? 'לייב פעיל' : 'לייב'}</span>
               </button>
 
               {/* Share button */}

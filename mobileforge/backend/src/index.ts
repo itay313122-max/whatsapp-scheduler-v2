@@ -7,6 +7,7 @@ import projectsRouter from './routes/projects';
 import snackRouter from './routes/snack';
 import assistantRouter from './routes/assistant';
 import shareRouter from './routes/share';
+import liveRouter from './routes/live';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -34,6 +35,7 @@ app.use('/api/projects', projectsRouter);
 app.use('/api/snack', snackRouter);
 app.use('/api/assistant', assistantRouter);
 app.use('/api/share', shareRouter);
+app.use('/api/live', liveRouter);
 
 // 404 handler
 app.use((_req, res) => {

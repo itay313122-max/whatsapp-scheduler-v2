@@ -137,6 +137,24 @@ export async function streamGenerateApp(
   }
 }
 
+/** Live-sync: the builder pushes the current app; any device on the live URL reloads. */
+export async function pushLive(sessionId: string, htmlDoc: string, appName?: string): Promise<void> {
+  try {
+    await fetch(`${API_URL}/api/live/${sessionId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ htmlDoc, appName }),
+    });
+  } catch {
+    /* best-effort — a dropped push just means this version isn't mirrored */
+  }
+}
+
+/** The URL a phone opens to watch the app update live. */
+export function liveUrl(sessionId: string): string {
+  return `${API_URL}/api/live/${sessionId}`;
+}
+
 export async function shareApp(htmlDoc: string, appName: string): Promise<{ id: string; shareUrl: string }> {
   const res = await fetch(`${API_URL}/api/share`, {
     method: 'POST',
