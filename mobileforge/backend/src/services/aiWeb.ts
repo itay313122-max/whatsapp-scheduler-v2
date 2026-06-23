@@ -383,6 +383,17 @@ NAVIGATION:
 - Active tab must be visually distinct (class "active").
 - Navigation must be predictable across all screens.
 
+DEVICE-ADAPTIVE (phone / tablet / desktop) — REQUIRED:
+- The app is previewed on iPhone, Android, AND iPad. It MUST look right on all.
+- For any grid/list of cards, use the responsive grid classes so columns grow on
+  wider screens: phone uses "grid-2", and add "grid-tablet-3" / "grid-tablet-4"
+  so a 2-up phone grid becomes 3-4 up on iPad — never a single stretched column.
+- Use the design-system classes (app-shell, app-content, card, grid-2) which
+  already widen padding/typography on tablet via media queries — do NOT hard-code
+  fixed pixel widths on containers that would block them from adapting.
+- Rows/lists that stay single-column should keep readable content, not stretch
+  edge-to-edge awkwardly on tablet.
+
 TOUCH & ACCESSIBILITY (WCAG 2.1 + Apple HIG):
 - All buttons: minimum height 48px (btn-primary is 48px, btn-icon is 44px).
 - All input fields: minimum height 48px.
