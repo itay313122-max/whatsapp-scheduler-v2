@@ -1155,6 +1155,9 @@ body {
     var selected = null;
     var toolbar = null;
     var editing = false;
+    // Click-to-edit is only meaningful inside the builder (the preview iframe).
+    // In a standalone/shared page opened directly on a device, it must stay off.
+    var __embedded = (function() { try { return window.self !== window.top; } catch(e) { return true; } })();
 
     function createToolbar() {
       var t = document.createElement('div');
@@ -1210,22 +1213,23 @@ body {
 
     function finishEdit() {
       if (!selected) return;
-      selected.contentEditable = 'false';
-      selected.style.outline = '2px solid #22c55e';
-      setTimeout(function() { selected.style.outline = ''; }, 800);
+      var el = selected; // capture — clearSelection() below nulls the var
+      el.contentEditable = 'false';
+      el.style.outline = '2px solid #22c55e';
+      setTimeout(function() { if (el) el.style.outline = ''; }, 800);
 
       // Flash green
-      selected.style.transition = 'background 0.3s';
-      selected.style.background = 'rgba(34,197,94,0.1)';
-      setTimeout(function() { if(selected) selected.style.background = ''; }, 600);
+      el.style.transition = 'background 0.3s';
+      el.style.background = 'rgba(34,197,94,0.1)';
+      setTimeout(function() { if (el) el.style.background = ''; }, 600);
 
       // Notify parent
       try {
         window.parent.postMessage({
           type: 'mf-edit',
           action: 'text-changed',
-          newText: selected.textContent,
-          tag: selected.tagName.toLowerCase(),
+          newText: el.textContent,
+          tag: el.tagName.toLowerCase(),
         }, '*');
       } catch(e) {}
 
@@ -1237,6 +1241,9 @@ body {
       clearSelection();
     }
 
+    // Interactive editing handlers — attached ONLY when embedded in the builder
+    // iframe. Standalone/shared previews stay clean and never become editable.
+    if (__embedded) {
     // Hover
     document.addEventListener('mouseover', function(e) {
       if (editing) return;
@@ -1324,6 +1331,7 @@ body {
         try { window.parent.postMessage({ type: 'mf-element-deselected' }, '*'); } catch(x) {}
       }
     });
+    } // end if (__embedded) — interactive editing handlers
 
     // Build unique path for element
     function buildPath(el) {
