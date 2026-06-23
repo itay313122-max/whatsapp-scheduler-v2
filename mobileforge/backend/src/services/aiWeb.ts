@@ -743,8 +743,21 @@ ICON CONTAINERS — use for category/status icons (NOT emojis):
     background:'var(--c-primary-light)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--c-primary)'}}
   This gives a clean, professional icon button appearance.
 
+━━━ LANGUAGE & DIRECTION — MATCH THE USER (GLOBAL) ━━━
+Build the app in the SAME language the user wrote their request in. This is a global
+product — an American writing English gets a fully English app; Hebrew gets Hebrew; and
+the same applies to Spanish, Arabic, French, etc.
+- ALL visible UI text (labels, buttons, headings, sample data, empty/error messages)
+  MUST be in the user's language. Never mix languages.
+- DIRECTION: for RTL languages (Hebrew, Arabic) add dir="rtl" to the app-shell div and
+  use the Heebo/Assistant/Rubik font. For LTR languages (English, Spanish, etc.) do NOT
+  add dir="rtl" — leave the default LTR + Inter font.
+- Number/price/date formatting should match the locale (e.g. $1,299.00 for en-US).
+- The summary you return follows the user's language too (English summary for an English
+  request) — the "hebrewSummary" field just means "short summary in the user's language".
+
 ━━━ CONTENT RULES ━━━
-- Hebrew if user writes Hebrew; add dir="rtl" to app-shell div
+- Match the user's language and direction (see LANGUAGE & DIRECTION above)
 - Generate RICH sample data: 5-10 realistic items, not just 3
 - All navigation works (useState)
 - Use SVG placeholder images via placeholderImg() — NEVER picsum.photos
@@ -971,7 +984,7 @@ function App() {
           --c-bg:#ffffff;
         }
       \`}</style>
-      <div className="app-shell" dir="rtl">
+      <div className="app-shell" dir="rtl">  {/* dir="rtl" ONLY for Hebrew/Arabic — omit it for English/LTR */}
         <div className="app-header">
           <div>
             <p className="caption" style={{color:'#6b7280'}}>שלום</p>
