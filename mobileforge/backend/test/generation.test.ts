@@ -498,14 +498,19 @@ describe('parseGroqResponse — unit tests', () => {
 describe('buildHtmlDocument — unit tests', () => {
   const SIMPLE_CODE = 'function App() { const { useState } = React; const [n,setN]=useState(0); return <button className="btn-primary" onClick={()=>setN(n+1)}>{n}</button>; }';
 
-  it('includes React CDN script', () => {
+  it('inlines React locally (no external React CDN)', () => {
     const html = buildHtmlDocument(SIMPLE_CODE);
-    expect(html).toMatch(/unpkg\.com\/react@/);
+    expect(html).not.toMatch(/unpkg\.com\/react@/);
+    // React UMD is inlined — its global marker is present in the document.
+    expect(html).toMatch(/react\.production\.min\.js|__SECRET_INTERNALS|React\.version/);
   });
 
-  it('includes Babel Standalone CDN script', () => {
+  it('does NOT ship in-browser Babel (JSX is transpiled on the server)', () => {
     const html = buildHtmlDocument(SIMPLE_CODE);
-    expect(html).toMatch(/babel.*standalone/i);
+    expect(html).not.toMatch(/babel.*standalone/i);
+    expect(html).not.toContain('type="text/babel"');
+    // Transpiled output uses React.createElement, not raw JSX.
+    expect(html).toContain('React.createElement');
   });
 
   it('wraps Babel block in named IIFE (__mf_run)', () => {
@@ -831,29 +836,29 @@ describe('buildEditSystemPrompt', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// חבילה 9 — CDN version pinning (4 בדיקות)
+// חבילה 9 — Self-contained runtime (no external CDN at render time)
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('CDN version pinning in buildHtmlDocument', () => {
+describe('Self-contained runtime in buildHtmlDocument', () => {
   const html = buildHtmlDocument('function App() { return <div>Test</div>; }');
 
-  it('pins Tailwind CSS to version 3.x (not unversioned)', () => {
-    expect(html).toContain('cdn.tailwindcss.com/3.');
-    expect(html).not.toMatch(/cdn\.tailwindcss\.com["'\s>]/);
+  it('replaces the Tailwind CDN with a local utility shim', () => {
+    expect(html).not.toContain('cdn.tailwindcss.com');
+    expect(html).toContain('.items-center{align-items:center}');
   });
 
-  it('pins Babel standalone to a specific version', () => {
-    expect(html).toMatch(/@babel\/standalone@\d+\.\d+/);
+  it('does not reference Babel standalone at all', () => {
+    expect(html).not.toMatch(/@babel\/standalone/);
   });
 
-  it('pins React to version 18.x', () => {
-    expect(html).toContain('react@18.');
-    expect(html).toContain('react-dom@18.');
+  it('loads NO external <script src> at runtime (fully self-contained)', () => {
+    const externalScripts = html.match(/<script\s+src="https?:\/\/[^"]+"/g) || [];
+    expect(externalScripts.length).toBe(0);
   });
 
-  it('loads all CDN scripts with crossorigin attribute', () => {
-    const scriptTags = html.match(/<script\s+src="https:\/\/[^"]+"/g) || [];
-    expect(scriptTags.length).toBeGreaterThanOrEqual(4);
+  it('still transpiles JSX correctly (renders via React.createElement)', () => {
+    expect(html).toContain('React.createElement');
+    expect(html).toContain('ReactDOM.createRoot');
   });
 });
 

@@ -2,9 +2,50 @@
  * Wraps a React App() component function in a complete, self-contained HTML
  * document that runs in an iframe via srcDoc.
  *
- * CDN stack: React 18 + ReactDOM + Babel Standalone + Tailwind (layout) +
- *            MobileForge Design System (injected CSS)
+ * SELF-CONTAINED: React + ReactDOM are inlined from a local vendored copy, the
+ * JSX is transpiled on the server (no in-browser Babel), and Tailwind's CDN is
+ * replaced by a small static utility stylesheet. The result needs NO external
+ * network at runtime — it renders behind firewalls, offline, and in regions
+ * that block public CDNs (the #1 cause of blank/"can't load" previews).
  */
+
+import * as fs from 'fs';
+import * as path from 'path';
+import * as ts from 'typescript';
+
+// Vendored React UMD builds (committed under src/vendor) — read once at load.
+const VENDOR_DIR = path.join(__dirname, '..', 'vendor');
+function readVendor(file: string): string {
+  try { return fs.readFileSync(path.join(VENDOR_DIR, file), 'utf8'); }
+  catch { return ''; }
+}
+const REACT_UMD = readVendor('react.production.min.js');
+const REACT_DOM_UMD = readVendor('react-dom.production.min.js');
+
+/** Transpile JSX/TS to plain browser JS on the server (replaces in-browser Babel). */
+function transpileJsx(src: string): string {
+  return ts.transpileModule(src, {
+    compilerOptions: { jsx: ts.JsxEmit.React, target: ts.ScriptTarget.ES2020 },
+  }).outputText;
+}
+
+/** Minimal Tailwind layout utilities the design system + generated apps rely on
+ *  (flex/grid/spacing/positioning only — no colors/fonts). Replaces the 3MB CDN. */
+const TAILWIND_SHIM = `
+.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.block{display:block}
+.flex-col{flex-direction:column}.flex-row{flex-direction:row}.flex-wrap{flex-wrap:wrap}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.flex-grow{flex-grow:1}
+.items-center{align-items:center}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-stretch{align-items:stretch}
+.justify-center{justify-content:center}.justify-between{justify-content:space-between}.justify-around{justify-content:space-around}.justify-end{justify-content:flex-end}.justify-start{justify-content:flex-start}
+.gap-1{gap:4px}.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}.gap-5{gap:20px}.gap-6{gap:24px}.gap-8{gap:32px}
+.grid-cols-1{grid-template-columns:repeat(1,1fr)}.grid-cols-2{grid-template-columns:repeat(2,1fr)}.grid-cols-3{grid-template-columns:repeat(3,1fr)}.grid-cols-4{grid-template-columns:repeat(4,1fr)}
+.w-full{width:100%}.h-full{height:100%}.w-auto{width:auto}.min-w-0{min-width:0}
+.relative{position:relative}.absolute{position:absolute}.fixed{position:fixed}.sticky{position:sticky}
+.inset-0{top:0;right:0;bottom:0;left:0}.top-0{top:0}.bottom-0{bottom:0}.left-0{left:0}.right-0{right:0}
+.z-10{z-index:10}.z-20{z-index:20}.z-50{z-index:50}
+.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.overflow-x-auto{overflow-x:auto}
+.text-center{text-align:center}.text-left{text-align:left}.text-right{text-align:right}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+`;
 
 /** Pre-built design system — injected into every generated app.
  *  AI only needs to set CSS variable palette and use class names. */
@@ -870,10 +911,59 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
     .replace(/^export\s+(function|class|const|let|var)\s/gm, '$1 ')
     .trim();
 
-  const safeCode = stripped.replace(/<\/script>/gi, '<\\/script>');
   // Guard: </style> inside a <style> block terminates the element — strip it from CSS
-  const safeCss = DESIGN_SYSTEM_CSS.replace(/<\/style>/gi, '');
+  const safeCss = (DESIGN_SYSTEM_CSS + TAILWIND_SHIM).replace(/<\/style>/gi, '');
   const safeName = appName.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c] ?? c));
+
+  // The app runs inside an IIFE so try/catch shares the code's eval context
+  // (real error messages instead of "Script error"). JSX is transpiled on the
+  // server below, so no in-browser Babel is needed.
+  const appRuntime = `(function __mf_run() {
+      const { useState, useEffect, useRef, useCallback, useMemo, useContext, createContext, useReducer } = React;
+      class ErrorBoundary extends React.Component {
+        constructor(props) { super(props); this.state = { error: null }; }
+        static getDerivedStateFromError(err) { return { error: err }; }
+        render() {
+          if (this.state.error) return (
+            <div style={{position:'fixed',inset:0,background:'#fef2f2',padding:24,fontFamily:'monospace',fontSize:13,color:'#dc2626',overflow:'auto',zIndex:9999}}>
+              <div style={{fontWeight:'bold',fontSize:16,marginBottom:8}}>Runtime Error</div>
+              <pre style={{whiteSpace:'pre-wrap',lineHeight:1.5}}>{this.state.error.message}</pre>
+            </div>
+          );
+          return this.props.children;
+        }
+      }
+      try {
+        ${stripped}
+        const _root = ReactDOM.createRoot(document.getElementById('root'));
+        _root.render(<ErrorBoundary><App /></ErrorBoundary>);
+      } catch (__err) {
+        var __msg = (__err && __err.message) ? __err.message : String(__err);
+        var __stack = (__err && __err.stack) ? __err.stack : '';
+        var __d = document.getElementById('root');
+        if (__d) __d.innerHTML =
+          '<div style="position:fixed;inset:0;background:#fef2f2;padding:24px;font-family:monospace;font-size:13px;color:#dc2626;overflow:auto;z-index:9999">'
+          + '<b style="font-size:16px">JS Error</b>'
+          + '<pre style="margin-top:10px;white-space:pre-wrap;line-height:1.5">'
+          + __msg.replace(/</g,'&lt;')
+          + '\\n\\n' + __stack.replace(/</g,'&lt;')
+          + '</pre></div>';
+      }
+    })();`;
+
+  // Transpile JSX→JS on the server; escape any literal </script> in the result.
+  let appScript: string;
+  try {
+    appScript = transpileJsx(appRuntime);
+  } catch (e) {
+    appScript = `document.getElementById('root').innerHTML='<pre style="padding:24px;color:#dc2626;font-family:monospace">Build error: ${String((e as Error).message).replace(/[<'"\\]/g, ' ')}</pre>';`;
+  }
+  appScript = appScript.replace(/<\/script>/gi, '<\\/script>');
+
+  // Inline React locally (no CDN). Fall back to CDN only if vendoring failed.
+  const reactScripts = (REACT_UMD && REACT_DOM_UMD)
+    ? `<script>${REACT_UMD.replace(/<\/script>/gi, '<\\/script>')}</script>\n  <script>${REACT_DOM_UMD.replace(/<\/script>/gi, '<\\/script>')}</script>`
+    : `<script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin="anonymous"></script>\n  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous"></script>`;
 
   return `<!DOCTYPE html>
 <html lang="he">
@@ -884,10 +974,7 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Heebo:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.26.10/babel.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.tailwindcss.com/3.4.17" crossorigin="anonymous"></script>
+  ${reactScripts}
   <style>${safeCss}</style>
   <script>
     window.onerror = function(msg, _src, line, col) {
@@ -898,61 +985,16 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
         d.style.cssText = 'position:fixed;inset:0;background:#fef2f2;padding:24px;font-family:monospace;font-size:13px;color:#dc2626;z-index:9999;overflow:auto';
         document.body.appendChild(d);
       }
-      d.innerHTML = '<b style="font-size:16px">⚠️ Error</b><pre style="margin-top:8px;white-space:pre-wrap">'
+      d.innerHTML = '<b style="font-size:16px">Error</b><pre style="margin-top:8px;white-space:pre-wrap">'
         + String(msg).replace(/</g,'&lt;') + '\\nLine: ' + line + ', Col: ' + col + '</pre>';
       return true;
     };
-    setTimeout(function() {
-      if (!window.Babel && document.getElementById('root') && !document.getElementById('root').firstChild) {
-        document.getElementById('root').innerHTML =
-          '<div style="padding:32px;font-family:-apple-system,sans-serif;text-align:center;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#fffbeb;color:#92400e">'
-          + '<div style="font-size:40px">⚠️</div>'
-          + '<b style="font-size:16px">לא ניתן לטעון את התצוגה</b>'
-          + '<p style="font-size:13px;color:#a16207;max-width:260px;line-height:1.5">בדוק חיבור לאינטרנט ורענן את הדף.<br>התצוגה דורשת גישה ל-unpkg.com ו-cdn.tailwindcss.com</p>'
-          + '<button onclick="location.reload()" style="margin-top:8px;padding:8px 20px;border-radius:8px;background:#f59e0b;color:#fff;border:none;font-weight:600;font-size:13px;cursor:pointer">נסה שוב</button></div>';
-      }
-    }, 5000);
   </script>
 </head>
 <body>
   <div id="root"></div>
-  <script type="text/babel" data-presets="react,typescript">
-    /* Wrapped in IIFE so try/catch is in the same eval context as the code.
-       This makes real error messages visible instead of "Script error Line 0". */
-    (function __mf_run() {
-      const { useState, useEffect, useRef, useCallback, useMemo, useContext, createContext, useReducer } = React;
-
-      class ErrorBoundary extends React.Component {
-        constructor(props) { super(props); this.state = { error: null }; }
-        static getDerivedStateFromError(err) { return { error: err }; }
-        render() {
-          if (this.state.error) return (
-            <div style={{position:'fixed',inset:0,background:'#fef2f2',padding:24,fontFamily:'monospace',fontSize:13,color:'#dc2626',overflow:'auto',zIndex:9999}}>
-              <div style={{fontWeight:'bold',fontSize:16,marginBottom:8}}>⚠️ Runtime Error</div>
-              <pre style={{whiteSpace:'pre-wrap',lineHeight:1.5}}>{this.state.error.message}</pre>
-            </div>
-          );
-          return this.props.children;
-        }
-      }
-
-      try {
-        ${safeCode}
-        const _root = ReactDOM.createRoot(document.getElementById('root'));
-        _root.render(<ErrorBoundary><App /></ErrorBoundary>);
-      } catch (__err) {
-        var __msg = (__err && __err.message) ? __err.message : String(__err);
-        var __stack = (__err && __err.stack) ? __err.stack : '';
-        var __d = document.getElementById('root');
-        if (__d) __d.innerHTML =
-          '<div style="position:fixed;inset:0;background:#fef2f2;padding:24px;font-family:monospace;font-size:13px;color:#dc2626;overflow:auto;z-index:9999">'
-          + '<b style="font-size:16px">⚠️ JS Error (real)</b>'
-          + '<pre style="margin-top:10px;white-space:pre-wrap;line-height:1.5">'
-          + __msg.replace(/</g,'&lt;')
-          + '\\n\\n' + __stack.replace(/</g,'&lt;')
-          + '</pre></div>';
-      }
-    })();
+  <script>
+    ${appScript}
   </script>
   <!-- MobileForge Edit Overlay -->
   <script>
