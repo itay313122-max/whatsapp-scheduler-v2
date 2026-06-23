@@ -462,6 +462,10 @@ function BuilderContent() {
   const [phoneStatus, setPhoneStatus] = useState<'idle' | 'preparing'>('idle');
   const [liveSessionId, setLiveSessionId] = useState('');
   const liveOn = !!liveSessionId;
+  // Visual edits accumulated from the design panel, to be baked into the code.
+  const [pendingEdits, setPendingEdits] = useState<{ tag: string; desc: string }[]>([]);
+  const [applyingEdits, setApplyingEdits] = useState(false);
+  const selectedElementRef = useRef<SelectedElement | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [showAssistant, setShowAssistant] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -674,27 +678,68 @@ function BuilderContent() {
 
   const handleElementSelected = useCallback((el: PreviewSelectedElement) => {
     setSelectedElement(el as SelectedElement);
+    selectedElementRef.current = el as SelectedElement;
   }, []);
 
   const handleElementDeselected = useCallback(() => {
     setSelectedElement(null);
+    selectedElementRef.current = null;
   }, []);
 
   const handleNavigateScreen = useCallback((index: number) => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-navigate', index }, '*');
   }, []);
 
+  // Record a visual edit (with the element's context) so it can later be baked
+  // into the source code via the AI edit pipeline.
+  const PROP_HE: Record<string, string> = {
+    color: 'צבע טקסט', backgroundColor: 'צבע רקע', fontSize: 'גודל טקסט',
+    fontWeight: 'משקל טקסט', borderRadius: 'עיגול פינות', padding: 'ריווח פנימי',
+    display: 'תצוגה', textAlign: 'יישור', opacity: 'שקיפות', width: 'רוחב',
+    boxShadow: 'צל', border: 'מסגרת',
+  };
+  const elLabel = () => {
+    const el = selectedElementRef.current;
+    const t = (el?.text || '').trim().slice(0, 24);
+    return { tag: el?.tag || 'element', suffix: t ? ` עם הטקסט "${t}"` : '' };
+  };
+  const recordEdit = useCallback((desc: string, tag: string) => {
+    setPendingEdits((prev) => [...prev, { tag, desc }]);
+  }, []);
+
   const handleStyleChange = useCallback((path: string, property: string, value: string) => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-update-style', path, property, value }, '*');
-  }, []);
+    const { tag, suffix } = elLabel();
+    recordEdit(`ברכיב <${tag}>${suffix}: ${PROP_HE[property] || property} → ${value}`, tag);
+  }, [recordEdit]);
 
   const handleTextChange = useCallback((path: string, text: string) => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-update-text', path, text }, '*');
-  }, []);
+    const { tag, suffix } = elLabel();
+    recordEdit(`שנה את הטקסט של <${tag}>${suffix} ל-"${text}"`, tag);
+  }, [recordEdit]);
 
   const handleInsertIcon = useCallback((path: string, icon: string) => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-insert-icon', path, icon }, '*');
-  }, []);
+    const { tag, suffix } = elLabel();
+    recordEdit(`הוסף אייקון SVG מתאים בתחילת <${tag}>${suffix}`, tag);
+  }, [recordEdit]);
+
+  // Bake all accumulated visual edits into the source code via the edit pipeline.
+  const handleApplyVisualEdits = useCallback(async () => {
+    if (!pendingEdits.length || !currentResult || applyingEdits) return;
+    const lines = pendingEdits.map((e, i) => `${i + 1}. ${e.desc}`).join('\n');
+    const instruction =
+      'החל את העריכות הוויזואליות הבאות על הקוד הקיים, ושמור על כל השאר זהה לחלוטין ' +
+      '(אותם מסכים, state, פונקציות, ניווט וקלאסים). אל תוסיף אמוג\'ים:\n' + lines;
+    setApplyingEdits(true);
+    try {
+      await handleStructureEdit(instruction);
+      setPendingEdits([]);
+    } finally {
+      setApplyingEdits(false);
+    }
+  }, [pendingEdits, currentResult, applyingEdits, handleStructureEdit]);
 
   const handleDeselectElement = useCallback(() => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-deselect' }, '*');
@@ -836,6 +881,28 @@ function BuilderContent() {
 
           {currentResult && currentResult.htmlDoc && (
             <>
+              {/* Apply visual edits to code — appears once edits are pending */}
+              {pendingEdits.length > 0 && (
+                <button
+                  onClick={handleApplyVisualEdits}
+                  disabled={applyingEdits}
+                  title="הטמע את העריכות הוויזואליות בקוד"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 text-xs font-medium transition-all disabled:opacity-50"
+                >
+                  {applyingEdits ? (
+                    <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                  <span>{applyingEdits ? 'מטמיע…' : `החל ${pendingEdits.length} שינויים בקוד`}</span>
+                </button>
+              )}
+
               {/* Open on phone button */}
               <button
                 onClick={async () => {
