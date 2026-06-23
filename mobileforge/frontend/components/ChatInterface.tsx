@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { generateApp, generateFromImage, type GenerateResponse } from '@/lib/api';
+import { generateApp, generateFromImage, planApp, type GenerateResponse, type PlanQuestion, type PlanResult } from '@/lib/api';
 
 const SketchCanvas = dynamic(() => import('./SketchCanvas'), { ssr: false });
 
@@ -12,10 +12,17 @@ interface Message {
   content: string;
   result?: GenerateResponse;
   isLoading?: boolean;
+  isPlanning?: boolean;
   loadingStep?: number;
   sourceType?: 'text' | 'screenshot' | 'sketch' | 'voice';
   imagePreview?: string;
   timestamp: Date;
+  // Chat-Mode clarifying questions (Lovable-style)
+  questions?: PlanQuestion[];
+  answers?: Record<string, string>;
+  pendingPrompt?: string;
+  planHistory?: { role: 'user' | 'assistant'; content: string }[];
+  planLocked?: boolean;
 }
 
 const LOADING_STEPS = [
@@ -409,27 +416,33 @@ export default function ChatInterface({
     }
   }
 
-  async function handleSubmit(promptOverride?: string) {
-    // If we have an image pending, use vision endpoint
-    if (imageBase64) {
-      await submitWithImage(imageBase64, imageMimeType, input.trim() || undefined, false);
-      setInput('');
-      if (inputRef.current) inputRef.current.style.height = 'auto';
-      return;
+  // Build the conversation history payload from a message list (excludes the
+  // prompt currently being sent — the backend appends that itself).
+  function buildHistory(msgs: Message[]) {
+    return msgs
+      .filter((m) => !m.isLoading && !m.questions)
+      .map((m) => ({
+        role: m.role,
+        content:
+          m.role === 'assistant' && m.result
+            ? `${m.result.hebrewSummary}\n\nקוד נוכחי:\n\`\`\`jsx\n${
+                m.result.files?.['App.jsx'] ?? m.result.files?.['App.tsx'] ?? ''
+              }\n\`\`\``
+            : m.content,
+      }));
+  }
+
+  // Core build step — shows the animated loading bubble, calls the generator,
+  // and replaces the bubble with the result. Does NOT add the user message
+  // (callers handle that, so it works for both fresh builds and answered plans).
+  async function runBuild(
+    buildPrompt: string,
+    ctx: {
+      isEditMode: boolean;
+      existingCode?: string;
+      history: { role: 'user' | 'assistant'; content: string }[];
     }
-
-    const prompt = promptOverride || input.trim();
-    if (!prompt || isGenerating) return;
-
-    const sourceType: Message['sourceType'] = isListening ? 'voice' : 'text';
-
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: prompt,
-      sourceType,
-      timestamp: new Date(),
-    };
+  ) {
     const loadingMsg: Message = {
       id: (Date.now() + 1).toString(),
       role: 'assistant',
@@ -437,44 +450,28 @@ export default function ChatInterface({
       isLoading: true,
       timestamp: new Date(),
     };
-
-    setMessages((prev) => [...prev, userMsg, loadingMsg]);
-    setInput('');
+    setMessages((prev) => [...prev, loadingMsg]);
     setGenerating(true);
-    if (inputRef.current) inputRef.current.style.height = 'auto';
 
-    // Animate loading steps
     const loadingId = loadingMsg.id;
     let stepIdx = 0;
     const stepInterval = setInterval(() => {
       stepIdx++;
       if (stepIdx < LOADING_STEPS.length) {
         setMessages((prev) =>
-          prev.map((m) => m.id === loadingId ? { ...m, loadingStep: stepIdx } : m)
+          prev.map((m) => (m.id === loadingId ? { ...m, loadingStep: stepIdx } : m))
         );
       }
     }, LOADING_STEPS[0].duration);
 
-    // Detect edit mode: if there is already a generated result (from messages or from loaded app), edit instead of regenerate
-    const lastResultMsg = [...messages].reverse().find((m) => m.result);
-    const lastResult = lastResultMsg?.result ?? currentAppResult;
-    const isEditMode = !!lastResult;
-    const existingCode = lastResult
-      ? (lastResult.files?.['App.jsx'] ?? lastResult.files?.['App.tsx'] ?? '')
-      : undefined;
-
-    const history = messages.map((m) => ({
-      role: m.role,
-      content:
-        m.role === 'assistant' && m.result
-          ? `${m.result.hebrewSummary}\n\nקוד נוכחי:\n\`\`\`jsx\n${
-              m.result.files?.['App.jsx'] ?? m.result.files?.['App.tsx'] ?? ''
-            }\n\`\`\``
-          : m.content,
-    }));
-
     try {
-      const result = await generateApp({ projectId, prompt, conversationHistory: history, editMode: isEditMode, existingCode });
+      const result = await generateApp({
+        projectId,
+        prompt: buildPrompt,
+        conversationHistory: ctx.history,
+        editMode: ctx.isEditMode,
+        existingCode: ctx.existingCode,
+      });
       const assistantMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -498,6 +495,119 @@ export default function ChatInterface({
       clearInterval(stepInterval);
       setGenerating(false);
     }
+  }
+
+  // Pick an answer for a clarifying question (single-select per question).
+  function selectAnswer(msgId: string, qId: string, option: string) {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === msgId ? { ...m, answers: { ...(m.answers || {}), [qId]: option } } : m
+      )
+    );
+  }
+
+  // User finished answering (or skipped) — enrich the prompt and build.
+  function submitAnswers(msg: Message, skip = false) {
+    if (isGenerating) return;
+    const answers = msg.answers || {};
+    const parts = skip
+      ? []
+      : (msg.questions || [])
+          .map((q) => (answers[q.id] ? `- ${q.q.replace(/\?$/, '')}: ${answers[q.id]}` : null))
+          .filter(Boolean);
+    const enriched =
+      parts.length > 0 ? `${msg.pendingPrompt}\n\nהעדפות:\n${parts.join('\n')}` : msg.pendingPrompt!;
+
+    // Lock the question card so it can't be re-submitted.
+    setMessages((prev) => prev.map((m) => (m.id === msg.id ? { ...m, planLocked: true } : m)));
+
+    runBuild(enriched, {
+      isEditMode: false,
+      existingCode: undefined,
+      history: msg.planHistory || [],
+    });
+  }
+
+  async function handleSubmit(promptOverride?: string) {
+    // If we have an image pending, use vision endpoint
+    if (imageBase64) {
+      await submitWithImage(imageBase64, imageMimeType, input.trim() || undefined, false);
+      setInput('');
+      if (inputRef.current) inputRef.current.style.height = 'auto';
+      return;
+    }
+
+    const prompt = promptOverride || input.trim();
+    if (!prompt || isGenerating) return;
+
+    const sourceType: Message['sourceType'] = isListening ? 'voice' : 'text';
+
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: prompt,
+      sourceType,
+      timestamp: new Date(),
+    };
+
+    // Snapshot history + edit-mode state BEFORE adding the new user message.
+    const history = buildHistory(messages);
+    const lastResult = [...messages].reverse().find((m) => m.result)?.result ?? currentAppResult;
+    const isEditMode = !!lastResult;
+    const existingCode = lastResult
+      ? (lastResult.files?.['App.jsx'] ?? lastResult.files?.['App.tsx'] ?? '')
+      : undefined;
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInput('');
+    if (inputRef.current) inputRef.current.style.height = 'auto';
+
+    // EDIT mode → build directly, no planning questions.
+    if (isEditMode) {
+      await runBuild(prompt, { isEditMode: true, existingCode, history });
+      return;
+    }
+
+    // FIRST build → Chat-Mode planning phase. Ask a few quick questions if it
+    // would improve the result, otherwise build straight away.
+    setGenerating(true);
+    const planMsg: Message = {
+      id: (Date.now() + 1).toString(),
+      role: 'assistant',
+      content: '',
+      isLoading: true,
+      isPlanning: true,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, planMsg]);
+
+    let plan: PlanResult = { ready: true };
+    try {
+      plan = await planApp(prompt, history);
+    } catch {
+      plan = { ready: true };
+    }
+
+    if (!plan.ready && plan.questions && plan.questions.length > 0) {
+      const questionsMsg: Message = {
+        id: (Date.now() + 2).toString(),
+        role: 'assistant',
+        content: plan.intro || 'כמה שאלות מהירות לפני שנבנה:',
+        questions: plan.questions,
+        answers: {},
+        pendingPrompt: prompt,
+        planHistory: history,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev.slice(0, -1), questionsMsg]); // replace planning bubble
+      setGenerating(false);
+      return;
+    }
+
+    // Ready → drop the planning bubble and build.
+    setMessages((prev) => prev.slice(0, -1));
+    setGenerating(false);
+    await runBuild(prompt, { isEditMode: false, existingCode: undefined, history });
   }
 
   // Auto-submit initial prompt from landing page
@@ -647,7 +757,19 @@ export default function ChatInterface({
               )}
 
               <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-1' : ''}`}>
-                {msg.isLoading ? (
+                {msg.isLoading && msg.isPlanning ? (
+                  <div className="px-4 py-3 rounded-2xl glass-card" dir="rtl">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm animate-pulse">💭</span>
+                      <span className="text-xs text-text-primary font-medium">חושב מה כדאי לשאול…</span>
+                      <div className="flex gap-0.5 mr-auto">
+                        {[0, 1, 2].map((d) => (
+                          <div key={d} className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: `${d * 0.15}s` }} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : msg.isLoading ? (
                   <div className="px-4 py-3 rounded-2xl glass-card" dir="rtl">
                     <div className="space-y-2">
                       {LOADING_STEPS.map((step, i) => {
@@ -680,6 +802,62 @@ export default function ChatInterface({
                         );
                       })}
                     </div>
+                  </div>
+                ) : msg.questions ? (
+                  <div className="px-4 py-3 rounded-2xl bg-surface/60 border border-border/30 text-text-primary rounded-tl-sm" dir="rtl">
+                    <p className="text-sm leading-relaxed mb-3">{msg.content}</p>
+                    <div className="space-y-3">
+                      {msg.questions.map((q) => (
+                        <div key={q.id}>
+                          <p className="text-[12px] font-semibold text-text-primary mb-1.5">{q.q}</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {q.options.map((opt) => {
+                              const selected = msg.answers?.[q.id] === opt;
+                              return (
+                                <button
+                                  key={opt}
+                                  onClick={() => !msg.planLocked && selectAnswer(msg.id, q.id, opt)}
+                                  disabled={msg.planLocked}
+                                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all min-h-[32px] disabled:opacity-60 ${
+                                    selected
+                                      ? 'bg-primary text-white border-primary'
+                                      : 'bg-surface border-border text-text-primary hover:border-primary/40 hover:bg-primary/5'
+                                  }`}
+                                >
+                                  {opt}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {msg.planLocked ? (
+                      <div className="mt-3 pt-3 border-t border-border/50 flex items-center gap-1.5 text-[11px] text-green-400">
+                        <span>✓</span>
+                        <span>בונה לפי הבחירות שלך…</span>
+                      </div>
+                    ) : (
+                      <div className="mt-3 pt-3 border-t border-border/50 flex gap-2">
+                        <button
+                          onClick={() => submitAnswers(msg)}
+                          disabled={isGenerating}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary/90 transition-all disabled:opacity-40 min-h-[36px]"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          בנה עכשיו
+                        </button>
+                        <button
+                          onClick={() => submitAnswers(msg, true)}
+                          disabled={isGenerating}
+                          className="px-3 py-2 rounded-xl bg-surface border border-border text-text-secondary text-xs font-medium hover:text-text-primary hover:border-primary/30 transition-all disabled:opacity-40 min-h-[36px]"
+                        >
+                          דלג ובנה
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div

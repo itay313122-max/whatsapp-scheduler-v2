@@ -921,6 +921,79 @@ describe('Demo mode — getDemoResponse', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// Chat-Mode planning — planWebApp clarifying questions (Lovable-style)
+// ═══════════════════════════════════════════════════════════════════════════
+describe('Chat-Mode planning — getDemoPlan heuristic', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { getDemoPlan } = require('../src/services/aiWeb');
+
+  it('asks clarifying questions for a short, vague prompt', () => {
+    const plan = getDemoPlan('חנות בגדים');
+    expect(plan.ready).toBe(false);
+    expect(Array.isArray(plan.questions)).toBe(true);
+    expect(plan.questions.length).toBeGreaterThan(0);
+    expect(plan.questions.length).toBeLessThanOrEqual(3);
+    expect(typeof plan.intro).toBe('string');
+  });
+
+  it('every question has a Hebrew prompt and 2-4 tap-able options', () => {
+    const plan = getDemoPlan('אפליקציית כושר');
+    for (const q of plan.questions) {
+      expect(typeof q.id).toBe('string');
+      expect(q.q.length).toBeGreaterThan(0);
+      expect(q.options.length).toBeGreaterThanOrEqual(2);
+      expect(q.options.length).toBeLessThanOrEqual(4);
+    }
+  });
+
+  it('tailors the feature question to the detected category', () => {
+    const store = getDemoPlan('חנות');
+    const featureQ = store.questions.find((q: any) => q.id === 'feature');
+    expect(featureQ).toBeTruthy();
+    expect(featureQ.options).toContain('סל קניות');
+  });
+
+  it('builds directly (ready) for a long, detailed prompt', () => {
+    const longPrompt =
+      'בנה אפליקציית חנות אונליין מעוצבת עם קטלוג מוצרים, סל קניות עם הוספה והסרה, ' +
+      'מסך תשלום, ניווט תחתון בין קטלוג סל ופרופיל, עיצוב מודרני נקי בשחור לבן וקהל יעד לקוחות פרטיים';
+    const plan = getDemoPlan(longPrompt);
+    expect(plan.ready).toBe(true);
+  });
+});
+
+describe('Chat-Mode planning — parsePlan parser', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { parsePlan } = require('../src/services/aiWeb');
+
+  it('parses a ready:true response', () => {
+    expect(parsePlan('{"ready":true}').ready).toBe(true);
+  });
+
+  it('parses questions and clamps to 3 with 4 options max', () => {
+    const raw = JSON.stringify({
+      ready: false,
+      intro: 'שאלות',
+      questions: [
+        { id: 'a', q: 'q1?', options: ['1', '2', '3', '4', '5'] },
+        { id: 'b', q: 'q2?', options: ['1', '2'] },
+        { id: 'c', q: 'q3?', options: ['1', '2'] },
+        { id: 'd', q: 'q4?', options: ['1', '2'] },
+      ],
+    });
+    const plan = parsePlan(raw);
+    expect(plan.ready).toBe(false);
+    expect(plan.questions.length).toBe(3);
+    expect(plan.questions[0].options.length).toBe(4);
+  });
+
+  it('fails open to ready:true on malformed input', () => {
+    expect(parsePlan('not json at all').ready).toBe(true);
+    expect(parsePlan('{"ready":false}').ready).toBe(true); // no questions → ready
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // חבילה 12 — SDK placeholder keys (3 בדיקות)
 // ═══════════════════════════════════════════════════════════════════════════
 

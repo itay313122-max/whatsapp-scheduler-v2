@@ -50,6 +50,42 @@ export async function generateApp(req: GenerateRequest): Promise<GenerateRespons
   return res.json();
 }
 
+export interface PlanQuestion {
+  id: string;
+  q: string;
+  options: string[];
+}
+
+export interface PlanResult {
+  ready: boolean;
+  intro?: string;
+  questions?: PlanQuestion[];
+}
+
+/**
+ * Chat-Mode planning (Lovable-style): ask the backend whether it has enough
+ * context to build, or whether it wants to ask a few clarifying questions
+ * first. Always fails open — on any error we return { ready: true } so the
+ * build is never blocked.
+ */
+export async function planApp(
+  prompt: string,
+  conversationHistory: { role: 'user' | 'assistant'; content: string }[]
+): Promise<PlanResult> {
+  try {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${API_URL}/api/generate/plan`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ prompt, conversationHistory }),
+    });
+    if (!res.ok) return { ready: true };
+    return res.json();
+  } catch {
+    return { ready: true };
+  }
+}
+
 export async function streamGenerateApp(
   req: GenerateRequest,
   onChunk: (chunk: string) => void,

@@ -1209,3 +1209,143 @@ export async function* streamGenerateWebApp(
   const raw = await callWithFallback(msgs);
   yield raw;
 }
+
+// ── Chat-Mode planning (Lovable-style clarifying questions) ──────────────────
+//
+// Before building, decide whether the request is already specific enough to
+// produce an excellent app, or whether 1-3 quick tap-able questions would
+// materially improve the result. This is the mechanism that makes Lovable feel
+// "smart" — it asks before it builds.
+
+export interface PlanQuestion {
+  id: string;
+  q: string;
+  options: string[];
+}
+
+export interface PlanResult {
+  ready: boolean;
+  intro?: string;
+  questions?: PlanQuestion[];
+}
+
+const PLAN_SYSTEM_PROMPT = `
+You are WebForge AI's planning brain — the equivalent of Lovable's Chat Mode.
+Before building, decide if you already have enough to build an EXCELLENT mobile
+app, or if 1-3 quick clarifying questions would materially improve the result.
+
+Given the user's app request, respond with STRICT JSON ONLY — no markdown, no prose.
+
+If the request is already detailed/specific enough to build a great app:
+{"ready":true}
+
+If a few quick choices would help, ask 1-3 questions, each with 2-4 short
+tap-able options:
+{"ready":false,"intro":"<one short Hebrew sentence>","questions":[{"id":"<slug>","q":"<short Hebrew question>","options":["<opt1>","<opt2>","<opt3>"]}]}
+
+RULES:
+- ALL questions and options MUST be in Hebrew.
+- Max 3 questions. Each option max 4 words.
+- Ask ONLY about things that change design/feature direction: visual style,
+  target audience, the key feature, color mood, or the primary screen.
+- NEVER ask about tech stack, frameworks, libraries, or implementation details.
+- If the user already specified style + audience + features (e.g. a long
+  template prompt), return {"ready":true}.
+- Keep it light — these are one-tap choices, not an interview.
+- Output the JSON on a single line. Nothing before or after it.
+`;
+
+export function parsePlan(raw: string): PlanResult {
+  const s = raw.indexOf('{');
+  const e = raw.lastIndexOf('}');
+  if (s === -1 || e <= s) return { ready: true };
+  try {
+    const obj = JSON.parse(raw.slice(s, e + 1)) as any;
+    if (obj.ready === true) return { ready: true };
+    const questions: PlanQuestion[] = Array.isArray(obj.questions)
+      ? obj.questions
+          .filter((q: any) => q && q.q && Array.isArray(q.options) && q.options.length)
+          .slice(0, 3)
+          .map((q: any, i: number) => ({
+            id: String(q.id || `q${i}`),
+            q: String(q.q),
+            options: q.options.slice(0, 4).map((o: any) => String(o)),
+          }))
+      : [];
+    if (!questions.length) return { ready: true };
+    return {
+      ready: false,
+      intro: obj.intro ? String(obj.intro) : 'כמה שאלות מהירות לפני שנבנה:',
+      questions,
+    };
+  } catch {
+    return { ready: true }; // fail open — never block building on a parse error
+  }
+}
+
+/** Heuristic planner used in demo mode (all API keys are placeholders). */
+export function getDemoPlan(userPrompt: string): PlanResult {
+  const p = userPrompt.trim();
+  // A long/detailed prompt (templates, rich descriptions) → build right away.
+  if (p.length > 130) return { ready: true };
+
+  const lower = p.toLowerCase();
+  const cat =
+    /חנות|store|shop|מוצר|אופנה|בגד/.test(lower) ? 'store' :
+    /מסעדה|food|אוכל|תפריט|restaurant|קפה/.test(lower) ? 'food' :
+    /כושר|אימון|fitness|sport|ספורט/.test(lower) ? 'fitness' :
+    /משימ|task|todo|רשימ/.test(lower) ? 'tasks' :
+    /תקציב|finance|כסף|הוצא|הכנס/.test(lower) ? 'finance' :
+    /מזג|weather|טמפרטור/.test(lower) ? 'weather' : 'general';
+
+  const styleQ: PlanQuestion = {
+    id: 'style',
+    q: 'איזה סגנון עיצוב מתאים לך?',
+    options: ['מודרני ונקי', 'צבעוני ונועז', 'מינימליסטי', 'יוקרתי כהה'],
+  };
+  const audienceQ: PlanQuestion = {
+    id: 'audience',
+    q: 'למי האפליקציה מיועדת?',
+    options: cat === 'store' || cat === 'food'
+      ? ['לקוחות פרטיים', 'עסקים', 'הכל']
+      : ['שימוש אישי', 'צוות/עסק', 'קהל רחב'],
+  };
+  const featureByCat: Record<string, PlanQuestion> = {
+    store:   { id: 'feature', q: 'מה הכי חשוב בחנות?',  options: ['סל קניות', 'מבצעים', 'חיפוש מוצרים'] },
+    food:    { id: 'feature', q: 'מה הכי חשוב בתפריט?',  options: ['הזמנה ומשלוח', 'דירוגים', 'קטגוריות'] },
+    fitness: { id: 'feature', q: 'מה הכי חשוב באימון?',  options: ['טיימר', 'מעקב התקדמות', 'תוכניות'] },
+    tasks:   { id: 'feature', q: 'מה הכי חשוב בניהול?',  options: ['קטגוריות', 'לוח שנה', 'סטטיסטיקות'] },
+    finance: { id: 'feature', q: 'מה הכי חשוב בתקציב?',  options: ['תרשימים', 'יעדי חיסכון', 'התראות'] },
+    weather: { id: 'feature', q: 'מה להציג קודם?',       options: ['תחזית שבועית', 'מפה', 'התראות'] },
+    general: { id: 'feature', q: 'מה הכי חשוב שיהיה?',    options: ['ניווט נוח', 'עיצוב מרשים', 'מהירות'] },
+  };
+
+  return {
+    ready: false,
+    intro: 'כדי לבנות לך בדיוק את מה שדמיינת — כמה בחירות מהירות:',
+    questions: [styleQ, audienceQ, featureByCat[cat]],
+  };
+}
+
+export async function planWebApp(
+  userPrompt: string,
+  conversationHistory: ConversationMessage[]
+): Promise<PlanResult> {
+  const allPlaceholder = [process.env.GROQ_API_KEY, process.env.GEMINI_API_KEY, process.env.OPENROUTER_API_KEY]
+    .every(k => !k || k.startsWith('__') || k.startsWith('placeholder'));
+  if (allPlaceholder) return getDemoPlan(userPrompt);
+
+  const messages: ChatMessage[] = [
+    { role: 'system', content: PLAN_SYSTEM_PROMPT },
+    ...conversationHistory,
+    { role: 'user', content: userPrompt },
+  ];
+
+  try {
+    const raw = await callWithFallback(messages);
+    return parsePlan(raw);
+  } catch (err) {
+    console.error('[AI/web] planWebApp failed — building directly:', (err as Error).message);
+    return { ready: true }; // fail open — never block building
+  }
+}

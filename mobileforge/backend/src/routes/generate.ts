@@ -3,6 +3,7 @@ import {
   generateWebApp,
   streamGenerateWebApp,
   parseGroqResponse,
+  planWebApp,
   type ConversationMessage,
 } from '../services/aiWeb';
 import { buildHtmlDocument } from '../services/webRenderer';
@@ -20,6 +21,20 @@ function extractAppCode(files: Record<string, string>): string {
   }
   return code;
 }
+
+// POST /api/generate/plan — Chat-Mode planning: decide whether to ask
+// clarifying questions before building (Lovable-style). Always fails open.
+router.post('/plan', async (req: Request, res: Response) => {
+  const { prompt, conversationHistory = [] } = req.body;
+  if (!prompt) return res.status(400).json({ error: 'prompt is required' });
+  try {
+    const plan = await planWebApp(prompt, conversationHistory as ConversationMessage[]);
+    return res.json(plan);
+  } catch (err) {
+    console.error('[Generate/plan] Error:', err);
+    return res.json({ ready: true }); // fail open — never block building
+  }
+});
 
 // POST /api/generate
 router.post('/', async (req: Request, res: Response) => {
