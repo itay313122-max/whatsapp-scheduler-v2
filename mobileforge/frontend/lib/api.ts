@@ -19,6 +19,25 @@ export interface GenerateRequest {
   conversationHistory: { role: 'user' | 'assistant'; content: string }[];
   editMode?: boolean;
   existingCode?: string;
+  theme?: string;
+}
+
+export interface ThemeMeta {
+  id: string;
+  name: string;
+  swatches: string[];
+}
+
+/** Fetch the available design themes for the picker. */
+export async function getThemes(): Promise<ThemeMeta[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/generate/themes`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.themes || [];
+  } catch {
+    return [];
+  }
 }
 
 export interface GenerateResponse {

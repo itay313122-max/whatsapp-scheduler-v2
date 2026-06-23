@@ -9,11 +9,17 @@ import {
 import { buildHtmlDocument } from '../services/webRenderer';
 import { getFirestore } from '../services/firebase-admin';
 import { rateLimit } from '../middleware/rateLimit';
+import { THEME_LIST } from '../services/themes';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
-// Cost/abuse guard on every (LLM-backed) generation endpoint.
+// GET /api/generate/themes — design presets for the picker (not rate limited).
+router.get('/themes', (_req: Request, res: Response) => {
+  res.json({ themes: THEME_LIST });
+});
+
+// Cost/abuse guard on every (LLM-backed) generation endpoint below this line.
 router.use(rateLimit);
 
 /** Extract the App component code from the parsed files. */
@@ -42,14 +48,14 @@ router.post('/plan', async (req: Request, res: Response) => {
 
 // POST /api/generate
 router.post('/', async (req: Request, res: Response) => {
-  const { projectId, prompt, conversationHistory = [], editMode = false, existingCode } = req.body;
+  const { projectId, prompt, conversationHistory = [], editMode = false, existingCode, theme } = req.body;
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
 
   try {
     const generated = await generateWebApp(
       prompt,
       conversationHistory as ConversationMessage[],
-      { editMode: !!editMode, existingCode: existingCode ?? undefined }
+      { editMode: !!editMode, existingCode: existingCode ?? undefined, theme: theme ?? undefined }
     );
     const appCode = extractAppCode(generated.files);
 
@@ -101,7 +107,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 // POST /api/generate/stream
 router.post('/stream', async (req: Request, res: Response) => {
-  const { prompt, conversationHistory = [], editMode = false, existingCode } = req.body;
+  const { prompt, conversationHistory = [], editMode = false, existingCode, theme } = req.body;
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -114,7 +120,7 @@ router.post('/stream', async (req: Request, res: Response) => {
     for await (const chunk of streamGenerateWebApp(
       prompt,
       conversationHistory as ConversationMessage[],
-      { editMode: !!editMode, existingCode: existingCode ?? undefined }
+      { editMode: !!editMode, existingCode: existingCode ?? undefined, theme: theme ?? undefined }
     )) {
       fullText += chunk;
       res.write(`data: ${JSON.stringify({ chunk })}\n\n`);

@@ -1216,3 +1216,32 @@ describe('Rate limit middleware', () => {
     expect(other.status).toBe(200);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Design themes
+// ═══════════════════════════════════════════════════════════════════════════
+describe('Design themes', () => {
+  const { getThemePrompt, isValidTheme, THEME_LIST } = require('../src/services/themes');
+
+  it('exposes 5 themes with id, name and swatches', () => {
+    expect(THEME_LIST.length).toBe(5);
+    for (const t of THEME_LIST) {
+      expect(typeof t.id).toBe('string');
+      expect(typeof t.name).toBe('string');
+      expect(t.swatches.length).toBe(3);
+    }
+  });
+
+  it('returns a concrete prompt block for a known theme', () => {
+    const p = getThemePrompt('dark-premium');
+    expect(p).toContain('DARK PREMIUM');
+    expect(p).toContain('#0B0B0F');
+  });
+
+  it('returns empty string for unknown/none and validates ids', () => {
+    expect(getThemePrompt('')).toBe('');
+    expect(getThemePrompt('nope')).toBe('');
+    expect(isValidTheme('ios-native')).toBe(true);
+    expect(isValidTheme('nope')).toBe(false);
+  });
+});

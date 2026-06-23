@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { getDemoResponse, getDemoEditResponse } from './demoApps';
+import { getThemePrompt } from './themes';
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY || 'placeholder-for-demo-mode' });
 const MODEL = 'llama-3.3-70b-versatile';
@@ -1022,6 +1023,7 @@ ${OUTPUT_FORMAT_RULES}`;
 export interface GenerateOptions {
   editMode?: boolean;
   existingCode?: string;
+  theme?: string;
 }
 
 export interface ConversationMessage {
@@ -1148,9 +1150,11 @@ export async function generateWebApp(
   conversationHistory: ConversationMessage[],
   options?: GenerateOptions
 ): Promise<GeneratedWebApp> {
-  const systemPrompt = options?.editMode && options.existingCode
+  let systemPrompt = options?.editMode && options.existingCode
     ? buildEditSystemPrompt(options.existingCode)
     : WEB_SYSTEM_PROMPT;
+  // Apply a chosen design theme only on fresh generation (not edits).
+  if (!options?.editMode && options?.theme) systemPrompt += '\n' + getThemePrompt(options.theme);
 
   const messages: ChatMessage[] = [
     { role: 'system', content: systemPrompt },
@@ -1158,7 +1162,7 @@ export async function generateWebApp(
     { role: 'user', content: userPrompt },
   ];
 
-  console.log('[AI/web] Mode:', options?.editMode ? 'EDIT' : 'GENERATE', '| prompt:', userPrompt.slice(0, 80));
+  console.log('[AI/web] Mode:', options?.editMode ? 'EDIT' : 'GENERATE', '| theme:', options?.theme || 'none', '| prompt:', userPrompt.slice(0, 80));
 
   // In demo mode + edit mode, return existing code as-is (can't modify without LLM)
   const allPlaceholder = [process.env.GROQ_API_KEY, process.env.GEMINI_API_KEY, process.env.OPENROUTER_API_KEY]
@@ -1195,9 +1199,10 @@ export async function* streamGenerateWebApp(
   conversationHistory: ConversationMessage[],
   options?: GenerateOptions
 ): AsyncGenerator<string> {
-  const systemPrompt = options?.editMode && options.existingCode
+  let systemPrompt = options?.editMode && options.existingCode
     ? buildEditSystemPrompt(options.existingCode)
     : WEB_SYSTEM_PROMPT;
+  if (!options?.editMode && options?.theme) systemPrompt += '\n' + getThemePrompt(options.theme);
 
   const msgs = [
     { role: 'system' as const, content: systemPrompt },

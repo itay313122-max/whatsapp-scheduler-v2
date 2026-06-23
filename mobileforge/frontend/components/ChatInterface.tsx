@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { generateApp, generateFromImage, planApp, type GenerateResponse, type PlanQuestion, type PlanResult } from '@/lib/api';
+import { generateApp, generateFromImage, planApp, getThemes, type GenerateResponse, type PlanQuestion, type PlanResult, type ThemeMeta } from '@/lib/api';
 
 const SketchCanvas = dynamic(() => import('./SketchCanvas'), { ssr: false });
 
@@ -242,6 +242,10 @@ export default function ChatInterface({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [themes, setThemes] = useState<ThemeMeta[]>([]);
+  const [selectedTheme, setSelectedTheme] = useState('');
+
+  useEffect(() => { getThemes().then(setThemes); }, []);
 
   // Notify parent when generating state changes
   const setGenerating = useCallback((val: boolean) => {
@@ -471,6 +475,7 @@ export default function ChatInterface({
         conversationHistory: ctx.history,
         editMode: ctx.isEditMode,
         existingCode: ctx.existingCode,
+        theme: ctx.isEditMode ? undefined : (selectedTheme || undefined),
       });
       const assistantMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -716,6 +721,39 @@ export default function ChatInterface({
                   ))}
                 </div>
               </div>
+
+              {/* Design theme picker */}
+              {themes.length > 0 && (
+                <div className="w-full max-w-sm">
+                  <p className="text-text-secondary text-xs font-medium mb-2 text-right">ערכת עיצוב</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setSelectedTheme('')}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-medium transition-all ${
+                        selectedTheme === '' ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-surface/40 text-text-secondary hover:border-primary/30'
+                      }`}
+                    >
+                      אוטומטי
+                    </button>
+                    {themes.map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => setSelectedTheme(t.id)}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-medium transition-all ${
+                          selectedTheme === t.id ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-surface/40 text-text-secondary hover:border-primary/30'
+                        }`}
+                      >
+                        <span className="flex -space-x-1">
+                          {t.swatches.map((c, i) => (
+                            <span key={i} className="w-3 h-3 rounded-full border border-white/40" style={{ background: c }} />
+                          ))}
+                        </span>
+                        {t.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Divider */}
               <div className="flex items-center gap-3 w-full max-w-sm">
