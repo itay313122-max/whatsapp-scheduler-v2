@@ -6,15 +6,15 @@
 
 export interface ThemeMeta {
   id: string;
-  name: string;        // Hebrew label for the UI
+  name: string;        // Label for the UI
   swatches: string[];  // 3 colors for a preview chip [bg, accent, text/secondary]
 }
 
 export const THEME_LIST: ThemeMeta[] = [
-  { id: 'minimal-white', name: 'לבן מינימלי', swatches: ['#ffffff', '#111827', '#6B7280'] },
-  { id: 'dark-premium',  name: 'כהה פרימיום', swatches: ['#0B0B0F', '#7C5CFF', '#F4F4F6'] },
-  { id: 'vibrant',       name: 'צבעוני נועז', swatches: ['#ffffff', '#FF5A5F', '#2563EB'] },
-  { id: 'ios-native',    name: 'iOS נקי',     swatches: ['#F2F2F7', '#007AFF', '#8E8E93'] },
+  { id: 'minimal-white', name: 'Minimal White', swatches: ['#ffffff', '#111827', '#6B7280'] },
+  { id: 'dark-premium',  name: 'Dark Premium', swatches: ['#0B0B0F', '#7C5CFF', '#F4F4F6'] },
+  { id: 'vibrant',       name: 'Bold Vibrant', swatches: ['#ffffff', '#FF5A5F', '#2563EB'] },
+  { id: 'ios-native',    name: 'Clean iOS',     swatches: ['#F2F2F7', '#007AFF', '#8E8E93'] },
   { id: 'material',      name: 'Material',    swatches: ['#ffffff', '#6750A4', '#625B71'] },
 ];
 

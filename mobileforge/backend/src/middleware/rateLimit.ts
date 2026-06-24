@@ -51,7 +51,7 @@ export function rateLimit(req: Request, res: Response, next: NextFunction) {
     res.setHeader('Retry-After', '3600');
     return res.status(429).json({
       error: 'SERVICE_BUSY',
-      message: 'המערכת בעומס יומי גבוה. נסה שוב בעוד זמן מה.',
+      message: 'System is under heavy load. Please try again later.',
     });
   }
 
@@ -65,14 +65,14 @@ export function rateLimit(req: Request, res: Response, next: NextFunction) {
     res.setHeader('Retry-After', '60');
     return res.status(429).json({
       error: 'RATE_LIMITED',
-      message: 'יותר מדי בקשות בזמן קצר. המתן רגע ונסה שוב.',
+      message: 'Too many requests. Please wait a moment and try again.',
     });
   }
   if (b.dayCount >= perDay) {
     res.setHeader('Retry-After', '3600');
     return res.status(429).json({
       error: 'DAILY_LIMIT',
-      message: 'הגעת למכסת הבנייה היומית. נסה שוב מחר.',
+      message: 'Daily build limit reached. Try again tomorrow.',
     });
   }
 

@@ -93,7 +93,7 @@ router.get('/:id/doc', (req: Request, res: Response) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   if (!s || !s.htmlDoc) {
-    return res.send('<!doctype html><meta charset="utf-8"><body style="font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;color:#64748b">ממתין לאפליקציה מהמחשב…</body>');
+    return res.send('<!doctype html><meta charset="utf-8"><body style="font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;color:#64748b">Waiting for app from desktop…</body>');
   }
   return res.send(s.htmlDoc);
 });
@@ -131,7 +131,7 @@ router.get('/:id', (req: Request, res: Response) => {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Access-Control-Allow-Origin', '*');
   return res.send(`<!doctype html>
-<html lang="he" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -147,7 +147,7 @@ router.get('/:id', (req: Request, res: Response) => {
 </style>
 </head>
 <body>
-  <div id="badge"><span id="dot"></span><span id="label">חי · מחובר</span></div>
+  <div id="badge"><span id="dot"></span><span id="label">Live · Connected</span></div>
   <iframe id="frame" title="app"></iframe>
 <script>
   var id = ${JSON.stringify(id)};
@@ -167,19 +167,19 @@ router.get('/:id', (req: Request, res: Response) => {
   function load(reason) {
     fetch('/api/live/' + id + '/doc', { cache: 'no-store' })
       .then(function(r){ return r.text(); })
-      .then(function(html){ frame.srcdoc = html; flash(reason || 'עודכן עכשיו'); })
-      .catch(function(){ flash('שגיאת רשת'); });
+      .then(function(html){ frame.srcdoc = html; flash(reason || 'Updated'); })
+      .catch(function(){ flash('Network error'); });
   }
 
   function connect() {
     var es = new EventSource('/api/live/' + id + '/stream');
-    es.addEventListener('hello', function(e){ if (e.data !== String(lastVer)) { lastVer = e.data; load('מחובר'); } });
-    es.addEventListener('update', function(e){ if (e.data !== String(lastVer)) { lastVer = e.data; load('עודכן עכשיו'); } });
-    es.onerror = function(){ label.textContent = 'מתחבר מחדש…'; badge.style.opacity = '1'; };
-    es.onopen = function(){ flash('חי · מחובר'); };
+    es.addEventListener('hello', function(e){ if (e.data !== String(lastVer)) { lastVer = e.data; load('Connected'); } });
+    es.addEventListener('update', function(e){ if (e.data !== String(lastVer)) { lastVer = e.data; load('Updated'); } });
+    es.onerror = function(){ label.textContent = 'Reconnecting…'; badge.style.opacity = '1'; };
+    es.onopen = function(){ flash('Live · Connected'); };
   }
 
-  load('טוען…');
+  load('Loading…');
   connect();
 </script>
 </body>

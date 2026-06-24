@@ -86,14 +86,14 @@ OUTPUT FORMAT — return ONLY this JSON object, nothing else:
     "accent": "#hexcolor"
   },
   "features": ["feature1", "feature2", "feature3"],
-  "hebrewSummary": "תיאור קצר בעברית של מה שנבנה"
+  "hebrewSummary": "Short description of what was built"
 }
 
 CRITICAL — JSON ENCODING RULES:
 - Response starts with { and ends with } — nothing before or after
 - Do NOT use markdown code fences (no \`\`\`)
 - In the App.tsx string value, encode newlines as \\n and tabs as \\t
-- Do NOT double-escape Unicode: write Hebrew text directly (e.g. "שלום") NOT as \\u05E9\\u05DC\\u05D5\\u05DD
+- Do NOT double-escape Unicode: write text directly, NOT as \\u05E9\\u05DC\\u05D5\\u05DD escape sequences
 - The complete response must be parseable by JSON.parse()
 `;
 
@@ -226,7 +226,7 @@ export async function generateMobileApp(
       files: { 'App.tsx': raw },
       colorScheme: { primary: '#6C3AE8', background: '#0A0A0F', text: '#E8E8F0' },
       features: [],
-      hebrewSummary: 'האפליקציה נוצרה בהצלחה',
+      hebrewSummary: 'App created successfully',
     };
   }
 }

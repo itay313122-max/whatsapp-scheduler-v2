@@ -143,7 +143,7 @@ router.post('/stream', async (req: Request, res: Response) => {
   return (
     <div style={{padding:24,fontFamily:'sans-serif',maxWidth:420,margin:'0 auto',minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12}}>
       <div style={{fontSize:40}}>⚠️</div>
-      <h2 style={{margin:0,color:'#dc2626',fontSize:18}}>שגיאה בייצור הקוד</h2>
+      <h2 style={{margin:0,color:'#dc2626',fontSize:18}}>Code generation error</h2>
       <p style={{margin:0,color:'#6b7280',fontSize:14,textAlign:'center'}}>${reason}</p>
     </div>
   );
@@ -152,7 +152,7 @@ router.post('/stream', async (req: Request, res: Response) => {
         done: true,
         result: {
           appName: 'Generated App',
-          hebrewSummary: `שגיאת parse: ${reason}`,
+          hebrewSummary: `Parse error: ${reason}`,
           files: { 'App.jsx': fallbackCode },
           features: [],
           colorScheme: { primary: '#6C3AE8', background: '#F8F9FA', text: '#1A1A2E' },
@@ -174,7 +174,7 @@ router.post('/stream', async (req: Request, res: Response) => {
 router.post('/vision', (_req: Request, res: Response) => {
   return res.status(503).json({
     error: 'VISION_NOT_SUPPORTED',
-    message: "פיצ'ר Vision דורש שדרוג לתוכנית Premium.",
+    message: "Vision feature requires a Premium plan upgrade.",
   });
 });
 

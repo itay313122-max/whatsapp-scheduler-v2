@@ -277,7 +277,7 @@ Go through this checklist before you finish — each item is mandatory, not opti
 5. NO EMPTY STATE → Every list that can be empty renders .empty-state (icon + title +
    body + CTA). Never a blank area.
 6. NO ERROR STATE → Any action that can fail (submit, load, pay) shows feedback on
-   failure: an .error-state block (icon + title + body + a "נסה שוב" retry button), or a
+   failure: an .error-state block (icon + title + body + a "Try again" retry button), or a
    toast. The user is never left guessing.
 7. UNVALIDATED FORMS → Inputs validate inline. On a bad value add class "invalid" to the
    .input-field and render a <p className="field-error"> below it; only submit when valid,
@@ -524,17 +524,17 @@ FONTS — for Hebrew apps use Heebo, Assistant, or Rubik (all pre-loaded):
 EMPTY STATES — use for every list that can be empty:
   <div className="empty-state">
     <div className="empty-state-icon" style={{fontSize:'48px',opacity:0.3}}>○</div>
-    <p className="empty-state-title">הרשימה ריקה</p>
-    <p className="empty-state-body">לחץ + כדי להוסיף את הפריט הראשון</p>
-    <button className="btn-primary" style={{width:'auto',padding:'12px 24px'}} onClick={...}>הוסף</button>
+    <p className="empty-state-title">The list is empty</p>
+    <p className="empty-state-body">Tap + to add your first item</p>
+    <button className="btn-primary" style={{width:'auto',padding:'12px 24px'}} onClick={...}>Add</button>
   </div>
 
 ERROR STATES — use when an action/load FAILS (never leave the user guessing):
   <div className="error-state">
     <div className="error-state-icon"><SvgIcon size={44}>{/* alert-triangle path */}</SvgIcon></div>
-    <p className="error-state-title">משהו השתבש</p>
-    <p className="error-state-body">לא הצלחנו לטעון את הנתונים. בדוק את החיבור ונסה שוב.</p>
-    <button className="btn-primary" style={{width:'auto',padding:'12px 24px'}} onClick={retry}>נסה שוב</button>
+    <p className="error-state-title">Something went wrong</p>
+    <p className="error-state-body">We couldn't load the data. Check your connection and try again.</p>
+    <button className="btn-primary" style={{width:'auto',padding:'12px 24px'}} onClick={retry}>Try again</button>
   </div>
 
 INLINE FORM VALIDATION — validate fields, mark invalid ones, show the reason:
@@ -934,7 +934,7 @@ REQUIRED PATTERNS:
 
 5. MODALS & PANELS — show/hide via boolean state:
    const [showModal, setShowModal] = useState(false);
-   <button onClick={() => setShowModal(true)}>פתח</button>
+   <button onClick={() => setShowModal(true)}>Open</button>
    {showModal && <div className="card">...</div>}
 
 FORBIDDEN: Any button or nav tab without an onClick that changes state.
@@ -964,11 +964,11 @@ function App() {
   };
 
   const allItems = [
-    {id:1, name:'פיצה מרגריטה', desc:'עגבניות, מוצרלה, בזיליקום טרי', price:59, rating:4.8, time:'25 דק', img: placeholderImg(400,200,'Pizza','#fef2f2')},
-    {id:2, name:'בורגר קלאסי', desc:'בקר 200 גרם, צ׳דר, חסה, עגבנייה', price:49, rating:4.6, time:'20 דק', img: placeholderImg(400,200,'Burger','#fef9c3')},
-    {id:3, name:'סלט קיסר', desc:'חסה רומית, פרמזן, קרוטונים, רוטב', price:42, rating:4.7, time:'10 דק', img: placeholderImg(400,200,'Salad','#ecfdf5')},
-    {id:4, name:'פסטה ברוטב עגבניות', desc:'ספגטי, רוטב מרינרה, בזיליקום', price:52, rating:4.5, time:'20 דק', img: placeholderImg(400,200,'Pasta','#fff7ed')},
-    {id:5, name:'רול סלמון', desc:'סלמון טרי, אבוקדו, שומשום', price:68, rating:4.9, time:'30 דק', img: placeholderImg(400,200,'Sushi','#fef2f2')},
+    {id:1, name:'Margherita Pizza', desc:'Tomatoes, mozzarella, fresh basil', price:14, rating:4.8, time:'25 min', img: placeholderImg(400,200,'Pizza','#fef2f2')},
+    {id:2, name:'Classic Burger', desc:'200g beef patty, cheddar, lettuce, tomato', price:12, rating:4.6, time:'20 min', img: placeholderImg(400,200,'Burger','#fef9c3')},
+    {id:3, name:'Caesar Salad', desc:'Romaine lettuce, parmesan, croutons, dressing', price:10, rating:4.7, time:'10 min', img: placeholderImg(400,200,'Salad','#ecfdf5')},
+    {id:4, name:'Pasta Marinara', desc:'Spaghetti, marinara sauce, basil', price:13, rating:4.5, time:'20 min', img: placeholderImg(400,200,'Pasta','#fff7ed')},
+    {id:5, name:'Salmon Roll', desc:'Fresh salmon, avocado, sesame', price:16, rating:4.9, time:'30 min', img: placeholderImg(400,200,'Sushi','#fef2f2')},
   ];
 
   const addToCart = (item) => setCart(prev => [...prev, {...item, cartId: Date.now()}]);
@@ -978,12 +978,12 @@ function App() {
   const HomeScreen = () => (
     <>
       <div className="card" style={{background:'var(--c-primary)',padding:24}}>
-        <p className="label" style={{color:'rgba(255,255,255,0.8)',marginBottom:4}}>מבצע מיוחד</p>
-        <h2 className="display" style={{color:'white',margin:'4px 0',fontSize:28}}>20% הנחה</h2>
-        <p className="body" style={{color:'rgba(255,255,255,0.85)'}}>על הזמנה ראשונה</p>
-        <button className="btn-secondary" style={{width:'auto',marginTop:14,padding:'10px 24px',background:'white',color:'var(--c-primary)'}} onClick={()=>setTab('search')}>לתפריט</button>
+        <p className="label" style={{color:'rgba(255,255,255,0.8)',marginBottom:4}}>Special offer</p>
+        <h2 className="display" style={{color:'white',margin:'4px 0',fontSize:28}}>20% off</h2>
+        <p className="body" style={{color:'rgba(255,255,255,0.85)'}}>On your first order</p>
+        <button className="btn-secondary" style={{width:'auto',marginTop:14,padding:'10px 24px',background:'white',color:'var(--c-primary)'}} onClick={()=>setTab('search')}>View menu</button>
       </div>
-      <p className="section-title">פופולרי</p>
+      <p className="section-title">Popular</p>
       {allItems.slice(0,3).map(item=>(
         <div key={item.id} className="card" style={{padding:0,overflow:'hidden'}}>
           <img src={item.img} alt={item.name} style={{width:'100%',height:140,objectFit:'cover'}} />
@@ -993,7 +993,7 @@ function App() {
                 <p className="subtitle">{item.name}</p>
                 <p className="caption" style={{marginTop:2,color:'#6b7280'}}>{item.desc}</p>
               </div>
-              <span className="subtitle" style={{color:'var(--c-primary)',whiteSpace:'nowrap'}}>₪{item.price}</span>
+              <span className="subtitle" style={{color:'var(--c-primary)',whiteSpace:'nowrap'}}>${item.price}</span>
             </div>
             <div className="flex justify-between items-center" style={{marginTop:10}}>
               <div className="flex items-center gap-2" style={{color:'#6b7280'}}>
@@ -1013,18 +1013,18 @@ function App() {
     return (
       <>
         <div style={{position:'relative'}}>
-          <input className="input-field" placeholder="חפש מנה..." value={search} onChange={e=>setSearch(e.target.value)} style={{paddingRight:44}} />
+          <input className="input-field" placeholder="Search dishes..." value={search} onChange={e=>setSearch(e.target.value)} style={{paddingRight:44}} />
           <span style={{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',color:'#9ca3af'}}>{icons.search}</span>
         </div>
         {filtered.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state-icon" style={{opacity:0.4}}>{icons.search}</div>
-            <p className="empty-state-title">אין תוצאות</p>
-            <p className="empty-state-body">נסה מילת חיפוש אחרת</p>
+            <p className="empty-state-title">No results</p>
+            <p className="empty-state-body">Try a different search term</p>
           </div>
         ) : (
           <>
-            <p className="section-title">{filtered.length} תוצאות</p>
+            <p className="section-title">{filtered.length} results</p>
             {filtered.map(item=>(
               <div key={item.id} className="list-item">
                 <img src={item.img} alt={item.name} style={{width:56,height:56,borderRadius:12,objectFit:'cover'}} />
@@ -1033,7 +1033,7 @@ function App() {
                   <p className="caption" style={{color:'#6b7280'}}>{item.desc}</p>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="subtitle" style={{color:'var(--c-primary)',fontSize:14}}>₪{item.price}</span>
+                  <span className="subtitle" style={{color:'var(--c-primary)',fontSize:14}}>${item.price}</span>
                   <button className="btn-icon" style={{width:32,height:32,background:'var(--c-primary-light)',color:'var(--c-primary)',borderRadius:8}} onClick={()=>addToCart(item)}>{icons.plus}</button>
                 </div>
               </div>
@@ -1046,13 +1046,13 @@ function App() {
 
   const CartScreen = () => (
     <>
-      <p className="section-title">הסל שלך ({cart.length})</p>
+      <p className="section-title">Your cart ({cart.length})</p>
       {cart.length === 0 && (
         <div className="empty-state">
           <div className="empty-state-icon" style={{opacity:0.3}}>{icons.cart}</div>
-          <p className="empty-state-title">הסל ריק</p>
-          <p className="empty-state-body">הוסף מנות מהתפריט</p>
-          <button className="btn-primary" style={{width:'auto',padding:'12px 24px',marginTop:4}} onClick={()=>setTab('search')}>לתפריט</button>
+          <p className="empty-state-title">Cart is empty</p>
+          <p className="empty-state-body">Add items from the menu</p>
+          <button className="btn-primary" style={{width:'auto',padding:'12px 24px',marginTop:4}} onClick={()=>setTab('search')}>View menu</button>
         </div>
       )}
       {cart.map(item=>(
@@ -1060,7 +1060,7 @@ function App() {
           <img src={item.img} alt={item.name} style={{width:48,height:48,borderRadius:10,objectFit:'cover'}} />
           <div style={{flex:1}}>
             <p className="subtitle" style={{fontSize:14}}>{item.name}</p>
-            <span className="caption" style={{color:'var(--c-primary)'}}>₪{item.price}</span>
+            <span className="caption" style={{color:'var(--c-primary)'}}>${item.price}</span>
           </div>
           <button className="btn-icon" style={{width:32,height:32,color:'#ef4444'}} onClick={()=>removeFromCart(item.cartId)}>{icons.close}</button>
         </div>
@@ -1068,10 +1068,10 @@ function App() {
       {cart.length > 0 && (
         <div className="card" style={{marginTop:8}}>
           <div className="flex justify-between items-center" style={{marginBottom:14}}>
-            <span className="subtitle">סה"כ לתשלום</span>
-            <span className="title" style={{color:'var(--c-primary)'}}>₪{total}</span>
+            <span className="subtitle">Total</span>
+            <span className="title" style={{color:'var(--c-primary)'}}>${total}</span>
           </div>
-          <button className="btn-primary" onClick={()=>{setCart([]);alert('ההזמנה נשלחה בהצלחה!');}}>לתשלום</button>
+          <button className="btn-primary" onClick={()=>{setCart([]);alert('Order placed successfully!');}}>Checkout</button>
         </div>
       )}
     </>
@@ -1080,13 +1080,13 @@ function App() {
   const ProfileScreen = () => (
     <div className="card">
       <div className="flex items-center gap-3" style={{marginBottom:20}}>
-        <div className="avatar" style={{width:56,height:56,fontSize:20}}>י</div>
+        <div className="avatar" style={{width:56,height:56,fontSize:20}}>J</div>
         <div>
-          <p className="subtitle">ישראל ישראלי</p>
-          <p className="caption" style={{color:'#6b7280'}}>israel@email.com</p>
+          <p className="subtitle">John Doe</p>
+          <p className="caption" style={{color:'#6b7280'}}>john@email.com</p>
         </div>
       </div>
-      {[{label:'ההזמנות שלי',icon:icons.cart},{label:'הגדרות',icon:icons.bell}].map((row,i)=>(
+      {[{label:'My Orders',icon:icons.cart},{label:'Settings',icon:icons.bell}].map((row,i)=>(
         <div key={i} className="list-item" style={{marginBottom:8,cursor:'pointer'}}>
           <span style={{color:'var(--c-primary)'}}>{row.icon}</span>
           <span className="body" style={{flex:1}}>{row.label}</span>
@@ -1104,10 +1104,10 @@ function App() {
   };
 
   const navItems = [
-    {id:'home', icon:icons.home, label:'בית'},
-    {id:'search', icon:icons.search, label:'חיפוש'},
-    {id:'cart', icon:icons.cart, label:'סל'},
-    {id:'profile', icon:icons.user, label:'פרופיל'},
+    {id:'home', icon:icons.home, label:'Home'},
+    {id:'search', icon:icons.search, label:'Search'},
+    {id:'cart', icon:icons.cart, label:'Cart'},
+    {id:'profile', icon:icons.user, label:'Profile'},
   ];
 
   return (
@@ -1119,11 +1119,11 @@ function App() {
           --c-bg:#ffffff;
         }
       \`}</style>
-      <div className="app-shell" dir="rtl">  {/* dir="rtl" ONLY for Hebrew/Arabic — omit it for English/LTR */}
+      <div className="app-shell">  {/* add dir="rtl" ONLY for Hebrew/Arabic — omit for English/LTR */}
         <div className="app-header">
           <div>
-            <p className="caption" style={{color:'#6b7280'}}>שלום</p>
-            <h1 className="subtitle">ישראל ישראלי</h1>
+            <p className="caption" style={{color:'#6b7280'}}>Hello</p>
+            <h1 className="subtitle">John Doe</h1>
           </div>
           <div className="flex gap-2 items-center">
             <button className="btn-icon" style={{position:'relative'}} onClick={()=>setTab('cart')}>
@@ -1154,7 +1154,7 @@ OUTPUT FORMAT — CRITICAL — FOLLOW EXACTLY:
 Return EXACTLY TWO blocks:
 
 BLOCK 1 — JSON metadata (one line, no code):
-{"appName":"App name","description":"One sentence","colorScheme":{"primary":"#hex","background":"#hex","text":"#hex","accent":"#hex"},"features":["feature1","feature2","feature3"],"hebrewSummary":"תיאור בעברית"}
+{"appName":"App name","description":"One sentence","colorScheme":{"primary":"#hex","background":"#hex","text":"#hex","accent":"#hex"},"features":["feature1","feature2","feature3"],"hebrewSummary":"Short description"}
 
 BLOCK 2 — App code:
 ===CODE===
@@ -1183,7 +1183,7 @@ OUTPUT FORMAT — CRITICAL — FOLLOW EXACTLY:
 Return EXACTLY TWO blocks:
 
 BLOCK 1 — JSON metadata (one line, no code):
-{"appName":"App name","description":"what changed","colorScheme":{"primary":"#hex","background":"#hex","text":"#hex","accent":"#hex"},"features":["f1","f2"],"hebrewSummary":"תיאור השינוי בעברית"}
+{"appName":"App name","description":"what changed","colorScheme":{"primary":"#hex","background":"#hex","text":"#hex","accent":"#hex"},"features":["f1","f2"],"hebrewSummary":"Short change description"}
 
 BLOCK 2 — Full updated App code:
 ===CODE===
@@ -1309,7 +1309,7 @@ export function parseGroqResponse(raw: string): GeneratedWebApp {
     return {
       appName:      decodeEscapedUnicode(meta.appName      ?? 'Generated App'),
       description:  decodeEscapedUnicode(meta.description  ?? ''),
-      hebrewSummary:decodeEscapedUnicode(meta.hebrewSummary ?? 'האפליקציה נוצרה'),
+      hebrewSummary:decodeEscapedUnicode(meta.hebrewSummary ?? 'App created'),
       colorScheme:  meta.colorScheme ?? { primary: '#6C3AE8', background: '#F8F9FA', text: '#1A1A2E' },
       features:     (meta.features ?? []).map(decodeEscapedUnicode),
       files: { 'App.jsx': code },
@@ -1340,9 +1340,9 @@ const FALLBACK_APP = (reason: string) =>
   return (
     <div style={{padding:24,fontFamily:'sans-serif',maxWidth:420,margin:'0 auto',minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12}}>
       <div style={{fontSize:40}}>⚠️</div>
-      <h2 style={{margin:0,color:'#dc2626',fontSize:18}}>שגיאה בייצור הקוד</h2>
+      <h2 style={{margin:0,color:'#dc2626',fontSize:18}}>Code generation error</h2>
       <p style={{margin:0,color:'#6b7280',fontSize:14,textAlign:'center'}}>${reason}</p>
-      <p style={{margin:0,color:'#9ca3af',fontSize:12}}>נסה שוב</p>
+      <p style={{margin:0,color:'#9ca3af',fontSize:12}}>Try again</p>
     </div>
   );
 }`;
@@ -1392,7 +1392,7 @@ export async function generateWebApp(
       files: { 'App.jsx': FALLBACK_APP(`Parse error: ${msg.slice(0, 60)}`) },
       colorScheme: { primary: '#6C3AE8', background: '#F8F9FA', text: '#1A1A2E' },
       features: [],
-      hebrewSummary: `שגיאת parse: ${msg.slice(0, 80)}`,
+      hebrewSummary: `Parse error: ${msg.slice(0, 80)}`,
     };
   }
 }
@@ -1511,7 +1511,7 @@ export function parsePlan(raw: string): PlanResult {
     if (!questions.length) return { ready: true };
     return {
       ready: false,
-      intro: obj.intro ? String(obj.intro) : 'כמה שאלות מהירות לפני שנבנה:',
+      intro: obj.intro ? String(obj.intro) : 'A few quick questions before we build:',
       questions,
     };
   } catch {

@@ -23,10 +23,10 @@ const CLOTHING_STORE: DemoApp = {
   keywords: ['חנות', 'בגדים', 'store', 'shop', 'clothes', 'clothing', 'fashion', 'אופנה'],
   metadata: {
     appName: 'StyleHub',
-    description: 'חנות בגדים מעוצבת עם קטלוג, סל קניות וקופה',
+    description: 'A stylish clothing store with a product catalog, shopping cart, and checkout',
     colorScheme: { primary: '#000000', background: '#ffffff', text: '#111827', accent: '#6B7280' },
-    features: ['קטלוג מוצרים עם 6 פריטים', 'סל קניות עם הוספה והסרה', 'מסך תשלום'],
-    hebrewSummary: 'חנות בגדים מלאה עם קטלוג, ניהול סל קניות ומסך קופה',
+    features: ['Product catalog with 6 items', 'Shopping cart with add and remove', 'Checkout screen'],
+    hebrewSummary: 'Full clothing store with catalog, shopping cart management, and checkout screen',
   },
   code: `function App() {
   const { useState, useCallback, useMemo } = React;
@@ -51,12 +51,12 @@ const CLOTHING_STORE: DemoApp = {
     'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect fill="' + color1 + '" width="200" height="200"/><rect fill="' + color2 + '" x="50" y="50" width="100" height="100" rx="12"/><text x="100" y="108" text-anchor="middle" fill="#9ca3af" font-family="system-ui" font-size="12">' + label + '</text></svg>');
 
   const products = [
-    { id: 1, name: 'חולצת כותנה', price: 89, img: placeholderImg('Shirt','#f3f4f6','#e5e7eb'), color: 'לבן' },
-    { id: 2, name: 'מכנסי ג\\'ינס', price: 199, img: placeholderImg('Jeans','#dbeafe','#bfdbfe'), color: 'כחול' },
-    { id: 3, name: 'שמלת קיץ', price: 149, img: placeholderImg('Dress','#fce7f3','#fbcfe8'), color: 'ורוד' },
-    { id: 4, name: 'נעלי ספורט', price: 299, img: placeholderImg('Shoes','#f3f4f6','#d1d5db'), color: 'שחור' },
-    { id: 5, name: 'כובע שמש', price: 59, img: placeholderImg('Hat','#fef3c7','#fde68a'), color: 'בז\\'' },
-    { id: 6, name: 'תיק גב', price: 179, img: placeholderImg('Bag','#d1fae5','#a7f3d0'), color: 'ירוק' },
+    { id: 1, name: 'Cotton Shirt', price: 89, img: placeholderImg('Shirt','#f3f4f6','#e5e7eb'), color: 'White' },
+    { id: 2, name: 'Jeans', price: 199, img: placeholderImg('Jeans','#dbeafe','#bfdbfe'), color: 'Blue' },
+    { id: 3, name: 'Summer Dress', price: 149, img: placeholderImg('Dress','#fce7f3','#fbcfe8'), color: 'Pink' },
+    { id: 4, name: 'Sneakers', price: 299, img: placeholderImg('Shoes','#f3f4f6','#d1d5db'), color: 'Black' },
+    { id: 5, name: 'Sun Hat', price: 59, img: placeholderImg('Hat','#fef3c7','#fde68a'), color: 'Beige' },
+    { id: 6, name: 'Backpack', price: 179, img: placeholderImg('Bag','#d1fae5','#a7f3d0'), color: 'Green' },
   ];
 
   const addToCart = useCallback((product) => {
@@ -176,10 +176,10 @@ const TODO_APP: DemoApp = {
   keywords: ['todo', 'משימות', 'tasks', 'רשימה', 'task', 'list', 'משימה'],
   metadata: {
     appName: 'TaskFlow',
-    description: 'מנהל משימות עם סינון, מחיקה ופס התקדמות',
+    description: 'Task manager with filtering, deletion, and progress bar',
     colorScheme: { primary: '#2563EB', background: '#ffffff', text: '#111827', accent: '#3B82F6' },
-    features: ['הוספת משימות חדשות', 'סימון השלמה ומחיקה', 'סינון לפי סטטוס עם פס התקדמות'],
-    hebrewSummary: 'אפליקציית משימות עם ניהול מלא, סינון וויזואליזציה של התקדמות',
+    features: ['Add new tasks', 'Mark complete and delete', 'Filter by status with progress bar'],
+    hebrewSummary: 'Task app with full management, filtering, and progress visualization',
   },
   code: `function App() {
   const { useState, useMemo } = React;
@@ -290,10 +290,10 @@ const CALCULATOR_APP: DemoApp = {
   keywords: [],
   metadata: {
     appName: 'CalcPro',
-    description: 'מחשבון מעוצב עם פעולות בסיסיות',
+    description: 'A stylish calculator with basic operations',
     colorScheme: { primary: '#2563EB', background: '#F0F4FF', text: '#1A1A2E', accent: '#60A5FA' },
-    features: ['חיבור, חיסור, כפל וחילוק', 'תצוגת היסטוריה', 'ממשק נקי ונוח'],
-    hebrewSummary: 'מחשבון מקצועי עם ממשק מודרני וכפתורים נוחים',
+    features: ['Addition, subtraction, multiplication, and division', 'History display', 'Clean and user-friendly interface'],
+    hebrewSummary: 'Professional calculator with a modern interface and convenient buttons',
   },
   code: `function App() {
   const { useState, useCallback } = React;
@@ -439,10 +439,10 @@ const WEATHER_APP: DemoApp = {
   keywords: ['מזג אוויר', 'weather', 'טמפרטורה', 'תחזית', 'forecast', 'temperature', 'גשם', 'rain'],
   metadata: {
     appName: 'WeatherNow',
-    description: 'אפליקציית מזג אוויר עם תחזית שעתית ושבועית',
+    description: 'Weather app with hourly and weekly forecast',
     colorScheme: { primary: '#0EA5E9', background: '#ffffff', text: '#111827', accent: '#38BDF8' },
-    features: ['טמפרטורה נוכחית עם אייקון', 'תחזית שעתית (גלילה)', 'תחזית שבועית 7 ימים'],
-    hebrewSummary: 'אפליקציית מזג אוויר עם תחזית שעתית, שבועית ופרטי לחות ורוח',
+    features: ['Current temperature with icon', 'Hourly forecast (scrollable)', '7-day weekly forecast'],
+    hebrewSummary: 'Weather app with hourly and weekly forecast, humidity, and wind details',
   },
   code: `function App() {
   const { useState } = React;
@@ -570,10 +570,10 @@ const RESTAURANT_APP: DemoApp = {
   keywords: ['מסעדה', 'restaurant', 'אוכל', 'food', 'תפריט', 'menu', 'פיצה', 'pizza', 'בורגר', 'burger', 'מנה', 'הזמנ'],
   metadata: {
     appName: 'FoodHub',
-    description: 'אפליקציית מסעדה עם תפריט והזמנות',
+    description: 'Restaurant app with menu and orders',
     colorScheme: { primary: '#00B37E', background: '#ffffff', text: '#111827', accent: '#34D399' },
-    features: ['תפריט עם קטגוריות', 'הוספה להזמנה עם כמות', 'סיכום הזמנה ותשלום'],
-    hebrewSummary: 'אפליקציית מסעדה עם תפריט מחולק לקטגוריות, עגלת הזמנות וסיכום',
+    features: ['Menu with categories', 'Add to order with quantity', 'Order summary and payment'],
+    hebrewSummary: 'Restaurant app with categorized menu, order cart, and summary',
   },
   code: `function App() {
   const { useState, useMemo } = React;
@@ -726,10 +726,10 @@ const STOCKS_APP: DemoApp = {
   keywords: ['מניות', 'מניה', 'בורסה', 'stock', 'stocks', 'portfolio', 'תיק השקעות', 'השקעות', 'invest', 'trading', 'מסחר', 'תיק מניות'],
   metadata: {
     appName: 'StockFolio',
-    description: 'תיק מניות אינטראקטיבי עם מחירים וגרפים מתעדכנים בזמן אמת',
+    description: 'Interactive stock portfolio with real-time prices and charts',
     colorScheme: { primary: '#16C784', background: '#ffffff', text: '#0B1426', accent: '#EA3943' },
-    features: ['תיק מניות עם שווי כולל ושינוי יומי', 'גרפים חיים שמתעדכנים בזמן אמת', 'הוספה והסרה של מניות', 'מעקב שוק עם 8 מניות אמיתיות'],
-    hebrewSummary: 'תיק מניות אינטראקטיבי — מחירים וגרפים מתעדכנים בזמן אמת, הוספה/הסרה של מניות ומעקב שוק חי',
+    features: ['Stock portfolio with total value and daily change', 'Live charts updating in real time', 'Add and remove stocks', 'Market tracker with 8 real stocks'],
+    hebrewSummary: 'Interactive stock portfolio — real-time prices and charts, add/remove stocks, and live market tracking',
   },
   code: `function App() {
   const { useState, useEffect } = React;
@@ -816,31 +816,31 @@ const STOCKS_APP: DemoApp = {
   const PortfolioTab = () => (
     <>
       <div style={{background:'linear-gradient(135deg,#0B1426,#16243C)',padding:'22px 20px 24px',color:'#fff'}}>
-        <p style={{color:'rgba(255,255,255,0.6)',fontSize:13,marginBottom:6}}>שווי התיק</p>
+        <p style={{color:'rgba(255,255,255,0.6)',fontSize:13,marginBottom:6}}>Portfolio Value</p>
         <p style={{fontSize:38,fontWeight:700,lineHeight:1,letterSpacing:-1}}>{fmt(totalValue)}</p>
         <div style={{display:'flex',alignItems:'center',gap:6,marginTop:10}}>
           <span style={{background:dayChange>=0?'rgba(22,199,132,0.18)':'rgba(234,57,67,0.18)',color:dayChange>=0?'#16C784':'#EA3943',padding:'3px 10px',borderRadius:20,fontSize:13,fontWeight:600}}>
             {(dayChange>=0?'▲ ':'▼ ')+pct(dayPct)}
           </span>
-          <span style={{color:'rgba(255,255,255,0.7)',fontSize:13}}>{(dayChange>=0?'+':'')+fmt(dayChange).replace('$','$')}  היום</span>
+          <span style={{color:'rgba(255,255,255,0.7)',fontSize:13}}>{(dayChange>=0?'+':'')+fmt(dayChange).replace('$','$')}  Today</span>
         </div>
         <div style={{marginTop:14,marginLeft:-20,marginRight:-20}}><BigChart data={totalHist} /></div>
       </div>
 
       <div className="app-content">
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-          <p className="section-title" style={{margin:0}}>האחזקות שלי</p>
+          <p className="section-title" style={{margin:0}}>My Holdings</p>
           <span style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:12,color:'#16C784',fontWeight:600}}>
-            <span style={{width:7,height:7,borderRadius:'50%',background:'#16C784',display:'inline-block',animation:'mfpulse 1.5s infinite'}}></span>בזמן אמת
+            <span style={{width:7,height:7,borderRadius:'50%',background:'#16C784',display:'inline-block',animation:'mfpulse 1.5s infinite'}}></span>Real-time
           </span>
         </div>
 
         {heldSyms.length===0 && (
           <div className="empty-state">
             <div className="empty-state-icon" style={{opacity:0.3}}><WalletIcon size={40} color="#94a3b8" /></div>
-            <p className="empty-state-title">התיק ריק</p>
-            <p className="empty-state-body">עבור ללשונית השוק כדי להוסיף מניות</p>
-            <button className="btn-primary" style={{width:'auto',padding:'12px 24px',marginTop:4}} onClick={()=>setTab('market')}>גלה מניות</button>
+            <p className="empty-state-title">Portfolio is empty</p>
+            <p className="empty-state-body">Go to the Market tab to add stocks</p>
+            <button className="btn-primary" style={{width:'auto',padding:'12px 24px',marginTop:4}} onClick={()=>setTab('market')}>Discover Stocks</button>
           </div>
         )}
 
@@ -855,7 +855,7 @@ const STOCKS_APP: DemoApp = {
                 <div style={{width:44,height:44,borderRadius:12,background:'#0B1426',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,flexShrink:0}}>{sym.slice(0,4)}</div>
                 <div style={{flex:1,minWidth:0,overflow:'hidden'}}>
                   <p className="subtitle" style={{fontSize:15,margin:0,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{sym}</p>
-                  <p className="caption" style={{margin:0,color:'#94a3b8',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{holdings[sym]} מניות · {nameOf(sym)}</p>
+                  <p className="caption" style={{margin:0,color:'#94a3b8',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{holdings[sym]} shares · {nameOf(sym)}</p>
                 </div>
                 <Spark data={history[sym]} up={up} w={52} h={26} />
                 <div style={{textAlign:'left',minWidth:76,flexShrink:0}}>
@@ -864,7 +864,7 @@ const STOCKS_APP: DemoApp = {
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:12,paddingTop:12,borderTop:'1px solid #f1f5f9'}}>
-                <span className="caption" style={{color:'#64748b'}}>שווי אחזקה: <strong style={{color:'#0B1426'}}>{fmt(price*holdings[sym])}</strong></span>
+                <span className="caption" style={{color:'#64748b'}}>Holding value: <strong style={{color:'#0B1426'}}>{fmt(price*holdings[sym])}</strong></span>
                 <div style={{display:'flex',alignItems:'center',gap:8}}>
                   <button className="btn-icon" style={{width:30,height:30,border:'1px solid #e2e8f0'}} onClick={()=>subShare(sym)}><MinusIcon size={15} color="#0B1426" /></button>
                   <button className="btn-icon" style={{width:30,height:30,border:'1px solid #e2e8f0'}} onClick={()=>addShare(sym)}><PlusIcon size={15} color="#0B1426" /></button>
@@ -883,8 +883,8 @@ const STOCKS_APP: DemoApp = {
     <>
       <div className="app-header">
         <div>
-          <p className="caption" style={{color:'#6b7280'}}>מעקב שוק</p>
-          <h1 className="subtitle">מניות פופולריות</h1>
+          <p className="caption" style={{color:'#6b7280'}}>Market Tracker</p>
+          <h1 className="subtitle">Popular Stocks</h1>
         </div>
       </div>
       <div className="app-content">
@@ -913,14 +913,14 @@ const STOCKS_APP: DemoApp = {
           );
         })}
         </div>
-        <p className="caption" style={{textAlign:'center',color:'#94a3b8',marginTop:12}}>הקש + כדי להוסיף מניה לתיק שלך</p>
+        <p className="caption" style={{textAlign:'center',color:'#94a3b8',marginTop:12}}>Tap + to add a stock to your portfolio</p>
       </div>
     </>
   );
 
   const navItems = [
-    { id:'portfolio', label:'התיק', icon:WalletIcon },
-    { id:'market',    label:'שוק',  icon:BarIcon },
+    { id:'portfolio', label:'Portfolio', icon:WalletIcon },
+    { id:'market',    label:'Market',    icon:BarIcon },
   ];
 
   return (
@@ -979,7 +979,7 @@ export function getDemoEditResponse(existingCode: string): string {
     description: 'The app has been updated',
     colorScheme: { primary: '#6C3AE8', background: '#F8F9FA', text: '#1A1A2E', accent: '#A78BFA' },
     features: ['Updated as requested'],
-    hebrewSummary: 'Updated app - in demo mode, AI edits are not available. Connect an API key to edit with AI',
+    hebrewSummary: 'Updated app — in demo mode, AI edits are not available. Connect an API key to edit with AI',
   };
   return `${JSON.stringify(meta)}\n===CODE===\n${existingCode}\n===END===`;
 }

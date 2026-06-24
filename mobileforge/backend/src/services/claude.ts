@@ -37,7 +37,7 @@ OUTPUT FORMAT — return ONLY this JSON object, nothing else:
     "accent": "#hexcolor"
   },
   "features": ["feature1", "feature2", "feature3"],
-  "hebrewSummary": "תיאור קצר בעברית של מה שנבנה"
+  "hebrewSummary": "Short description of what was built"
 }
 
 IMPORTANT: The App.tsx must be complete, self-contained, and immediately runnable in Expo Snack with SDK 51.
@@ -91,7 +91,7 @@ export async function generateMobileApp(
       files: { 'App.tsx': raw },
       colorScheme: { primary: '#6C3AE8', background: '#0A0A0F', text: '#E8E8F0' },
       features: [],
-      hebrewSummary: 'האפליקציה נוצרה בהצלחה',
+      hebrewSummary: 'App created successfully',
     };
   }
 }
@@ -149,7 +149,7 @@ export async function generateFromScreenshot(
       files: { 'App.tsx': raw },
       colorScheme: { primary: '#6C3AE8', background: '#0A0A0F', text: '#E8E8F0' },
       features: [],
-      hebrewSummary: isSketch ? 'האפליקציה נוצרה מהסקיצה בהצלחה' : 'האפליקציה שוחזרה מהצילום מסך בהצלחה',
+      hebrewSummary: isSketch ? 'App created from sketch successfully' : 'App cloned from screenshot successfully',
     };
   }
 }
