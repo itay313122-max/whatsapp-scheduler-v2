@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useSearchParams, useRouter } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import ChatInterface from '@/components/ChatInterface';
@@ -191,10 +191,12 @@ function RichEditPanel({
   settings,
   onSettings,
   onStructureEdit,
+  onLanguageChange,
 }: {
   settings: EditSettings;
   onSettings: (s: EditSettings) => void;
   onStructureEdit: (prompt: string) => void;
+  onLanguageChange?: (langId: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [section, setSection] = useState('colors');
@@ -212,6 +214,7 @@ function RichEditPanel({
         ))}
         <div className="h-4 w-px bg-border flex-shrink-0" />
         <button onClick={() => set('darkMode', !settings.darkMode)}
+          aria-label={settings.darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           className={`px-2 py-0.5 rounded text-xs border flex-shrink-0 transition-all ${settings.darkMode ? 'bg-slate-800 text-slate-200 border-slate-600' : 'text-text-secondary border-border hover:text-text-primary'}`}>
           {settings.darkMode ? '☀️' : '🌙'}
         </button>
@@ -372,7 +375,7 @@ function RichEditPanel({
                 <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Interface language</p>
                 <div className="flex gap-1">
                   {LANGUAGES.map((l) => (
-                    <button key={l.id} onClick={() => onStructureEdit(`Translate all visible text in the app to ${l.label}. Keep all logic intact, only translate the text. Use RTL layout: ${l.id === 'he' || l.id === 'ar' ? 'yes' : 'no'}.`)}
+                    <button key={l.id} onClick={() => { onLanguageChange?.(l.id); onStructureEdit(`Translate all visible text in the app to ${l.label}. Keep all logic intact, only translate the text. Use RTL layout: ${l.id === 'he' || l.id === 'ar' ? 'yes' : 'no'}.`); }}
                       className="flex-1 py-1.5 rounded-lg text-xs border border-border text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all">
                       {l.label}
                     </button>
@@ -470,7 +473,6 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
 function BuilderContent() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { user, loading: authLoading, isGuest, enterGuestMode } = useAuth();
   const projectId = params.id as string;
 
@@ -492,6 +494,8 @@ function BuilderContent() {
   const [editSettings, setEditSettings] = useState<EditSettings>(DEFAULT_SETTINGS);
   const [shareStatus, setShareStatus] = useState<'idle' | 'sharing' | 'copied'>('idle');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('he');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [appScreens, setAppScreens] = useState<PreviewScreen[]>([]);
   const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -531,6 +535,17 @@ function BuilderContent() {
     return () => window.removeEventListener('keydown', handler);
   }, [handleUndo, handleRedo]);
 
+  // ── Toast helper ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+  }, []);
+
   // ── Export helpers ───────────────────────────────────────────────────────
   const exportAsReactProject = useCallback(() => {
     if (!currentResult) return;
@@ -543,7 +558,8 @@ function BuilderContent() {
       scripts: { start: 'react-scripts start', build: 'react-scripts build' },
       browserslist: { production: ['>0.2%', 'not dead'], development: ['last 1 chrome version'] },
     }, null, 2);
-    const indexHtml = `<!DOCTYPE html>\n<html lang="he" dir="rtl">\n<head>\n<meta charset="utf-8"/>\n<meta name="viewport" content="width=device-width,initial-scale=1"/>\n<title>${currentResult.appName || 'App'}</title>\n</head>\n<body>\n<div id="root"></div>\n</body>\n</html>`;
+    const htmlDir = (selectedLanguage === 'he' || selectedLanguage === 'ar') ? 'rtl' : 'ltr';
+    const indexHtml = `<!DOCTYPE html>\n<html lang="${selectedLanguage}" dir="${htmlDir}">\n<head>\n<meta charset="utf-8"/>\n<meta name="viewport" content="width=device-width,initial-scale=1"/>\n<title>${currentResult.appName || 'App'}</title>\n</head>\n<body>\n<div id="root"></div>\n</body>\n</html>`;
     const indexJs = `import React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport App from './App';\n\nReactDOM.createRoot(document.getElementById('root')).render(<App />);\n`;
 
     const files: Record<string, string> = {
@@ -562,7 +578,8 @@ function BuilderContent() {
     a.click();
     URL.revokeObjectURL(url);
     setShowExportMenu(false);
-  }, [currentResult]);
+    showToast('React project exported successfully');
+  }, [currentResult, selectedLanguage, showToast]);
 
   const exportAsHtml = useCallback(() => {
     if (!currentResult?.htmlDoc) return;
@@ -574,7 +591,8 @@ function BuilderContent() {
     a.click();
     URL.revokeObjectURL(url);
     setShowExportMenu(false);
-  }, [currentResult]);
+    showToast('HTML file exported successfully');
+  }, [currentResult, showToast]);
 
   const exportAsCode = useCallback(() => {
     if (!currentResult) return;
@@ -587,7 +605,8 @@ function BuilderContent() {
     a.click();
     URL.revokeObjectURL(url);
     setShowExportMenu(false);
-  }, [currentResult]);
+    showToast('React component exported successfully');
+  }, [currentResult, showToast]);
 
   const exportAsPwa = useCallback(async () => {
     if (!currentResult?.htmlDoc) return;
@@ -595,9 +614,12 @@ function BuilderContent() {
       const { id } = await shareApp(currentResult.htmlDoc, currentResult.appName);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       window.open(`${apiUrl}/api/share/${id}/pwa`, '_blank');
-    } catch { /* ignore */ }
+      showToast('PWA opened in new tab');
+    } catch {
+      showToast('Failed to create PWA', 'error');
+    }
     setShowExportMenu(false);
-  }, [currentResult]);
+  }, [currentResult, showToast]);
 
   // Publish to Google Play / Galaxy Store via PWABuilder (real, works today for
   // PWAs). Shares the app to get a public URL, then opens PWABuilder pointed at it.
@@ -606,15 +628,18 @@ function BuilderContent() {
     try {
       const { shareUrl } = await shareApp(currentResult.htmlDoc, currentResult.appName);
       window.open(`https://www.pwabuilder.com/reportcard?site=${encodeURIComponent(shareUrl)}`, '_blank');
-    } catch { /* ignore */ }
+      showToast('PWABuilder opened in new tab');
+    } catch {
+      showToast('Failed to publish to store', 'error');
+    }
     setShowExportMenu(false);
-  }, [currentResult]);
+  }, [currentResult, showToast]);
 
   // Pro features (native auto-submit, AI promo video) — not live yet.
   const comingSoon = useCallback((what: string) => {
-    alert(`${what} — coming soon as part of the Pro plan 🚀`);
+    showToast(`${what} — coming soon as part of the Pro plan`);
     setShowExportMenu(false);
-  }, []);
+  }, [showToast]);
 
   // Auth guard — honor the "no registration, start immediately" promise.
   // A first-time visitor who lands on the builder (e.g. typed an idea on the
@@ -841,6 +866,29 @@ function BuilderContent() {
 
   return (
     <div className="h-screen bg-bg text-text-primary flex flex-col overflow-hidden builder-dark" dir="ltr">
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] animate-fade-in-up">
+          <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-black/80 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/40 min-w-[280px]">
+            {toast.type === 'success' ? (
+              <svg className="w-4.5 h-4.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg className="w-4.5 h-4.5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )}
+            <span className="text-sm text-white/90 font-medium">{toast.message}</span>
+            <button onClick={() => setToast(null)} className="ml-auto text-white/40 hover:text-white/70 transition-colors" aria-label="Dismiss notification">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Forge AI assistant */}
       <ForgeAssistant
         isOpen={showAssistant}
@@ -895,13 +943,13 @@ function BuilderContent() {
             <>
               {/* Undo / Redo */}
               <div className="flex items-center gap-0.5 mr-1">
-                <button onClick={handleUndo} disabled={!canUndo} title="Undo (Ctrl+Z)"
+                <button onClick={handleUndo} disabled={!canUndo} title="Undo (Ctrl+Z)" aria-label="Undo"
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-all disabled:opacity-20 disabled:cursor-not-allowed">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a4 4 0 014 4v0a4 4 0 01-4 4H3m0-8l4-4m-4 4l4 4" />
                   </svg>
                 </button>
-                <button onClick={handleRedo} disabled={!canRedo} title="Redo (Ctrl+Shift+Z)"
+                <button onClick={handleRedo} disabled={!canRedo} title="Redo (Ctrl+Shift+Z)" aria-label="Redo"
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-all disabled:opacity-20 disabled:cursor-not-allowed">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10H11a4 4 0 00-4 4v0a4 4 0 004 4h10m0-8l-4-4m4 4l-4 4" />
@@ -991,9 +1039,11 @@ function BuilderContent() {
                     const { shareUrl } = await shareApp(currentResult.htmlDoc, currentResult.appName);
                     await navigator.clipboard.writeText(shareUrl);
                     setShareStatus('copied');
+                    showToast('Share link copied to clipboard');
                     setTimeout(() => setShareStatus('idle'), 3000);
-                  } catch { setShareStatus('idle'); }
+                  } catch { setShareStatus('idle'); showToast('Failed to share app', 'error'); }
                 }}
+                aria-label="Share app"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20 hover:bg-primary/25 text-xs font-medium transition-all"
               >
                 {shareStatus === 'sharing' ? (
@@ -1017,6 +1067,7 @@ function BuilderContent() {
               <div className="relative">
                 <button
                   onClick={() => setShowExportMenu((v) => !v)}
+                  aria-label="Export app"
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 text-xs font-medium transition-all"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1142,6 +1193,7 @@ function BuilderContent() {
             <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border/50 bg-surface/40 backdrop-blur-md flex-shrink-0">
               <button
                 onClick={() => setRightPanel('preview')}
+                aria-label="Show preview panel"
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'preview' ? 'bg-primary/10 text-primary shadow-panel' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1152,6 +1204,7 @@ function BuilderContent() {
               </button>
               <button
                 onClick={() => setRightPanel('code')}
+                aria-label="Show code panel"
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'code' ? 'bg-primary/10 text-primary shadow-panel' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1167,6 +1220,7 @@ function BuilderContent() {
                   settings={editSettings}
                   onSettings={setEditSettings}
                   onStructureEdit={handleStructureEdit}
+                  onLanguageChange={setSelectedLanguage}
                 />
 
                 {/* Multi-screen tabs */}

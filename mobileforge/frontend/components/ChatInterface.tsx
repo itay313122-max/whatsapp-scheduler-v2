@@ -1063,6 +1063,7 @@ export default function ChatInterface({
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isGenerating}
                 title="Upload a screenshot"
+                aria-label="Upload image"
                 className="w-8 h-8 rounded-lg text-text-secondary hover:text-blue-400 hover:bg-blue-500/10 flex items-center justify-center transition-all disabled:opacity-30"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1088,6 +1089,7 @@ export default function ChatInterface({
                   onClick={toggleVoice}
                   disabled={isGenerating}
                   title={isListening ? 'Stop recording' : 'Voice input'}
+                  aria-label={isListening ? 'Stop voice recording' : 'Start voice input'}
                   className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30 ${
                     isListening
                       ? 'text-green-400 bg-green-500/20 animate-pulse-slow'
@@ -1121,7 +1123,12 @@ export default function ChatInterface({
             <button
               onClick={() => handleSubmit()}
               disabled={(!input.trim() && !imageBase64) || isGenerating}
-              className="flex-shrink-0 w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              aria-label="Send message"
+              className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:cursor-not-allowed ${
+                (input.trim() || imageBase64) && !isGenerating
+                  ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 active:scale-95'
+                  : 'bg-surface-2 text-text-secondary opacity-30'
+              }`}
             >
               {isGenerating ? (
                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -1130,7 +1137,7 @@ export default function ChatInterface({
                 </svg>
               ) : (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12l7-7 7 7M12 5v14" />
                 </svg>
               )}
             </button>
