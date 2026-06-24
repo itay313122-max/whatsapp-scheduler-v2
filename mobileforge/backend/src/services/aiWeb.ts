@@ -599,7 +599,7 @@ INTERACTIVE WIDGETS — use when the user requests specific functionality:
   CLOCK (digital):
     const [time, setTime] = useState(new Date());
     useEffect(() => { const id = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(id); }, []);
-    Display: time.toLocaleTimeString('he-IL') in a card with monospace font.
+    Display: time.toLocaleTimeString('en-US') in a card with monospace font.
 
   CLOCK (analog SVG):
     Draw SVG circle (r=80), 12 hour marks, hour/minute/second hands using transform: rotate().
@@ -993,7 +993,7 @@ function App() {
                 <p className="subtitle">{item.name}</p>
                 <p className="caption" style={{marginTop:2,color:'#6b7280'}}>{item.desc}</p>
               </div>
-              <span className="subtitle" style={{color:'var(--c-primary)',whiteSpace:'nowrap'}}>${item.price}</span>
+              <span className="subtitle" style={{color:'var(--c-primary)',whiteSpace:'nowrap'}}>{'$'}{item.price}</span>
             </div>
             <div className="flex justify-between items-center" style={{marginTop:10}}>
               <div className="flex items-center gap-2" style={{color:'#6b7280'}}>
@@ -1013,8 +1013,8 @@ function App() {
     return (
       <>
         <div style={{position:'relative'}}>
-          <input className="input-field" placeholder="Search dishes..." value={search} onChange={e=>setSearch(e.target.value)} style={{paddingRight:44}} />
-          <span style={{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',color:'#9ca3af'}}>{icons.search}</span>
+          <input className="input-field" placeholder="Search dishes..." value={search} onChange={e=>setSearch(e.target.value)} style={{paddingLeft:44}} />
+          <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'#9ca3af'}}>{icons.search}</span>
         </div>
         {filtered.length === 0 ? (
           <div className="empty-state">
@@ -1033,7 +1033,7 @@ function App() {
                   <p className="caption" style={{color:'#6b7280'}}>{item.desc}</p>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="subtitle" style={{color:'var(--c-primary)',fontSize:14}}>${item.price}</span>
+                  <span className="subtitle" style={{color:'var(--c-primary)',fontSize:14}}>{'$'}{item.price}</span>
                   <button className="btn-icon" style={{width:32,height:32,background:'var(--c-primary-light)',color:'var(--c-primary)',borderRadius:8}} onClick={()=>addToCart(item)}>{icons.plus}</button>
                 </div>
               </div>
@@ -1060,7 +1060,7 @@ function App() {
           <img src={item.img} alt={item.name} style={{width:48,height:48,borderRadius:10,objectFit:'cover'}} />
           <div style={{flex:1}}>
             <p className="subtitle" style={{fontSize:14}}>{item.name}</p>
-            <span className="caption" style={{color:'var(--c-primary)'}}>${item.price}</span>
+            <span className="caption" style={{color:'var(--c-primary)'}}>{'$'}{item.price}</span>
           </div>
           <button className="btn-icon" style={{width:32,height:32,color:'#ef4444'}} onClick={()=>removeFromCart(item.cartId)}>{icons.close}</button>
         </div>
@@ -1069,7 +1069,7 @@ function App() {
         <div className="card" style={{marginTop:8}}>
           <div className="flex justify-between items-center" style={{marginBottom:14}}>
             <span className="subtitle">Total</span>
-            <span className="title" style={{color:'var(--c-primary)'}}>${total}</span>
+            <span className="title" style={{color:'var(--c-primary)'}}>{'$'}{total}</span>
           </div>
           <button className="btn-primary" onClick={()=>{setCart([]);alert('Order placed successfully!');}}>Checkout</button>
         </div>
@@ -1090,7 +1090,7 @@ function App() {
         <div key={i} className="list-item" style={{marginBottom:8,cursor:'pointer'}}>
           <span style={{color:'var(--c-primary)'}}>{row.icon}</span>
           <span className="body" style={{flex:1}}>{row.label}</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </div>
       ))}
     </div>
