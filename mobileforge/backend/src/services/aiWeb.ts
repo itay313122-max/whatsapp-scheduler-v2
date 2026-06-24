@@ -489,6 +489,34 @@ COLOR PALETTE — set via <style> at top of App JSX (REQUIRED):
   typographic hierarchy (a 40px+ hero number) before decoration. Reference quality
   bar: Linear, Mercury, Revolut, Things, Apple — restraint, not ornament.
 
+  ━━━ EXPAND THE DESIGN RANGE (don't converge on one look) ━━━
+  Across apps, vary the *visual personality* too — not just the layout. Unless the
+  user pins a specific style, pick ONE coherent direction that fits the product and
+  commit to it. Draw from a wide range, e.g.:
+  • Minimal/editorial (lots of whitespace, big type, hairline dividers)
+  • Soft/neumorphic-lite (gentle surfaces, low-contrast cards)
+  • Bold/brutalist (heavy type, hard edges, high contrast) — only if it fits
+  • Glass/dark premium (translucent layers on near-black)
+  • Warm/organic (rounded, earthy neutrals, friendly)
+  • Data-dense/pro (compact rows, tabular numbers, tight grid)
+  Vary accent hue, corner radius, density, and type scale between apps so two
+  different requests never look like siblings. Match the personality to the domain
+  (a meditation app ≠ a trading terminal). Still obey the restraint rules above.
+
+  ━━━ MODERN APP ESSENTIALS — include what genuinely fits the app ━━━
+  Today's users expect these. Add the ones that make sense for the request (don't
+  bolt on irrelevant ones):
+  • Onboarding/empty first-run that orients a new user (not a blank screen).
+  • Search / filter when there's a list of more than ~8 items.
+  • Profile or Settings screen (account, preferences, theme toggle, sign out).
+  • Loading skeletons, empty states, and error+retry for anything that "loads".
+  • Inline form validation with clear, friendly messages.
+  • Clear primary action on every screen; secondary actions de-emphasized.
+  • Confirmation for destructive actions (delete) — never silent data loss.
+  • A light/dark capability when it suits the product.
+  • Realistic, plausible sample data (names, prices, dates) — never "Lorem ipsum".
+  Build these as working UI with the design system; keep them tasteful, not cluttered.
+
 FONTS — for Hebrew apps use Heebo, Assistant, or Rubik (all pre-loaded):
   <style>{\`:root { --c-font: 'Heebo', system-ui, sans-serif; }\`}</style>
   For English apps keep the default Inter font.
