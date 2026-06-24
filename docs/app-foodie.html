@@ -4,40 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f97316">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Foodie</title>
+<link rel="manifest" href="data:application/json,{}">
+<title>Foodie - הזמנת אוכל</title>
 <style>
 :root {
-  --bg: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --surface: #ffffff;
-  --text-primary: #111111;
-  --text-secondary: #6b6b6b;
-  --text-muted: #999999;
-  --border: #ebebeb;
-  --accent: #00B37E;
-  --accent-light: rgba(0, 179, 126, 0.08);
-  --star: #FF8A00;
-  --nav-height: 56px;
-  --radius: 12px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111111;
-    --bg-secondary: #1a1a1a;
-    --surface: #1e1e1e;
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
-    --text-muted: #666666;
-    --border: #2a2a2a;
-    --accent: #00B37E;
-    --accent-light: rgba(0, 179, 126, 0.12);
-    --star: #FF8A00;
-  }
+  --c-from: #f97316;
+  --c-to: #fb923c;
+  --c-primary: #f97316;
+  --c-bg: #fafafa;
+  --c-card: #ffffff;
+  --c-text: #1f2937;
+  --c-text-secondary: #6b7280;
+  --c-border: #f3f4f6;
+  --c-star: #fbbf24;
+  --radius: 16px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --nav-height: 64px;
+  --order-bar-height: 68px;
 }
 
 * {
@@ -49,21 +36,45 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text-primary);
+  background: var(--c-bg);
+  color: var(--c-text);
   max-width: 420px;
   margin: 0 auto;
   min-height: 100vh;
-  min-height: 100dvh;
   overflow-x: hidden;
-  padding-bottom: calc(var(--nav-height) + 20px);
-  -webkit-font-smoothing: antialiased;
+  padding-bottom: calc(var(--nav-height) + 16px);
+  position: relative;
 }
 
-/* ===== HEADER ===== */
+/* Header */
 .header {
-  padding: 52px 20px 16px;
-  background: var(--bg);
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  padding: 48px 20px 24px;
+  border-radius: 0 0 24px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  left: -30px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
 }
 
 .header-top {
@@ -73,79 +84,85 @@ body {
   margin-bottom: 16px;
 }
 
-.header-brand {
-  font-size: 26px;
-  font-weight: 700;
+.header-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: white;
   letter-spacing: -0.5px;
-  color: var(--text-primary);
 }
 
-.header-location {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.header-location svg {
-  flex-shrink: 0;
-}
-
-.header-location span {
-  font-size: 13px;
-  color: var(--text-secondary);
+.header-subtitle {
+  color: rgba(255,255,255,0.9);
+  font-size: 14px;
+  margin-bottom: 16px;
 }
 
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--bg-secondary);
+  background: rgba(255,255,255,0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
+  font-size: 20px;
 }
 
-/* ===== SEARCH ===== */
-.search-bar {
+/* Search */
+.search-container {
   position: relative;
-  margin: 0 20px 16px;
 }
 
 .search-input {
   width: 100%;
-  padding: 12px 16px 12px 40px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: 14px 44px 14px 16px;
+  border: none;
+  border-radius: 12px;
   font-size: 15px;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: rgba(255,255,255,0.95);
+  color: var(--c-text);
   outline: none;
   direction: rtl;
-  transition: border-color 0.2s ease;
+  backdrop-filter: blur(10px);
 }
 
 .search-input::placeholder {
-  color: var(--text-muted);
-}
-
-.search-input:focus {
-  border-color: var(--text-muted);
+  color: var(--c-text-secondary);
 }
 
 .search-icon {
   position: absolute;
-  left: 14px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  pointer-events: none;
-  color: var(--text-muted);
+  font-size: 18px;
+  opacity: 0.5;
 }
 
-/* ===== CATEGORIES ===== */
+/* Promo Banner */
+.promo-banner {
+  margin: 16px 16px 0;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+  box-shadow: var(--shadow);
+  animation: slideIn 0.5s ease;
+}
+
+.promo-banner .promo-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+/* Categories */
 .categories {
-  padding: 0 20px 16px;
+  padding: 16px 16px 0;
   display: flex;
   gap: 8px;
   overflow-x: auto;
@@ -157,229 +174,181 @@ body {
   display: none;
 }
 
-.chip {
+.category-chip {
   flex-shrink: 0;
-  padding: 8px 18px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.chip.active {
-  background: var(--text-primary);
-  color: var(--bg);
-  border-color: var(--text-primary);
-}
-
-/* ===== PROMO ===== */
-.promo {
-  margin: 0 20px 20px;
-  padding: 16px 20px;
-  background: var(--accent-light);
-  border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  border: 1px solid rgba(0, 179, 126, 0.15);
-}
-
-.promo-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.promo-content {
-  flex: 1;
-}
-
-.promo-title {
+  padding: 10px 16px;
+  border-radius: 24px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 2px;
+  background: var(--c-card);
+  color: var(--c-text-secondary);
+  border: 1.5px solid var(--c-border);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
+  white-space: nowrap;
 }
 
-.promo-desc {
-  font-size: 12px;
-  color: var(--text-secondary);
+.category-chip.active {
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  transform: scale(1.05);
 }
 
-/* ===== SECTION ===== */
-.section {
-  padding: 0 20px;
+.category-chip:active {
+  transform: scale(0.95);
 }
 
-.section-title {
+/* Menu Grid */
+.menu-section {
+  padding: 20px 16px;
+}
+
+.menu-section-title {
   font-size: 20px;
   font-weight: 700;
-  margin-bottom: 14px;
-  letter-spacing: -0.3px;
+  margin-bottom: 16px;
 }
 
-/* ===== FOOD CARDS ===== */
-.card-list {
+.menu-grid {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
-.card {
+/* Menu Card */
+.menu-card {
+  background: var(--c-card);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
   display: flex;
   gap: 14px;
-  align-items: stretch;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  cursor: pointer;
-  transition: background 0.15s ease;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.4s ease forwards;
+  opacity: 0;
 }
 
-.card:active {
-  background: var(--bg-secondary);
+.menu-card:nth-child(1) { animation-delay: 0.05s; }
+.menu-card:nth-child(2) { animation-delay: 0.1s; }
+.menu-card:nth-child(3) { animation-delay: 0.15s; }
+.menu-card:nth-child(4) { animation-delay: 0.2s; }
+.menu-card:nth-child(5) { animation-delay: 0.25s; }
+.menu-card:nth-child(6) { animation-delay: 0.3s; }
+
+.menu-card.hidden {
+  display: none;
 }
 
-.card-img {
-  width: 120px;
-  min-height: 120px;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-  background: var(--bg-secondary);
+.menu-card:active {
+  transform: scale(0.98);
 }
 
-.card-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.card-body {
-  flex: 1;
-  padding: 14px 14px 14px 0;
+.menu-card-emoji {
+  font-size: 42px;
+  width: 64px;
+  height: 64px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  background: var(--c-border);
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.menu-card-info {
+  flex: 1;
   min-width: 0;
 }
 
-.card-restaurant {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-bottom: 3px;
-}
-
-.card-name {
+.menu-card-name {
   font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-weight: 700;
   margin-bottom: 3px;
-  line-height: 1.3;
 }
 
-.card-desc {
+.menu-card-desc {
   font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 10px;
+  color: var(--c-text-secondary);
+  margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.4;
 }
 
-.card-meta {
+.menu-card-bottom {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
-.card-rating {
+.menu-card-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--c-primary);
+}
+
+.menu-card-rating {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
+  gap: 3px;
+  font-size: 12px;
+  color: var(--c-text-secondary);
 }
 
-.card-rating svg {
-  color: var(--star);
+.menu-card-rating .star {
+  color: var(--c-star);
 }
 
-.card-time {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.card-price {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent);
-  margin-right: auto;
-}
-
-/* ===== ADD BUTTON ===== */
 .add-btn {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  color: white;
   border: none;
-  font-size: 20px;
-  line-height: 1;
+  font-size: 24px;
+  font-weight: 300;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
 }
 
 .add-btn:active {
   transform: scale(0.85);
 }
 
-/* ===== ORDER BAR ===== */
+.add-btn.added {
+  animation: springPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Order Bar */
 .order-bar {
   position: fixed;
   bottom: calc(var(--nav-height) + 12px);
   left: 50%;
   transform: translateX(-50%) translateY(120px);
-  width: calc(100% - 40px);
-  max-width: 380px;
-  background: var(--accent);
-  border-radius: var(--radius);
-  padding: 14px 18px;
+  width: calc(100% - 32px);
+  max-width: 388px;
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  border-radius: 20px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 20px rgba(0, 179, 126, 0.3);
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 32px rgba(249, 115, 22, 0.4);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 100;
   cursor: pointer;
 }
@@ -391,35 +360,51 @@ body {
 .order-bar-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .order-count {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   background: rgba(255,255,255,0.25);
-  border-radius: 6px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  color: #fff;
+  color: white;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.order-count.bounce {
+  animation: bounceCount 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .order-bar-text {
-  color: #fff;
+  color: white;
   font-size: 15px;
   font-weight: 600;
 }
 
 .order-bar-total {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
+  color: white;
+  font-size: 18px;
+  font-weight: 800;
 }
 
-/* ===== BOTTOM NAV ===== */
+.view-order-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Bottom Nav */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -428,8 +413,8 @@ body {
   width: 100%;
   max-width: 420px;
   height: var(--nav-height);
-  background: var(--bg);
-  border-top: 1px solid var(--border);
+  background: var(--c-card);
+  border-top: 1px solid var(--c-border);
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -441,37 +426,45 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   cursor: pointer;
-  padding: 6px 16px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
   min-width: 44px;
   min-height: 44px;
   justify-content: center;
-  color: var(--text-muted);
-  transition: color 0.15s ease;
 }
 
 .nav-item.active {
-  color: var(--text-primary);
+  color: var(--c-primary);
+}
+
+.nav-item:not(.active) {
+  color: var(--c-text-secondary);
+}
+
+.nav-icon {
+  font-size: 22px;
 }
 
 .nav-label {
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
 }
 
-/* ===== MODAL ===== */
+/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0,0,0,0.5);
   z-index: 500;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.3s ease;
 }
 
 .modal-overlay.visible {
@@ -480,14 +473,14 @@ body {
 }
 
 .modal {
-  background: var(--bg);
+  background: var(--c-card);
   width: 100%;
   max-width: 420px;
   max-height: 80vh;
-  border-radius: 16px 16px 0 0;
-  padding: 16px 20px 28px;
+  border-radius: 24px 24px 0 0;
+  padding: 24px 20px;
   transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
 }
 
@@ -496,25 +489,26 @@ body {
 }
 
 .modal-handle {
-  width: 36px;
+  width: 40px;
   height: 4px;
-  background: var(--border);
+  background: #d1d5db;
   border-radius: 2px;
-  margin: 0 auto 16px;
+  margin: 0 auto 20px;
 }
 
 .modal-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 16px;
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .order-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .order-item:last-child {
@@ -527,22 +521,24 @@ body {
   gap: 12px;
 }
 
-.order-item-img {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  object-fit: cover;
+.order-item-emoji {
+  font-size: 28px;
 }
 
 .order-item-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
 }
 
-.order-item-unit {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 1px;
+.order-item-qty {
+  font-size: 13px;
+  color: var(--c-text-secondary);
+}
+
+.order-item-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--c-primary);
 }
 
 .order-item-controls {
@@ -552,95 +548,133 @@ body {
 }
 
 .qty-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--c-border);
   background: transparent;
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-primary);
-  transition: background 0.1s ease;
+  color: var(--c-text);
+  transition: all 0.2s;
 }
 
 .qty-btn:active {
-  background: var(--bg-secondary);
+  transform: scale(0.9);
+  background: var(--c-border);
 }
 
 .qty-display {
-  font-size: 14px;
-  font-weight: 600;
-  min-width: 18px;
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 20px;
   text-align: center;
 }
 
-.order-item-price {
-  font-size: 14px;
-  font-weight: 600;
-  margin-right: 8px;
-  min-width: 48px;
-  text-align: left;
-}
-
 .order-total-section {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 2px dashed var(--c-border);
 }
 
 .order-total-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-size: 15px;
 }
 
 .order-total-row.total {
-  font-size: 17px;
-  font-weight: 700;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
-  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 12px;
 }
 
-.free-delivery {
-  color: var(--accent);
+.order-total-row .free-delivery {
+  color: #16a34a;
   font-weight: 600;
 }
 
 .checkout-btn {
   width: 100%;
-  padding: 16px;
+  padding: 18px;
   border: none;
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--c-from), var(--c-to));
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
   cursor: pointer;
-  margin-top: 16px;
-  transition: opacity 0.15s ease;
+  margin-top: 20px;
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3);
+  transition: all 0.2s;
 }
 
 .checkout-btn:active {
-  opacity: 0.85;
+  transform: scale(0.97);
 }
 
 .empty-order {
   text-align: center;
   padding: 40px 20px;
-  color: var(--text-muted);
+  color: var(--c-text-secondary);
+}
+
+.empty-order-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
 }
 
 .empty-order-text {
-  font-size: 15px;
-  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes springPop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3); }
+  50% { transform: scale(0.9); }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes bounceCount {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.4); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 </style>
 </head>
@@ -650,77 +684,64 @@ body {
 <header class="header">
   <div class="header-top">
     <div>
-      <div class="header-brand">Foodie</div>
-      <div class="header-location">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span>רחוב דיזנגוף 50, תל אביב</span>
-      </div>
+      <h1 class="header-title">Foodie</h1>
+      <p class="header-subtitle">מה בא לך לאכול היום? 😋</p>
     </div>
-    <div class="avatar">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    </div>
+    <div class="avatar">👤</div>
+  </div>
+  <div class="search-container">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" placeholder="חיפוש מנות..." id="searchInput">
   </div>
 </header>
 
-<!-- Search -->
-<div class="search-bar">
-  <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-  <input type="text" class="search-input" placeholder="חיפוש מסעדות ומנות..." id="searchInput">
+<!-- Promo Banner -->
+<div class="promo-banner">
+  <span class="promo-icon">🚚</span>
+  <span>משלוח חינם! בהזמנה מעל ₪80</span>
 </div>
 
 <!-- Categories -->
 <div class="categories" id="categories">
-  <button class="chip active" data-category="all">הכל</button>
-  <button class="chip" data-category="pizza">פיצה</button>
-  <button class="chip" data-category="burger">בורגר</button>
-  <button class="chip" data-category="sushi">סושי</button>
-  <button class="chip" data-category="salad">סלט</button>
-  <button class="chip" data-category="dessert">קינוחים</button>
+  <button class="category-chip active" data-category="all">🍕 הכל</button>
+  <button class="category-chip" data-category="burger">🍔 המבורגר</button>
+  <button class="category-chip" data-category="sushi">🍣 סושי</button>
+  <button class="category-chip" data-category="israeli">🥙 ישראלי</button>
+  <button class="category-chip" data-category="pasta">🍝 פסטה</button>
 </div>
 
-<!-- Promo -->
-<div class="promo">
-  <div class="promo-icon">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h2a2 2 0 0 1 2 2v2M7 6h10l4 4v4a2 2 0 0 1-2 2h-1"/><circle cx="7.5" cy="18.5" r="2.5"/><circle cx="16.5" cy="18.5" r="2.5"/></svg>
-  </div>
-  <div class="promo-content">
-    <div class="promo-title">משלוח חינם בהזמנה מעל 80 שקלים</div>
-    <div class="promo-desc">ללא קוד קופון, מוחל אוטומטית</div>
-  </div>
-</div>
-
-<!-- Food List -->
-<section class="section">
-  <h2 class="section-title">פופולרי באזורך</h2>
-  <div class="card-list" id="menuGrid"></div>
+<!-- Menu -->
+<section class="menu-section">
+  <h2 class="menu-section-title">תפריט 🔥</h2>
+  <div class="menu-grid" id="menuGrid"></div>
 </section>
 
 <!-- Order Bar -->
 <div class="order-bar" id="orderBar" onclick="openModal()">
   <div class="order-bar-right">
     <div class="order-count" id="orderCount">0</div>
-    <span class="order-bar-text">צפה בסל</span>
+    <span class="order-bar-text">צפה בהזמנה</span>
   </div>
-  <div class="order-bar-total" id="orderTotal">&#8362;0</div>
+  <div class="order-bar-total" id="orderTotal">₪0</div>
 </div>
 
-<!-- Bottom Nav -->
+<!-- Bottom Navigation -->
 <nav class="bottom-nav">
   <div class="nav-item active">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="nav-icon">🏠</span>
     <span class="nav-label">בית</span>
   </div>
   <div class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <span class="nav-icon">🔍</span>
     <span class="nav-label">חיפוש</span>
   </div>
   <div class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <span class="nav-icon">📋</span>
     <span class="nav-label">הזמנות</span>
   </div>
   <div class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span class="nav-label">פרופיל</span>
+    <span class="nav-icon">👤</span>
+    <span class="nav-label">חשבון</span>
   </div>
 </nav>
 
@@ -728,299 +749,300 @@ body {
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
-    <h2 class="modal-title">ההזמנה שלך</h2>
+    <h2 class="modal-title">ההזמנה שלך 🛒</h2>
     <div id="orderItems"></div>
     <div class="order-total-section" id="orderTotalSection" style="display:none;">
       <div class="order-total-row">
         <span>סכום ביניים</span>
-        <span id="subtotalDisplay">&#8362;0</span>
+        <span id="subtotalDisplay">₪0</span>
       </div>
       <div class="order-total-row">
-        <span>דמי משלוח</span>
+        <span>משלוח</span>
         <span id="deliveryDisplay" class="free-delivery">חינם</span>
       </div>
       <div class="order-total-row total">
         <span>סה"כ</span>
-        <span id="totalDisplay">&#8362;0</span>
+        <span id="totalDisplay">₪0</span>
       </div>
-      <button class="checkout-btn" onclick="checkout()">המשך לתשלום</button>
+      <button class="checkout-btn" onclick="checkout()">לתשלום 💳</button>
     </div>
   </div>
 </div>
 
 <script>
-var menuItems = [
+// Menu data
+const menuItems = [
   {
     id: 1,
-    name: 'סמאש בורגר כפול',
-    restaurant: 'Burger Joint',
-    photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f5e6d0' width='200' height='200' rx='12'/%3E%3Ccircle cx='100' cy='95' r='50' fill='%23d4a56a' opacity='0.5'/%3E%3Ccircle cx='100' cy='85' r='48' fill='%23e8c496' opacity='0.4'/%3E%3Crect x='60' y='90' width='80' height='8' rx='4' fill='%23b8884a' opacity='0.35'/%3E%3C/svg%3E",
-    desc: '200 גרם בקר, צ\'דר מותך, חסה, עגבניה ורוטב הבית',
-    price: 58,
+    name: 'המבורגר קלאסי',
+    emoji: '🍔',
+    desc: '200 גרם בקר, חסה, עגבניה, בצל ורוטב סודי',
+    price: 52,
     rating: 4.8,
-    time: 25,
+    reviews: 124,
     category: 'burger'
   },
   {
     id: 2,
     name: 'פיצה מרגריטה',
-    restaurant: 'Napoli Pizza',
-    photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f8efe2' width='200' height='200' rx='12'/%3E%3Ccircle cx='100' cy='100' r='55' fill='%23e8d5b8' opacity='0.5'/%3E%3Ccircle cx='80' cy='85' r='8' fill='%23cc4433' opacity='0.35'/%3E%3Ccircle cx='115' cy='95' r='7' fill='%23cc4433' opacity='0.3'/%3E%3Ccircle cx='95' cy='115' r='9' fill='%23cc4433' opacity='0.3'/%3E%3Ccircle cx='105' cy='80' r='10' fill='%23f5f0e0' opacity='0.45'/%3E%3Ccircle cx='85' cy='105' r='9' fill='%23f5f0e0' opacity='0.4'/%3E%3C/svg%3E",
-    desc: 'בצק מחמצת, רוטב סן מרצנו, מוצרלה דה בופלה',
-    price: 52,
+    emoji: '🍕',
+    desc: 'רוטב עגבניות, מוצרלה טרייה ובזיליקום',
+    price: 48,
     rating: 4.6,
-    time: 35,
-    category: 'pizza'
+    reviews: 98,
+    category: 'pasta'
   },
   {
     id: 3,
-    name: 'קומבו סושי 16 יח\'',
-    restaurant: 'Sushi Master',
-    photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f0ebe5' width='200' height='200' rx='12'/%3E%3Crect x='45' y='70' width='35' height='18' rx='9' fill='%23e88860' opacity='0.5'/%3E%3Crect x='45' y='65' width='35' height='10' rx='2' fill='%23333' opacity='0.15'/%3E%3Crect x='90' y='85' width='35' height='18' rx='9' fill='%23e88860' opacity='0.45'/%3E%3Crect x='90' y='80' width='35' height='10' rx='2' fill='%23333' opacity='0.15'/%3E%3Crect x='130' y='70' width='35' height='18' rx='9' fill='%23e88860' opacity='0.5'/%3E%3Crect x='50' y='110' width='100' height='25' rx='4' fill='%23738c55' opacity='0.3'/%3E%3C/svg%3E",
-    desc: 'ניגירי סלמון, מאקי אבוקדו, פילדלפיה רול',
-    price: 78,
-    rating: 4.7,
-    time: 40,
-    category: 'sushi'
+    name: 'שווארמה בפיתה',
+    emoji: '🥙',
+    desc: 'שווארמה טרייה עם חומוס, טחינה וסלט',
+    price: 38,
+    rating: 4.9,
+    reviews: 201,
+    category: 'israeli'
   },
   {
     id: 4,
-    name: 'סלט קיסר עם עוף',
-    restaurant: 'Green Garden',
-    photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23eef3e8' width='200' height='200' rx='12'/%3E%3Ccircle cx='100' cy='100' r='55' fill='%23fff' opacity='0.5'/%3E%3Cellipse cx='85' cy='90' rx='22' ry='14' fill='%2388b060' opacity='0.4'/%3E%3Cellipse cx='120' cy='100' rx='18' ry='12' fill='%2395bb68' opacity='0.35'/%3E%3Cellipse cx='95' cy='115' rx='20' ry='10' fill='%2380a858' opacity='0.3'/%3E%3Ccircle cx='110' cy='85' r='6' fill='%23e8d070' opacity='0.4'/%3E%3C/svg%3E",
-    desc: 'חסה רומית, פרמזן, קרוטונים ורוטב קיסר קלאסי',
-    price: 46,
-    rating: 4.5,
-    time: 20,
-    category: 'salad'
+    name: 'סושי מיקס',
+    emoji: '🍣',
+    desc: '12 יחידות מגוונות - סלמון, טונה ואבוקדו',
+    price: 68,
+    rating: 4.7,
+    reviews: 87,
+    category: 'sushi'
   },
   {
     id: 5,
-    name: 'פסטה ברוטב שמנת כמהין',
-    restaurant: 'Pasta House',
-    photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f5efe6' width='200' height='200' rx='12'/%3E%3Ccircle cx='100' cy='100' r='50' fill='%23fff' opacity='0.4'/%3E%3Cpath d='M60 90 Q80 80 100 95 Q120 80 140 90' fill='none' stroke='%23d4b888' stroke-width='3' opacity='0.5'/%3E%3Cpath d='M65 100 Q85 90 105 105 Q125 90 145 100' fill='none' stroke='%23d4b888' stroke-width='3' opacity='0.45'/%3E%3Cpath d='M70 110 Q90 100 110 115 Q130 100 150 110' fill='none' stroke='%23d4b888' stroke-width='3' opacity='0.4'/%3E%3C/svg%3E",
-    desc: 'טליאטלה טרייה, שמנת, פטריות יער ושמן כמהין',
-    price: 62,
-    rating: 4.9,
-    time: 30,
-    category: 'pizza'
+    name: 'פסטה ברוטב',
+    emoji: '🍝',
+    desc: 'פסטה טרייה ברוטב שמנת פטריות וכמהין',
+    price: 42,
+    rating: 4.5,
+    reviews: 76,
+    category: 'pasta'
   },
   {
     id: 6,
-    name: 'צ\'יזבורגר קלאסי',
-    restaurant: 'Burger Joint',
-    photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f2e8d8' width='200' height='200' rx='12'/%3E%3Cellipse cx='100' cy='100' rx='48' ry='20' fill='%23c89050' opacity='0.45'/%3E%3Cellipse cx='100' cy='90' rx='45' ry='18' fill='%23d4a060' opacity='0.4'/%3E%3Crect x='58' y='88' width='84' height='6' rx='2' fill='%23e8c840' opacity='0.35'/%3E%3Crect x='55' y='95' width='90' height='5' rx='2' fill='%2388b060' opacity='0.3'/%3E%3C/svg%3E",
-    desc: '150 גרם בקר, אמריקן צ\'יז, מלפפון חמוץ, חרדל',
-    price: 48,
-    rating: 4.3,
-    time: 20,
-    category: 'burger'
-  },
-  {
-    id: 7,
-    name: 'טירמיסו תוצרת בית',
-    restaurant: 'Dolce Vita',
-    photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f0e8e0' width='200' height='200' rx='12'/%3E%3Crect x='55' y='75' width='90' height='60' rx='4' fill='%23e8d8c4' opacity='0.5'/%3E%3Crect x='55' y='75' width='90' height='20' rx='4' fill='%236b4423' opacity='0.2'/%3E%3Crect x='55' y='95' width='90' height='15' fill='%23f5eee4' opacity='0.5'/%3E%3Crect x='55' y='110' width='90' height='10' fill='%236b4423' opacity='0.15'/%3E%3C/svg%3E",
-    desc: 'ביסקוויט ספוג באספרסו, קרם מסקרפונה וקקאו',
-    price: 38,
-    rating: 4.4,
-    time: 15,
-    category: 'dessert'
-  },
-  {
-    id: 8,
-    name: 'בול פוקה סלמון',
-    restaurant: 'Poke TLV',
-    photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23eef0e8' width='200' height='200' rx='12'/%3E%3Ccircle cx='100' cy='100' r='50' fill='%23f5f0e8' opacity='0.5'/%3E%3Ccircle cx='85' cy='85' r='12' fill='%23e88860' opacity='0.4'/%3E%3Ccircle cx='115' cy='90' r='10' fill='%23738c55' opacity='0.35'/%3E%3Crect x='70' y='100' width='25' height='8' rx='4' fill='%23e88860' opacity='0.35'/%3E%3Ccircle cx='90' cy='115' r='8' fill='%23eedd88' opacity='0.3'/%3E%3Ccircle cx='115' cy='110' r='7' fill='%2388b060' opacity='0.3'/%3E%3C/svg%3E",
-    desc: 'אורז סושי, סלמון טרי, אבוקדו, אדממה, רוטב פונזו',
-    price: 56,
-    rating: 4.6,
-    time: 25,
-    category: 'salad'
+    name: 'שקשוקה',
+    emoji: '🍳',
+    desc: 'ביצים ברוטב עגבניות חריף עם טחינה ולחם',
+    price: 36,
+    rating: 4.8,
+    reviews: 156,
+    category: 'israeli'
   }
 ];
 
-var order = {};
-var activeCategory = 'all';
+// State
+let order = {};
+let activeCategory = 'all';
 
-function starSVG() {
-  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="var(--star)" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
-}
-
-function clockSVG() {
-  return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-}
-
+// Render menu
 function renderMenu() {
-  var grid = document.getElementById('menuGrid');
-  var query = document.getElementById('searchInput').value.trim();
+  const grid = document.getElementById('menuGrid');
+  const searchQuery = document.getElementById('searchInput').value.trim();
+
   grid.innerHTML = '';
 
-  menuItems.forEach(function(item) {
-    var matchCat = activeCategory === 'all' || item.category === activeCategory;
-    var matchSearch = !query || item.name.indexOf(query) !== -1 || item.desc.indexOf(query) !== -1 || item.restaurant.indexOf(query) !== -1;
-    if (!matchCat || !matchSearch) return;
+  menuItems.forEach((item, index) => {
+    const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
+    const matchesSearch = !searchQuery || item.name.includes(searchQuery) || item.desc.includes(searchQuery);
 
-    var card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML =
-      '<div class="card-img">' +
-        '<img src="' + item.photo + '" alt="' + item.name + '" loading="lazy">' +
-        '<button class="add-btn" onclick="event.stopPropagation(); addToOrder(' + item.id + ')" aria-label="הוסף">+</button>' +
-      '</div>' +
-      '<div class="card-body">' +
-        '<div class="card-restaurant">' + item.restaurant + '</div>' +
-        '<div class="card-name">' + item.name + '</div>' +
-        '<div class="card-desc">' + item.desc + '</div>' +
-        '<div class="card-meta">' +
-          '<span class="card-rating">' + starSVG() + ' ' + item.rating + '</span>' +
-          '<span class="card-time">' + clockSVG() + ' ' + item.time + ' דק\'</span>' +
-          '<span class="card-price">&#8362;' + item.price + '</span>' +
-        '</div>' +
-      '</div>';
+    if (!matchesCategory || !matchesSearch) return;
+
+    const stars = '★'.repeat(Math.floor(item.rating)) + (item.rating % 1 >= 0.5 ? '½' : '');
+
+    const card = document.createElement('div');
+    card.className = 'menu-card';
+    card.style.animationDelay = `${index * 0.05}s`;
+    card.innerHTML = `
+      <div class="menu-card-emoji">${item.emoji}</div>
+      <div class="menu-card-info">
+        <div class="menu-card-name">${item.name}</div>
+        <div class="menu-card-desc">${item.desc}</div>
+        <div class="menu-card-bottom">
+          <span class="menu-card-price">₪${item.price}</span>
+          <span class="menu-card-rating">
+            <span class="star">★</span> ${item.rating} (${item.reviews})
+          </span>
+        </div>
+      </div>
+      <button class="add-btn" onclick="addToOrder(${item.id}, this)" aria-label="הוסף לסל">+</button>
+    `;
     grid.appendChild(card);
   });
 }
 
-function addToOrder(id) {
-  order[id] = (order[id] || 0) + 1;
+// Add to order
+function addToOrder(id, btn) {
+  if (order[id]) {
+    order[id]++;
+  } else {
+    order[id] = 1;
+  }
+
+  // Animate button
+  btn.classList.remove('added');
+  void btn.offsetWidth; // Force reflow
+  btn.classList.add('added');
+
   updateOrderBar();
 }
 
+// Update order bar
 function updateOrderBar() {
-  var totalItems = 0;
-  var totalPrice = 0;
-  for (var id in order) {
-    totalItems += order[id];
-    var item = menuItems.find(function(m) { return m.id === parseInt(id); });
-    if (item) totalPrice += item.price * order[id];
-  }
+  const totalItems = Object.values(order).reduce((a, b) => a + b, 0);
+  const totalPrice = Object.entries(order).reduce((sum, [id, qty]) => {
+    const item = menuItems.find(m => m.id === parseInt(id));
+    return sum + (item.price * qty);
+  }, 0);
 
-  document.getElementById('orderCount').textContent = totalItems;
-  document.getElementById('orderTotal').textContent = '₪' + totalPrice;
+  const orderBar = document.getElementById('orderBar');
+  const countEl = document.getElementById('orderCount');
+  const totalEl = document.getElementById('orderTotal');
 
-  var bar = document.getElementById('orderBar');
+  countEl.textContent = totalItems;
+  totalEl.textContent = `₪${totalPrice}`;
+
+  // Bounce animation on count
+  countEl.classList.remove('bounce');
+  void countEl.offsetWidth;
+  countEl.classList.add('bounce');
+
   if (totalItems > 0) {
-    bar.classList.add('visible');
+    orderBar.classList.add('visible');
   } else {
-    bar.classList.remove('visible');
+    orderBar.classList.remove('visible');
   }
 }
 
+// Open modal
 function openModal() {
-  document.getElementById('modalOverlay').classList.add('visible');
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.add('visible');
   renderOrderModal();
   document.body.style.overflow = 'hidden';
 }
 
+// Close modal
 function closeModal(e) {
   if (e && e.target !== e.currentTarget) return;
-  document.getElementById('modalOverlay').classList.remove('visible');
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.remove('visible');
   document.body.style.overflow = '';
 }
 
+// Render order modal
 function renderOrderModal() {
-  var container = document.getElementById('orderItems');
-  var totalSection = document.getElementById('orderTotalSection');
-  var entries = [];
+  const container = document.getElementById('orderItems');
+  const totalSection = document.getElementById('orderTotalSection');
 
-  for (var id in order) {
-    if (order[id] > 0) entries.push([id, order[id]]);
-  }
+  const orderEntries = Object.entries(order).filter(([_, qty]) => qty > 0);
 
-  if (entries.length === 0) {
-    container.innerHTML =
-      '<div class="empty-order">' +
-        '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>' +
-        '<div class="empty-order-text">הסל ריק</div>' +
-      '</div>';
+  if (orderEntries.length === 0) {
+    container.innerHTML = `
+      <div class="empty-order">
+        <div class="empty-order-icon">🛒</div>
+        <div class="empty-order-text">ההזמנה ריקה</div>
+      </div>
+    `;
     totalSection.style.display = 'none';
     return;
   }
 
   totalSection.style.display = 'block';
-  var html = '';
-  var subtotal = 0;
 
-  entries.forEach(function(entry) {
-    var id = entry[0];
-    var qty = entry[1];
-    var item = menuItems.find(function(m) { return m.id === parseInt(id); });
-    var itemTotal = item.price * qty;
+  let html = '';
+  let subtotal = 0;
+
+  orderEntries.forEach(([id, qty]) => {
+    const item = menuItems.find(m => m.id === parseInt(id));
+    const itemTotal = item.price * qty;
     subtotal += itemTotal;
 
-    html +=
-      '<div class="order-item">' +
-        '<div class="order-item-right">' +
-          '<img class="order-item-img" src="' + item.photo + '" alt="' + item.name + '">' +
-          '<div>' +
-            '<div class="order-item-name">' + item.name + '</div>' +
-            '<div class="order-item-unit">₪' + item.price + ' ליחידה</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="order-item-controls">' +
-          '<button class="qty-btn" onclick="changeQty(' + item.id + ', -1)">-</button>' +
-          '<span class="qty-display">' + qty + '</span>' +
-          '<button class="qty-btn" onclick="changeQty(' + item.id + ', 1)">+</button>' +
-          '<span class="order-item-price">₪' + itemTotal + '</span>' +
-        '</div>' +
-      '</div>';
+    html += `
+      <div class="order-item">
+        <div class="order-item-right">
+          <span class="order-item-emoji">${item.emoji}</span>
+          <div>
+            <div class="order-item-name">${item.name}</div>
+            <div class="order-item-qty">₪${item.price} ליח'</div>
+          </div>
+        </div>
+        <div class="order-item-controls">
+          <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
+          <span class="qty-display">${qty}</span>
+          <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+          <span class="order-item-price">₪${itemTotal}</span>
+        </div>
+      </div>
+    `;
   });
 
   container.innerHTML = html;
 
-  var delivery = subtotal >= 80 ? 0 : 15;
-  var total = subtotal + delivery;
+  const delivery = subtotal >= 80 ? 0 : 15;
+  const total = subtotal + delivery;
 
-  document.getElementById('subtotalDisplay').textContent = '₪' + subtotal;
-  document.getElementById('deliveryDisplay').textContent = delivery === 0 ? 'חינם' : '₪' + delivery;
+  document.getElementById('subtotalDisplay').textContent = `₪${subtotal}`;
+  document.getElementById('deliveryDisplay').textContent = delivery === 0 ? 'חינם' : `₪${delivery}`;
   document.getElementById('deliveryDisplay').className = delivery === 0 ? 'free-delivery' : '';
-  document.getElementById('totalDisplay').textContent = '₪' + total;
+  document.getElementById('totalDisplay').textContent = `₪${total}`;
 }
 
+// Change quantity
 function changeQty(id, delta) {
   if (!order[id]) return;
   order[id] += delta;
-  if (order[id] <= 0) delete order[id];
+  if (order[id] <= 0) {
+    delete order[id];
+  }
   updateOrderBar();
   renderOrderModal();
+
+  // Close modal if empty
   if (Object.keys(order).length === 0) {
-    setTimeout(function() {
-      closeModal({ target: document.getElementById('modalOverlay'), currentTarget: document.getElementById('modalOverlay') });
-    }, 300);
+    setTimeout(() => closeModal({ target: document.getElementById('modalOverlay'), currentTarget: document.getElementById('modalOverlay') }), 300);
   }
 }
 
+// Checkout
 function checkout() {
-  var totalItems = 0;
-  for (var id in order) totalItems += order[id];
+  const totalItems = Object.values(order).reduce((a, b) => a + b, 0);
   if (totalItems === 0) return;
-  alert('ההזמנה התקבלה בהצלחה!');
+
+  alert('ההזמנה נשלחה בהצלחה! 🎉\nתודה שהזמנת מ-Foodie');
   order = {};
   updateOrderBar();
   closeModal({ target: document.getElementById('modalOverlay'), currentTarget: document.getElementById('modalOverlay') });
 }
 
+// Category click
 document.getElementById('categories').addEventListener('click', function(e) {
-  var chip = e.target.closest('.chip');
+  const chip = e.target.closest('.category-chip');
   if (!chip) return;
-  document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+
+  document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
   chip.classList.add('active');
   activeCategory = chip.dataset.category;
   renderMenu();
 });
 
+// Search
 document.getElementById('searchInput').addEventListener('input', function() {
   renderMenu();
 });
 
-document.querySelectorAll('.nav-item').forEach(function(item) {
+// Bottom nav
+document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', function() {
-    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     this.classList.add('active');
   });
 });
 
+// Init
 renderMenu();
 </script>
 </body>
