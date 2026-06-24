@@ -743,18 +743,22 @@ ICON CONTAINERS — use for category/status icons (NOT emojis):
     background:'var(--c-primary-light)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--c-primary)'}}
   This gives a clean, professional icon button appearance.
 
-━━━ LANGUAGE & DIRECTION — MATCH THE USER (GLOBAL) ━━━
-Build the app in the SAME language the user wrote their request in. This is a global
-product — an American writing English gets a fully English app; Hebrew gets Hebrew; and
-the same applies to Spanish, Arabic, French, etc.
+━━━ LANGUAGE & DIRECTION — ENGLISH BY DEFAULT (GLOBAL) ━━━
+DEFAULT TO ENGLISH. This is a global product, so unless the user clearly signals another
+language, build the entire app in English (LTR, Inter font).
+- Choose the app language with this priority:
+  1. If the user explicitly asks for a language ("in Spanish", "בעברית", "en français") →
+     use that language.
+  2. Else if the user wrote their request in a non-English language → use that language.
+  3. Otherwise → ENGLISH. (English request, ambiguous, or non-language input all → English.)
 - ALL visible UI text (labels, buttons, headings, sample data, empty/error messages)
-  MUST be in the user's language. Never mix languages.
+  MUST be in the chosen language. Never mix languages.
 - DIRECTION: for RTL languages (Hebrew, Arabic) add dir="rtl" to the app-shell div and
   use the Heebo/Assistant/Rubik font. For LTR languages (English, Spanish, etc.) do NOT
-  add dir="rtl" — leave the default LTR + Inter font.
+  add dir="rtl" — leave the default LTR + Inter font. English is LTR.
 - Number/price/date formatting should match the locale (e.g. $1,299.00 for en-US).
-- The summary you return follows the user's language too (English summary for an English
-  request) — the "hebrewSummary" field just means "short summary in the user's language".
+- The summary you return follows the chosen language too (English summary for an English
+  app) — the "hebrewSummary" field just means "short summary in the chosen language".
 
 ━━━ CONTENT RULES ━━━
 - Match the user's language and direction (see LANGUAGE & DIRECTION above)

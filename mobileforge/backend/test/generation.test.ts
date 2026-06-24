@@ -1076,6 +1076,12 @@ describe('Language-adaptive planning — English prompts', () => {
     const plan = getDemoPlan(longPrompt);
     expect(plan.ready).toBe(true);
   });
+
+  it('defaults to English for a non-Hebrew (ambiguous) prompt', () => {
+    const plan = getDemoPlan('todo app');
+    expect(plan.intro).not.toMatch(/[֐-׿]/);
+    expect(plan.questions.every((q: any) => !/[֐-׿]/.test(q.q))).toBe(true);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1251,6 +1257,47 @@ describe('Live sync route', () => {
     expect(res.text).toContain('EventSource');
     expect(res.text).toContain('/api/live/');
     expect(res.text).toContain('srcdoc');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Persistent store — survives a simulated server restart
+// ═══════════════════════════════════════════════════════════════════════════
+describe('PersistentStore — file-backed, restart-proof', () => {
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mf-store-'));
+  const orig = process.env.DATA_DIR;
+
+  beforeAll(() => { process.env.DATA_DIR = dir; });
+  afterAll(() => { if (orig === undefined) delete process.env.DATA_DIR; else process.env.DATA_DIR = orig; });
+
+  function freshStore(name: string) {
+    // Re-require with a clean module cache so the new DATA_DIR is picked up.
+    jest.resetModules();
+    const { PersistentStore } = require('../src/services/persistentStore');
+    return new PersistentStore(name);
+  }
+
+  it('reloads values written by a previous instance', () => {
+    const a = freshStore('demo');
+    a.set('k1', { v: 'hello' });
+    a.flush(); // force synchronous write (bypass debounce)
+
+    const b = freshStore('demo'); // simulates a server restart
+    expect(b.get('k1')).toEqual({ v: 'hello' });
+    expect(b.size).toBe(1);
+  });
+
+  it('persists deletes across instances', () => {
+    const a = freshStore('demo2');
+    a.set('x', 1); a.set('y', 2); a.flush();
+    const b = freshStore('demo2');
+    b.delete('x'); b.flush();
+    const c = freshStore('demo2');
+    expect(c.has('x')).toBe(false);
+    expect(c.get('y')).toBe(2);
   });
 });
 

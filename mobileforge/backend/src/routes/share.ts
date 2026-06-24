@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { randomBytes } from 'crypto';
+import { PersistentStore } from '../services/persistentStore';
 
 const router = Router();
 
@@ -9,7 +10,8 @@ interface SharedApp {
   createdAt: number;
 }
 
-const store = new Map<string, SharedApp>();
+// File-backed so shared links survive server restarts.
+const store = new PersistentStore<SharedApp>('shares');
 
 const MAX_APPS = 500;
 const TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days

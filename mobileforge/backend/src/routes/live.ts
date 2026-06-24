@@ -1,40 +1,63 @@
 import { Router, Request, Response } from 'express';
+import { PersistentStore } from '../services/persistentStore';
 
 const router = Router();
 
-interface LiveSession {
+// Persistable part of a session — the doc + metadata survive restarts.
+interface LiveDoc {
   htmlDoc: string;
   appName: string;
   version: number;
-  clients: Set<Response>;
   updatedAt: number;
 }
 
-const sessions = new Map<string, LiveSession>();
+interface LiveSession extends LiveDoc {
+  clients: Set<Response>;
+}
+
+// Doc data is file-backed so a restart doesn't drop a phone's live preview;
+// the SSE client connections are inherently transient and held in memory only.
+const docs = new PersistentStore<LiveDoc>('live');
+const clientsById = new Map<string, Set<Response>>();
 
 const MAX_SESSIONS = 300;
 const TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 
+function clientsOf(id: string): Set<Response> {
+  let c = clientsById.get(id);
+  if (!c) {
+    c = new Set();
+    clientsById.set(id, c);
+  }
+  return c;
+}
+
 function cleanup() {
   const now = Date.now();
-  for (const [id, s] of sessions) {
-    if (now - s.updatedAt > TTL_MS && s.clients.size === 0) sessions.delete(id);
+  for (const [id, d] of docs) {
+    if (now - d.updatedAt > TTL_MS && clientsOf(id).size === 0) {
+      docs.delete(id);
+      clientsById.delete(id);
+    }
   }
-  if (sessions.size > MAX_SESSIONS) {
-    const sorted = [...sessions.entries()].sort((a, b) => a[1].updatedAt - b[1].updatedAt);
-    for (const [id, s] of sorted.slice(0, sessions.size - MAX_SESSIONS)) {
-      if (s.clients.size === 0) sessions.delete(id);
+  if (docs.size > MAX_SESSIONS) {
+    const sorted = [...docs.entries()].sort((a, b) => a[1].updatedAt - b[1].updatedAt);
+    for (const [id] of sorted.slice(0, docs.size - MAX_SESSIONS)) {
+      if (clientsOf(id).size === 0) {
+        docs.delete(id);
+        clientsById.delete(id);
+      }
     }
   }
 }
 
 function getOrCreate(id: string): LiveSession {
-  let s = sessions.get(id);
-  if (!s) {
-    s = { htmlDoc: '', appName: 'MobileForge App', version: 0, clients: new Set(), updatedAt: Date.now() };
-    sessions.set(id, s);
+  let d = docs.get(id);
+  if (!d) {
+    d = { htmlDoc: '', appName: 'MobileForge App', version: 0, updatedAt: Date.now() };
+    docs.set(id, d);
   }
-  return s;
+  return { ...d, clients: clientsOf(id) };
 }
 
 // POST /api/live/:id — the builder pushes the latest app; subscribers reload.
@@ -45,23 +68,28 @@ router.post('/:id', (req: Request, res: Response) => {
   }
   cleanup();
 
-  const s = getOrCreate(req.params.id);
-  s.htmlDoc = htmlDoc;
-  if (appName) s.appName = appName;
-  s.version += 1;
-  s.updatedAt = Date.now();
+  const id = req.params.id;
+  const prev = docs.get(id);
+  const next: LiveDoc = {
+    htmlDoc,
+    appName: appName || prev?.appName || 'MobileForge App',
+    version: (prev?.version || 0) + 1,
+    updatedAt: Date.now(),
+  };
+  docs.set(id, next);
 
   // Notify every connected device to pull the new version.
-  for (const client of s.clients) {
-    try { client.write(`event: update\ndata: ${s.version}\n\n`); } catch { /* dropped */ }
+  const clients = clientsOf(id);
+  for (const client of clients) {
+    try { client.write(`event: update\ndata: ${next.version}\n\n`); } catch { /* dropped */ }
   }
 
-  return res.json({ ok: true, version: s.version, clients: s.clients.size });
+  return res.json({ ok: true, version: next.version, clients: clients.size });
 });
 
 // GET /api/live/:id/doc — latest raw HTML document for this session.
 router.get('/:id/doc', (req: Request, res: Response) => {
-  const s = sessions.get(req.params.id);
+  const s = docs.get(req.params.id);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   if (!s || !s.htmlDoc) {
@@ -79,7 +107,8 @@ router.get('/:id/stream', (req: Request, res: Response) => {
   res.flushHeaders?.();
 
   const s = getOrCreate(req.params.id);
-  s.clients.add(res);
+  const clients = clientsOf(req.params.id);
+  clients.add(res);
 
   // Greet + tell the client the current version so it can do an initial load.
   res.write(`event: hello\ndata: ${s.version}\n\n`);
@@ -91,7 +120,7 @@ router.get('/:id/stream', (req: Request, res: Response) => {
 
   req.on('close', () => {
     clearInterval(ping);
-    s.clients.delete(res);
+    clients.delete(res);
   });
 });
 
