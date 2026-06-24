@@ -580,6 +580,23 @@ function BuilderContent() {
     setShowExportMenu(false);
   }, [currentResult]);
 
+  // Publish to Google Play / Galaxy Store via PWABuilder (real, works today for
+  // PWAs). Shares the app to get a public URL, then opens PWABuilder pointed at it.
+  const publishToStore = useCallback(async () => {
+    if (!currentResult?.htmlDoc) return;
+    try {
+      const { shareUrl } = await shareApp(currentResult.htmlDoc, currentResult.appName);
+      window.open(`https://www.pwabuilder.com/reportcard?site=${encodeURIComponent(shareUrl)}`, '_blank');
+    } catch { /* ignore */ }
+    setShowExportMenu(false);
+  }, [currentResult]);
+
+  // Pro features (native auto-submit, AI promo video) — not live yet.
+  const comingSoon = useCallback((what: string) => {
+    alert(`${what} — בקרוב כחלק מתוכנית Pro 🚀`);
+    setShowExportMenu(false);
+  }, []);
+
   // Auth guard — honor the "no registration, start immediately" promise.
   // A first-time visitor who lands on the builder (e.g. typed an idea on the
   // homepage and clicked "build") is auto-entered into guest mode instead of
@@ -1026,6 +1043,32 @@ function BuilderContent() {
                         <div className="text-right">
                           <p className="font-medium">התקן כ-PWA</p>
                           <p className="text-[10px] text-text-secondary">אפליקציה להתקנה על טלפון</p>
+                        </div>
+                      </button>
+
+                      <div className="px-3 pt-2 pb-1 text-[10px] font-semibold text-text-secondary uppercase tracking-wide text-right">פרסום לחנויות</div>
+                      <button onClick={publishToStore}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
+                        <span className="w-7 h-7 rounded-lg bg-green-500/10 text-green-500 flex items-center justify-center text-sm">▶</span>
+                        <div className="text-right">
+                          <p className="font-medium">Google Play / Galaxy Store</p>
+                          <p className="text-[10px] text-text-secondary">אריזה לחנות דרך PWABuilder</p>
+                        </div>
+                      </button>
+                      <button onClick={() => comingSoon('פרסום אוטומטי ל-App Store + Google Play')}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
+                        <span className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center text-sm"></span>
+                        <div className="text-right flex-1">
+                          <p className="font-medium flex items-center gap-1.5 justify-end">פרסום אוטומטי לחנויות <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold">PRO</span></p>
+                          <p className="text-[10px] text-text-secondary">App Store + Play בלחיצה (בקרוב)</p>
+                        </div>
+                      </button>
+                      <button onClick={() => comingSoon('יצירת סרטון פרסומת לאפליקציה')}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
+                        <span className="w-7 h-7 rounded-lg bg-fuchsia-500/10 text-fuchsia-500 flex items-center justify-center text-sm">🎬</span>
+                        <div className="text-right flex-1">
+                          <p className="font-medium flex items-center gap-1.5 justify-end">צור פרסומת לאפליקציה <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold">PRO</span></p>
+                          <p className="text-[10px] text-text-secondary">סרטון שיווקי ב-AI (בקרוב)</p>
                         </div>
                       </button>
                     </div>

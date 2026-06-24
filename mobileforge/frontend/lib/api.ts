@@ -340,3 +340,29 @@ export async function submitFeedback(input: {
     return { ok: false };
   }
 }
+
+// ── Closed beta gate ─────────────────────────────────────────────────────────
+export async function betaStatus(): Promise<{ gateEnabled: boolean }> {
+  try {
+    const res = await fetch(`${API_URL}/api/beta/status`);
+    if (!res.ok) return { gateEnabled: false };
+    return await res.json();
+  } catch {
+    return { gateEnabled: false };
+  }
+}
+
+export async function verifyBetaKey(key: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_URL}/api/beta/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return !!data.valid;
+  } catch {
+    return false;
+  }
+}

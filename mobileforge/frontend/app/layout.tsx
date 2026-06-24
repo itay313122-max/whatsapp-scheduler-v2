@@ -3,6 +3,7 @@ import './globals.css';
 import { Providers } from './providers';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import FeedbackWidget from '@/components/FeedbackWidget';
+import BetaGate from '@/components/BetaGate';
 import { Plus_Jakarta_Sans, Heebo } from 'next/font/google';
 
 const jakarta = Plus_Jakarta_Sans({
@@ -30,8 +31,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="he" dir="rtl" className={`${jakarta.variable} ${heebo.variable}`}>
       <body className="bg-bg text-text-primary min-h-screen font-body">
         <ErrorBoundary>
-          <Providers>{children}</Providers>
-          {process.env.NEXT_PUBLIC_BETA !== '0' && <FeedbackWidget />}
+          <BetaGate>
+            <Providers>{children}</Providers>
+            {process.env.NEXT_PUBLIC_BETA !== '0' && <FeedbackWidget />}
+          </BetaGate>
         </ErrorBoundary>
       </body>
     </html>
