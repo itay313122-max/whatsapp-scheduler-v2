@@ -95,14 +95,14 @@ function detectAppCategory(result: GenerateResponse): AppCategory {
   const name = (result.appName || '').toLowerCase();
   const features = (result.features || []).join(' ').toLowerCase();
   const text = `${name} ${features}`;
-  if (text.includes('חנות') || text.includes('store') || text.includes('shop') || text.includes('מוצר')) return 'store';
-  if (text.includes('מסעדה') || text.includes('food') || text.includes('restaurant') || text.includes('תפריט')) return 'restaurant';
-  if (text.includes('כושר') || text.includes('fitness') || text.includes('אימון') || text.includes('sport')) return 'fitness';
-  if (text.includes('משימ') || text.includes('task') || text.includes('todo')) return 'tasks';
-  if (text.includes('תקציב') || text.includes('finance') || text.includes('כסף') || text.includes('הוצא')) return 'finance';
-  if (text.includes('חברת') || text.includes('social') || text.includes('פיד') || text.includes('פוסט')) return 'social';
-  if (text.includes('מזג') || text.includes('weather') || text.includes('טמפרטור')) return 'weather';
-  if (text.includes('למידה') || text.includes('learn') || text.includes('קורס') || text.includes('שיעור')) return 'learning';
+  if (text.includes('store') || text.includes('shop') || text.includes('product')) return 'store';
+  if (text.includes('food') || text.includes('restaurant') || text.includes('menu')) return 'restaurant';
+  if (text.includes('fitness') || text.includes('workout') || text.includes('sport')) return 'fitness';
+  if (text.includes('task') || text.includes('todo')) return 'tasks';
+  if (text.includes('budget') || text.includes('finance') || text.includes('money') || text.includes('expense')) return 'finance';
+  if (text.includes('social') || text.includes('feed') || text.includes('post')) return 'social';
+  if (text.includes('weather') || text.includes('temperature')) return 'weather';
+  if (text.includes('learn') || text.includes('course') || text.includes('lesson')) return 'learning';
   return 'general';
 }
 
@@ -139,56 +139,56 @@ const TEMPLATES = [
   {
     id: 'fitness',
     emoji: '💪',
-    name: 'אפליקציית כושר',
-    desc: 'אימונים, מעקב התקדמות וטיימר',
+    name: 'Fitness App',
+    desc: 'Workouts, progress tracking and timer',
     gradient: 'from-red-500/15 to-pink-500/10',
     border: 'border-red-200/60',
-    prompt: 'בנה אפליקציית כושר עם רשימת אימונים (כוח, קרדיו, יוגה, HIIT), כל אימון עם תרגילים, סטים וחזרות. טיימר אימון עם סטופר, מסך מעקב התקדמות עם גרף שבועי (bars), ומסך פרופיל עם סטטיסטיקות. עיצוב אנרגטי עם צבעי אדום וורוד',
+    prompt: "Build a fitness app with a list of workouts (strength, cardio, yoga, HIIT), each workout with exercises, sets and reps. A workout timer with a stopwatch, a progress tracking screen with a weekly chart (bars), and a profile screen with statistics. Energetic design with red and pink colors",
   },
   {
     id: 'tasks',
     emoji: '✅',
-    name: 'מנהל משימות',
-    desc: 'משימות, קטגוריות ופס התקדמות',
+    name: 'Task Manager',
+    desc: 'Tasks, categories and progress bar',
     gradient: 'from-emerald-500/15 to-green-500/10',
     border: 'border-emerald-200/60',
-    prompt: 'בנה אפליקציית ניהול משימות עם הוספת משימות חדשות, סימון השלמה, מחיקה, סינון (הכל/פעילות/הושלמו), פס התקדמות ויזואלי עם אחוזים, וקטגוריות צבעוניות (עבודה, אישי, קניות). עיצוב נקי בירוק',
+    prompt: "Build a task management app with adding new tasks, marking complete, deleting, filtering (all/active/completed), a visual progress bar with percentages, and colorful categories (work, personal, shopping). Clean design in green",
   },
   {
     id: 'finance',
     emoji: '💰',
-    name: 'ניהול תקציב',
-    desc: 'הוצאות, הכנסות ותרשימים',
+    name: 'Budget Tracker',
+    desc: 'Expenses, income and charts',
     gradient: 'from-emerald-500/15 to-teal-500/10',
     border: 'border-teal-200/60',
-    prompt: 'בנה אפליקציית ניהול תקציב אישי עם מסך ראשי שמציג יתרה, הכנסות והוצאות החודש. אפשרות הוספת הוצאה/הכנסה עם קטגוריה (אוכל, תחבורה, בידור, חשבונות), היסטוריית תנועות, ומסך סיכום עם חלוקה לפי קטגוריות. עיצוב פיננסי בירוק-כחול',
+    prompt: "Build a personal budget tracking app with a main screen showing the balance, income and expenses for the month. Ability to add an expense/income with a category (food, transport, entertainment, bills), a transaction history, and a summary screen broken down by category. Financial design in green-blue",
   },
   {
     id: 'social',
     emoji: '💬',
-    name: 'רשת חברתית',
-    desc: 'פיד, פרופיל ולייקים',
+    name: 'Social Network',
+    desc: 'Feed, profile and likes',
     gradient: 'from-blue-500/15 to-cyan-500/10',
     border: 'border-blue-200/60',
-    prompt: 'בנה אפליקציית רשת חברתית עם פיד פוסטים (כרטיסים עם אווטאר, שם, תוכן, לייקים ותגובות), מסך פרופיל עם תמונה סטטיסטיקות ופוסטים, מסך הודעות, וכפתור יצירת פוסט חדש. עיצוב מודרני בכחול',
+    prompt: "Build a social network app with a post feed (cards with avatar, name, content, likes and comments), a profile screen with a photo, statistics and posts, a messages screen, and a button to create a new post. Modern design in blue",
   },
   {
     id: 'weather',
     emoji: '🌤️',
-    name: 'מזג אוויר',
-    desc: 'תחזית, טמפרטורה ומפה',
+    name: 'Weather',
+    desc: 'Forecast, temperature and map',
     gradient: 'from-sky-500/15 to-blue-500/10',
     border: 'border-sky-200/60',
-    prompt: 'בנה אפליקציית מזג אוויר עם מסך ראשי שמציג טמפרטורה נוכחית גדולה, מצב מזג אוויר עם אימוג\'י, תחזית שעתית (גלילה אופקית), תחזית שבועית (7 ימים), ופרטים נוספים (לחות, רוח, UV). עיצוב נקי עם gradient כחול-סגול',
+    prompt: "Build a weather app with a main screen showing a large current temperature, the weather condition with an emoji, an hourly forecast (horizontal scroll), a weekly forecast (7 days), and additional details (humidity, wind, UV). Clean design with a blue-purple gradient",
   },
   {
     id: 'learning',
     emoji: '📚',
-    name: 'פלטפורמת למידה',
-    desc: 'קורסים, שיעורים והתקדמות',
+    name: 'Learning Platform',
+    desc: 'Courses, lessons and progress',
     gradient: 'from-indigo-500/15 to-violet-500/10',
     border: 'border-indigo-200/60',
-    prompt: 'בנה אפליקציית למידה עם קטלוג קורסים (6 קורסים עם אימוג\'י, שם, מורה, מספר שיעורים), מסך קורס עם רשימת שיעורים וסימון השלמה, פס התקדמות, ומסך פרופיל עם סטטיסטיקות למידה. עיצוב אקדמי באינדיגו',
+    prompt: "Build a learning app with a course catalog (6 courses with emoji, name, instructor, number of lessons), a course screen with a lesson list and completion marking, a progress bar, and a profile screen with learning statistics. Academic design in indigo",
   },
 ];
 
@@ -295,7 +295,7 @@ export default function ChatInterface({
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
-      alert('הקובץ גדול מדי (מקסימום 10MB)');
+      alert('File is too large (max 10MB)');
       return;
     }
     try {
@@ -304,7 +304,7 @@ export default function ChatInterface({
       setImageMimeType(mimeType);
       setImagePreview(`data:${mimeType};base64,${base64}`);
     } catch {
-      alert('שגיאה בטעינת התמונה');
+      alert('Failed to load the image');
     }
     // reset so the same file can be re-selected
     e.target.value = '';
@@ -327,7 +327,7 @@ export default function ChatInterface({
     if (!SR) return;
 
     const recognition = new SR();
-    recognition.lang = 'he-IL';
+    recognition.lang = 'en-US';
     recognition.continuous = false;
     recognition.interimResults = true;
 
@@ -364,7 +364,7 @@ export default function ChatInterface({
     optPrompt?: string,
     isSketch = false
   ) {
-    const label = isSketch ? '✏️ [סקיצה]' : '📷 [צילום מסך]';
+    const label = isSketch ? '✏️ [Sketch]' : '📷 [Screenshot]';
     const displayContent = optPrompt ? `${label} ${optPrompt}` : label;
 
     const userMsg: Message = {
@@ -411,7 +411,7 @@ export default function ChatInterface({
         {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: `שגיאה: ${err instanceof Error ? err.message : 'משהו השתבש. נסה שוב.'}`,
+          content: `Error: ${err instanceof Error ? err.message : 'Something went wrong. Please try again.'}`,
           timestamp: new Date(),
         },
       ]);
@@ -429,7 +429,7 @@ export default function ChatInterface({
         role: m.role,
         content:
           m.role === 'assistant' && m.result
-            ? `${m.result.hebrewSummary}\n\nקוד נוכחי:\n\`\`\`jsx\n${
+            ? `${m.result.hebrewSummary}\n\nCurrent code:\n\`\`\`jsx\n${
                 m.result.files?.['App.jsx'] ?? m.result.files?.['App.tsx'] ?? ''
               }\n\`\`\``
             : m.content,
@@ -492,7 +492,7 @@ export default function ChatInterface({
         {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: `שגיאה: ${err instanceof Error ? err.message : 'משהו השתבש. נסה שוב.'}`,
+          content: `Error: ${err instanceof Error ? err.message : 'Something went wrong. Please try again.'}`,
           timestamp: new Date(),
         },
       ]);
@@ -521,7 +521,7 @@ export default function ChatInterface({
           .map((q) => (answers[q.id] ? `- ${q.q.replace(/\?$/, '')}: ${answers[q.id]}` : null))
           .filter(Boolean);
     const enriched =
-      parts.length > 0 ? `${msg.pendingPrompt}\n\nהעדפות:\n${parts.join('\n')}` : msg.pendingPrompt!;
+      parts.length > 0 ? `${msg.pendingPrompt}\n\nPreferences:\n${parts.join('\n')}` : msg.pendingPrompt!;
 
     // Lock the question card so it can't be re-submitted.
     setMessages((prev) => prev.map((m) => (m.id === msg.id ? { ...m, planLocked: true } : m)));
@@ -597,7 +597,7 @@ export default function ChatInterface({
       const questionsMsg: Message = {
         id: (Date.now() + 2).toString(),
         role: 'assistant',
-        content: plan.intro || 'כמה שאלות מהירות לפני שנבנה:',
+        content: plan.intro || 'A few quick questions before we build:',
         questions: plan.questions,
         answers: {},
         pendingPrompt: prompt,
@@ -636,7 +636,7 @@ export default function ChatInterface({
     {
       icon: '📷',
       title: 'Screenshot → Clone',
-      desc: 'העלה צילום מסך של כל אפליקציה — AI ישחזר אותה',
+      desc: 'Upload a screenshot of any app — AI will recreate it',
       action: () => fileInputRef.current?.click(),
       color: 'from-sky-400/15 to-sky-400/5 border-sky-200',
       iconBg: 'bg-sky-400/20 text-sky-500',
@@ -644,7 +644,7 @@ export default function ChatInterface({
     {
       icon: '✏️',
       title: 'Sketch → App',
-      desc: 'צייר wireframe ו-AI יהפוך אותו לאפליקציה מלאה',
+      desc: 'Draw a wireframe and AI will turn it into a full app',
       action: () => setShowSketch(true),
       color: 'from-violet-400/15 to-violet-400/5 border-violet-200',
       iconBg: 'bg-violet-400/20 text-violet-500',
@@ -652,7 +652,7 @@ export default function ChatInterface({
     {
       icon: '🎤',
       title: 'Voice → App',
-      desc: 'דבר בעברית — AI יבין ויבנה',
+      desc: 'Just speak — AI will understand and build',
       action: toggleVoice,
       color: 'from-emerald-400/15 to-emerald-400/5 border-emerald-200',
       iconBg: 'bg-emerald-400/20 text-emerald-500',
@@ -692,13 +692,13 @@ export default function ChatInterface({
                 </svg>
               </div>
               <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                <h2 className="font-display font-bold text-lg text-text-primary mb-1">מה נבנה היום?</h2>
-                <p className="text-text-secondary text-sm">בחר תבנית, צלם מסך, או פשוט ספר לי</p>
+                <h2 className="font-display font-bold text-lg text-text-primary mb-1">What should we build today?</h2>
+                <p className="text-text-secondary text-sm">Pick a template, take a screenshot, or just tell me</p>
               </div>
 
               {/* Template Gallery — Lovable-style cards */}
               <div className="w-full max-w-sm">
-                <p className="text-text-secondary text-xs font-medium mb-2 text-right">התחל מתבנית מוכנה</p>
+                <p className="text-text-secondary text-xs font-medium mb-2 text-left">Start from a ready-made template</p>
                 <div className="grid grid-cols-2 gap-2">
                   {TEMPLATES.map((t) => (
                     <button
@@ -708,7 +708,7 @@ export default function ChatInterface({
                         setTimeout(() => handleSubmit(t.prompt), 50);
                       }}
                       disabled={isGenerating}
-                      className="flex items-center gap-2.5 p-3 rounded-xl border border-border/50 bg-surface/40 text-right transition-all hover:bg-surface/70 hover:border-primary/30 active:scale-[0.98] disabled:opacity-40"
+                      className="flex items-center gap-2.5 p-3 rounded-xl border border-border/50 bg-surface/40 text-left transition-all hover:bg-surface/70 hover:border-primary/30 active:scale-[0.98] disabled:opacity-40"
                     >
                       <div className="w-9 h-9 rounded-lg bg-surface/60 border border-border/30 flex items-center justify-center flex-shrink-0 text-lg">
                         {t.emoji}
@@ -725,7 +725,7 @@ export default function ChatInterface({
               {/* Design theme picker */}
               {themes.length > 0 && (
                 <div className="w-full max-w-sm">
-                  <p className="text-text-secondary text-xs font-medium mb-2 text-right">ערכת עיצוב</p>
+                  <p className="text-text-secondary text-xs font-medium mb-2 text-left">Design theme</p>
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => setSelectedTheme('')}
@@ -733,7 +733,7 @@ export default function ChatInterface({
                         selectedTheme === '' ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-surface/40 text-text-secondary hover:border-primary/30'
                       }`}
                     >
-                      אוטומטי
+                      Automatic
                     </button>
                     {themes.map((t) => (
                       <button
@@ -758,7 +758,7 @@ export default function ChatInterface({
               {/* Divider */}
               <div className="flex items-center gap-3 w-full max-w-sm">
                 <div className="flex-1 h-px bg-border" />
-                <span className="text-text-secondary text-xs">או</span>
+                <span className="text-text-secondary text-xs">or</span>
                 <div className="flex-1 h-px bg-border" />
               </div>
 
@@ -796,10 +796,10 @@ export default function ChatInterface({
 
               <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-1' : ''}`}>
                 {msg.isLoading && msg.isPlanning ? (
-                  <div className="px-4 py-3 rounded-2xl glass-card" dir="rtl">
+                  <div className="px-4 py-3 rounded-2xl glass-card" dir="ltr">
                     <div className="flex items-center gap-2">
                       <span className="text-sm animate-pulse">💭</span>
-                      <span className="text-xs text-text-primary font-medium">חושב מה כדאי לשאול…</span>
+                      <span className="text-xs text-text-primary font-medium">Thinking about what to ask…</span>
                       <div className="flex gap-0.5 mr-auto">
                         {[0, 1, 2].map((d) => (
                           <div key={d} className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: `${d * 0.15}s` }} />
@@ -808,7 +808,7 @@ export default function ChatInterface({
                     </div>
                   </div>
                 ) : msg.isLoading ? (
-                  <div className="px-4 py-3 rounded-2xl glass-card" dir="rtl">
+                  <div className="px-4 py-3 rounded-2xl glass-card" dir="ltr">
                     <div className="space-y-2">
                       {LOADING_STEPS.map((step, i) => {
                         const currentStep = msg.loadingStep || 0;
@@ -842,7 +842,7 @@ export default function ChatInterface({
                     </div>
                   </div>
                 ) : msg.questions ? (
-                  <div className="px-4 py-3 rounded-2xl bg-surface/60 border border-border/30 text-text-primary rounded-tl-sm" dir="rtl">
+                  <div className="px-4 py-3 rounded-2xl bg-surface/60 border border-border/30 text-text-primary rounded-tl-sm" dir="ltr">
                     <p className="text-sm leading-relaxed mb-3">{msg.content}</p>
                     <div className="space-y-3">
                       {msg.questions.map((q) => (
@@ -873,7 +873,7 @@ export default function ChatInterface({
                     {msg.planLocked ? (
                       <div className="mt-3 pt-3 border-t border-border/50 flex items-center gap-1.5 text-[11px] text-green-400">
                         <span>✓</span>
-                        <span>בונה לפי הבחירות שלך…</span>
+                        <span>Building with your preferences…</span>
                       </div>
                     ) : (
                       <div className="mt-3 pt-3 border-t border-border/50 flex gap-2">
@@ -885,14 +885,14 @@ export default function ChatInterface({
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                           </svg>
-                          בנה עכשיו
+                          Build now
                         </button>
                         <button
                           onClick={() => submitAnswers(msg, true)}
                           disabled={isGenerating}
                           className="px-3 py-2 rounded-xl bg-surface border border-border text-text-secondary text-xs font-medium hover:text-text-primary hover:border-primary/30 transition-all disabled:opacity-40 min-h-[36px]"
                         >
-                          דלג ובנה
+                          Skip & build
                         </button>
                       </div>
                     )}
@@ -904,7 +904,7 @@ export default function ChatInterface({
                         ? 'bg-primary text-white rounded-tr-sm'
                         : 'bg-surface/60 border border-border/30 text-text-primary rounded-tl-sm'
                     }`}
-                    dir="rtl"
+                    dir="ltr"
                   >
                     {/* Source badge */}
                     {msg.sourceType && msg.sourceType !== 'text' && (
@@ -941,7 +941,7 @@ export default function ChatInterface({
                             style={{ background: msg.result.colorScheme?.primary || '#6C3AE8' }}
                           />
                           <span className="font-display font-semibold text-sm">{msg.result.appName}</span>
-                          <span className="text-[10px] text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-full mr-auto">מוכן ✓</span>
+                          <span className="text-[10px] text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-full mr-auto">Ready ✓</span>
                         </div>
                         <div className="flex gap-2">
                           {msg.result.embedUrl && onShowPreview && (
@@ -953,7 +953,7 @@ export default function ChatInterface({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                               </svg>
-                              צפה בתוצאה
+                              View result
                             </button>
                           )}
                           {onShowCode && (
@@ -964,7 +964,7 @@ export default function ChatInterface({
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                               </svg>
-                              קוד
+                              Code
                             </button>
                           )}
                         </div>
@@ -972,7 +972,7 @@ export default function ChatInterface({
                         {/* Quick action chips — contextual suggestions */}
                         {msg.id === [...messages].reverse().find((m) => m.result)?.id && (
                           <div className="space-y-1.5">
-                            <p className="text-[11px] text-text-secondary font-medium">⚡ שיפורים מהירים:</p>
+                            <p className="text-[11px] text-text-secondary font-medium">⚡ Quick improvements:</p>
                             <div className="flex flex-wrap gap-1.5">
                               {QUICK_ACTIONS[detectAppCategory(msg.result)].map((action) => (
                                 <button
@@ -993,7 +993,7 @@ export default function ChatInterface({
                   </div>
                 )}
                 <p className="text-text-secondary text-xs mt-1 px-1">
-                  {msg.timestamp.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}
+                  {msg.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
             </div>
@@ -1019,7 +1019,7 @@ export default function ChatInterface({
               <div className="text-xs text-text-secondary">
                 <span className="text-blue-400 font-medium">📷 Screenshot Clone</span>
                 <br />
-                AI ישחזר את הממשק הזה
+                AI will recreate this interface
               </div>
             </div>
           )}
@@ -1039,9 +1039,9 @@ export default function ChatInterface({
                   />
                 ))}
               </div>
-              <span className="text-green-400 text-xs font-medium">מאזין… דבר עכשיו</span>
+              <span className="text-green-400 text-xs font-medium">Listening… speak now</span>
               <button onClick={toggleVoice} className="mr-auto text-xs text-green-400 hover:text-green-300">
-                עצור
+                Stop
               </button>
             </div>
           )}
@@ -1050,7 +1050,7 @@ export default function ChatInterface({
           {(messages.some((m) => m.result) || currentAppResult) && !isGenerating && (
             <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-xl bg-primary/5 border border-primary/15">
               <span className="text-primary text-xs">✏️</span>
-              <span className="text-primary/80 text-[11px] font-medium">כתוב מה לשנות — או לחץ על שיפור מהיר למעלה</span>
+              <span className="text-primary/80 text-[11px] font-medium">Describe what to change — or tap a quick improvement above</span>
             </div>
           )}
 
@@ -1062,7 +1062,7 @@ export default function ChatInterface({
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isGenerating}
-                title="העלה צילום מסך"
+                title="Upload a screenshot"
                 className="w-8 h-8 rounded-lg text-text-secondary hover:text-blue-400 hover:bg-blue-500/10 flex items-center justify-center transition-all disabled:opacity-30"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1074,7 +1074,7 @@ export default function ChatInterface({
               <button
                 onClick={() => setShowSketch(true)}
                 disabled={isGenerating}
-                title="ציור סקיצה"
+                title="Draw a sketch"
                 className="w-8 h-8 rounded-lg text-text-secondary hover:text-purple-400 hover:bg-purple-500/10 flex items-center justify-center transition-all disabled:opacity-30"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1087,7 +1087,7 @@ export default function ChatInterface({
                 <button
                   onClick={toggleVoice}
                   disabled={isGenerating}
-                  title={isListening ? 'עצור הקלטה' : 'קלט קולי'}
+                  title={isListening ? 'Stop recording' : 'Voice input'}
                   className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30 ${
                     isListening
                       ? 'text-green-400 bg-green-500/20 animate-pulse-slow'
@@ -1110,9 +1110,9 @@ export default function ChatInterface({
               value={input}
               onChange={(e) => { setInput(e.target.value); adjustTextareaHeight(); }}
               onKeyDown={handleKeyDown}
-              placeholder={imagePreview ? 'הוסף הוראות נוספות (אופציונלי)…' : (messages.some((m) => m.result) || currentAppResult) ? 'למשל: "שנה את הצבע לורוד" או "הוסף מסך הגדרות"…' : 'תאר את האפליקציה שאתה רוצה…'}
+              placeholder={imagePreview ? 'Add extra instructions (optional)…' : (messages.some((m) => m.result) || currentAppResult) ? 'e.g. "Change the color to pink" or "Add a settings screen"…' : 'Describe the app you want to build…'}
               rows={1}
-              dir="rtl"
+              dir="ltr"
               disabled={isGenerating}
               className="flex-1 bg-transparent text-text-primary placeholder-text-secondary text-sm resize-none outline-none max-h-[200px] leading-relaxed disabled:opacity-50"
             />
@@ -1137,7 +1137,7 @@ export default function ChatInterface({
           </div>
 
           <p className="text-text-secondary text-[10px] mt-1.5 text-center opacity-60">
-            Enter לשליחה · Shift+Enter לשורה חדשה
+            Enter to send · Shift+Enter for new line
           </p>
         </div>
       </div>

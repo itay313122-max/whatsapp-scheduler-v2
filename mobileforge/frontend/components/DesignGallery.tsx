@@ -312,184 +312,184 @@ const BUTTON_SHAPES = [
 
 const CARD_SHAPES = [
   {
-    id: 'flat', name: 'שטוח', preview: <CardShapePreview radius="4px" shadow="none" border="1px solid #e5e7eb" />,
-    prompt: `שנה את כל הכרטיסים לעיצוב שטוח: ללא צללים, border דק (#e5e7eb), border-radius: 4px, רקע לבן, padding: 16px, מרווח פנימי על בסיס רשת 8px. ${STYLE_ONLY}`,
+    id: 'flat', name: 'Flat', preview: <CardShapePreview radius="4px" shadow="none" border="1px solid #e5e7eb" />,
+    prompt: `Change all cards to a flat design: no shadows, thin border (#e5e7eb), border-radius: 4px, white background, padding: 16px, internal spacing based on an 8px grid. ${STYLE_ONLY}`,
   },
   {
-    id: 'elevated', name: 'צל', preview: <CardShapePreview radius="12px" shadow="0 4px 16px rgba(0,0,0,0.08)" border="none" />,
-    prompt: `שנה את כל הכרטיסים לעיצוב מורם: box-shadow: 0 4px 16px rgba(0,0,0,0.08), ללא border, border-radius: 12px, רקע לבן, padding: 16px, מרווח פנימי על בסיס רשת 8px. ${STYLE_ONLY}`,
+    id: 'elevated', name: 'Elevated', preview: <CardShapePreview radius="12px" shadow="0 4px 16px rgba(0,0,0,0.08)" border="none" />,
+    prompt: `Change all cards to an elevated design: box-shadow: 0 4px 16px rgba(0,0,0,0.08), no border, border-radius: 12px, white background, padding: 16px, internal spacing based on an 8px grid. ${STYLE_ONLY}`,
   },
   {
-    id: 'glass-card', name: 'זכוכית', preview: <CardShapePreview radius="16px" shadow="0 8px 32px rgba(0,0,0,0.06)" border="1px solid rgba(255,255,255,0.5)" />,
-    prompt: `שנה את כל הכרטיסים לסגנון זכוכית (glass): background: rgba(255,255,255,0.7), backdrop-filter: blur(12px), border: 1px solid rgba(255,255,255,0.5), border-radius: 16px, צל רך, padding: 16px, מרווח פנימי על בסיס רשת 8px. ${STYLE_ONLY}`,
+    id: 'glass-card', name: 'Glass', preview: <CardShapePreview radius="16px" shadow="0 8px 32px rgba(0,0,0,0.06)" border="1px solid rgba(255,255,255,0.5)" />,
+    prompt: `Change all cards to a glass style: background: rgba(255,255,255,0.7), backdrop-filter: blur(12px), border: 1px solid rgba(255,255,255,0.5), border-radius: 16px, soft shadow, padding: 16px, internal spacing based on an 8px grid. ${STYLE_ONLY}`,
   },
   {
-    id: 'bordered', name: 'מסגרת', preview: <CardShapePreview radius="8px" shadow="none" border="2px solid #e0e7ff" />,
-    prompt: `שנה את כל הכרטיסים לעיצוב מסגרת: border: 2px solid (צבע גבול עדין), ללא צל, border-radius: 8px, רקע לבן, padding: 16px, מרווח פנימי על בסיס רשת 8px. ${STYLE_ONLY}`,
+    id: 'bordered', name: 'Outline', preview: <CardShapePreview radius="8px" shadow="none" border="2px solid #e0e7ff" />,
+    prompt: `Change all cards to an outline design: border: 2px solid (subtle border color), no shadow, border-radius: 8px, white background, padding: 16px, internal spacing based on an 8px grid. ${STYLE_ONLY}`,
   },
 ];
 
 const INPUT_SHAPES = [
   {
-    id: 'outlined', name: 'קווי', preview: <InputShapePreview radius="8px" style="outlined" />,
-    prompt: `שנה את כל שדות הקלט באפליקציה לסגנון קווי (outlined): border: 1px solid #d1d5db, border-radius: 8px, רקע לבן, focus עם border צבעוני. ${STYLE_ONLY}`,
+    id: 'outlined', name: 'Outlined', preview: <InputShapePreview radius="8px" style="outlined" />,
+    prompt: `Change all input fields in the app to an outlined style: border: 1px solid #d1d5db, border-radius: 8px, white background, colored border on focus. ${STYLE_ONLY}`,
   },
   {
-    id: 'filled', name: 'מלא', preview: <InputShapePreview radius="8px" style="filled" />,
-    prompt: `שנה את כל שדות הקלט לסגנון מלא (filled): רקע אפור בהיר (#f1f5f9), ללא border, border-radius: 8px, focus עם רקע בהיר יותר. ${STYLE_ONLY}`,
+    id: 'filled', name: 'Filled', preview: <InputShapePreview radius="8px" style="filled" />,
+    prompt: `Change all input fields to a filled style: light gray background (#f1f5f9), no border, border-radius: 8px, lighter background on focus. ${STYLE_ONLY}`,
   },
   {
-    id: 'underline', name: 'קו תחתון', preview: <InputShapePreview radius="0px" style="underline" />,
-    prompt: `שנה את כל שדות הקלט לסגנון קו תחתון (underline): ללא border רגיל, רק border-bottom עם הצבע הראשי, רקע שקוף, מראה מינימלי. ${STYLE_ONLY}`,
+    id: 'underline', name: 'Underline', preview: <InputShapePreview radius="0px" style="underline" />,
+    prompt: `Change all input fields to an underline style: no regular border, only a border-bottom in the primary color, transparent background, minimal look. ${STYLE_ONLY}`,
   },
   {
-    id: 'rounded-input', name: 'עגול', preview: <InputShapePreview radius="9999px" style="outlined" />,
-    prompt: `שנה את כל שדות הקלט לסגנון עגול: border-radius: 9999px, border דק, padding אופקי רחב, מראה מודרני. ${STYLE_ONLY}`,
+    id: 'rounded-input', name: 'Rounded', preview: <InputShapePreview radius="9999px" style="outlined" />,
+    prompt: `Change all input fields to a rounded style: border-radius: 9999px, thin border, wide horizontal padding, modern look. ${STYLE_ONLY}`,
   },
 ];
 
 const SCREEN_TEMPLATES = [
   {
-    id: 'login-modern', name: 'התחברות מודרנית', icon: '🔐', tag: 'Auth',
-    prompt: 'הוסף מסך התחברות נקי: לוגו טקסט למעלה, שדות email וסיסמה (48px height) עם placeholder, כפתור "התחבר" solid color מלא, separator "או" עם כפתורי Google/Apple, לינקים "שכחתי סיסמה" ו"הרשמה". עיצוב מינימלי ללא gradient.',
+    id: 'login-modern', name: 'Modern Login', icon: '🔐', tag: 'Auth',
+    prompt: 'Add a clean login screen: text logo at the top, email and password fields (48px height) with placeholders, a full solid-color "Sign in" button, an "or" separator with Google/Apple buttons, "Forgot password" and "Sign up" links. Minimal design, no gradient.',
   },
   {
-    id: 'signup-flow', name: 'הרשמה רב-שלבית', icon: '📝', tag: 'Auth',
-    prompt: 'הוסף מסך הרשמה רב-שלבי (multi-step): שלב 1 - שם ואימייל, שלב 2 - סיסמה, שלב 3 - בחירת העדפות (chips בחירה). progress bar מונפש למעלה, כפתורי הבא/חזור, validation בזמן אמת, אנימציית מעבר בין שלבים. עיצוב מודרני עם Liquid Glass.',
+    id: 'signup-flow', name: 'Multi-step Signup', icon: '📝', tag: 'Auth',
+    prompt: 'Add a multi-step signup screen: step 1 - name and email, step 2 - password, step 3 - preferences selection (selectable chips). Animated progress bar at the top, next/back buttons, real-time validation, transition animation between steps. Modern design with Liquid Glass.',
   },
   {
-    id: 'profile-premium', name: 'פרופיל פרימיום', icon: '👤', tag: 'Profile',
-    prompt: 'הוסף מסך פרופיל מקצועי: אווטאר עגול (80px), שם ותיאור, 3 סטטיסטיקות בשורה (מספרים גדולים + תוויות קטנות), כפתור "ערוך פרופיל" outline, tabs לתוכן. עיצוב נקי ללא gradient.',
+    id: 'profile-premium', name: 'Premium Profile', icon: '👤', tag: 'Profile',
+    prompt: 'Add a professional profile screen: round avatar (80px), name and bio, 3 stats in a row (large numbers + small labels), an "Edit profile" outline button, tabs for content. Clean design, no gradient.',
   },
   {
-    id: 'dashboard-analytics', name: 'דשבורד אנליטיקס', icon: '📊', tag: 'Dashboard',
-    prompt: 'הוסף דשבורד אנליטיקס נקי: greeting header עם שם ותאריך, 4 כרטיסי KPI (מספר גדול bold + שינוי באחוזים ירוק/אדום + תווית קטנה), גרף SVG עם נקודות נתונים, רשימת "פעולות אחרונות". עיצוב מינימלי, ללא glass, ללא gradient.',
+    id: 'dashboard-analytics', name: 'Analytics Dashboard', icon: '📊', tag: 'Dashboard',
+    prompt: 'Add a clean analytics dashboard: greeting header with name and date, 4 KPI cards (large bold number + percentage change in green/red + small label), an SVG chart with data points, a "Recent activity" list. Minimal design, no glass, no gradient.',
   },
   {
-    id: 'settings-ios', name: 'הגדרות iOS', icon: '⚙️', tag: 'Settings',
-    prompt: 'הוסף מסך הגדרות בסגנון iOS: grouped list עם כותרות קטנות, כל פריט עם אייקון עגול צבעוני, label, וחץ ימני. toggles (switches) אמיתיים ל-3 הגדרות, section "חשבון" עם אווטאר, section "כללי", section "התראות", כפתור "התנתק" אדום למטה. רקע אפור בהיר, כרטיסים לבנים.',
+    id: 'settings-ios', name: 'iOS Settings', icon: '⚙️', tag: 'Settings',
+    prompt: 'Add an iOS-style settings screen: grouped list with small headers, each item with a round colored icon, a label, and a right-pointing chevron. Real toggles (switches) for 3 settings, an "Account" section with an avatar, a "General" section, a "Notifications" section, a red "Sign out" button at the bottom. Light gray background, white cards.',
   },
   {
-    id: 'product-detail', name: 'דף מוצר', icon: '🛍️', tag: 'E-Commerce',
-    prompt: 'הוסף דף מוצר מקצועי: תמונה גדולה עם dots, שם מוצר ומחיר bold, בוחר צבע (עיגולים), בוחר מידה (chips), כפתור "הוסף לסל" solid sticky למטה, דירוג כוכבים, תיאור. עיצוב נקי כמו ZARA, ללא gradient.',
+    id: 'product-detail', name: 'Product Page', icon: '🛍️', tag: 'E-Commerce',
+    prompt: 'Add a professional product page: large image with dots, product name and bold price, color picker (circles), size picker (chips), a solid sticky "Add to cart" button at the bottom, star rating, description. Clean design like ZARA, no gradient.',
   },
   {
-    id: 'chat-ui', name: 'צ\'אט', icon: '💬', tag: 'Messaging',
-    prompt: 'הוסף מסך צ\'אט: header עם אווטאר עגול + שם + online indicator ירוק, רשימת הודעות (בועות כחולות ימין למשתמש, אפורות שמאל), timestamps, read indicators (✓✓), שדה הקלדה sticky למטה עם כפתור שלח מונפש ואייקון attach. רקע pattern עדין.',
+    id: 'chat-ui', name: 'Chat', icon: '💬', tag: 'Messaging',
+    prompt: 'Add a chat screen: header with a round avatar + name + green online indicator, a message list (blue bubbles on the right for the user, gray on the left), timestamps, read indicators (✓✓), a sticky input field at the bottom with an animated send button and an attach icon. Subtle pattern background.',
   },
   {
     id: 'onboarding', name: 'Onboarding', icon: '🚀', tag: 'Flow',
-    prompt: 'הוסף מסך onboarding עם 3 שלבים: כל שלב עם איור CSS גדול, כותרת bold, תיאור קצר. dots indicator, כפתור "הבא"/"התחל". עיצוב מינימלי נקי.',
+    prompt: 'Add an onboarding screen with 3 steps: each step with a large CSS illustration, a bold title, and a short description. Dots indicator, a "Next"/"Get started" button. Clean minimal design.',
   },
   {
-    id: 'checkout', name: 'תשלום', icon: '💳', tag: 'E-Commerce',
-    prompt: 'הוסף מסך תשלום: סיכום הזמנה (פריטים + מחירים), שדות כרטיס אשראי מעוצבים (מספר/תוקף/CVV) עם אייקוני כרטיס, כפתורי Apple Pay ו-Google Pay, כפתור "שלם" gradient גדול עם סכום, הנפשת loading בלחיצה. כל שדה 48dp מינימום.',
+    id: 'checkout', name: 'Checkout', icon: '💳', tag: 'E-Commerce',
+    prompt: 'Add a checkout screen: order summary (items + prices), styled credit card fields (number/expiry/CVV) with card icons, Apple Pay and Google Pay buttons, a large gradient "Pay" button with the amount, a loading animation on tap. Each field at least 48dp.',
   },
   {
-    id: 'search-explore', name: 'חיפוש וגילוי', icon: '🔍', tag: 'Discovery',
-    prompt: 'הוסף מסך חיפוש וגילוי: שדה חיפוש sticky עגול עם אייקון, chips קטגוריות scrollable, "חיפושים פופולריים" כרשימה, "מומלצים" בגריד 2 עמודות עם כרטיסי תמונה מ-picsum.photos. אנימציית תוצאות חיפוש מיידיות, empty state מעוצב.',
+    id: 'search-explore', name: 'Search & Explore', icon: '🔍', tag: 'Discovery',
+    prompt: 'Add a search and explore screen: a round sticky search field with an icon, scrollable category chips, "Popular searches" as a list, "Recommended" in a 2-column grid with image cards from picsum.photos. Instant search results animation, a styled empty state.',
   },
   {
-    id: 'notifications', name: 'התראות', icon: '🔔', tag: 'Social',
-    prompt: 'הוסף מסך התראות: tabs (הכל/לא נקראו), כל התראה עם אווטאר, טקסט, זמן יחסי (לפני 5 דק), ונקודה כחולה ל-unread. סוגי התראות: לייק, תגובה, עוקב חדש, מערכת. swipe to dismiss. empty state עם אייקון פעמון.',
+    id: 'notifications', name: 'Notifications', icon: '🔔', tag: 'Social',
+    prompt: 'Add a notifications screen: tabs (All/Unread), each notification with an avatar, text, relative time (5 min ago), and a blue dot for unread. Notification types: like, comment, new follower, system. Swipe to dismiss. Empty state with a bell icon.',
   },
   {
-    id: 'map-view', name: 'מפה ומיקום', icon: '📍', tag: 'Location',
-    prompt: 'הוסף מסך מפה: מפה CSS (גריד רחובות) עם סמני מיקום מונפשים (pulse), כרטיס bottom sheet שעולה עם פרטי מיקום, שדה חיפוש כתובת למעלה, כפתור "מיקום נוכחי" צף. אנימציית pin drop.',
+    id: 'map-view', name: 'Map & Location', icon: '📍', tag: 'Location',
+    prompt: 'Add a map screen: a CSS map (street grid) with animated location markers (pulse), a bottom sheet card that slides up with location details, an address search field at the top, a floating "Current location" button. Pin drop animation.',
   },
 ];
 
 const DESIGN_LANGUAGES: DesignPreset[] = [
   {
-    id: 'glass', name: 'זכוכית', tag: 'Glassmorphism', preview: <GlassPreview />,
-    prompt: `החל סגנון Glassmorphism על האפליקציה: רקעים שקופים-למחצה עם backdrop-filter blur, מסגרות לבנות עדינות (rgba(255,255,255,0.3)), צללים רכים, gradient רקע צבעוני מאחורי הכל, ועיגול פינות גדול. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ללא אימוג'ים. ${STYLE_ONLY}`,
+    id: 'glass', name: 'Glass', tag: 'Glassmorphism', preview: <GlassPreview />,
+    prompt: `Apply a Glassmorphism style to the app: semi-transparent backgrounds with backdrop-filter blur, subtle white borders (rgba(255,255,255,0.3)), soft shadows, a colorful gradient background behind everything, and large corner radius. Use an 8px spacing grid, minimum 44px touch targets, line-height in multiples of 8. No emojis. ${STYLE_ONLY}`,
   },
   {
-    id: 'liquid-glass', name: 'זכוכית נוזלית', tag: 'Liquid Glass', preview: <LiquidGlassPreview />,
-    prompt: `החל סגנון Apple Liquid Glass (2025): רקע gradient בהיר (#e0f2fe → #fce7f3 → #f3e8ff), כרטיסים עם background: rgba(255,255,255,0.45), backdrop-filter: blur(12px) saturate(1.8), border: 1px solid rgba(255,255,255,0.35), box-shadow: 0 8px 32px rgba(31,38,135,0.12) ו-inset shadow עדין. פינות מעוגלות גדולות (16-20px), שקיפות וזרימה. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
+    id: 'liquid-glass', name: 'Liquid Glass', tag: 'Liquid Glass', preview: <LiquidGlassPreview />,
+    prompt: `Apply the Apple Liquid Glass style (2025): light gradient background (#e0f2fe → #fce7f3 → #f3e8ff), cards with background: rgba(255,255,255,0.45), backdrop-filter: blur(12px) saturate(1.8), border: 1px solid rgba(255,255,255,0.35), box-shadow: 0 8px 32px rgba(31,38,135,0.12) and a subtle inset shadow. Large rounded corners (16-20px), transparency and flow. Use an 8px spacing grid, minimum 44px touch targets, line-height in multiples of 8. ${STYLE_ONLY}`,
   },
   {
-    id: 'brutal', name: 'ברוטליזם', tag: 'Neo-Brutalism', preview: <BrutalPreview />,
-    prompt: `החל סגנון Neo-Brutalism: צבעים חזקים ורוויים, מסגרות שחורות עבות (3-4px solid #000), צללים קשיחים לא מטושטשים (box-shadow: 4px 4px 0 #000), פונטים מודגשים גדולים, ללא gradient, פינות מעט מעוגלות. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
+    id: 'brutal', name: 'Brutalism', tag: 'Neo-Brutalism', preview: <BrutalPreview />,
+    prompt: `Apply a Neo-Brutalism style: bold saturated colors, thick black borders (3-4px solid #000), hard non-blurred shadows (box-shadow: 4px 4px 0 #000), large bold fonts, no gradient, slightly rounded corners. Use an 8px spacing grid, minimum 44px touch targets, line-height in multiples of 8. ${STYLE_ONLY}`,
   },
   {
-    id: 'minimal', name: 'מינימלי', tag: 'Minimal', preview: <MinimalPreview />,
-    prompt: `החל סגנון מינימליסטי נקי: הרבה white space, פלטה מונוכרומטית (שחור/לבן/אפור) עם צבע אקסנט אחד, פונט נקי, צללים עדינים מאוד או בכלל לא, קווים דקים, טיפוגרפיה היא הגיבור. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
+    id: 'minimal', name: 'Minimal', tag: 'Minimal', preview: <MinimalPreview />,
+    prompt: `Apply a clean minimalist style: lots of white space, a monochromatic palette (black/white/gray) with a single accent color, a clean font, very subtle shadows or none at all, thin lines, typography as the hero. Use an 8px spacing grid, minimum 44px touch targets, line-height in multiples of 8. ${STYLE_ONLY}`,
   },
   {
-    id: 'darkpro', name: 'כהה מקצועי', tag: 'Dark Pro', preview: <DarkProPreview />,
-    prompt: `החל סגנון Dark Mode מקצועי: רקע שחור אמיתי (#000), surface (#1c1c1e), אקסנט כחול (#0A84FF), כרטיסים כהים עם border: 1px solid #38383a, ניגודיות גבוהה, ללא glow, ללא ניאון. ${STYLE_ONLY}`,
+    id: 'darkpro', name: 'Dark Pro', tag: 'Dark Pro', preview: <DarkProPreview />,
+    prompt: `Apply a professional Dark Mode style: true black background (#000), surface (#1c1c1e), blue accent (#0A84FF), dark cards with border: 1px solid #38383a, high contrast, no glow, no neon. ${STYLE_ONLY}`,
   },
   {
-    id: 'gradient', name: 'גרדיאנטים', tag: 'Gradient Rich', preview: <GradientPreview />,
-    prompt: `החל סגנון גרדיאנט עדין: gradient רקע בהיר מושתק (#f8f9ff → #fff5f5), כפתורים עם gradient עדין, כרטיסים לבנים, צללים רכים. לא צבעים רועשים. ${STYLE_ONLY}`,
+    id: 'gradient', name: 'Gradients', tag: 'Gradient Rich', preview: <GradientPreview />,
+    prompt: `Apply a subtle gradient style: muted light gradient background (#f8f9ff → #fff5f5), buttons with a subtle gradient, white cards, soft shadows. No loud colors. ${STYLE_ONLY}`,
   },
   {
-    id: 'neu', name: 'רך (Soft UI)', tag: 'Neumorphism', preview: <NeuPreview />,
-    prompt: `החל סגנון Neumorphism / Soft UI: רקע אפור-בהיר אחיד (#e0e5ec), רכיבים עם צללים כפולים רכים (אור מלמעלה-שמאל, צל מלמטה-ימין) שיוצרים אפקט תלת-ממדי מובלט/שקוע, פינות מעוגלות מאוד, ניגודיות נמוכה. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
+    id: 'neu', name: 'Soft UI', tag: 'Neumorphism', preview: <NeuPreview />,
+    prompt: `Apply a Neumorphism / Soft UI style: uniform light-gray background (#e0e5ec), components with soft double shadows (light from top-left, shadow at bottom-right) that create an extruded/inset 3D effect, very rounded corners, low contrast. Use an 8px spacing grid, minimum 44px touch targets, line-height in multiples of 8. ${STYLE_ONLY}`,
   },
   {
-    id: 'm3-expressive', name: 'M3 אקספרסיבי', tag: 'Material 3', preview: <M3ExpressivePreview />,
-    prompt: `החל סגנון Material Design 3 Expressive: פלטת צבעים מרחבית עם primary (#6750a4), secondary (#625b71), tertiary (#7d5260), surface tones (#f3edf7, #e8def8), כפתורי FAB מעוגלים גדולים (28px radius), כרטיסים עם surface containers, 35 צורות חדשות — squircle shapes ו-wavy edges, מרווחים 8px grid, touch targets 48dp, טיפוגרפיה עשירה עם emphasized styles. השתמש ברשת מרווחים 8px, touch targets מינימלי 44px, line-height כפולת 8. ${STYLE_ONLY}`,
+    id: 'm3-expressive', name: 'M3 Expressive', tag: 'Material 3', preview: <M3ExpressivePreview />,
+    prompt: `Apply the Material Design 3 Expressive style: a spatial color palette with primary (#6750a4), secondary (#625b71), tertiary (#7d5260), surface tones (#f3edf7, #e8def8), large rounded FAB buttons (28px radius), cards with surface containers, 35 new shapes — squircle shapes and wavy edges, 8px grid spacing, 48dp touch targets, rich typography with emphasized styles. Use an 8px spacing grid, minimum 44px touch targets, line-height in multiples of 8. ${STYLE_ONLY}`,
   },
 ];
 
 const APP_STYLES: DesignPreset[] = [
   {
-    id: 'whatsapp', name: 'WhatsApp', tag: 'מסרים', preview: <WhatsAppPreview />,
-    prompt: `החל עיצוב בסגנון WhatsApp: רקע כהה (#111b21), header ב-#1f2c34, בועות צ'אט ירוקות (#005c4b) למשתמש ואפורות כהות לצד שני, כפתור FAB עגול בירוק (#00a884), טיפוגרפיה נקייה, אייקונים דקים. ללא gradient, ללא אימוג'ים כאייקונים. ${STYLE_ONLY}`,
+    id: 'whatsapp', name: 'WhatsApp', tag: 'Messaging', preview: <WhatsAppPreview />,
+    prompt: `Apply a WhatsApp-style design: dark background (#111b21), header in #1f2c34, green chat bubbles (#005c4b) for the user and dark gray for the other side, a round green FAB button (#00a884), clean typography, thin icons. No gradient, no emojis as icons. ${STYLE_ONLY}`,
   },
   {
-    id: 'spotify', name: 'Spotify', tag: 'מוזיקה', preview: <SpotifyPreview />,
-    prompt: `החל עיצוב בסגנון Spotify: רקע שחור (#121212), כרטיסים ב-#282828, אקסנט ירוק (#1DB954) לכפתורים ו-controls בלבד, כותרות לבנות גדולות (bold), רשימות נקיות עם תמונות קטנות, ניווט תחתון מינימלי. ללא gradient, ללא glow. ${STYLE_ONLY}`,
+    id: 'spotify', name: 'Spotify', tag: 'Music', preview: <SpotifyPreview />,
+    prompt: `Apply a Spotify-style design: black background (#121212), cards in #282828, green accent (#1DB954) for buttons and controls only, large white bold titles, clean lists with small images, minimal bottom navigation. No gradient, no glow. ${STYLE_ONLY}`,
   },
   {
-    id: 'tiktok', name: 'TikTok', tag: 'וידאו', preview: <TikTokPreview />,
-    prompt: `החל עיצוב בסגנון TikTok: רקע שחור מלא (#000), טקסט לבן, אקסנט אדום (#FE2C55) לכפתורים ראשיים, אייקוני אינטראקציה עגולים בצד ימין, ניווט תחתון עם 5 טאבים, מראה נקי ומודרני. ללא gradient. ${STYLE_ONLY}`,
+    id: 'tiktok', name: 'TikTok', tag: 'Video', preview: <TikTokPreview />,
+    prompt: `Apply a TikTok-style design: full black background (#000), white text, red accent (#FE2C55) for primary buttons, round interaction icons on the right side, bottom navigation with 5 tabs, a clean and modern look. No gradient. ${STYLE_ONLY}`,
   },
   {
-    id: 'apple', name: 'Apple', tag: 'מינימלי', preview: <ApplePreview />,
-    prompt: `החל עיצוב בסגנון Apple: רקע (#f5f5f7), כרטיסים לבנים עם border-radius: 16px, צללים עדינים (0 1px 3px rgba(0,0,0,0.08)), אקסנט כחול (#007AFF) לפעולות בלבד, הרבה white space, טיפוגרפיה SF Pro - כותרות 28px bold letter-spacing -0.5px, body 15px regular. ללא gradient, ללא אימוג'ים. ${STYLE_ONLY}`,
+    id: 'apple', name: 'Apple', tag: 'Minimal', preview: <ApplePreview />,
+    prompt: `Apply an Apple-style design: background (#f5f5f7), white cards with border-radius: 16px, subtle shadows (0 1px 3px rgba(0,0,0,0.08)), blue accent (#007AFF) for actions only, lots of white space, SF Pro typography - titles 28px bold letter-spacing -0.5px, body 15px regular. No gradient, no emojis. ${STYLE_ONLY}`,
   },
   {
-    id: 'uber', name: 'Uber', tag: 'נסיעות', preview: <UberPreview />,
-    prompt: `החל עיצוב בסגנון Uber: רקע לבן, כפתורים שחורים (#000) מלאים, כרטיסים עם רקע (#f6f6f6), טיפוגרפיה מודגשת שחורה, border-radius: 8px, ללא צללים, ללא gradient, תחושת יעילות ופשטות. ${STYLE_ONLY}`,
+    id: 'uber', name: 'Uber', tag: 'Rides', preview: <UberPreview />,
+    prompt: `Apply an Uber-style design: white background, solid black buttons (#000), cards with background (#f6f6f6), bold black typography, border-radius: 8px, no shadows, no gradient, a sense of efficiency and simplicity. ${STYLE_ONLY}`,
   },
   {
     id: 'google', name: 'Material', tag: 'Google', preview: <GooglePreview />,
-    prompt: `החל עיצוב Material Design 3: רקע לבן, כרטיסים עם border-radius: 12px, surface tones, כפתורי FAB עגולים, צבע ראשי כחול (#4285F4), שדות עם מסגרת עגולה, צללים עדינים (0 1px 3px), ללא gradient. ${STYLE_ONLY}`,
+    prompt: `Apply a Material Design 3 design: white background, cards with border-radius: 12px, surface tones, round FAB buttons, blue primary color (#4285F4), fields with a rounded border, subtle shadows (0 1px 3px), no gradient. ${STYLE_ONLY}`,
   },
   {
-    id: 'food', name: 'משלוחים', tag: 'Wolt', preview: <FoodPreview />,
-    prompt: `החל עיצוב בסגנון Wolt/DoorDash: רקע לבן, כרטיסים עם תמונה גדולה + שם + תיאור + דירוג כוכבים + זמן משלוח + מחיר, אקסנט ירוק (#00B37E) לכפתורי CTA, chips קטגוריות אופקיים, ניווט תחתון 4 טאבים. ללא gradient, ללא אימוג'ים. ${STYLE_ONLY}`,
+    id: 'food', name: 'Delivery', tag: 'Wolt', preview: <FoodPreview />,
+    prompt: `Apply a Wolt/DoorDash-style design: white background, cards with a large image + name + description + star rating + delivery time + price, green accent (#00B37E) for CTA buttons, horizontal category chips, bottom navigation with 4 tabs. No gradient, no emojis. ${STYLE_ONLY}`,
   },
   {
-    id: 'fintech', name: 'פינטק', tag: 'Revolut', preview: <FintechPreview />,
-    prompt: `החל עיצוב בסגנון Revolut/Robinhood: רקע לבן נקי, כרטיס יתרה עם מספרים גדולים (32px bold), גרף SVG מינימלי, רשימת עסקאות נקייה, אקסנט כחול (#0052FF) לפעולות, ירוק (#00C805) לחיובי ואדום (#FF3B30) לשלילי. ללא gradient. ${STYLE_ONLY}`,
+    id: 'fintech', name: 'Fintech', tag: 'Revolut', preview: <FintechPreview />,
+    prompt: `Apply a Revolut/Robinhood-style design: clean white background, balance card with large numbers (32px bold), a minimal SVG chart, a clean transactions list, blue accent (#0052FF) for actions, green (#00C805) for positive and red (#FF3B30) for negative. No gradient. ${STYLE_ONLY}`,
   },
   {
-    id: 'fitness', name: 'כושר', tag: 'Strava', preview: <FitnessPreview />,
-    prompt: `החל עיצוב בסגנון Strava/Nike Run Club: רקע לבן (#fff), כותרות שחורות מודגשות, מדדים גדולים (48px bold), אקסנט כתום (#FC4C02) לנתונים ו-CTAs, כרטיסי סטטיסטיקות נקיים, ללא glow, ללא ניאון, ללא gradient. ${STYLE_ONLY}`,
+    id: 'fitness', name: 'Fitness', tag: 'Strava', preview: <FitnessPreview />,
+    prompt: `Apply a Strava/Nike Run Club-style design: white background (#fff), bold black titles, large metrics (48px bold), orange accent (#FC4C02) for data and CTAs, clean stat cards, no glow, no neon, no gradient. ${STYLE_ONLY}`,
   },
   {
-    id: 'ecom', name: 'חנות', tag: 'ZARA', preview: <EcomPreview />,
-    prompt: `החל עיצוב בסגנון ZARA/COS: רקע לבן, טיפוגרפיה אלגנטית (font-weight: 300, letter-spacing: 2px), תמונות מוצר גדולות, גריד 2 עמודות, מחירים ב-bold, כפתורי "הוסף" שחורים (#000), ללא gradient, ללא צללים, מינימליזם מוחלט. ${STYLE_ONLY}`,
+    id: 'ecom', name: 'Store', tag: 'ZARA', preview: <EcomPreview />,
+    prompt: `Apply a ZARA/COS-style design: white background, elegant typography (font-weight: 300, letter-spacing: 2px), large product images, a 2-column grid, bold prices, black "Add" buttons (#000), no gradient, no shadows, absolute minimalism. ${STYLE_ONLY}`,
   },
   {
-    id: 'social', name: 'חברתי', tag: 'Instagram', preview: <SocialPreview />,
-    prompt: `החל עיצוב בסגנון Instagram/Threads: רקע לבן (#fff), כרטיסי feed נקיים, אווטארים עגולים, אייקוני SVG דקים (stroke-width: 1.5) ללייק/תגובה/שיתוף, ניווט תחתון 5 טאבים, border-bottom: 1px solid #efefef, ללא gradient. ${STYLE_ONLY}`,
+    id: 'social', name: 'Social', tag: 'Instagram', preview: <SocialPreview />,
+    prompt: `Apply an Instagram/Threads-style design: white background (#fff), clean feed cards, round avatars, thin SVG icons (stroke-width: 1.5) for like/comment/share, bottom navigation with 5 tabs, border-bottom: 1px solid #efefef, no gradient. ${STYLE_ONLY}`,
   },
   {
-    id: 'booking', name: 'הזמנות', tag: 'Airbnb', preview: <SocialPreview />,
-    prompt: `החל עיצוב בסגנון Airbnb: רקע לבן, כרטיסים עם תמונות גדולות (border-radius: 12px), דירוגי כוכבים קטנים, אקסנט (#FF5A5F) ל-CTAs, שדה חיפוש pill עגול, הרבה white space, font-weight: 600 לכותרות. ללא gradient. ${STYLE_ONLY}`,
+    id: 'booking', name: 'Booking', tag: 'Airbnb', preview: <SocialPreview />,
+    prompt: `Apply an Airbnb-style design: white background, cards with large images (border-radius: 12px), small star ratings, accent (#FF5A5F) for CTAs, a round pill search field, lots of white space, font-weight: 600 for titles. No gradient. ${STYLE_ONLY}`,
   },
   {
     id: 'ai-chat', name: 'AI', tag: 'ChatGPT', preview: <ApplePreview />,
-    prompt: `החל עיצוב בסגנון ChatGPT/Claude: רקע לבן (#fff), ממשק צ'אט נקי, בועות הודעות עם רקע אפור בהיר (#f7f7f8) לתגובות AI ושקוף למשתמש, שדה הקלדה pill בתחתית עם אייקון שליחה, אקסנט (#10A37F), ללא gradient. ${STYLE_ONLY}`,
+    prompt: `Apply a ChatGPT/Claude-style design: white background (#fff), a clean chat interface, message bubbles with a light gray background (#f7f7f8) for AI responses and transparent for the user, a pill input field at the bottom with a send icon, accent (#10A37F), no gradient. ${STYLE_ONLY}`,
   },
   {
-    id: 'health', name: 'בריאות', tag: 'Calm', preview: <ApplePreview />,
-    prompt: `החל עיצוב בסגנון Calm/Headspace: רקע בהיר (#fafafa), כרטיסים עם border-radius: 16px, צבעי פסטל מושתקים, אקסנט כחול רגוע (#4EAAF3), טיפוגרפיה רכה (font-weight: 400-500), הרבה white space, מראה שקט ומרגיע. ללא gradient חזק, ללא אנימציות. ${STYLE_ONLY}`,
+    id: 'health', name: 'Health', tag: 'Calm', preview: <ApplePreview />,
+    prompt: `Apply a Calm/Headspace-style design: light background (#fafafa), cards with border-radius: 16px, muted pastel colors, a calm blue accent (#4EAAF3), soft typography (font-weight: 400-500), lots of white space, a quiet and soothing look. No strong gradient, no animations. ${STYLE_ONLY}`,
   },
 ];
 
@@ -507,11 +507,11 @@ function PresetCard({ preset, onApply, disabled }: { preset: DesignPreset; onApp
         {preset.preview}
         <div className="absolute inset-0 rounded-lg bg-primary/0 group-hover:bg-primary/5 transition-colors flex items-center justify-center">
           <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-white bg-primary/90 px-2 py-1 rounded-md shadow-lg">
-            החל
+            Apply
           </span>
         </div>
       </div>
-      <div className="text-right">
+      <div className="text-left">
         <div className="text-[11px] font-semibold text-text-primary leading-tight">{preset.name}</div>
         <div className="text-[9px] text-text-soft leading-tight">{preset.tag}</div>
       </div>
@@ -538,14 +538,14 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
   const [section, setSection] = useState<GallerySection>('shapes');
 
   return (
-    <div className="flex flex-col h-full" dir="rtl">
+    <div className="flex flex-col h-full" dir="ltr">
       {/* Section tabs */}
       <div className="flex gap-1 p-3 border-b border-border/50 flex-shrink-0">
         {([
-          { id: 'shapes' as GallerySection, label: '🔲 צורות' },
-          { id: 'templates' as GallerySection, label: '📐 תבניות' },
-          { id: 'apps' as GallerySection, label: '📱 אפליקציות' },
-          { id: 'styles' as GallerySection, label: '🎨 עיצוב' },
+          { id: 'shapes' as GallerySection, label: '🔲 Shapes' },
+          { id: 'templates' as GallerySection, label: '📐 Templates' },
+          { id: 'apps' as GallerySection, label: '📱 Apps' },
+          { id: 'styles' as GallerySection, label: '🎨 Styles' },
         ]).map((s) => (
           <button
             key={s.id}
@@ -566,13 +566,13 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
         {section === 'shapes' && (
           <div className="flex flex-col gap-5">
             <p className="text-xs text-text-secondary leading-relaxed">
-              בחר צורות לכפתורים, כרטיסים ושדות — <span className="font-semibold text-text-primary">כמו בפיגמה</span>.
+              Choose shapes for buttons, cards, and inputs — <span className="font-semibold text-text-primary">just like in Figma</span>.
             </p>
 
             {/* Button shapes */}
             <div>
               <label className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2 block">
-                צורת כפתורים
+                Button Shapes
               </label>
               <div className="grid grid-cols-3 gap-1.5">
                 {BUTTON_SHAPES.map((s) => (
@@ -586,7 +586,7 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
             {/* Card shapes */}
             <div>
               <label className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2 block">
-                צורת כרטיסים
+                Card Shapes
               </label>
               <div className="grid grid-cols-2 gap-1.5">
                 {CARD_SHAPES.map((s) => (
@@ -600,7 +600,7 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
             {/* Input shapes */}
             <div>
               <label className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2 block">
-                צורת שדות קלט
+                Input Shapes
               </label>
               <div className="grid grid-cols-2 gap-1.5">
                 {INPUT_SHAPES.map((s) => (
@@ -615,7 +615,7 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
         {section === 'templates' && (
           <div className="flex flex-col gap-4">
             <p className="text-xs text-text-secondary leading-relaxed">
-              תבניות מסך ברמת <span className="font-semibold text-text-primary">Figma</span> — לחץ להוסיף מסך מוכן עם קישורים ופעולות.
+              <span className="font-semibold text-text-primary">Figma-quality</span> screen templates — click to add a ready-made screen with links and actions.
             </p>
             <div className="flex flex-col gap-1.5">
               {SCREEN_TEMPLATES.map((t) => (
@@ -625,7 +625,7 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
                   disabled={isGenerating}
                   className="group flex items-center gap-3 py-3 px-3 rounded-xl border border-border bg-surface
                     hover:border-primary/40 hover:bg-primary/5 active:scale-[0.98] transition-all duration-200
-                    disabled:opacity-40 disabled:cursor-not-allowed text-right"
+                    disabled:opacity-40 disabled:cursor-not-allowed text-left"
                 >
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
                     {t.icon}
@@ -650,7 +650,7 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
         {section === 'apps' && (
           <div className="flex flex-col gap-4">
             <p className="text-xs text-text-secondary leading-relaxed">
-              בחר עיצוב מאפליקציה מוכרת — <span className="font-semibold text-text-primary">רק העיצוב, לא התוכן</span>.
+              Choose a design from a popular app — <span className="font-semibold text-text-primary">style only, not the content</span>.
             </p>
             <div className="grid grid-cols-2 gap-2">
               {APP_STYLES.map((p) => (
@@ -664,7 +664,7 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
         {section === 'styles' && (
           <div className="flex flex-col gap-4">
             <p className="text-xs text-text-secondary leading-relaxed">
-              בחר שפת עיצוב — <span className="font-semibold text-text-primary">בלי לשנות את התוכן</span>.
+              Choose a design language — <span className="font-semibold text-text-primary">without changing the content</span>.
             </p>
             <div className="grid grid-cols-2 gap-2">
               {DESIGN_LANGUAGES.map((p) => (
@@ -681,7 +681,7 @@ export default function DesignGallery({ onApply, isGenerating }: DesignGalleryPr
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          מחיל עיצוב...
+          Applying design...
         </div>
       )}
     </div>

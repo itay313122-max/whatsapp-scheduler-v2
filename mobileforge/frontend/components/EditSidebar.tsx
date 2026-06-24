@@ -139,12 +139,12 @@ const SHAPE_PRESETS = [
 ];
 
 const LINK_TEMPLATES = [
-  { id: 'screen-nav', label: 'קישור למסך', icon: '📱', prompt: (text: string) => `הפוך את "${text}" ללחצן ניווט שמעביר למסך אחר באפליקציה. הוסף אנימציית מעבר חלקה.` },
-  { id: 'url-link', label: 'קישור חיצוני', icon: '🔗', prompt: (text: string) => `הפוך את "${text}" ללינק חיצוני שנפתח בחלון חדש. הוסף אייקון קישור קטן.` },
-  { id: 'form-save', label: 'שמירת טופס', icon: '💾', prompt: (text: string) => `הפוך את "${text}" לכפתור שמירה שאוסף את כל שדות הטופס ושומר ב-localStorage. הוסף הודעת הצלחה.` },
-  { id: 'auth-login', label: 'התחברות', icon: '🔐', prompt: (text: string) => `הפוך את "${text}" לכפתור התחברות עם טופס email וסיסמה, validation, וטיפול בשגיאות. שמור מצב auth ב-localStorage.` },
-  { id: 'add-to-cart', label: 'הוסף לסל', icon: '🛒', prompt: (text: string) => `הפוך את "${text}" לכפתור "הוסף לסל" עם אנימציית הוספה, עדכון badge בניווט, ושמירת סל ב-localStorage.` },
-  { id: 'share', label: 'שיתוף', icon: '📤', prompt: (text: string) => `הפוך את "${text}" לכפתור שיתוף עם Web Share API (או fallback עם העתקת לינק). הוסף אנימציית feedback.` },
+  { id: 'screen-nav', label: 'Link to screen', icon: '📱', prompt: (text: string) => `Turn "${text}" into a navigation button that goes to another screen in the app. Add a smooth transition animation.` },
+  { id: 'url-link', label: 'External link', icon: '🔗', prompt: (text: string) => `Turn "${text}" into an external link that opens in a new window. Add a small link icon.` },
+  { id: 'form-save', label: 'Save form', icon: '💾', prompt: (text: string) => `Turn "${text}" into a save button that collects all form fields and saves them to localStorage. Add a success message.` },
+  { id: 'auth-login', label: 'Login', icon: '🔐', prompt: (text: string) => `Turn "${text}" into a login button with an email and password form, validation, and error handling. Persist the auth state in localStorage.` },
+  { id: 'add-to-cart', label: 'Add to cart', icon: '🛒', prompt: (text: string) => `Turn "${text}" into an "Add to cart" button with an add animation, a navigation badge update, and cart persistence in localStorage.` },
+  { id: 'share', label: 'Share', icon: '📤', prompt: (text: string) => `Turn "${text}" into a share button using the Web Share API (with a copy-link fallback). Add a feedback animation.` },
 ];
 
 const DISPLAY_OPTIONS = [
@@ -164,20 +164,20 @@ const BUTTON_SIZE_PRESETS = [
 ];
 
 const SHADOW_PRESETS = [
-  { id: 'none', label: 'ללא', value: 'none' },
-  { id: 'xs', label: 'עדין', value: '0 1px 2px rgba(0,0,0,0.04)' },
-  { id: 'sm', label: 'קטן', value: '0 1px 3px rgba(0,0,0,0.08)' },
-  { id: 'md', label: 'בינוני', value: '0 4px 12px rgba(0,0,0,0.1)' },
-  { id: 'lg', label: 'גדול', value: '0 8px 24px rgba(0,0,0,0.12)' },
+  { id: 'none', label: 'None', value: 'none' },
+  { id: 'xs', label: 'Subtle', value: '0 1px 2px rgba(0,0,0,0.04)' },
+  { id: 'sm', label: 'Small', value: '0 1px 3px rgba(0,0,0,0.08)' },
+  { id: 'md', label: 'Medium', value: '0 4px 12px rgba(0,0,0,0.1)' },
+  { id: 'lg', label: 'Large', value: '0 8px 24px rgba(0,0,0,0.12)' },
 ];
 
 const AI_RECOMMENDATIONS = [
-  { label: 'שפר נגישות', prompt: 'שפר את הנגישות של האפליקציה - הוסף aria-labels, ניגודיות צבעים טובה, ו-focus states לכל רכיב אינטראקטיבי', icon: '♿' },
-  { label: 'הוסף loading states', prompt: 'הוסף מצבי טעינה (loading states) עם skeletons או spinners לכל הרכיבים שטוענים מידע', icon: '⏳' },
-  { label: 'שפר רספונסיביות', prompt: 'ודא שהאפליקציה רספונסיבית לחלוטין - שימוש ב-flexbox, גדלים יחסיים, ו-media queries', icon: '📱' },
-  { label: 'הוסף empty states', prompt: 'הוסף מצבי ריק (empty states) מעוצבים עם אייקון, כותרת, וכפתור פעולה לכל רשימה או אזור תוכן', icon: '📭' },
-  { label: 'שפר ביצועים', prompt: 'שפר ביצועים - lazy loading לתמונות, מזער re-renders, הוסף will-change לאנימציות', icon: '⚡' },
-  { label: 'הוסף micro-interactions', prompt: 'הוסף micro-interactions - אנימציות hover, לחיצה, מעברים חלקים, ו-feedback ויזואלי לכל אינטראקציה', icon: '✨' },
+  { label: 'Improve accessibility', prompt: 'Improve the app accessibility - add aria-labels, good color contrast, and focus states for every interactive element', icon: '♿' },
+  { label: 'Add loading states', prompt: 'Add loading states with skeletons or spinners for all components that load data', icon: '⏳' },
+  { label: 'Improve responsiveness', prompt: 'Ensure the app is fully responsive - use flexbox, relative sizes, and media queries', icon: '📱' },
+  { label: 'Add empty states', prompt: 'Add styled empty states with an icon, heading, and action button for every list or content area', icon: '📭' },
+  { label: 'Improve performance', prompt: 'Improve performance - lazy load images, minimize re-renders, and add will-change to animations', icon: '⚡' },
+  { label: 'Add micro-interactions', prompt: 'Add micro-interactions - hover and click animations, smooth transitions, and visual feedback for every interaction', icon: '✨' },
 ];
 
 const ICON_LIBRARY = [
@@ -189,127 +189,127 @@ const ICON_LIBRARY = [
 
 const ANIMATION_PRESETS = [
   {
-    category: 'כניסה',
+    category: 'Entrance',
     icon: '🎬',
     animations: [
-      { label: 'Fade In', prompt: 'הוסף אנימציית fade-in לכל הרכיבים הראשיים בעמוד. כל רכיב יופיע עם השהייה קטנה אחרי הקודם. השתמש ב-CSS @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }' },
-      { label: 'Slide Up', prompt: 'הוסף אנימציית slide-up לכל הכרטיסים והרכיבים. @keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }. הוסף animation-delay מדורג לכל רכיב.' },
-      { label: 'Scale In', prompt: 'הוסף אנימציית scale-in לכפתורים וכרטיסים. @keyframes scaleIn { from { transform: scale(0.9); opacity: 0 } to { transform: scale(1); opacity: 1 } }' },
-      { label: 'Slide From Right', prompt: 'הוסף אנימציית כניסה מימין לשמאל לרכיבים. @keyframes slideRight { from { transform: translateX(30px); opacity: 0 } to { transform: translateX(0); opacity: 1 } }' },
+      { label: 'Fade In', prompt: 'Add a fade-in animation to all the main elements on the page. Each element appears with a small delay after the previous one. Use CSS @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }' },
+      { label: 'Slide Up', prompt: 'Add a slide-up animation to all cards and elements. @keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }. Add a staggered animation-delay to each element.' },
+      { label: 'Scale In', prompt: 'Add a scale-in animation to buttons and cards. @keyframes scaleIn { from { transform: scale(0.9); opacity: 0 } to { transform: scale(1); opacity: 1 } }' },
+      { label: 'Slide From Right', prompt: 'Add a right-to-left entrance animation to elements. @keyframes slideRight { from { transform: translateX(30px); opacity: 0 } to { transform: translateX(0); opacity: 1 } }' },
     ],
   },
   {
-    category: 'אינטראקציה',
+    category: 'Interaction',
     icon: '👆',
     animations: [
-      { label: 'Hover Scale', prompt: 'הוסף אפקט hover scale לכל הכפתורים והכרטיסים: transition: transform 0.2s ease, box-shadow 0.2s ease. בהובר: transform: scale(1.03) ו-box-shadow חזק יותר.' },
-      { label: 'Press Effect', prompt: 'הוסף אפקט לחיצה (active state) לכל הכפתורים: active { transform: scale(0.97); transition: transform 0.1s }' },
-      { label: 'Glow on Hover', prompt: 'הוסף אפקט זוהר (glow) על hover לכפתורים ראשיים: box-shadow: 0 0 20px rgba(var(--c-primary), 0.4) בהובר' },
-      { label: 'Underline Slide', prompt: 'הוסף אנימציית underline שמחליקה מימין לשמאל על hover לכל הלינקים ופריטי ניווט. השתמש ב-::after pseudo-element עם transition.' },
+      { label: 'Hover Scale', prompt: 'Add a hover scale effect to all buttons and cards: transition: transform 0.2s ease, box-shadow 0.2s ease. On hover: transform: scale(1.03) and a stronger box-shadow.' },
+      { label: 'Press Effect', prompt: 'Add a press (active state) effect to all buttons: active { transform: scale(0.97); transition: transform 0.1s }' },
+      { label: 'Glow on Hover', prompt: 'Add a glow effect on hover to primary buttons: box-shadow: 0 0 20px rgba(var(--c-primary), 0.4) on hover' },
+      { label: 'Underline Slide', prompt: 'Add an underline animation that slides in on hover for all links and navigation items. Use an ::after pseudo-element with a transition.' },
     ],
   },
   {
-    category: 'מעברים',
+    category: 'Transitions',
     icon: '🔄',
     animations: [
-      { label: 'Smooth Transitions', prompt: 'הוסף transition חלק לכל הרכיבים האינטראקטיביים: transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1). זה כולל כפתורים, כרטיסים, שדות קלט, ופריטי ניווט.' },
-      { label: 'Page Transition', prompt: 'הוסף אנימציית מעבר בין מסכים: כשמחליפים מסך, המסך הנוכחי עושה fade-out והחדש עושה fade-in. השתמש ב-CSS transitions.' },
-      { label: 'Stagger Animation', prompt: 'הוסף אפקט stagger - כל פריט ברשימה מופיע עם השהייה של 0.05s אחרי הקודם. animation-delay: calc(var(--i) * 0.05s) לכל פריט.' },
-      { label: 'Parallax Scroll', prompt: 'הוסף אפקט parallax קל: ה-header זזה לאט יותר מהתוכן בזמן גלילה. השתמש ב-background-attachment: fixed או transform בגלילה.' },
+      { label: 'Smooth Transitions', prompt: 'Add a smooth transition to all interactive elements: transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1). This includes buttons, cards, input fields, and navigation items.' },
+      { label: 'Page Transition', prompt: 'Add a transition animation between screens: when switching screens, the current screen fades out and the new one fades in. Use CSS transitions.' },
+      { label: 'Stagger Animation', prompt: 'Add a stagger effect - each list item appears with a 0.05s delay after the previous one. animation-delay: calc(var(--i) * 0.05s) for each item.' },
+      { label: 'Parallax Scroll', prompt: 'Add a light parallax effect: the header moves slower than the content while scrolling. Use background-attachment: fixed or transform on scroll.' },
     ],
   },
   {
-    category: 'מיוחדים',
+    category: 'Special',
     icon: '✨',
     animations: [
-      { label: 'Pulse Badge', prompt: 'הוסף אנימציית pulse לבאג\'ים (badges) והתראות: @keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.1) } }' },
-      { label: 'Skeleton Loading', prompt: 'הוסף אפקט skeleton loading לכרטיסים: @keyframes shimmer { from { background-position: -200% 0 } to { background-position: 200% 0 } } עם background gradient אפור מתחלף.' },
-      { label: 'Float Effect', prompt: 'הוסף אפקט ציפה (float) לאלמנט ראשי/לוגו: @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } } animation: float 3s ease-in-out infinite.' },
-      { label: 'Gradient Shift', prompt: 'הוסף אנימציית gradient מתחלף לרקע ה-header: @keyframes gradientShift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } } background-size: 200% 200%.' },
+      { label: 'Pulse Badge', prompt: 'Add a pulse animation to badges and notifications: @keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.1) } }' },
+      { label: 'Skeleton Loading', prompt: 'Add a skeleton loading effect to cards: @keyframes shimmer { from { background-position: -200% 0 } to { background-position: 200% 0 } } with a shifting gray background gradient.' },
+      { label: 'Float Effect', prompt: 'Add a floating effect to a main element/logo: @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } } animation: float 3s ease-in-out infinite.' },
+      { label: 'Gradient Shift', prompt: 'Add a shifting gradient animation to the header background: @keyframes gradientShift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } } background-size: 200% 200%.' },
     ],
   },
 ];
 
 const WIDGET_CATEGORIES = [
   {
-    category: 'זמן ותאריך',
+    category: 'Time & Date',
     icon: '🕐',
     widgets: [
-      { label: 'שעון דיגיטלי', icon: '⏰', prompt: 'הוסף ווידג\'ט שעון דיגיטלי אינטראקטיבי שמציג שעה, דקות ושניות בזמן אמת. השתמש ב-useEffect עם setInterval כל שנייה. עיצוב מודרני עם font-family: monospace, גודל גדול, ורקע card.' },
-      { label: 'שעון אנלוגי', icon: '🕰️', prompt: 'הוסף ווידג\'ט שעון אנלוגי עם SVG. צייר מעגל, סימני שעות, מחוג שעות (קצר ועבה), מחוג דקות (ארוך), ומחוג שניות (אדום דק). עדכן כל שנייה עם useEffect. השתמש ב-transform: rotate() למחוגים.' },
-      { label: 'טיימר / ספירה לאחור', icon: '⏱️', prompt: 'הוסף ווידג\'ט טיימר עם ספירה לאחור. כפתורי start/stop/reset. הצג דקות:שניות בפורמט גדול. כפתורי הוספת זמן (1 דק, 5 דק, 10 דק). השמע התראה כשנגמר. min-height 48px לכל הכפתורים.' },
-      { label: 'סטופר', icon: '🏃', prompt: 'הוסף סטופר (stopwatch) עם הצגת שעות:דקות:שניות:מאיות. כפתורי Start, Stop, Reset, Lap. רשימת lap times עם מספור. font-family: monospace לתצוגה.' },
-      { label: 'לוח שנה', icon: '📅', prompt: 'הוסף ווידג\'ט לוח שנה חודשי אינטראקטיבי. הצג grid של 7 עמודות (א-ש). כפתורי חודש קודם/הבא. הדגש את היום הנוכחי. לחיצה על יום מסמנת אותו. השתמש ב-Date object לחישוב ימים.' },
-      { label: 'בוחר תאריך', icon: '📆', prompt: 'הוסף date picker מעוצב. שלושה select dropdowns ליום, חודש, שנה. או לוח שנה popup. הצג את התאריך הנבחר בפורמט עברי. כפתור "היום" לבחירת היום הנוכחי.' },
+      { label: 'Digital clock', icon: '⏰', prompt: 'Add an interactive digital clock widget that shows hours, minutes, and seconds in real time. Use useEffect with setInterval every second. Modern design with font-family: monospace, large size, and a card background.' },
+      { label: 'Analog clock', icon: '🕰️', prompt: 'Add an analog clock widget using SVG. Draw a circle, hour marks, an hour hand (short and thick), a minute hand (long), and a second hand (thin red). Update every second with useEffect. Use transform: rotate() for the hands.' },
+      { label: 'Timer / countdown', icon: '⏱️', prompt: 'Add a countdown timer widget. Start/stop/reset buttons. Show minutes:seconds in a large format. Add-time buttons (1 min, 5 min, 10 min). Play an alert when it ends. min-height 48px for all buttons.' },
+      { label: 'Stopwatch', icon: '🏃', prompt: 'Add a stopwatch showing hours:minutes:seconds:hundredths. Start, Stop, Reset, and Lap buttons. A numbered list of lap times. font-family: monospace for the display.' },
+      { label: 'Calendar', icon: '📅', prompt: 'Add an interactive monthly calendar widget. Show a 7-column grid for the days of the week. Previous/next month buttons. Highlight the current day. Clicking a day selects it. Use a Date object to compute the days.' },
+      { label: 'Date picker', icon: '📆', prompt: 'Add a styled date picker. Three select dropdowns for day, month, and year. Or a popup calendar. Show the selected date in a readable format. A "Today" button to select the current day.' },
     ],
   },
   {
-    category: 'גרפים ונתונים',
+    category: 'Charts & Data',
     icon: '📊',
     widgets: [
-      { label: 'גרף עמודות', icon: '📊', prompt: 'הוסף ווידג\'ט גרף עמודות (bar chart) מבוסס SVG. הצג 5-7 עמודות עם נתונים לדוגמה. labels בתחתית, ערכים בראש כל עמודה. צבעי gradient לעמודות. אנימציית כניסה. רספונסיבי לרוחב.' },
-      { label: 'גרף קו', icon: '📈', prompt: 'הוסף ווידג\'ט גרף קו (line chart) מבוסס SVG. קו חלק עם נקודות. אזור מלא (area) עם gradient שקוף. labels לצירים. tooltip בהובר על נקודה. נתוני דוגמה מציאותיים.' },
-      { label: 'גרף עוגה', icon: '🥧', prompt: 'הוסף ווידג\'ט גרף עוגה (pie/donut chart) מבוסס SVG. 4-5 פרוסות בצבעים שונים. מקרא (legend) עם אחוזים. גרסת donut עם מספר במרכז. אנימציית סיבוב בכניסה.' },
-      { label: 'מד התקדמות מעגלי', icon: '🔄', prompt: 'הוסף מד התקדמות מעגלי (circular progress) מבוסס SVG. מעגל ברקע + arc צבעוני שמתמלא. אחוז במרכז. אנימציית מילוי חלקה. כפתור +/- לשינוי ערך.' },
-      { label: 'סטטיסטיקה', icon: '🔢', prompt: 'הוסף ווידג\'ט כרטיסי סטטיסטיקה — 3-4 כרטיסים ב-grid עם: אייקון, מספר גדול (display), תיאור קטן (caption), ושינוי באחוזים (ירוק/אדום). אנימציית ספירה למספרים.' },
+      { label: 'Bar chart', icon: '📊', prompt: 'Add an SVG-based bar chart widget. Show 5-7 bars with sample data. Labels at the bottom, values at the top of each bar. Gradient colors for the bars. An entrance animation. Responsive to width.' },
+      { label: 'Line chart', icon: '📈', prompt: 'Add an SVG-based line chart widget. A smooth line with points. A filled area with a transparent gradient. Axis labels. A tooltip on hover over a point. Realistic sample data.' },
+      { label: 'Pie chart', icon: '🥧', prompt: 'Add an SVG-based pie/donut chart widget. 4-5 slices in different colors. A legend with percentages. A donut variant with a number in the center. A rotation animation on entrance.' },
+      { label: 'Circular progress', icon: '🔄', prompt: 'Add an SVG-based circular progress meter. A background circle plus a colored arc that fills up. A percentage in the center. A smooth fill animation. +/- buttons to change the value.' },
+      { label: 'Stats', icon: '🔢', prompt: 'Add a stats cards widget - 3-4 cards in a grid with: an icon, a large number (display), a small description (caption), and a percentage change (green/red). A count-up animation for the numbers.' },
     ],
   },
   {
-    category: 'מדיה ותוכן',
+    category: 'Media & Content',
     icon: '🎵',
     widgets: [
-      { label: 'נגן אודיו', icon: '🎵', prompt: 'הוסף ווידג\'ט נגן אודיו מעוצב. כפתור play/pause עגול גדול. progress bar עם זמן נוכחי/כולל. כפתורי קדימה/אחורה. שם שיר ואמן. כפתור shuffle ו-repeat. עיצוב card.' },
-      { label: 'קרוסל תמונות', icon: '🎠', prompt: 'הוסף קרוסל תמונות אינטראקטיבי. חצים ימינה/שמאלה. נקודות (dots) למיקום נוכחי. מעבר חלק עם transition. תמונות placeholder עם gradient background. Auto-play אופציונלי.' },
-      { label: 'דירוג כוכבים', icon: '⭐', prompt: 'הוסף ווידג\'ט דירוג כוכבים אינטראקטיבי. 5 כוכבים שמשנים צבע ב-hover ובלחיצה. הצג את הדירוג הנבחר כמספר. אפשרות חצאי כוכב. כוכבים גדולים (32px) עם transition color.' },
-      { label: 'גלריית תמונות', icon: '🖼️', prompt: 'הוסף גלריית תמונות ב-grid (2-3 עמודות). תמונות placeholder עם gradients צבעוניים. lightbox בלחיצה (מסך מלא). כפתור סגירה. ספירת תמונות.' },
+      { label: 'Audio player', icon: '🎵', prompt: 'Add a styled audio player widget. A large round play/pause button. A progress bar with current/total time. Forward/back buttons. Song name and artist. Shuffle and repeat buttons. Card design.' },
+      { label: 'Image carousel', icon: '🎠', prompt: 'Add an interactive image carousel. Left/right arrows. Dots for the current position. A smooth transition. Placeholder images with a gradient background. Optional auto-play.' },
+      { label: 'Star rating', icon: '⭐', prompt: 'Add an interactive star rating widget. 5 stars that change color on hover and click. Show the selected rating as a number. Support half stars. Large stars (32px) with a color transition.' },
+      { label: 'Image gallery', icon: '🖼️', prompt: 'Add an image gallery in a grid (2-3 columns). Placeholder images with colorful gradients. A lightbox on click (full screen). A close button. An image count.' },
     ],
   },
   {
-    category: 'מיקום ומפות',
+    category: 'Location & Maps',
     icon: '📍',
     widgets: [
-      { label: 'מיקום נוכחי', icon: '📍', prompt: 'הוסף ווידג\'ט מיקום המציג את המיקום הנוכחי. כפתור "מצא מיקום" שמשתמש ב-navigator.geolocation.getCurrentPosition. הצג latitude, longitude. הצג כתובת מוערכת. כרטיס עם אייקון מפה.' },
-      { label: 'מפה סטטית', icon: '🗺️', prompt: 'הוסף ווידג\'ט מפה סטטית מבוססת SVG. צייר מפת ישראל פשוטה או grid של רחובות. סמן מיקום אדום עם pulse animation. מידע על המיקום בכרטיס למטה. כפתורי zoom in/out.' },
-      { label: 'מחשב מרחק', icon: '📏', prompt: 'הוסף ווידג\'ט מחשב מרחק בין שתי נקודות. שני שדות קלט לעיר מקור ויעד (dropdown עם ערים ישראליות). חישוב מרחק משוער. הצגת זמן נסיעה. אייקון מכונית/הליכה/אוטובוס.' },
+      { label: 'Current location', icon: '📍', prompt: 'Add a location widget showing the current location. A "Find location" button that uses navigator.geolocation.getCurrentPosition. Show latitude and longitude. Show an estimated address. A card with a map icon.' },
+      { label: 'Static map', icon: '🗺️', prompt: 'Add an SVG-based static map widget. Draw a simple map or a grid of streets. Mark a location in red with a pulse animation. Location info in a card below. Zoom in/out buttons.' },
+      { label: 'Distance calculator', icon: '📏', prompt: 'Add a widget that calculates the distance between two points. Two input fields for origin and destination city (a dropdown of cities). An estimated distance calculation. A travel time display. A car/walking/bus icon.' },
     ],
   },
   {
-    category: 'טפסים וקלט',
+    category: 'Forms & Input',
     icon: '📝',
     widgets: [
-      { label: 'טופס יצירת קשר', icon: '✉️', prompt: 'הוסף טופס יצירת קשר מלא: שם, אימייל, טלפון, הודעה (textarea). כפתור שליחה עם validation. הצג הודעת הצלחה לאחר שליחה. כל שדות עם min-height 48px ו-labels.' },
-      { label: 'סקר / שאלון', icon: '📋', prompt: 'הוסף ווידג\'ט סקר עם 3-4 שאלות. שאלות בחירה (radio buttons), שאלת דירוג (סליידר), ושאלה פתוחה (textarea). progress bar למעלה. כפתור הבא/הקודם. מסך סיכום בסוף.' },
-      { label: 'חיפוש מתקדם', icon: '🔍', prompt: 'הוסף ווידג\'ט חיפוש מתקדם: שדה חיפוש עם אייקון, פילטרים (chips), מיון (dropdown), ותוצאות מיידיות. אנימציית הקלדה. הצג "אין תוצאות" ב-empty state.' },
-      { label: 'סליידר טווח', icon: '🎚️', prompt: 'הוסף ווידג\'ט סליידר טווח אינטראקטיבי (range slider). הצג ערך נוכחי. min/max labels. שני ידיות לטווח (min-max). שינוי צבע לפי ערך. min-height 48px לאזור המגע.' },
+      { label: 'Contact form', icon: '✉️', prompt: 'Add a full contact form: name, email, phone, message (textarea). A submit button with validation. Show a success message after submitting. All fields with min-height 48px and labels.' },
+      { label: 'Survey / quiz', icon: '📋', prompt: 'Add a survey widget with 3-4 questions. Multiple-choice questions (radio buttons), a rating question (slider), and an open question (textarea). A progress bar at the top. Next/previous buttons. A summary screen at the end.' },
+      { label: 'Advanced search', icon: '🔍', prompt: 'Add an advanced search widget: a search field with an icon, filters (chips), sorting (dropdown), and instant results. A typing animation. Show "No results" in an empty state.' },
+      { label: 'Range slider', icon: '🎚️', prompt: 'Add an interactive range slider widget. Show the current value. min/max labels. Two handles for a range (min-max). Color change based on the value. min-height 48px for the touch area.' },
     ],
   },
   {
-    category: 'חברתי ושיתוף',
+    category: 'Social & Sharing',
     icon: '🤝',
     widgets: [
-      { label: 'כפתורי שיתוף', icon: '📤', prompt: 'הוסף ווידג\'ט כפתורי שיתוף חברתי: WhatsApp (ירוק), Facebook (כחול), Twitter/X (שחור), Email (אדום), Copy Link. כל כפתור עם אייקון ו-min-height 48px. שורה אופקית או bottom sheet.' },
-      { label: 'כרטיס פרופיל', icon: '👤', prompt: 'הוסף כרטיס פרופיל מעוצב: אווטאר gradient עגול, שם, תיאור, 3 סטטיסטיקות (פוסטים/עוקבים/עוקב), כפתור "עקוב" toggle, פס צבעוני עליון.' },
-      { label: 'תגובות', icon: '💬', prompt: 'הוסף ווידג\'ט תגובות: רשימת תגובות עם אווטאר, שם, זמן, וטקסט. שדה הוספת תגובה חדשה. כפתור לייק לכל תגובה. תגובות מדורגות (נוספות עולות למעלה).' },
-      { label: 'פיד חדשות', icon: '📰', prompt: 'הוסף פיד חדשות: כרטיסי חדשות עם כותרת, תיאור קצר, תאריך, קטגוריה (chip), ואייקון. כפתור "קרא עוד" שמרחיב את הכרטיס. pull-to-refresh.' },
+      { label: 'Share buttons', icon: '📤', prompt: 'Add a social share buttons widget: WhatsApp (green), Facebook (blue), Twitter/X (black), Email (red), Copy Link. Each button with an icon and min-height 48px. A horizontal row or a bottom sheet.' },
+      { label: 'Profile card', icon: '👤', prompt: 'Add a styled profile card: a round gradient avatar, name, description, 3 stats (posts/followers/following), a "Follow" toggle button, a colored top bar.' },
+      { label: 'Comments', icon: '💬', prompt: 'Add a comments widget: a list of comments with avatar, name, time, and text. A field to add a new comment. A like button for each comment. Threaded comments (new ones go to the top).' },
+      { label: 'News feed', icon: '📰', prompt: 'Add a news feed: news cards with a title, short description, date, category (chip), and an icon. A "Read more" button that expands the card. Pull-to-refresh.' },
     ],
   },
   {
-    category: 'כלים שימושיים',
+    category: 'Handy Tools',
     icon: '🛠️',
     widgets: [
-      { label: 'מחשבון', icon: '🧮', prompt: 'הוסף מחשבון אינטראקטיבי: grid של מספרים (0-9), פעולות (+,-,×,÷), כפתורי AC ו-=. תצוגת מספר גדולה למעלה. היסטוריית חישובים. כפתורים עם min-height 48px. עיצוב dark card.' },
-      { label: 'רשימת קניות', icon: '🛒', prompt: 'הוסף רשימת קניות אינטראקטיבית: הוספת פריט עם שדה קלט, סימון V לפריטים שנקנו (strikethrough), מחיקה בהחלקה, ספירת פריטים, כפתור "נקה הכל". empty state כשהרשימה ריקה.' },
-      { label: 'הערות', icon: '📝', prompt: 'הוסף ווידג\'ט הערות (notes): רשימת הערות עם כותרת ותאריך. הוספת הערה חדשה עם textarea. צבע כרטיס הערה (4 צבעים לבחירה). חיפוש הערות. grid layout (2 עמודות).' },
-      { label: 'מעקב הרגלים', icon: '✅', prompt: 'הוסף ווידג\'ט מעקב הרגלים יומי: 5 הרגלים עם אייקון, שם, ו-checkbox (toggle). progress bar כללי למעלה. streak (ימים רצופים) לכל הרגל. כפתור "הוסף הרגל חדש".' },
+      { label: 'Calculator', icon: '🧮', prompt: 'Add an interactive calculator: a grid of numbers (0-9), operations (+,-,×,÷), AC and = buttons. A large number display at the top. A calculation history. Buttons with min-height 48px. Dark card design.' },
+      { label: 'Shopping list', icon: '🛒', prompt: 'Add an interactive shopping list: add an item with an input field, check off purchased items (strikethrough), swipe to delete, an item count, a "Clear all" button. An empty state when the list is empty.' },
+      { label: 'Notes', icon: '📝', prompt: 'Add a notes widget: a list of notes with a title and date. Add a new note with a textarea. A note card color (4 colors to choose from). Note search. A grid layout (2 columns).' },
+      { label: 'Habit tracker', icon: '✅', prompt: 'Add a daily habit tracker widget: 5 habits with an icon, name, and checkbox (toggle). An overall progress bar at the top. A streak (consecutive days) for each habit. An "Add new habit" button.' },
     ],
   },
 ];
 
 const PRESET_SCREENS = [
-  { id: 'settings', label: 'הגדרות', icon: '⚙' },
-  { id: 'profile',  label: 'פרופיל',  icon: '○' },
-  { id: 'about',    label: 'אודות',   icon: '⊘' },
-  { id: 'contact',  label: 'צור קשר', icon: '✉' },
+  { id: 'settings', label: 'Settings', icon: '⚙' },
+  { id: 'profile',  label: 'Profile',  icon: '○' },
+  { id: 'about',    label: 'About',    icon: '⊘' },
+  { id: 'contact',  label: 'Contact',  icon: '✉' },
 ];
 
 export default function EditSidebar({
@@ -328,9 +328,9 @@ export default function EditSidebar({
   const [tab, setTab] = useState<SidebarTab>('ai');
   const [aiPrompt, setAIPrompt] = useState('');
   const [text, setText] = useState('');
-  const [expandedCategory, setExpandedCategory] = useState<string | null>('כפתורים');
-  const [expandedAnimCategory, setExpandedAnimCategory] = useState<string | null>('כניסה');
-  const [expandedWidgetCategory, setExpandedWidgetCategory] = useState<string | null>('זמן ותאריך');
+  const [expandedCategory, setExpandedCategory] = useState<string | null>('Buttons');
+  const [expandedAnimCategory, setExpandedAnimCategory] = useState<string | null>('Entrance');
+  const [expandedWidgetCategory, setExpandedWidgetCategory] = useState<string | null>('Time & Date');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -352,7 +352,7 @@ export default function EditSidebar({
   const tabs: { id: SidebarTab; label: string; icon: React.ReactNode }[] = [
     {
       id: 'ai',
-      label: 'AI עיצוב',
+      label: 'AI Design',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
@@ -361,7 +361,7 @@ export default function EditSidebar({
     },
     {
       id: 'gallery',
-      label: 'גלריה',
+      label: 'Gallery',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
@@ -370,7 +370,7 @@ export default function EditSidebar({
     },
     {
       id: 'widgets',
-      label: 'ווידג\'טים',
+      label: 'Widgets',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.401.604-.401.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
@@ -379,7 +379,7 @@ export default function EditSidebar({
     },
     {
       id: 'layers',
-      label: 'מסכים',
+      label: 'Screens',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3" />
@@ -388,7 +388,7 @@ export default function EditSidebar({
     },
     {
       id: 'animations' as SidebarTab,
-      label: 'אנימציה',
+      label: 'Animations',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
@@ -397,7 +397,7 @@ export default function EditSidebar({
     },
     {
       id: 'properties',
-      label: 'מאפיינים',
+      label: 'Properties',
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
@@ -439,7 +439,7 @@ export default function EditSidebar({
         {tab === 'ai' && (
           <div className="flex flex-col gap-4 p-4">
             {/* Input */}
-            <Section label="בקשת עיצוב חופשית">
+            <Section label="Custom design request">
               <textarea
                 ref={textareaRef}
                 value={aiPrompt}
@@ -450,7 +450,7 @@ export default function EditSidebar({
                     handleAISubmit();
                   }
                 }}
-                placeholder='למשל: "הפוך את הכפתורים לסגנון מודרני עם צללים"'
+                placeholder='e.g. "Make the buttons modern with shadows"'
                 rows={3}
                 className="w-full px-3 py-2.5 rounded-xl bg-surface/50 border border-border/50 text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none placeholder:text-text-soft transition-all"
               />
@@ -471,16 +471,16 @@ export default function EditSidebar({
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    AI מעצב...
+                    AI designing...
                   </span>
-                ) : 'החל שינויים'}
+                ) : 'Apply changes'}
               </button>
             </Section>
 
             <div className="h-px bg-border/60" />
 
             {/* Quick actions */}
-            <Section label="פעולות מהירות">
+            <Section label="Quick actions">
               <div className="flex flex-col gap-0.5">
                 {AI_QUICK_ACTIONS.map((cat) => (
                   <div key={cat.category}>
@@ -526,9 +526,9 @@ export default function EditSidebar({
             <div className="h-px bg-border/60" />
 
             {/* AI Recommendations */}
-            <Section label="✨ המלצות AI">
+            <Section label="✨ AI Recommendations">
               <p className="text-[10px] text-text-soft mb-2 leading-relaxed">
-                {appName ? `שיפורים מומלצים ל${appName}` : 'שיפורים מקצועיים מומלצים'}
+                {appName ? `Recommended improvements for ${appName}` : 'Recommended professional improvements'}
               </p>
               <div className="flex flex-col gap-1.5">
                 {AI_RECOMMENDATIONS.map((rec) => (
@@ -566,8 +566,8 @@ export default function EditSidebar({
                 🧩
               </div>
               <div>
-                <p className="text-xs font-semibold text-text-primary">ספריית ווידג'טים</p>
-                <p className="text-[10px] text-text-soft">הוסף רכיבים אינטראקטיביים לאפליקציה</p>
+                <p className="text-xs font-semibold text-text-primary">Widget Library</p>
+                <p className="text-[10px] text-text-soft">Add interactive components to your app</p>
               </div>
             </div>
 
@@ -613,7 +613,7 @@ export default function EditSidebar({
 
             <div className="h-px bg-border/60" />
 
-            <Section label="ווידג'ט מותאם">
+            <Section label="Custom widget">
               <textarea
                 value={aiPrompt}
                 onChange={(e) => setAIPrompt(e.target.value)}
@@ -623,7 +623,7 @@ export default function EditSidebar({
                     handleAISubmit();
                   }
                 }}
-                placeholder={'למשל: "הוסף ווידג\'ט מזג אוויר עם טמפרטורה ואייקון"'}
+                placeholder={'e.g. "Add a weather widget with temperature and icon"'}
                 rows={2}
                 className="w-full px-3 py-2.5 rounded-xl bg-surface/50 border border-border/50 text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none placeholder:text-text-soft transition-all"
               />
@@ -638,7 +638,7 @@ export default function EditSidebar({
                       : 'bg-surface/30 text-text-soft cursor-not-allowed'
                 }`}
               >
-                {isGenerating ? 'AI מוסיף...' : 'הוסף ווידג\'ט'}
+                {isGenerating ? 'AI adding...' : 'Add widget'}
               </button>
             </Section>
           </div>
@@ -647,7 +647,7 @@ export default function EditSidebar({
         {tab === 'layers' && (
           <div className="flex flex-col h-full">
             <div className="px-4 py-3 border-b border-border/50">
-              <span className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold">מסכים באפליקציה</span>
+              <span className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold">App screens</span>
             </div>
 
             <div className="flex-1 overflow-auto py-1">
@@ -675,16 +675,16 @@ export default function EditSidebar({
                   <div className="w-12 h-12 rounded-xl bg-surface-2 border border-border flex items-center justify-center text-xl mx-auto mb-3">
                     📱
                   </div>
-                  <p className="text-xs text-text-soft">בנה אפליקציה כדי לראות מסכים</p>
+                  <p className="text-xs text-text-soft">Build an app to see screens</p>
                 </div>
               )}
             </div>
 
             <div className="border-t border-border p-3">
-              <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">הוסף מסך</p>
+              <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">Add screen</p>
               <OptionGrid>
                 {PRESET_SCREENS.map((s) => (
-                  <OptionButton key={s.id} onClick={() => onAddScreen(`הוסף מסך ${s.label} לאפליקציה`)}>
+                  <OptionButton key={s.id} onClick={() => onAddScreen(`Add a ${s.label} screen to the app`)}>
                     {s.icon} {s.label}
                   </OptionButton>
                 ))}
@@ -701,8 +701,8 @@ export default function EditSidebar({
                 🎬
               </div>
               <div>
-                <p className="text-xs font-semibold text-text-primary">אנימציות ואפקטים</p>
-                <p className="text-[10px] text-text-soft">הוסף תנועה וחיים לאפליקציה</p>
+                <p className="text-xs font-semibold text-text-primary">Animations & Effects</p>
+                <p className="text-[10px] text-text-soft">Add motion and life to your app</p>
               </div>
             </div>
 
@@ -747,7 +747,7 @@ export default function EditSidebar({
 
             <div className="h-px bg-border/60" />
 
-            <Section label="אנימציה מותאמת">
+            <Section label="Custom animation">
               <textarea
                 value={aiPrompt}
                 onChange={(e) => setAIPrompt(e.target.value)}
@@ -757,7 +757,7 @@ export default function EditSidebar({
                     handleAISubmit();
                   }
                 }}
-                placeholder='למשל: "הוסף אנימציית bounce לכפתור הראשי"'
+                placeholder='e.g. "Add a bounce animation to the main button"'
                 rows={2}
                 className="w-full px-3 py-2.5 rounded-xl bg-surface/50 border border-border/50 text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none placeholder:text-text-soft transition-all"
               />
@@ -772,7 +772,7 @@ export default function EditSidebar({
                       : 'bg-surface/30 text-text-soft cursor-not-allowed'
                 }`}
               >
-                {isGenerating ? 'AI מוסיף...' : 'החל אנימציה'}
+                {isGenerating ? 'AI adding...' : 'Apply animation'}
               </button>
             </Section>
           </div>
@@ -792,7 +792,7 @@ export default function EditSidebar({
                   </div>
                   <button
                     onClick={onDeselect}
-                    title="בטל בחירה"
+                    title="Deselect"
                     className="p-1.5 rounded-lg hover:bg-surface-2 text-text-soft hover:text-text-primary transition-all active:scale-90"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -803,7 +803,7 @@ export default function EditSidebar({
 
                 {/* Text content */}
                 {isTextEl && (
-                  <Section label="טקסט">
+                  <Section label="Text">
                     <textarea
                       value={text}
                       onChange={(e) => setText(e.target.value)}
@@ -815,7 +815,7 @@ export default function EditSidebar({
                 )}
 
                 {/* Shape presets — Figma-style */}
-                <Section label="צורה">
+                <Section label="Shape">
                   <div className="flex gap-1.5">
                     {SHAPE_PRESETS.map((shape) => (
                       <button
@@ -849,7 +849,7 @@ export default function EditSidebar({
                 </Section>
 
                 {/* Layout / Display */}
-                <Section label="תצוגה">
+                <Section label="Display">
                   <OptionGrid cols="grid-cols-4">
                     {DISPLAY_OPTIONS.map((d) => (
                       <OptionButton key={d.value} onClick={() => onStyleChange(selectedElement.path, 'display', d.value)}>
@@ -860,8 +860,8 @@ export default function EditSidebar({
                 </Section>
 
                 {/* Connections & Linking */}
-                <Section label="קישורים ופעולות">
-                  <p className="text-[10px] text-text-soft mb-1.5 leading-relaxed">חבר רכיב לפעולה או מסך</p>
+                <Section label="Links & Actions">
+                  <p className="text-[10px] text-text-soft mb-1.5 leading-relaxed">Connect an element to an action or screen</p>
                   <div className="grid grid-cols-2 gap-1.5">
                     {LINK_TEMPLATES.map((link) => (
                       <button
@@ -880,14 +880,14 @@ export default function EditSidebar({
                 </Section>
 
                 {/* Icon picker — click to add icon to element */}
-                <Section label="הוסף אייקון">
-                  <p className="text-[10px] text-text-soft mb-1.5 leading-relaxed">לחץ על אייקון כדי להוסיף אותו לרכיב</p>
+                <Section label="Add icon">
+                  <p className="text-[10px] text-text-soft mb-1.5 leading-relaxed">Click an icon to add it to the element</p>
                   <div className="grid grid-cols-8 gap-1">
                     {ICON_LIBRARY.map((icon) => (
                       <button
                         key={icon}
                         onClick={() => onInsertIcon(selectedElement.path, icon)}
-                        title={`הוסף ${icon}`}
+                        title={`Add ${icon}`}
                         className="aspect-square flex items-center justify-center rounded-md text-sm border border-border
                           hover:border-primary/40 hover:bg-primary/5 active:scale-90 transition-all duration-150"
                       >
@@ -899,7 +899,7 @@ export default function EditSidebar({
 
                 {/* Button size */}
                 {isButton && (
-                  <Section label="גודל כפתור">
+                  <Section label="Button size">
                     <OptionGrid cols="grid-cols-4">
                       {BUTTON_SIZE_PRESETS.map((s) => (
                         <OptionButton
@@ -919,7 +919,7 @@ export default function EditSidebar({
 
                 {/* Font size */}
                 {isTextEl && (
-                  <Section label="גודל טקסט">
+                  <Section label="Font size">
                     <div className="flex flex-wrap gap-1.5">
                       {FONT_SIZES.map((size) => (
                         <OptionButton
@@ -936,12 +936,12 @@ export default function EditSidebar({
 
                 {/* Font weight */}
                 {isTextEl && (
-                  <Section label="משקל טקסט">
+                  <Section label="Font weight">
                     <OptionGrid cols="grid-cols-3">
                       {[
-                        { id: '400', label: 'רגיל' },
-                        { id: '600', label: 'בולט' },
-                        { id: '800', label: 'כבד' },
+                        { id: '400', label: 'Regular' },
+                        { id: '600', label: 'Bold' },
+                        { id: '800', label: 'Heavy' },
                       ].map((w) => (
                         <OptionButton
                           key={w.id}
@@ -957,12 +957,12 @@ export default function EditSidebar({
 
                 {/* Text align */}
                 {isTextEl && (
-                  <Section label="יישור">
+                  <Section label="Alignment">
                     <OptionGrid cols="grid-cols-3">
                       {[
-                        { id: 'right', label: 'ימין' },
-                        { id: 'center', label: 'מרכז' },
-                        { id: 'left', label: 'שמאל' },
+                        { id: 'right', label: 'Right' },
+                        { id: 'center', label: 'Center' },
+                        { id: 'left', label: 'Left' },
                       ].map((a) => (
                         <OptionButton
                           key={a.id}
@@ -977,7 +977,7 @@ export default function EditSidebar({
                 )}
 
                 {/* Colors — side by side */}
-                <Section label="צבעים">
+                <Section label="Colors">
                   <div className="flex items-center gap-4">
                     <label className="flex flex-col items-center gap-1.5 cursor-pointer">
                       <input
@@ -986,7 +986,7 @@ export default function EditSidebar({
                         onChange={(e) => onStyleChange(selectedElement.path, 'color', e.target.value)}
                         className="w-9 h-9 rounded-lg cursor-pointer border-2 border-border hover:border-primary/40 transition-colors"
                       />
-                      <span className="text-[9px] text-text-soft font-medium">טקסט</span>
+                      <span className="text-[9px] text-text-soft font-medium">Text</span>
                     </label>
                     <label className="flex flex-col items-center gap-1.5 cursor-pointer">
                       <input
@@ -995,11 +995,11 @@ export default function EditSidebar({
                         onChange={(e) => onStyleChange(selectedElement.path, 'backgroundColor', e.target.value)}
                         className="w-9 h-9 rounded-lg cursor-pointer border-2 border-border hover:border-primary/40 transition-colors"
                       />
-                      <span className="text-[9px] text-text-soft font-medium">רקע</span>
+                      <span className="text-[9px] text-text-soft font-medium">Background</span>
                     </label>
                     <button
                       onClick={() => onStyleChange(selectedElement.path, 'backgroundColor', 'transparent')}
-                      title="הפוך רקע לשקוף"
+                      title="Make background transparent"
                       className="flex flex-col items-center gap-1.5 group"
                     >
                       <div className="w-9 h-9 rounded-lg border-2 border-border group-hover:border-red-300 flex items-center justify-center transition-colors"
@@ -1008,13 +1008,13 @@ export default function EditSidebar({
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                         </svg>
                       </div>
-                      <span className="text-[9px] text-text-soft font-medium">שקוף</span>
+                      <span className="text-[9px] text-text-soft font-medium">Clear</span>
                     </button>
                   </div>
                 </Section>
 
                 {/* Shadow */}
-                <Section label="צל">
+                <Section label="Shadow">
                   <OptionGrid cols="grid-cols-5">
                     {SHADOW_PRESETS.map((s) => (
                       <OptionButton
@@ -1029,7 +1029,7 @@ export default function EditSidebar({
                 </Section>
 
                 {/* Border radius */}
-                <Section label="עיגול פינות">
+                <Section label="Border radius">
                   <OptionGrid cols="grid-cols-4">
                     {['0px', '4px', '8px', '12px', '16px', '24px', '9999px'].map((r) => (
                       <OptionButton
@@ -1044,7 +1044,7 @@ export default function EditSidebar({
                 </Section>
 
                 {/* Padding */}
-                <Section label="ריווח פנימי">
+                <Section label="Padding">
                   <OptionGrid cols="grid-cols-6">
                     {['0px', '4px', '8px', '16px', '24px', '32px'].map((p) => (
                       <OptionButton
@@ -1058,7 +1058,7 @@ export default function EditSidebar({
                 </Section>
 
                 {/* Opacity */}
-                <Section label="שקיפות">
+                <Section label="Opacity">
                   <OptionGrid cols="grid-cols-5">
                     {['1', '0.9', '0.75', '0.5', '0.25'].map((o) => (
                       <OptionButton
@@ -1072,10 +1072,10 @@ export default function EditSidebar({
                 </Section>
 
                 {/* Width */}
-                <Section label="רוחב">
+                <Section label="Width">
                   <OptionGrid cols="grid-cols-4">
                     {[
-                      { label: 'אוטו', value: 'auto' },
+                      { label: 'Auto', value: 'auto' },
                       { label: '50%', value: '50%' },
                       { label: '100%', value: '100%' },
                       { label: 'Fit', value: 'fit-content' },
@@ -1089,32 +1089,32 @@ export default function EditSidebar({
 
                 {/* AI for this element */}
                 <div className="border-t border-border pt-4">
-                  <Section label="AI לרכיב זה">
+                  <Section label="AI for this element">
                     <div className="flex flex-wrap gap-1.5">
                       {isButton ? (
                         <>
-                          <button onClick={() => onAIEdit(`שפר את העיצוב של הכפתור "${selectedElement.text}" - הוסף gradient, צל, ואנימציית hover`)} disabled={isGenerating}
+                          <button onClick={() => onAIEdit(`Improve the design of the "${selectedElement.text}" button - add gradient, shadow, and hover animation`)} disabled={isGenerating}
                             className="py-1.5 px-3 rounded-lg text-[10px] font-medium bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 active:scale-[0.97] transition-all disabled:opacity-40">
-                            שפר כפתור
+                            Enhance button
                           </button>
-                          <button onClick={() => onAIEdit(`הוסף אייקון מתאים לכפתור "${selectedElement.text}"`)} disabled={isGenerating}
+                          <button onClick={() => onAIEdit(`Add a suitable icon to the "${selectedElement.text}" button`)} disabled={isGenerating}
                             className="py-1.5 px-3 rounded-lg text-[10px] font-medium bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 active:scale-[0.97] transition-all disabled:opacity-40">
-                            + אייקון
+                            + Icon
                           </button>
-                          <button onClick={() => onAIEdit(`הפוך את הכפתור "${selectedElement.text}" לסגנון outline`)} disabled={isGenerating}
+                          <button onClick={() => onAIEdit(`Convert the "${selectedElement.text}" button to an outline style`)} disabled={isGenerating}
                             className="py-1.5 px-3 rounded-lg text-[10px] font-medium bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 active:scale-[0.97] transition-all disabled:opacity-40">
                             Outline
                           </button>
                         </>
                       ) : (
                         <>
-                          <button onClick={() => onAIEdit(`שפר את העיצוב של ה-${selectedElement.tag} "${selectedElement.text.slice(0, 30)}" - הפוך למרשים יותר`)} disabled={isGenerating}
+                          <button onClick={() => onAIEdit(`Improve the design of the ${selectedElement.tag} "${selectedElement.text.slice(0, 30)}" - make it more impressive`)} disabled={isGenerating}
                             className="py-1.5 px-3 rounded-lg text-[10px] font-medium bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 active:scale-[0.97] transition-all disabled:opacity-40">
-                            שפר עיצוב
+                            Enhance design
                           </button>
-                          <button onClick={() => onAIEdit(`הוסף אנימציית כניסה לרכיב ה-${selectedElement.tag}`)} disabled={isGenerating}
+                          <button onClick={() => onAIEdit(`Add an entrance animation to the ${selectedElement.tag} element`)} disabled={isGenerating}
                             className="py-1.5 px-3 rounded-lg text-[10px] font-medium bg-primary/8 text-primary border border-primary/15 hover:bg-primary/15 active:scale-[0.97] transition-all disabled:opacity-40">
-                            + אנימציה
+                            + Animation
                           </button>
                         </>
                       )}
@@ -1129,9 +1129,9 @@ export default function EditSidebar({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59" />
                   </svg>
                 </div>
-                <p className="text-sm text-text-primary font-medium mb-1.5">לחץ על רכיב</p>
+                <p className="text-sm text-text-primary font-medium mb-1.5">Click an element</p>
                 <p className="text-[11px] text-text-soft leading-relaxed max-w-[180px]">
-                  לחץ על כפתור, טקסט, או כל רכיב בתצוגה המקדימה כדי לערוך אותו
+                  Click a button, text, or any element in the preview to edit it
                 </p>
               </div>
             )}
