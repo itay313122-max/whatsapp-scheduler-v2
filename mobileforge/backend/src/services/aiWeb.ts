@@ -11,6 +11,8 @@ console.log('[AI/web] Provider keys —', {
   GROQ:        _k(process.env.GROQ_API_KEY),
   GEMINI:      _k(process.env.GEMINI_API_KEY),
   OPENROUTER:  _k(process.env.OPENROUTER_API_KEY),
+  CEREBRAS:    _k(process.env.CEREBRAS_API_KEY),
+  TOGETHER:    _k(process.env.TOGETHER_API_KEY),
 });
 
 // ── Provider abstraction ────────────────────────────────────────────────────
@@ -88,17 +90,68 @@ async function callOpenRouter(messages: ChatMessage[]): Promise<string> {
 }
 
 /**
- * Try Groq first (with 1 retry on rate-limit), then Gemini, then OpenRouter.
- * Throws only when ALL configured providers have failed.
+ * Generic OpenAI-compatible chat-completions caller. Cerebras and Together both
+ * speak the exact OpenAI wire format, so one helper covers both.
+ */
+async function callOpenAICompatible(
+  messages: ChatMessage[],
+  opts: { name: string; envVar: string; url: string; model: string }
+): Promise<string> {
+  const apiKey = process.env[opts.envVar];
+  if (!apiKey) { const e = new Error(`${opts.envVar} not set`); (e as any).skip = true; throw e; }
+
+  const res = await fetch(opts.url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ model: opts.model, messages, max_tokens: 16000 }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const e = new Error(`${opts.name} ${res.status}: ${(err as any)?.error?.message ?? 'unknown'}`);
+    (e as any).status = res.status;
+    throw e;
+  }
+  const data = await res.json() as any;
+  const text = data.choices?.[0]?.message?.content ?? '';
+  if (!text) throw new Error(`${opts.name} returned empty response`);
+  return text;
+}
+
+const callCerebras = (m: ChatMessage[]) => callOpenAICompatible(m, {
+  name: 'Cerebras', envVar: 'CEREBRAS_API_KEY',
+  url: 'https://api.cerebras.ai/v1/chat/completions', model: 'llama-3.3-70b',
+});
+
+const callTogether = (m: ChatMessage[]) => callOpenAICompatible(m, {
+  name: 'Together', envVar: 'TOGETHER_API_KEY',
+  url: 'https://api.together.xyz/v1/chat/completions',
+  model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
+});
+
+// Provider keys, in fallback order. A non-placeholder value means "try me".
+const PROVIDER_KEYS = [
+  'GROQ_API_KEY', 'GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'CEREBRAS_API_KEY', 'TOGETHER_API_KEY',
+] as const;
+
+function allKeysPlaceholder(): boolean {
+  return PROVIDER_KEYS.every(name => {
+    const k = process.env[name];
+    return !k || k.startsWith('__') || k.startsWith('placeholder');
+  });
+}
+
+/**
+ * Try Groq first (with 1 retry on rate-limit), then Gemini, OpenRouter,
+ * Cerebras, Together — in that order. Throws only when ALL configured
+ * providers have failed.
  *
  * Bug fix: previously only fell back on 429 rate-limit. Now falls back on
  * ANY Groq failure (auth error, server error, network error, etc.) so that
- * a bad/missing Groq key still lets Gemini/OpenRouter serve the request.
+ * a bad/missing Groq key still lets the other providers serve the request.
  */
 async function callWithFallback(messages: ChatMessage[]): Promise<string> {
   // Demo mode: skip network calls entirely if all API keys are placeholders
-  const allPlaceholder = [process.env.GROQ_API_KEY, process.env.GEMINI_API_KEY, process.env.OPENROUTER_API_KEY]
-    .every(k => !k || k.startsWith('__') || k.startsWith('placeholder'));
+  const allPlaceholder = allKeysPlaceholder();
   if (allPlaceholder) {
     console.log('[AI/web] \u{1F3AD} Demo mode — all API keys are placeholders');
     const userMsg = messages.find(m => m.role === 'user');
@@ -149,6 +202,28 @@ async function callWithFallback(messages: ChatMessage[]): Promise<string> {
   } catch (err) {
     if ((err as any).skip) console.log('[AI/web]   OpenRouter skipped (no key)');
     else console.error('[AI/web]   OpenRouter failed:', (err as Error).message);
+  }
+
+  // 4. Cerebras
+  try {
+    console.log('[AI/web] → Cerebras');
+    const result = await callCerebras(messages);
+    console.log('[AI/web] ✓ Cerebras succeeded');
+    return result;
+  } catch (err) {
+    if ((err as any).skip) console.log('[AI/web]   Cerebras skipped (no key)');
+    else console.error('[AI/web]   Cerebras failed:', (err as Error).message);
+  }
+
+  // 5. Together
+  try {
+    console.log('[AI/web] → Together');
+    const result = await callTogether(messages);
+    console.log('[AI/web] ✓ Together succeeded');
+    return result;
+  } catch (err) {
+    if ((err as any).skip) console.log('[AI/web]   Together skipped (no key)');
+    else console.error('[AI/web]   Together failed:', (err as Error).message);
   }
 
   // All providers failed — surface the original Groq error for clarity
@@ -1238,8 +1313,7 @@ export async function generateWebApp(
   console.log('[AI/web] Mode:', options?.editMode ? 'EDIT' : 'GENERATE', '| theme:', options?.theme || 'none', '| prompt:', userPrompt.slice(0, 80));
 
   // In demo mode + edit mode, return existing code as-is (can't modify without LLM)
-  const allPlaceholder = [process.env.GROQ_API_KEY, process.env.GEMINI_API_KEY, process.env.OPENROUTER_API_KEY]
-    .every(k => !k || k.startsWith('__') || k.startsWith('placeholder'));
+  const allPlaceholder = allKeysPlaceholder();
   if (allPlaceholder && options?.editMode && options.existingCode) {
     console.log('[AI/web] \u{1F3AD} Demo mode — edit request, returning existing code');
     const raw = getDemoEditResponse(options.existingCode);
@@ -1452,8 +1526,7 @@ export async function planWebApp(
   userPrompt: string,
   conversationHistory: ConversationMessage[]
 ): Promise<PlanResult> {
-  const allPlaceholder = [process.env.GROQ_API_KEY, process.env.GEMINI_API_KEY, process.env.OPENROUTER_API_KEY]
-    .every(k => !k || k.startsWith('__') || k.startsWith('placeholder'));
+  const allPlaceholder = allKeysPlaceholder();
   if (allPlaceholder) return getDemoPlan(userPrompt);
 
   const messages: ChatMessage[] = [
