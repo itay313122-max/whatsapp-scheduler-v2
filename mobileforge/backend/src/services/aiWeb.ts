@@ -461,6 +461,24 @@ COLOR PALETTE — set via <style> at top of App JSX (REQUIRED):
   ✓ DO use bottom tab bar with 4-5 items, SVG stroke icons (24x24, stroke-width: 1.5).
   ✓ DO support dark mode: black (#000) bg, #1c1c1e surface, #38383a borders, white text.
 
+  ━━━ VARY THE LAYOUT — DO NOT SHIP THE SAME SKELETON EVERY TIME ━━━
+  The #1 tell of a cheap AI builder is that EVERY app looks identical:
+  gradient-header → chip-row → card-list → bottom-nav. NEVER default to that.
+  First pick the layout ARCHETYPE that fits THIS app, then build it:
+  • Dashboard/analytics → top bar + ONE hero metric/chart card + a 2×2 KPI grid
+    + horizontal bars. Often NO bottom nav. (e.g. analytics, crypto, health stats)
+  • Finance/wallet → big typographic balance on a FLAT background (no gradient),
+    a row of outlined quick-action icons, a segmented control, clean transaction
+    rows separated by 1px dividers (NOT heavy cards). (e.g. banking, budgeting)
+  • Feed/social → full-width media cards, author row, edge-to-edge, generous vertical rhythm.
+  • List-detail → a lean scannable list; tapping opens a rich detail screen.
+  • Tracker/agenda → date header, grouped sections, progress rings or checkboxes.
+  • Catalog/commerce → a 2-column product GRID with imagery, not a 1-column list.
+  Rules of thumb: prefer FLAT backgrounds over gradient headers; use dividers and
+  whitespace instead of wrapping everything in shadowed cards; reach for a real
+  typographic hierarchy (a 40px+ hero number) before decoration. Reference quality
+  bar: Linear, Mercury, Revolut, Things, Apple — restraint, not ornament.
+
 FONTS — for Hebrew apps use Heebo, Assistant, or Rubik (all pre-loaded):
   <style>{\`:root { --c-font: 'Heebo', system-ui, sans-serif; }\`}</style>
   For English apps keep the default Inter font.
