@@ -5,6 +5,23 @@
 
 ---
 
+## ⚡ פריסה בלחיצה אחת (הכי מהיר)
+
+לחץ על הכפתורים — הם ממלאים הכל מראש, אתה רק מאשר בחשבון שלך:
+
+[![Deploy Backend to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/itay313122-max/whatsapp-scheduler-v2)
+
+[![Deploy Frontend to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fitay313122-max%2Fwhatsapp-scheduler-v2&root-directory=mobileforge%2Ffrontend&env=NEXT_PUBLIC_API_URL&envDescription=%D7%9B%D7%AA%D7%95%D7%91%D7%AA%20%D7%94-Backend%20%D7%9E-Render&project-name=mobileforge&repository-name=mobileforge)
+
+**אחרי הלחיצות:**
+1. Render → הוסף את מפתחות ה-AI + `ADMIN_TOKEN` + `BETA_KEYS` (10 הקודים) ב-Environment.
+2. Vercel → הזן `NEXT_PUBLIC_API_URL` = כתובת ה-Render.
+3. Render → עדכן `FRONTEND_URL` = כתובת ה-Vercel.
+
+זהו — יש לך לינק. הפירוט המלא למטה.
+
+---
+
 ## חלק 1 — Backend ל-Render (חינם)
 
 1. היכנס ל-https://render.com והתחבר עם GitHub.
