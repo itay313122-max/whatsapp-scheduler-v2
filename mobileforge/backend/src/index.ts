@@ -10,7 +10,10 @@ import shareRouter from './routes/share';
 import liveRouter from './routes/live';
 import feedbackRouter from './routes/feedback';
 import betaRouter from './routes/beta';
+import backupRouter from './routes/backup';
 import { rateLimit } from './middleware/rateLimit';
+import { securityHeaders, csrfGuard, auditLog } from './middleware/security';
+import './services/backup';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -22,13 +25,16 @@ app.set('trust proxy', 1);
 // Init Firebase
 initFirebase();
 
-// Middleware
+// Security middleware
+app.use(securityHeaders);
+app.use(auditLog);
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
   })
 );
+app.use(csrfGuard);
 app.use(express.json({ limit: '2mb' }));
 
 // Health check
@@ -45,6 +51,7 @@ app.use('/api/share', shareRouter);
 app.use('/api/live', liveRouter);
 app.use('/api/feedback', feedbackRouter);
 app.use('/api/beta', betaRouter);
+app.use('/api/backup', backupRouter);
 
 // 404 handler
 app.use((_req, res) => {

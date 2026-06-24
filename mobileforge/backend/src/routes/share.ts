@@ -32,6 +32,8 @@ function cleanup() {
 router.post('/', (req: Request, res: Response) => {
   const { htmlDoc, appName } = req.body;
   if (!htmlDoc) return res.status(400).json({ error: 'htmlDoc is required' });
+  if (typeof htmlDoc !== 'string') return res.status(400).json({ error: 'htmlDoc must be a string' });
+  if (htmlDoc.length > 2 * 1024 * 1024) return res.status(400).json({ error: 'htmlDoc too large (max 2MB)' });
 
   cleanup();
 

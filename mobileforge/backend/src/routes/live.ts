@@ -66,6 +66,9 @@ router.post('/:id', (req: Request, res: Response) => {
   if (typeof htmlDoc !== 'string' || !htmlDoc) {
     return res.status(400).json({ error: 'htmlDoc is required' });
   }
+  if (htmlDoc.length > 2 * 1024 * 1024) {
+    return res.status(400).json({ error: 'htmlDoc too large (max 2MB)' });
+  }
   cleanup();
 
   const id = req.params.id;
