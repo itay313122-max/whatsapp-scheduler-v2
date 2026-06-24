@@ -19,7 +19,9 @@ router.get('/status', (_req: Request, res: Response) => {
 router.post('/verify', (req: Request, res: Response) => {
   const keys = validKeys();
   if (keys.size === 0) return res.json({ valid: true, open: true }); // gate off
-  const key = String((req.body && req.body.key) || '').trim().toUpperCase();
+  const rawKey = req.body && req.body.key;
+  if (typeof rawKey !== 'string') return res.json({ valid: false });
+  const key = rawKey.trim().toUpperCase();
   return res.json({ valid: keys.has(key) });
 });
 

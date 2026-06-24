@@ -10,6 +10,7 @@ import shareRouter from './routes/share';
 import liveRouter from './routes/live';
 import feedbackRouter from './routes/feedback';
 import betaRouter from './routes/beta';
+import { rateLimit } from './middleware/rateLimit';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -28,18 +29,18 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '2mb' }));
 
 // Health check
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'mobileforge-backend', timestamp: new Date().toISOString() });
 });
 
-// Routes
-app.use('/api/generate', generateRouter);
+// Routes — rate-limit the expensive AI endpoints
+app.use('/api/generate', rateLimit, generateRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/snack', snackRouter);
-app.use('/api/assistant', assistantRouter);
+app.use('/api/assistant', rateLimit, assistantRouter);
 app.use('/api/share', shareRouter);
 app.use('/api/live', liveRouter);
 app.use('/api/feedback', feedbackRouter);
