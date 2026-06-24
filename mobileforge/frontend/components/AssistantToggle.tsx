@@ -14,7 +14,7 @@ export default function AssistantToggle({
   return (
     <button
       onClick={onClick}
-      title={isOpen ? 'סגור Forge AI' : 'פתח Forge AI'}
+      title={isOpen ? 'Close Forge AI' : 'Open Forge AI'}
       className={`fixed bottom-6 left-6 z-40 flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-semibold text-sm transition-all duration-200 ${
         isOpen
           ? 'bg-white border border-primary text-primary shadow-card'

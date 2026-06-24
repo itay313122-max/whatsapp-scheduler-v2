@@ -16,18 +16,18 @@ interface Point {
 }
 
 const COLORS = [
-  { value: '#FFFFFF', label: 'לבן' },
-  { value: '#94A3B8', label: 'אפור' },
-  { value: '#6C3AE8', label: 'סגול' },
-  { value: '#00F5A0', label: 'ירוק' },
-  { value: '#F87171', label: 'אדום' },
-  { value: '#60A5FA', label: 'כחול' },
+  { value: '#FFFFFF', label: 'White' },
+  { value: '#94A3B8', label: 'Gray' },
+  { value: '#6C3AE8', label: 'Purple' },
+  { value: '#00F5A0', label: 'Green' },
+  { value: '#F87171', label: 'Red' },
+  { value: '#60A5FA', label: 'Blue' },
 ];
 
 const SIZES = [
-  { value: 2, label: 'דק' },
-  { value: 5, label: 'בינוני' },
-  { value: 12, label: 'עבה' },
+  { value: 2, label: 'Thin' },
+  { value: 5, label: 'Medium' },
+  { value: 12, label: 'Thick' },
 ];
 
 const CANVAS_W = 390;
@@ -69,7 +69,7 @@ export default function SketchCanvas({ onClose, onSubmit, isGenerating = false }
     ctx.fillStyle = '#3a3a5a';
     ctx.font = '13px Inter, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('צייר את הממשק שלך כאן', CANVAS_W / 2, CANVAS_H / 2);
+    ctx.fillText('Draw your interface here', CANVAS_W / 2, CANVAS_H / 2);
 
     saveSnapshot();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -183,7 +183,7 @@ export default function SketchCanvas({ onClose, onSubmit, isGenerating = false }
     ctx.fillStyle = '#3a3a5a';
     ctx.font = '13px Inter, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('צייר את הממשק שלך כאן', CANVAS_W / 2, CANVAS_H / 2);
+    ctx.fillText('Draw your interface here', CANVAS_W / 2, CANVAS_H / 2);
 
     setHasDrawn(false);
     setHistory([]);
@@ -200,7 +200,7 @@ export default function SketchCanvas({ onClose, onSubmit, isGenerating = false }
   return (
     <div
       className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      dir="rtl"
+      dir="ltr"
       onClick={(e) => { if (e.target === e.currentTarget && !isGenerating) onClose(); }}
     >
       <div className="flex flex-col lg:flex-row gap-4 max-h-[95vh] w-full max-w-4xl">
@@ -208,15 +208,15 @@ export default function SketchCanvas({ onClose, onSubmit, isGenerating = false }
         <div className="flex lg:flex-col items-start gap-3 lg:gap-4 overflow-x-auto lg:overflow-x-visible py-2 lg:py-0 flex-shrink-0">
           {/* Header */}
           <div className="hidden lg:block">
-            <h3 className="font-display font-bold text-lg text-text-primary">סקיצה</h3>
-            <p className="text-text-secondary text-xs mt-0.5">צייר wireframe וAI יבנה אפליקציה</p>
+            <h3 className="font-display font-bold text-lg text-text-primary">Sketch</h3>
+            <p className="text-text-secondary text-xs mt-0.5">Draw a wireframe and AI will build the app</p>
           </div>
 
           {/* Tool selector */}
           <div className="flex lg:flex-col gap-2">
             <button
               onClick={() => setTool('pen')}
-              title="עט"
+              title="Pen"
               className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                 tool === 'pen'
                   ? 'bg-primary text-white shadow-glow'
@@ -229,7 +229,7 @@ export default function SketchCanvas({ onClose, onSubmit, isGenerating = false }
             </button>
             <button
               onClick={() => setTool('eraser')}
-              title="מחק"
+              title="Eraser"
               className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                 tool === 'eraser'
                   ? 'bg-primary text-white shadow-glow'
@@ -283,7 +283,7 @@ export default function SketchCanvas({ onClose, onSubmit, isGenerating = false }
             <button
               onClick={undo}
               disabled={history.length < 2}
-              title="בטל"
+              title="Undo"
               className="w-10 h-10 rounded-xl bg-surface border border-border text-text-secondary hover:text-text-primary disabled:opacity-30 flex items-center justify-center transition-all"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,7 +292,7 @@ export default function SketchCanvas({ onClose, onSubmit, isGenerating = false }
             </button>
             <button
               onClick={clearCanvas}
-              title="נקה הכל"
+              title="Clear all"
               className="w-10 h-10 rounded-xl bg-surface border border-border text-text-secondary hover:text-red-400 hover:border-red-400/30 flex items-center justify-center transition-all"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -307,14 +307,14 @@ export default function SketchCanvas({ onClose, onSubmit, isGenerating = false }
           {/* Top bar */}
           <div className="flex items-center justify-between flex-shrink-0">
             <div className="lg:hidden">
-              <span className="font-display font-bold text-sm">סקיצה → אפליקציה</span>
+              <span className="font-display font-bold text-sm">Sketch → App</span>
             </div>
             <div className="flex items-center gap-2 mr-auto">
               <div
                 className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0"
                 style={{ background: color }}
               />
-              <span className="text-text-secondary text-xs capitalize">{tool === 'pen' ? 'עט' : 'מחק'} · {brushSize}px</span>
+              <span className="text-text-secondary text-xs capitalize">{tool === 'pen' ? 'Pen' : 'Eraser'} · {brushSize}px</span>
             </div>
             <button
               onClick={onClose}
@@ -359,10 +359,10 @@ export default function SketchCanvas({ onClose, onSubmit, isGenerating = false }
               type="text"
               value={hint}
               onChange={(e) => setHint(e.target.value)}
-              placeholder="הוסף הסבר לסקיצה (אופציונלי)…"
+              placeholder="Add a note for the sketch (optional)…"
               disabled={isGenerating}
               className="flex-1 px-3 py-2.5 rounded-xl bg-surface border border-border text-text-primary placeholder-text-secondary text-sm focus:outline-none focus:border-primary transition-colors"
-              dir="rtl"
+              dir="ltr"
               onKeyDown={(e) => { if (e.key === 'Enter' && hasDrawn && !isGenerating) handleSubmit(); }}
             />
             <button
@@ -376,10 +376,10 @@ export default function SketchCanvas({ onClose, onSubmit, isGenerating = false }
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  מייצר…
+                  Generating…
                 </>
               ) : (
-                <>✨ צור אפליקציה</>
+                <>✨ Create app</>
               )}
             </button>
           </div>

@@ -96,7 +96,7 @@ export default function DashboardPage() {
   }
 
   async function handleDeleteProject(id: string) {
-    if (!confirm('האם אתה בטוח שברצונך למחוק פרויקט זה?')) return;
+    if (!confirm('Are you sure you want to delete this project?')) return;
     if (isGuest || id.startsWith('local-')) {
       deleteLocalProject(id);
       setProjects((prev) => prev.filter((p) => p.id !== id));
@@ -106,7 +106,7 @@ export default function DashboardPage() {
       await deleteProject(id);
       setProjects((prev) => prev.filter((p) => p.id !== id));
     } catch {
-      alert('שגיאה במחיקת הפרויקט');
+      alert('Failed to delete project');
     }
   }
 
@@ -124,7 +124,7 @@ export default function DashboardPage() {
   if (!user && !isGuest) return null;
 
   return (
-    <div className="min-h-screen bg-bg text-text-primary" dir="rtl">
+    <div className="min-h-screen bg-bg text-text-primary" dir="ltr">
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 pt-24 pb-16">
@@ -136,10 +136,10 @@ export default function DashboardPage() {
           transition={{ duration: 0.4 }}
         >
           <div>
-            <h1 className="font-display font-bold text-3xl mb-1">הפרויקטים שלי</h1>
+            <h1 className="font-display font-bold text-3xl mb-1">My Projects</h1>
             <p className="text-text-secondary text-sm">
               {user?.displayName || user?.email || 'Guest'}
-              {projects.length > 0 && ` · ${projects.length} פרויקטים`}
+              {projects.length > 0 && ` · ${projects.length} projects`}
             </p>
           </div>
           <motion.button
@@ -151,7 +151,7 @@ export default function DashboardPage() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            פרויקט חדש
+            New Project
           </motion.button>
         </motion.div>
 
@@ -173,9 +173,9 @@ export default function DashboardPage() {
               📱
             </div>
             <div>
-              <h2 className="font-display font-bold text-2xl mb-2">אין פרויקטים עדיין</h2>
+              <h2 className="font-display font-bold text-2xl mb-2">No projects yet</h2>
               <p className="text-text-secondary mb-6">
-                צור את הפרויקט הראשון שלך — 10 credits מחכים לך!
+                Create your first project — 10 credits are waiting for you!
               </p>
               <motion.button
                 onClick={() => setShowNewModal(true)}
@@ -183,7 +183,7 @@ export default function DashboardPage() {
                 whileTap={{ scale: 0.97 }}
                 className="px-6 py-3 rounded-xl bg-gradient-primary text-white font-semibold hover:opacity-90 transition-opacity shadow-glow"
               >
-                צור פרויקט ראשון ✨
+                Create First Project ✨
               </motion.button>
             </div>
           </motion.div>
@@ -228,27 +228,27 @@ export default function DashboardPage() {
                 className="w-full max-w-md glass-card rounded-3xl p-6 pointer-events-auto"
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="font-display font-bold text-xl mb-1">פרויקט חדש</h3>
-                <p className="text-text-secondary text-sm mb-6">נשמר אוטומטית אחרי כל generation</p>
+                <h3 className="font-display font-bold text-xl mb-1">New Project</h3>
+                <p className="text-text-secondary text-sm mb-6">Saved automatically after every generation</p>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1.5">שם הפרויקט *</label>
+                    <label className="block text-text-secondary text-xs font-medium mb-1.5">Project Name *</label>
                     <input
                       type="text"
                       value={newProjectName}
                       onChange={(e) => setNewProjectName(e.target.value)}
-                      placeholder="למשל: אפליקציית מסעדות"
+                      placeholder="e.g. Restaurant App"
                       autoFocus
                       className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-text-primary placeholder-text-soft text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
                       onKeyDown={(e) => { if (e.key === 'Enter') handleCreateProject(); }}
                     />
                   </div>
                   <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1.5">תיאור (אופציונלי)</label>
+                    <label className="block text-text-secondary text-xs font-medium mb-1.5">Description (optional)</label>
                     <textarea
                       value={newProjectDesc}
                       onChange={(e) => setNewProjectDesc(e.target.value)}
-                      placeholder="תאר בקצרה את האפליקציה…"
+                      placeholder="Briefly describe the app…"
                       rows={3}
                       className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-text-primary placeholder-text-soft text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all resize-none"
                     />
@@ -262,13 +262,13 @@ export default function DashboardPage() {
                     whileTap={{ scale: 0.98 }}
                     className="flex-1 py-3 rounded-xl bg-gradient-primary text-white font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 shadow-glow"
                   >
-                    {creating ? 'יוצר…' : 'צור פרויקט'}
+                    {creating ? 'Creating…' : 'Create Project'}
                   </motion.button>
                   <button
                     onClick={() => setShowNewModal(false)}
                     className="px-5 py-3 rounded-xl border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all text-sm"
                   >
-                    ביטול
+                    Cancel
                   </button>
                 </div>
               </div>

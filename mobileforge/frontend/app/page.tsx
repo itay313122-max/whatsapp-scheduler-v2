@@ -8,27 +8,27 @@ import Navbar from '@/components/Navbar';
 import { createLocalProjectId } from '@/lib/localProjects';
 
 const TEMPLATES = [
-  { emoji: '🛍️', name: 'חנות אונליין', prompt: 'בנה לי אפליקציית חנות אונליין עם קטלוג מוצרים, סל קניות ומסך תשלום', gradient: 'from-purple-500 to-pink-500' },
-  { emoji: '🍕', name: 'מסעדה', prompt: 'בנה לי אפליקציית הזמנות למסעדה עם תפריט מחולק לקטגוריות וסל הזמנות', gradient: 'from-orange-500 to-red-500' },
-  { emoji: '💪', name: 'כושר', prompt: 'בנה לי אפליקציית מעקב כושר עם תוכניות אימון, טיימר ומעקב התקדמות', gradient: 'from-emerald-500 to-teal-500' },
-  { emoji: '✅', name: 'משימות', prompt: 'בנה לי אפליקציית ניהול משימות עם קטגוריות, תיעדוף ופס התקדמות', gradient: 'from-blue-500 to-cyan-500' },
-  { emoji: '💰', name: 'פיננסים', prompt: 'בנה לי אפליקציית ניהול תקציב עם הוצאות, הכנסות ותרשימים', gradient: 'from-yellow-500 to-amber-500' },
-  { emoji: '🌤️', name: 'מזג אוויר', prompt: 'בנה לי אפליקציית מזג אוויר עם תחזית שעתית ושבועית ואייקונים', gradient: 'from-sky-500 to-blue-500' },
+  { emoji: '🛍️', name: 'Online Store', prompt: 'Build me an online store app with a product catalog, shopping cart, and checkout screen', gradient: 'from-purple-500 to-pink-500' },
+  { emoji: '🍕', name: 'Restaurant', prompt: 'Build me a restaurant ordering app with a menu split into categories and an order cart', gradient: 'from-orange-500 to-red-500' },
+  { emoji: '💪', name: 'Fitness', prompt: 'Build me a fitness tracking app with workout plans, a timer, and progress tracking', gradient: 'from-emerald-500 to-teal-500' },
+  { emoji: '✅', name: 'Tasks', prompt: 'Build me a task management app with categories, prioritization, and a progress bar', gradient: 'from-blue-500 to-cyan-500' },
+  { emoji: '💰', name: 'Finance', prompt: 'Build me a budgeting app with expenses, income, and charts', gradient: 'from-yellow-500 to-amber-500' },
+  { emoji: '🌤️', name: 'Weather', prompt: 'Build me a weather app with hourly and weekly forecasts and icons', gradient: 'from-sky-500 to-blue-500' },
 ];
 
 const STEPS = [
-  { num: '1', title: 'תאר מה אתה רוצה', desc: 'כתוב בעברית או באנגלית מה האפליקציה צריכה לעשות', icon: '💬' },
-  { num: '2', title: 'AI בונה בשניות', desc: 'המערכת מייצרת קוד מלא עם עיצוב מקצועי ולוגיקה עובדת', icon: '⚡' },
-  { num: '3', title: 'ערוך ושתף', desc: 'שנה צבעים, טקסטים ומסכים בלחיצה. שתף לינק או הורד לטלפון', icon: '🚀' },
+  { num: '1', title: 'Describe what you want', desc: 'Write in English or any language what the app should do', icon: '💬' },
+  { num: '2', title: 'AI builds in seconds', desc: 'The system generates complete code with professional design and working logic', icon: '⚡' },
+  { num: '3', title: 'Edit and share', desc: 'Change colors, text, and screens with a click. Share a link or download to your phone', icon: '🚀' },
 ];
 
 const FEATURES = [
-  { icon: '⚡', title: 'ייצור ב-10 שניות', desc: 'AI בונה אפליקציה מלאה מתיאור קצר — כולל UI, לוגיקה וניווט', color: 'from-yellow-400/10 to-orange-400/5 border-white/10' },
-  { icon: '📱', title: 'פריוויו מיידי', desc: 'ראה את האפליקציה על iPhone, Android ודסקטופ — עוד לפני שיתוף', color: 'from-sky-400/10 to-blue-400/5 border-white/10' },
-  { icon: '✏️', title: 'עריכה חיה', desc: 'לחץ על כל טקסט בפריוויו כדי לערוך אותו ישירות. שנה צבעים, פונטים ורכיבים', color: 'from-emerald-400/10 to-green-400/5 border-white/10' },
-  { icon: '🔗', title: 'שתף בלינק', desc: 'כפתור אחד — לינק ציבורי לאפליקציה שלך. שלח לחברים, ללקוחות, למשקיעים', color: 'from-violet-400/10 to-purple-400/5 border-white/10' },
-  { icon: '📦', title: 'הורד והתקן', desc: 'הורד כ-HTML עצמאי או כ-PWA להתקנה על הטלפון — בחינם, בלי חנויות', color: 'from-pink-400/10 to-rose-400/5 border-white/10' },
-  { icon: '🌍', title: 'רב-לשוני', desc: 'אנגלית כברירת מחדל, עם תמיכה מלאה בעברית, ערבית ועוד — AI מבין מה שאתה כותב', color: 'from-indigo-400/10 to-primary/5 border-white/10' },
+  { icon: '⚡', title: 'Generate in 10 seconds', desc: 'AI builds a complete app from a short description — including UI, logic, and navigation', color: 'from-yellow-400/10 to-orange-400/5 border-white/10' },
+  { icon: '📱', title: 'Instant preview', desc: 'See your app on iPhone, Android, and desktop — before you even share it', color: 'from-sky-400/10 to-blue-400/5 border-white/10' },
+  { icon: '✏️', title: 'Live editing', desc: 'Click any text in the preview to edit it directly. Change colors, fonts, and components', color: 'from-emerald-400/10 to-green-400/5 border-white/10' },
+  { icon: '🔗', title: 'Share a link', desc: 'One button — a public link to your app. Send it to friends, clients, and investors', color: 'from-violet-400/10 to-purple-400/5 border-white/10' },
+  { icon: '📦', title: 'Download and install', desc: 'Download as standalone HTML or a PWA to install on your phone — free, no app stores', color: 'from-pink-400/10 to-rose-400/5 border-white/10' },
+  { icon: '🌍', title: 'Multilingual', desc: 'English by default, with full support for Hebrew, Arabic, and more — AI understands whatever you write', color: 'from-indigo-400/10 to-primary/5 border-white/10' },
 ];
 
 const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } };
@@ -42,7 +42,7 @@ function HeroAppMockup() {
   return (
     <img
       src="/hero-app.png"
-      alt="אפליקציה שנבנתה ב-MobileForge"
+      alt="An app built with MobileForge"
       width={246}
       height={533}
       className="block w-full rounded-[28px]"
@@ -63,7 +63,7 @@ export default function LandingPage() {
   }
 
   return (
-    <main className="theme-dark min-h-screen text-text-primary overflow-x-hidden bg-bg" dir="rtl">
+    <main className="theme-dark min-h-screen text-text-primary overflow-x-hidden bg-bg" dir="ltr">
       <Navbar />
 
       {/* ── Hero with Input ─────────────────────────────────────────────── */}
@@ -75,21 +75,21 @@ export default function LandingPage() {
           <motion.div variants={fadeUp}>
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-primary/30 text-primary-light text-sm font-semibold backdrop-blur-md mb-6">
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-              עוצב לעידן ה-AI · בונה אפליקציות מובייל בחינם
+              Built for the AI era · Build mobile apps for free
             </span>
           </motion.div>
 
           <motion.h1 variants={fadeUp} className="font-display font-extrabold text-5xl sm:text-6xl md:text-7xl leading-[1.05] mb-5 text-text-primary tracking-tight">
-            תאר.{' '}
-            <span className="gradient-text">AI יבנה.</span>
+            Describe.{' '}
+            <span className="gradient-text">AI builds.</span>
             <br />
-            שתף.
+            Share.
           </motion.h1>
 
           <motion.p variants={fadeUp} className="text-text-secondary text-lg sm:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
-            כתוב מה האפליקציה צריכה לעשות — AI יבנה אותה בשניות.
+            Write what your app should do — AI builds it in seconds.
             <br className="hidden sm:block" />
-            ערוך, שתף לינק, או הורד לטלפון. הכל בחינם.
+            Edit, share a link, or download to your phone. All for free.
           </motion.p>
 
           {/* Prompt Input */}
@@ -100,22 +100,22 @@ export default function LandingPage() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleGo(); }}
-                placeholder="תאר את האפליקציה שלך... למשל: אפליקציית משימות עם קטגוריות"
+                placeholder="Describe your app... e.g. a task app with categories"
                 className="flex-1 px-4 py-3 min-h-[48px] bg-transparent text-text-primary placeholder-text-soft text-sm sm:text-base focus:outline-none"
-                dir="rtl"
+                dir="ltr"
               />
               <button
                 onClick={() => handleGo()}
                 disabled={!prompt.trim()}
                 className="px-6 py-3 min-h-[48px] rounded-xl bg-gradient-primary text-white font-display font-bold text-sm sm:text-base hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-40 shadow-glow flex-shrink-0"
               >
-                בנה עכשיו
+                Build now
               </button>
             </div>
           </motion.div>
 
           <motion.p variants={fadeUp} className="text-text-soft text-xs mb-9">
-            ללא הרשמה. ללא כרטיס אשראי. התחל מייד.
+            No signup. No credit card. Start instantly.
           </motion.p>
 
           {/* Template chips */}
@@ -128,7 +128,7 @@ export default function LandingPage() {
               >
                 <span>{t.emoji}</span>
                 <span>{t.name}</span>
-                <svg className="w-3 h-3 opacity-0 group-hover:opacity-60 -mr-1 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 opacity-0 group-hover:opacity-60 -ml-1 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
@@ -152,9 +152,9 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <motion.div className="text-center mb-14" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="font-display font-bold text-3xl sm:text-4xl mb-3 text-text-primary">
-              שלושה צעדים לאפליקציה
+              Three steps to an app
             </h2>
-            <p className="text-text-secondary">מרעיון לאפליקציה חיה — בלי קוד, בלי סיבוכים</p>
+            <p className="text-text-secondary">From idea to a live app — no code, no hassle</p>
           </motion.div>
 
           <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
@@ -179,9 +179,9 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="font-display font-bold text-3xl sm:text-4xl mb-3 text-text-primary">
-              הכל כלול — בחינם
+              Everything included — for free
             </h2>
-            <p className="text-text-secondary">כל מה שצריך כדי לבנות, לערוך ולשתף</p>
+            <p className="text-text-secondary">Everything you need to build, edit, and share</p>
           </motion.div>
 
           <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
@@ -206,9 +206,9 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <motion.div className="grid grid-cols-3 gap-6 text-center" initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
             {[
-              { value: '10+', label: 'שניות לאפליקציה' },
-              { value: '100%', label: 'חינם — ללא הגבלה' },
-              { value: '0', label: 'שורות קוד נדרשות' },
+              { value: '10+', label: 'seconds to an app' },
+              { value: '100%', label: 'free — no limits' },
+              { value: '0', label: 'lines of code required' },
             ].map(({ value, label }) => (
               <motion.div key={label} variants={fadeUp}>
                 <div className="font-display font-extrabold text-display-sm sm:text-display gradient-text mb-1">{value}</div>
@@ -223,24 +223,24 @@ export default function LandingPage() {
       <section className="py-24 px-4 text-center hero-bg">
         <motion.div className="max-w-2xl mx-auto" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <h2 className="font-display font-extrabold text-4xl sm:text-5xl mb-5 text-text-primary">
-            מוכן לבנות את{' '}
-            <span className="gradient-text">האפליקציה שלך</span>?
+            Ready to build{' '}
+            <span className="gradient-text">your app</span>?
           </h2>
           <p className="text-text-secondary text-lg mb-8">
-            תאר מה אתה רוצה. AI יעשה את השאר.
+            Describe what you want. AI does the rest.
           </p>
           <Link
             href="/builder/demo"
             className="inline-block px-10 py-4 min-h-[48px] rounded-2xl bg-gradient-primary text-white font-display font-bold text-xl hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-glow press-effect"
           >
-            התחל עכשיו — בחינם
+            Get started now — free
           </Link>
         </motion.div>
       </section>
 
       {/* Footer */}
       <footer className="py-6 px-4 border-t border-border text-center text-text-soft text-sm bg-surface">
-        <p>MobileForge &copy; {new Date().getFullYear()} &middot; בנה אפליקציות עם AI</p>
+        <p>MobileForge &copy; {new Date().getFullYear()} &middot; Build apps with AI</p>
       </footer>
     </main>
   );

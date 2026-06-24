@@ -48,14 +48,14 @@ export default function PropertyPanel({ element, onStyleChange, onTextChange, on
   const isTextEl = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'label', 'button', 'a', 'li'].includes(element.tag);
 
   return (
-    <div className="flex flex-col gap-3 p-3" dir="rtl">
+    <div className="flex flex-col gap-3 p-3" dir="ltr">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-mono font-bold uppercase">
             {element.tag}
           </div>
-          <span className="text-xs text-text-secondary">עריכת רכיב</span>
+          <span className="text-xs text-text-secondary">Edit element</span>
         </div>
         <button
           onClick={onDeselect}
@@ -70,7 +70,7 @@ export default function PropertyPanel({ element, onStyleChange, onTextChange, on
       {/* Text */}
       {isTextEl && (
         <div>
-          <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">טקסט</label>
+          <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">Text</label>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -84,7 +84,7 @@ export default function PropertyPanel({ element, onStyleChange, onTextChange, on
       {/* Font Size */}
       {isTextEl && (
         <div>
-          <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">גודל טקסט</label>
+          <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">Font size</label>
           <div className="flex flex-wrap gap-1">
             {FONT_SIZES.map((size) => (
               <button
@@ -108,7 +108,7 @@ export default function PropertyPanel({ element, onStyleChange, onTextChange, on
 
       {/* Text Color */}
       <div>
-        <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">צבע טקסט</label>
+        <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">Text color</label>
         <div className="flex items-center gap-2">
           <input
             type="color"
@@ -122,7 +122,7 @@ export default function PropertyPanel({ element, onStyleChange, onTextChange, on
 
       {/* Background Color */}
       <div>
-        <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">צבע רקע</label>
+        <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">Background color</label>
         <div className="flex items-center gap-2">
           <input
             type="color"
@@ -135,7 +135,7 @@ export default function PropertyPanel({ element, onStyleChange, onTextChange, on
             onClick={() => onStyleChange(element.path, 'backgroundColor', 'transparent')}
             className="text-[10px] text-text-soft hover:text-red-400 transition-colors"
           >
-            שקוף
+            Transparent
           </button>
         </div>
       </div>
@@ -143,12 +143,12 @@ export default function PropertyPanel({ element, onStyleChange, onTextChange, on
       {/* Font Weight */}
       {isTextEl && (
         <div>
-          <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">משקל</label>
+          <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">Weight</label>
           <div className="flex gap-1">
             {[
-              { id: '400', label: 'רגיל' },
-              { id: '600', label: 'בולט' },
-              { id: '800', label: 'כבד' },
+              { id: '400', label: 'Regular' },
+              { id: '600', label: 'Bold' },
+              { id: '800', label: 'Heavy' },
             ].map((w) => (
               <button
                 key={w.id}
@@ -168,7 +168,7 @@ export default function PropertyPanel({ element, onStyleChange, onTextChange, on
 
       {/* Border Radius */}
       <div>
-        <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">עיגול פינות</label>
+        <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">Corner radius</label>
         <div className="flex gap-1">
           {['0px', '8px', '16px', '24px', '9999px'].map((r) => (
             <button
@@ -188,7 +188,7 @@ export default function PropertyPanel({ element, onStyleChange, onTextChange, on
 
       {/* Padding */}
       <div>
-        <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">ריווח פנימי</label>
+        <label className="text-[10px] text-text-secondary uppercase tracking-wide mb-1 block">Padding</label>
         <div className="flex gap-1">
           {['0px', '4px', '8px', '12px', '16px', '24px'].map((p) => (
             <button

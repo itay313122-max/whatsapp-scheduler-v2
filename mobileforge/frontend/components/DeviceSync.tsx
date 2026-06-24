@@ -19,15 +19,15 @@ export default function DeviceSync({ shareUrl, appName, onClose }: DeviceSyncPro
   }
 
   const steps = [
-    { step: '1', text: 'פתח את המצלמה בטלפון', sub: 'iPhone או אנדרואיד — לא צריך אפליקציה' },
-    { step: '2', text: 'כוון אל קוד ה-QR', sub: 'תופיע התראה ללחיצה' },
-    { step: '3', text: 'הקש על הקישור', sub: 'האפליקציה תיפתח בדפדפן — חיה ואינטראקטיבית' },
+    { step: '1', text: 'Open the camera on your phone', sub: 'iPhone or Android — no app needed' },
+    { step: '2', text: 'Point it at the QR code', sub: 'A tap notification will appear' },
+    { step: '3', text: 'Tap the link', sub: 'The app opens in your browser — live and interactive' },
   ];
 
   return (
     <div
       className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      dir="rtl"
+      dir="ltr"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="w-full max-w-sm bg-surface border border-border rounded-2xl overflow-hidden">
@@ -40,14 +40,14 @@ export default function DeviceSync({ shareUrl, appName, onClose }: DeviceSyncPro
               </svg>
             </div>
             <div>
-              <h3 className="font-display font-semibold text-sm">פתח בטלפון</h3>
-              <p className="text-text-secondary text-xs">{appName || 'האפליקציה שלך'}</p>
+              <h3 className="font-display font-semibold text-sm">Open on your phone</h3>
+              <p className="text-text-secondary text-xs">{appName || 'Your app'}</p>
             </div>
           </div>
           <button
             onClick={onClose}
             className="w-7 h-7 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface flex items-center justify-center transition-all"
-            aria-label="סגור"
+            aria-label="Close"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -69,9 +69,9 @@ export default function DeviceSync({ shareUrl, appName, onClose }: DeviceSyncPro
               />
             </div>
             <div className="text-center">
-              <p className="text-text-primary text-sm font-medium mb-1">סרוק עם מצלמת הטלפון</p>
+              <p className="text-text-primary text-sm font-medium mb-1">Scan with your phone camera</p>
               <p className="text-text-secondary text-xs leading-relaxed">
-                האפליקציה נפתחת ישירות בדפדפן — בלי להתקין כלום
+                The app opens directly in your browser — nothing to install
               </p>
             </div>
           </div>
@@ -93,14 +93,14 @@ export default function DeviceSync({ shareUrl, appName, onClose }: DeviceSyncPro
 
           {/* Manual URL copy */}
           <div>
-            <p className="text-text-secondary text-xs mb-2 font-medium">או העתק את הקישור ושלח לעצמך</p>
+            <p className="text-text-secondary text-xs mb-2 font-medium">Or copy the link and send it to yourself</p>
             <div className="flex items-center gap-2 p-3 rounded-xl bg-surface-2 border border-border">
               <code className="text-primary text-xs flex-1 break-all font-code">{shareUrl}</code>
               <button
                 onClick={copyUrl}
                 className="flex-shrink-0 px-2 py-1 rounded-lg bg-primary/10 text-primary text-xs hover:bg-primary/20 transition-all"
               >
-                {copied ? 'הועתק ✓' : 'העתק'}
+                {copied ? 'Copied ✓' : 'Copy'}
               </button>
             </div>
           </div>
@@ -115,7 +115,7 @@ export default function DeviceSync({ shareUrl, appName, onClose }: DeviceSyncPro
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
-            פתח בכרטיסייה חדשה
+            Open in a new tab
           </a>
         </div>
       </div>

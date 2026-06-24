@@ -16,7 +16,7 @@ interface DesignGalleryProps {
 }
 
 // Shared instruction — apply STYLE ONLY, keep all content/logic intact
-const STYLE_ONLY = 'חשוב מאוד: שמור על כל התוכן, הטקסטים, הנתונים, המבנה והלוגיקה הקיימים בדיוק כפי שהם. שנה אך ורק את העיצוב הויזואלי — צבעים, פונטים, מרווחים, צללים, עיגול פינות, וסגנון הרכיבים. אל תשנה מילה אחת של תוכן.';
+const STYLE_ONLY = 'Important: keep all existing content, text, data, structure, and logic exactly as they are. Change only the visual design — colors, fonts, spacing, shadows, corner radius, and component styling. Do not change a single word of content.';
 
 type GallerySection = 'shapes' | 'templates' | 'apps' | 'styles';
 
@@ -236,7 +236,7 @@ function ButtonShapePreview({ radius, shadow, border }: { radius: string; shadow
           border: border || 'none',
         }}
       >
-        כפתור
+        Button
       </div>
     </div>
   );
@@ -285,28 +285,28 @@ function InputShapePreview({ radius, style: inputStyle }: { radius: string; styl
 
 const BUTTON_SHAPES = [
   {
-    id: 'square', name: 'חד', preview: <ButtonShapePreview radius="4px" />,
-    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב חד (מרובע): border-radius: 4px, גובה מינימלי 48dp, padding: 12px 24px, צללים עדינים. ${STYLE_ONLY}`,
+    id: 'square', name: 'Sharp', preview: <ButtonShapePreview radius="4px" />,
+    prompt: `Change all buttons in the app to a sharp (square) design: border-radius: 4px, minimum height 48dp, padding: 12px 24px, subtle shadows. ${STYLE_ONLY}`,
   },
   {
-    id: 'rounded', name: 'מעוגל', preview: <ButtonShapePreview radius="12px" />,
-    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב מעוגל: border-radius: 12px, גובה מינימלי 48dp, padding: 12px 24px, צללים רכים. ${STYLE_ONLY}`,
+    id: 'rounded', name: 'Rounded', preview: <ButtonShapePreview radius="12px" />,
+    prompt: `Change all buttons in the app to a rounded design: border-radius: 12px, minimum height 48dp, padding: 12px 24px, soft shadows. ${STYLE_ONLY}`,
   },
   {
-    id: 'pill', name: 'כדור', preview: <ButtonShapePreview radius="9999px" />,
-    prompt: `שנה את כל הכפתורים באפליקציה לעיצוב כדורי (pill): border-radius: 9999px, גובה מינימלי 48dp, padding: 12px 32px, תחושת מודרנית. ${STYLE_ONLY}`,
+    id: 'pill', name: 'Pill', preview: <ButtonShapePreview radius="9999px" />,
+    prompt: `Change all buttons in the app to a pill design: border-radius: 9999px, minimum height 48dp, padding: 12px 32px, modern feel. ${STYLE_ONLY}`,
   },
   {
-    id: 'outline', name: 'מסגרת', preview: <ButtonShapePreview radius="10px" border="2px solid #6366f1" shadow="none" />,
-    prompt: `שנה את כל הכפתורים באפליקציה לסגנון מסגרת (outline): רקע שקוף, border: 2px solid עם הצבע הראשי, border-radius: 10px, גובה מינימלי 48dp, padding: 12px 24px, טקסט בצבע הראשי. ${STYLE_ONLY}`,
+    id: 'outline', name: 'Outline', preview: <ButtonShapePreview radius="10px" border="2px solid #6366f1" shadow="none" />,
+    prompt: `Change all buttons in the app to an outline style: transparent background, border: 2px solid with the primary color, border-radius: 10px, minimum height 48dp, padding: 12px 24px, text in the primary color. ${STYLE_ONLY}`,
   },
   {
-    id: 'soft', name: 'רך', preview: <ButtonShapePreview radius="14px" shadow="0 4px 14px rgba(99,102,241,0.25)" />,
-    prompt: `שנה את כל הכפתורים לסגנון רך: border-radius: 14px, גובה מינימלי 48dp, padding: 12px 24px, רקע gradient עדין, צל צבעוני רך (box-shadow עם צבע הכפתור), אפקט hover שמעלה את הכפתור למעלה. ${STYLE_ONLY}`,
+    id: 'soft', name: 'Soft', preview: <ButtonShapePreview radius="14px" shadow="0 4px 14px rgba(99,102,241,0.25)" />,
+    prompt: `Change all buttons to a soft style: border-radius: 14px, minimum height 48dp, padding: 12px 24px, subtle gradient background, soft colored shadow (box-shadow using the button color), a hover effect that lifts the button up. ${STYLE_ONLY}`,
   },
   {
-    id: 'brutal-btn', name: 'ברוטלי', preview: <ButtonShapePreview radius="4px" shadow="3px 3px 0 #000" border="2px solid #000" />,
-    prompt: `שנה את כל הכפתורים לסגנון neo-brutalism: border: 2px solid #000, box-shadow: 3px 3px 0 #000, border-radius: 4px, גובה מינימלי 48dp, padding: 12px 24px, רקע צבעוני חזק, טקסט מודגש. ${STYLE_ONLY}`,
+    id: 'brutal-btn', name: 'Brutal', preview: <ButtonShapePreview radius="4px" shadow="3px 3px 0 #000" border="2px solid #000" />,
+    prompt: `Change all buttons to a neo-brutalism style: border: 2px solid #000, box-shadow: 3px 3px 0 #000, border-radius: 4px, minimum height 48dp, padding: 12px 24px, bold colorful background, bold text. ${STYLE_ONLY}`,
   },
 ];
 

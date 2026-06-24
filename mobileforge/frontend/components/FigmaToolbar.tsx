@@ -11,10 +11,10 @@ interface FigmaToolbarProps {
 }
 
 const SHAPE_PRESETS = [
-  { id: 'square', label: 'מרובע', icon: '▢', radius: '0px' },
-  { id: 'rounded', label: 'מעוגל', icon: '▢', radius: '12px' },
-  { id: 'pill', label: 'כמוסה', icon: '⬭', radius: '9999px' },
-  { id: 'circle', label: 'עיגול', icon: '○', radius: '50%' },
+  { id: 'square', label: 'Square', icon: '▢', radius: '0px' },
+  { id: 'rounded', label: 'Rounded', icon: '▢', radius: '12px' },
+  { id: 'pill', label: 'Pill', icon: '⬭', radius: '9999px' },
+  { id: 'circle', label: 'Circle', icon: '○', radius: '50%' },
 ];
 
 const QUICK_COLORS = [
@@ -97,7 +97,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
   const activeShape = SHAPE_PRESETS.find(s => s.radius === currentRadius) || null;
 
   return (
-    <div ref={toolbarRef} className="flex flex-col items-center gap-1.5 animate-fade-in-up" dir="rtl">
+    <div ref={toolbarRef} className="flex flex-col items-center gap-1.5 animate-fade-in-up" dir="ltr">
       {/* Main toolbar */}
       <div className="flex items-center gap-0.5 px-2 py-1.5 bg-[#1A1A1E]/95 border border-[#2A2A2E] rounded-2xl shadow-2xl shadow-black/30 backdrop-blur-xl">
         {/* Element tag */}
@@ -114,7 +114,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
             className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
               popover === 'text' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
             }`}
-            title="ערוך טקסט"
+            title="Edit text"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -129,7 +129,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
             className={`flex items-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
               popover === 'color' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
             }`}
-            title="צבע טקסט"
+            title="Text color"
           >
             <span className="text-sm font-bold" style={{ color: rgbToHex(element.styles.color) }}>A</span>
             <div className="w-4 h-1 rounded-full" style={{ background: rgbToHex(element.styles.color) }} />
@@ -142,7 +142,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           className={`flex items-center gap-1 px-1.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
             popover === 'bgColor' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
           }`}
-          title="צבע רקע"
+          title="Background color"
         >
           <div className="w-5 h-5 rounded-md border border-border/80" style={{
             background: element.styles.backgroundColor === 'transparent' || !element.styles.backgroundColor
@@ -160,7 +160,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
             className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
               popover === 'size' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
             }`}
-            title="גודל טקסט"
+            title="Font size"
           >
             <span className="font-mono text-[10px]">{parseInt(element.styles.fontSize) || 14}</span>
             <svg className="w-2.5 h-2.5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +175,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
             popover === 'shape' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
           }`}
-          title="צורה ופינות"
+          title="Shape & corners"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <rect x="3" y="3" width="18" height="18" rx={parseInt(currentRadius) > 100 ? 9 : Math.min(parseInt(currentRadius) || 0, 8)} strokeWidth={2} />
@@ -188,7 +188,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
             popover === 'spacing' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
           }`}
-          title="מרווח ומימדים"
+          title="Spacing & dimensions"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
@@ -201,7 +201,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
             popover === 'shadow' ? 'bg-primary/15 text-primary' : 'text-text-primary hover:bg-white/10'
           }`}
-          title="צל"
+          title="Shadow"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24">
             <rect x="3" y="3" width="14" height="14" rx="3" stroke="currentColor" strokeWidth={2} />
@@ -215,7 +215,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
         <button
           onClick={onDeselect}
           className="flex items-center px-1.5 py-1.5 rounded-lg text-text-soft hover:text-red-400 hover:bg-red-500/10 transition-all"
-          title="בטל בחירה"
+          title="Deselect"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
@@ -243,15 +243,15 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
                 }}
                 rows={3}
                 className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-text-primary text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none"
-                placeholder="הקלד טקסט..."
+                placeholder="Type text..."
               />
               <div className="flex items-center justify-between mt-2">
-                <span className="text-[10px] text-text-soft">Enter לאישור, Esc לביטול</span>
+                <span className="text-[10px] text-text-soft">Enter to confirm, Esc to cancel</span>
                 <button
                   onClick={() => { onTextChange(element.path, editText); setPopover(null); }}
                   className="px-3 py-1.5 rounded-lg text-[11px] font-medium bg-primary text-white hover:bg-primary/90 transition-all"
                 >
-                  עדכן
+                  Update
                 </button>
               </div>
             </div>
@@ -260,7 +260,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           {/* Text color popover */}
           {popover === 'color' && (
             <div className="p-3 w-[220px]">
-              <p className="text-[10px] text-text-soft font-medium mb-2">צבע טקסט</p>
+              <p className="text-[10px] text-text-soft font-medium mb-2">Text color</p>
               <div className="grid grid-cols-5 gap-1.5 mb-3">
                 {QUICK_COLORS.filter(c => c !== 'transparent').map((color) => (
                   <ColorDot
@@ -292,7 +292,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           {/* Background color popover */}
           {popover === 'bgColor' && (
             <div className="p-3 w-[220px]">
-              <p className="text-[10px] text-text-soft font-medium mb-2">צבע רקע</p>
+              <p className="text-[10px] text-text-soft font-medium mb-2">Background color</p>
               <div className="grid grid-cols-5 gap-1.5 mb-3">
                 {QUICK_COLORS.map((color) => (
                   <ColorDot
@@ -327,7 +327,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           {/* Font size popover */}
           {popover === 'size' && (
             <div className="p-3 w-[200px]">
-              <p className="text-[10px] text-text-soft font-medium mb-2">גודל טקסט</p>
+              <p className="text-[10px] text-text-soft font-medium mb-2">Font size</p>
               <div className="grid grid-cols-3 gap-1.5">
                 {QUICK_SIZES.map((s) => (
                   <button
@@ -347,11 +347,11 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
                 ))}
               </div>
               <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border/50">
-                <span className="text-[10px] text-text-soft">משקל:</span>
+                <span className="text-[10px] text-text-soft">Weight:</span>
                 {[
-                  { id: '400', label: 'רגיל' },
-                  { id: '600', label: 'בולט' },
-                  { id: '800', label: 'כבד' },
+                  { id: '400', label: 'Regular' },
+                  { id: '600', label: 'Bold' },
+                  { id: '800', label: 'Heavy' },
                 ].map((w) => (
                   <button
                     key={w.id}
@@ -372,7 +372,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           {/* Shape popover */}
           {popover === 'shape' && (
             <div className="p-3 w-[240px]">
-              <p className="text-[10px] text-text-soft font-medium mb-2">צורה</p>
+              <p className="text-[10px] text-text-soft font-medium mb-2">Shape</p>
               <div className="grid grid-cols-4 gap-2 mb-3">
                 {SHAPE_PRESETS.map((shape) => (
                   <button
@@ -395,7 +395,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
                 ))}
               </div>
               <div>
-                <p className="text-[10px] text-text-soft font-medium mb-1.5">עיגול מותאם</p>
+                <p className="text-[10px] text-text-soft font-medium mb-1.5">Custom radius</p>
                 <div className="flex items-center gap-2">
                   <input
                     type="range"
@@ -411,12 +411,12 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
                 </div>
               </div>
               <div className="mt-3 pt-2 border-t border-border/50">
-                <p className="text-[10px] text-text-soft font-medium mb-1.5">גבול</p>
+                <p className="text-[10px] text-text-soft font-medium mb-1.5">Border</p>
                 <div className="grid grid-cols-3 gap-1.5">
                   {[
-                    { label: 'ללא', value: 'none' },
-                    { label: 'דק', value: '1px solid currentColor' },
-                    { label: 'עבה', value: '2px solid currentColor' },
+                    { label: 'None', value: 'none' },
+                    { label: 'Thin', value: '1px solid currentColor' },
+                    { label: 'Thick', value: '2px solid currentColor' },
                   ].map((b) => (
                     <button
                       key={b.label}
@@ -434,14 +434,14 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           {/* Shadow popover */}
           {popover === 'shadow' && (
             <div className="p-3 w-[200px]">
-              <p className="text-[10px] text-text-soft font-medium mb-2">צל</p>
+              <p className="text-[10px] text-text-soft font-medium mb-2">Shadow</p>
               <div className="flex flex-col gap-1.5">
                 {[
-                  { label: 'ללא', value: 'none', preview: '' },
-                  { label: 'עדין', value: '0 1px 3px rgba(0,0,0,0.1)', preview: 'shadow-sm' },
-                  { label: 'בינוני', value: '0 4px 6px rgba(0,0,0,0.1)', preview: 'shadow-md' },
-                  { label: 'חזק', value: '0 8px 25px rgba(0,0,0,0.15)', preview: 'shadow-lg' },
-                  { label: 'זוהר', value: '0 0 20px rgba(99,102,241,0.4)', preview: 'shadow-glow' },
+                  { label: 'None', value: 'none', preview: '' },
+                  { label: 'Subtle', value: '0 1px 3px rgba(0,0,0,0.1)', preview: 'shadow-sm' },
+                  { label: 'Medium', value: '0 4px 6px rgba(0,0,0,0.1)', preview: 'shadow-md' },
+                  { label: 'Strong', value: '0 8px 25px rgba(0,0,0,0.15)', preview: 'shadow-lg' },
+                  { label: 'Glow', value: '0 0 20px rgba(99,102,241,0.4)', preview: 'shadow-glow' },
                   { label: 'Glass', value: '0 8px 32px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.1)', preview: '' },
                 ].map((s) => (
                   <button
@@ -466,7 +466,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
           {/* Spacing popover */}
           {popover === 'spacing' && (
             <div className="p-3 w-[240px]">
-              <p className="text-[10px] text-text-soft font-medium mb-2">ריווח פנימי (Padding)</p>
+              <p className="text-[10px] text-text-soft font-medium mb-2">Padding</p>
               <div className="grid grid-cols-4 gap-1.5 mb-3">
                 {['0', '4', '8', '12', '16', '20', '24', '32'].map((p) => (
                   <button
@@ -483,10 +483,10 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
                 ))}
               </div>
 
-              <p className="text-[10px] text-text-soft font-medium mb-2">רוחב</p>
+              <p className="text-[10px] text-text-soft font-medium mb-2">Width</p>
               <div className="grid grid-cols-3 gap-1.5 mb-3">
                 {[
-                  { label: 'אוטו', value: 'auto' },
+                  { label: 'Auto', value: 'auto' },
                   { label: '50%', value: '50%' },
                   { label: '100%', value: '100%' },
                 ].map((w) => (
@@ -500,7 +500,7 @@ export default function FigmaToolbar({ element, onStyleChange, onTextChange, onD
                 ))}
               </div>
 
-              <p className="text-[10px] text-text-soft font-medium mb-2">שקיפות</p>
+              <p className="text-[10px] text-text-soft font-medium mb-2">Opacity</p>
               <div className="flex items-center gap-2">
                 <input
                   type="range"

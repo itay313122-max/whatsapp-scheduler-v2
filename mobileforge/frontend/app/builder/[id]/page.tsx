@@ -67,44 +67,53 @@ const FONTS = [
 ];
 
 const TEXT_SIZES = [
-  { id: 'sm', label: 'קומפקטי',  value: '13px' },
-  { id: 'md', label: 'רגיל',     value: '15px' },
-  { id: 'lg', label: 'נגיש',     value: '17px' },
+  { id: 'sm', label: 'Compact',  value: '13px' },
+  { id: 'md', label: 'Regular',  value: '15px' },
+  { id: 'lg', label: 'Large',    value: '17px' },
 ];
 
 const BUTTON_STYLES = [
-  { id: 'rounded', label: 'מעוגל',  vars: { '--btn-radius':'12px', '--btn-bg':'var(--c-primary)', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
-  { id: 'pill',    label: 'כדור',   vars: { '--btn-radius':'9999px', '--btn-bg':'var(--c-primary)', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
-  { id: 'sharp',   label: 'חד',     vars: { '--btn-radius':'4px',  '--btn-bg':'var(--c-primary)', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
-  { id: 'outline', label: 'מסגרת',  vars: { '--btn-radius':'12px', '--btn-bg':'transparent', '--btn-color':'var(--c-primary)', '--btn-border-width':'1.5px', '--btn-border-color':'var(--c-primary)', '--btn-shadow':'none' } },
-  { id: 'soft',    label: 'רך',     vars: { '--btn-radius':'12px', '--btn-bg':'var(--c-primary-light)', '--btn-color':'var(--c-primary)', '--btn-border-width':'0px', '--btn-shadow':'none' } },
-  { id: 'noir',    label: 'שחור',   vars: { '--btn-radius':'12px', '--btn-bg':'#000', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+  { id: 'rounded', label: 'Rounded', vars: { '--btn-radius':'12px', '--btn-bg':'var(--c-primary)', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+  { id: 'pill',    label: 'Pill',    vars: { '--btn-radius':'9999px', '--btn-bg':'var(--c-primary)', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+  { id: 'sharp',   label: 'Sharp',   vars: { '--btn-radius':'4px',  '--btn-bg':'var(--c-primary)', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+  { id: 'outline', label: 'Outline', vars: { '--btn-radius':'12px', '--btn-bg':'transparent', '--btn-color':'var(--c-primary)', '--btn-border-width':'1.5px', '--btn-border-color':'var(--c-primary)', '--btn-shadow':'none' } },
+  { id: 'soft',    label: 'Soft',    vars: { '--btn-radius':'12px', '--btn-bg':'var(--c-primary-light)', '--btn-color':'var(--c-primary)', '--btn-border-width':'0px', '--btn-shadow':'none' } },
+  { id: 'noir',    label: 'Black',   vars: { '--btn-radius':'12px', '--btn-bg':'#000', '--btn-color':'#fff', '--btn-border-width':'0px', '--btn-shadow':'none' } },
 ];
 
 const CARD_STYLES = [
-  { id: 'elevated', label: 'צל',      vars: { '--card-shadow':'0 1px 3px rgba(0,0,0,0.08)', '--card-border':'none' } },
-  { id: 'flat',     label: 'שטוח',    vars: { '--card-shadow':'none', '--card-border':'none' } },
-  { id: 'bordered', label: 'מסגרת',   vars: { '--card-shadow':'none', '--card-border':'1px solid var(--c-border)' } },
-  { id: 'subtle',   label: 'עדין',    vars: { '--card-shadow':'0 1px 2px rgba(0,0,0,0.04)', '--card-border':'1px solid rgba(0,0,0,0.04)' } },
+  { id: 'elevated', label: 'Elevated', vars: { '--card-shadow':'0 1px 3px rgba(0,0,0,0.08)', '--card-border':'none' } },
+  { id: 'flat',     label: 'Flat',     vars: { '--card-shadow':'none', '--card-border':'none' } },
+  { id: 'bordered', label: 'Bordered', vars: { '--card-shadow':'none', '--card-border':'1px solid var(--c-border)' } },
+  { id: 'subtle',   label: 'Subtle',   vars: { '--card-shadow':'0 1px 2px rgba(0,0,0,0.04)', '--card-border':'1px solid rgba(0,0,0,0.04)' } },
 ];
 
 const RADIUS_PRESETS = [
-  { id: 'sharp',  label: 'חד',     vars: { '--r-sm':'2px','--r-md':'4px','--r-lg':'6px','--r-xl':'8px','--btn-radius':'6px','--card-radius':'8px' } },
-  { id: 'medium', label: 'בינוני', vars: {} as Record<string, string> },
-  { id: 'round',  label: 'עגול',   vars: { '--r-sm':'12px','--r-md':'16px','--r-lg':'20px','--r-xl':'24px','--btn-radius':'16px','--card-radius':'20px' } },
+  { id: 'sharp',  label: 'Sharp',  vars: { '--r-sm':'2px','--r-md':'4px','--r-lg':'6px','--r-xl':'8px','--btn-radius':'6px','--card-radius':'8px' } },
+  { id: 'medium', label: 'Medium', vars: {} as Record<string, string> },
+  { id: 'round',  label: 'Round',  vars: { '--r-sm':'12px','--r-md':'16px','--r-lg':'20px','--r-xl':'24px','--btn-radius':'16px','--card-radius':'20px' } },
 ];
 
 const PRESET_SCREENS = [
-  { id: 'settings', label: 'הגדרות', icon: '⚙️' },
-  { id: 'profile',  label: 'פרופיל',  icon: '👤' },
-  { id: 'about',    label: 'אודות',   icon: 'ℹ️' },
-  { id: 'contact',  label: 'צור קשר', icon: '💬' },
+  { id: 'settings', label: 'Settings', icon: '⚙️' },
+  { id: 'profile',  label: 'Profile',  icon: '👤' },
+  { id: 'about',    label: 'About',    icon: 'ℹ️' },
+  { id: 'contact',  label: 'Contact',  icon: '💬' },
 ];
 
 const LANGUAGES = [
   { id: 'he', label: 'עברית' },
   { id: 'en', label: 'English' },
   { id: 'ar', label: 'العربية' },
+];
+
+// Curated, non-gaudy color grid for picking the app's primary color — any of
+// these (or a fully custom value) recolors the whole app via the accent.
+const COLOR_SWATCHES = [
+  '#6366F1', '#8B5CF6', '#A855F7', '#D946EF', '#EC4899', '#F43F5E',
+  '#EF4444', '#F97316', '#F59E0B', '#EAB308', '#84CC16', '#22C55E',
+  '#10B981', '#14B8A6', '#06B6D4', '#0EA5E9', '#3B82F6', '#2563EB',
+  '#7C3AED', '#DB2777', '#0D9488', '#65A30D', '#475569', '#111827',
 ];
 
 export interface EditSettings {
@@ -193,7 +202,7 @@ function RichEditPanel({
     onSettings({ ...settings, [k]: v });
 
   return (
-    <div className="border-b border-border/50 bg-surface/30 backdrop-blur-md flex-shrink-0" dir="rtl">
+    <div className="border-b border-border/50 bg-surface/30 backdrop-blur-md flex-shrink-0" dir="ltr">
       {/* ── compact bar ──────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 px-3 py-1.5 overflow-x-auto">
         {PALETTES.map((p) => (
@@ -209,7 +218,7 @@ function RichEditPanel({
         <div className="h-4 w-px bg-border flex-shrink-0" />
         <button onClick={() => setOpen((x) => !x)}
           className="flex items-center gap-1 px-2 py-0.5 rounded text-xs text-text-secondary hover:text-text-primary border border-border transition-all flex-shrink-0">
-          ⚙️ עריכה {open ? '▲' : '▼'}
+          ⚙️ Edit {open ? '▲' : '▼'}
         </button>
       </div>
 
@@ -221,7 +230,7 @@ function RichEditPanel({
             {(['colors', 'typography', 'components', 'structure'] as const).map((s) => (
               <button key={s} onClick={() => setSection(s)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex-shrink-0 ${section === s ? 'bg-primary text-white' : 'text-text-secondary border border-border hover:text-text-primary'}`}>
-                {s === 'colors' ? '🎨 צבעים' : s === 'typography' ? 'Aa טיפוגרפיה' : s === 'components' ? '□ רכיבים' : '⊞ מבנה'}
+                {s === 'colors' ? '🎨 Colors' : s === 'typography' ? 'Aa Typography' : s === 'components' ? '□ Components' : '⊞ Structure'}
               </button>
             ))}
           </div>
@@ -230,7 +239,7 @@ function RichEditPanel({
           {section === 'colors' && (
             <div className="space-y-3">
               <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">פלטה</p>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Palette</p>
                 <div className="flex flex-wrap gap-1.5">
                   {PALETTES.map((p) => (
                     <button key={p.id} onClick={() => set('paletteId', p.id as PaletteId)} title={p.label}
@@ -242,9 +251,19 @@ function RichEditPanel({
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">מצב</p>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Primary color (whole app)</p>
+                <div className="grid grid-cols-8 gap-1.5">
+                  {COLOR_SWATCHES.map((c) => (
+                    <button key={c} onClick={() => set('accentColor', c)} title={c}
+                      className={`w-full aspect-square rounded-md transition-all hover:scale-110 ${settings.accentColor?.toLowerCase() === c.toLowerCase() ? 'ring-2 ring-offset-1 ring-offset-surface ring-white' : ''}`}
+                      style={{ background: c }} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Mode</p>
                 <div className="flex gap-1.5">
-                  {[{id:'light',label:'☀️ בהיר'},{id:'dark',label:'🌙 כהה'}].map((m) => (
+                  {[{id:'light',label:'☀️ Light'},{id:'dark',label:'🌙 Dark'}].map((m) => (
                     <button key={m.id} onClick={() => set('darkMode', m.id === 'dark')}
                       className={`flex-1 py-1.5 rounded-lg text-xs border transition-all ${(m.id === 'dark') === settings.darkMode ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary'}`}>
                       {m.label}
@@ -253,12 +272,12 @@ function RichEditPanel({
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">צבע מותאם</p>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Custom color</p>
                 <div className="flex items-center gap-2">
                   <input type="color" value={settings.accentColor || '#6366f1'}
                     onChange={(e) => set('accentColor', e.target.value)}
                     className="w-7 h-7 rounded cursor-pointer border border-border" />
-                  <span className="text-xs text-text-secondary">{settings.accentColor || 'ברירת מחדל'}</span>
+                  <span className="text-xs text-text-secondary">{settings.accentColor || 'Default'}</span>
                   {settings.accentColor && (
                     <button onClick={() => set('accentColor', '')} className="text-xs text-text-secondary hover:text-red-400">✕</button>
                   )}
@@ -271,7 +290,7 @@ function RichEditPanel({
           {section === 'typography' && (
             <div className="space-y-3">
               <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">פונט</p>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Font</p>
                 <div className="grid grid-cols-2 gap-1">
                   {FONTS.map((f) => (
                     <button key={f.id} onClick={() => set('fontId', f.id)}
@@ -283,7 +302,7 @@ function RichEditPanel({
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">גודל טקסט</p>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Text size</p>
                 <div className="flex gap-1">
                   {TEXT_SIZES.map((s) => (
                     <button key={s.id} onClick={() => set('textSize', s.id)}
@@ -300,7 +319,7 @@ function RichEditPanel({
           {section === 'components' && (
             <div className="space-y-3">
               <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">כפתורים</p>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Buttons</p>
                 <div className="grid grid-cols-2 gap-1">
                   {BUTTON_STYLES.map((b) => (
                     <button key={b.id} onClick={() => set('buttonStyle', b.id)}
@@ -311,7 +330,7 @@ function RichEditPanel({
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">כרטיסים</p>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Cards</p>
                 <div className="grid grid-cols-2 gap-1">
                   {CARD_STYLES.map((c) => (
                     <button key={c.id} onClick={() => set('cardStyle', c.id)}
@@ -322,7 +341,7 @@ function RichEditPanel({
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">עיגול פינות</p>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Corner radius</p>
                 <div className="flex gap-1">
                   {RADIUS_PRESETS.map((r) => (
                     <button key={r.id} onClick={() => set('radiusPreset', r.id)}
@@ -339,21 +358,21 @@ function RichEditPanel({
           {section === 'structure' && (
             <div className="space-y-3">
               <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">הוסף מסך</p>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Add screen</p>
                 <div className="grid grid-cols-2 gap-1">
                   {PRESET_SCREENS.map((s) => (
-                    <button key={s.id} onClick={() => onStructureEdit(`הוסף מסך ${s.label} לאפליקציה`)}
-                      className="py-1.5 px-2 rounded-lg text-xs border border-border text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all text-right">
+                    <button key={s.id} onClick={() => onStructureEdit(`Add a ${s.label} screen to the app`)}
+                      className="py-1.5 px-2 rounded-lg text-xs border border-border text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all text-left">
                       {s.icon} {s.label}
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">שפת ממשק</p>
+                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Interface language</p>
                 <div className="flex gap-1">
                   {LANGUAGES.map((l) => (
-                    <button key={l.id} onClick={() => onStructureEdit(`תרגם את כל הטקסט הגלוי באפליקציה ל${l.label}. שמור על כל הלוגיקה, רק תרגם טקסטים. RTL אם ${l.id === 'he' || l.id === 'ar' ? 'כן' : 'לא'}.`)}
+                    <button key={l.id} onClick={() => onStructureEdit(`Translate all visible text in the app to ${l.label}. Keep all logic intact, only translate the text. Use RTL layout: ${l.id === 'he' || l.id === 'ar' ? 'yes' : 'no'}.`)}
                       className="flex-1 py-1.5 rounded-lg text-xs border border-border text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all">
                       {l.label}
                     </button>
@@ -378,10 +397,10 @@ interface Project {
 type BuilderStep = 'describe' | 'design' | 'customize' | 'publish';
 
 const BUILDER_STEPS: { id: BuilderStep; label: string; icon: string; desc: string }[] = [
-  { id: 'describe', label: 'תיאור', icon: '💬', desc: 'תאר את האפליקציה' },
-  { id: 'design', label: 'עיצוב', icon: '🎨', desc: 'בחר סגנון עיצוב' },
-  { id: 'customize', label: 'התאמה', icon: '✏️', desc: 'ערוך וכוונן רכיבים' },
-  { id: 'publish', label: 'פרסום', icon: '🚀', desc: 'שתף והפץ' },
+  { id: 'describe', label: 'Describe', icon: '💬', desc: 'Describe your app' },
+  { id: 'design', label: 'Design', icon: '🎨', desc: 'Choose a design style' },
+  { id: 'customize', label: 'Customize', icon: '✏️', desc: 'Edit and fine-tune components' },
+  { id: 'publish', label: 'Publish', icon: '🚀', desc: 'Share and distribute' },
 ];
 
 function BuilderStepper({ currentStep, onStepClick }: {
@@ -392,7 +411,7 @@ function BuilderStepper({ currentStep, onStepClick }: {
   const currentIdx = stepOrder.indexOf(currentStep);
 
   return (
-    <div className="flex items-center gap-1 px-4 py-1.5 bg-surface/30 border-b border-border/50 backdrop-blur-md flex-shrink-0" dir="rtl">
+    <div className="flex items-center gap-1 px-4 py-1.5 bg-surface/30 border-b border-border/50 backdrop-blur-md flex-shrink-0" dir="ltr">
       {BUILDER_STEPS.map((step, i) => {
         const isActive = step.id === currentStep;
         const isDone = i < currentIdx;
@@ -442,7 +461,7 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
         </svg>
       )}
       {status === 'error' && <span>!</span>}
-      <span>{status === 'saving' ? 'שומר…' : status === 'saved' ? 'נשמר ✓' : 'שגיאה בשמירה'}</span>
+      <span>{status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved ✓' : 'Save failed'}</span>
     </div>
   );
 }
@@ -593,7 +612,7 @@ function BuilderContent() {
 
   // Pro features (native auto-submit, AI promo video) — not live yet.
   const comingSoon = useCallback((what: string) => {
-    alert(`${what} — בקרוב כחלק מתוכנית Pro 🚀`);
+    alert(`${what} — coming soon as part of the Pro plan 🚀`);
     setShowExportMenu(false);
   }, []);
 
@@ -635,14 +654,14 @@ function BuilderContent() {
           setBuilderStep('customize');
         }
       } else {
-        setProject({ id: projectId, name: 'פרויקט חדש' });
+        setProject({ id: projectId, name: 'New project' });
       }
       return;
     }
 
     getProject(projectId)
       .then(setProject)
-      .catch(() => setProject({ id: projectId, name: 'פרויקט חדש' }));
+      .catch(() => setProject({ id: projectId, name: 'New project' }));
   }, [projectId, user, authLoading, isGuest, searchParams]);
 
   const handleGeneratingChange = useCallback((generating: boolean) => {
@@ -711,15 +730,15 @@ function BuilderContent() {
   // Record a visual edit (with the element's context) so it can later be baked
   // into the source code via the AI edit pipeline.
   const PROP_HE: Record<string, string> = {
-    color: 'צבע טקסט', backgroundColor: 'צבע רקע', fontSize: 'גודל טקסט',
-    fontWeight: 'משקל טקסט', borderRadius: 'עיגול פינות', padding: 'ריווח פנימי',
-    display: 'תצוגה', textAlign: 'יישור', opacity: 'שקיפות', width: 'רוחב',
-    boxShadow: 'צל', border: 'מסגרת',
+    color: 'text color', backgroundColor: 'background color', fontSize: 'font size',
+    fontWeight: 'font weight', borderRadius: 'corner radius', padding: 'padding',
+    display: 'display', textAlign: 'alignment', opacity: 'opacity', width: 'width',
+    boxShadow: 'shadow', border: 'border',
   };
   const elLabel = () => {
     const el = selectedElementRef.current;
     const t = (el?.text || '').trim().slice(0, 24);
-    return { tag: el?.tag || 'element', suffix: t ? ` עם הטקסט "${t}"` : '' };
+    return { tag: el?.tag || 'element', suffix: t ? ` with the text "${t}"` : '' };
   };
   const recordEdit = useCallback((desc: string, tag: string) => {
     setPendingEdits((prev) => [...prev, { tag, desc }]);
@@ -728,19 +747,19 @@ function BuilderContent() {
   const handleStyleChange = useCallback((path: string, property: string, value: string) => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-update-style', path, property, value }, '*');
     const { tag, suffix } = elLabel();
-    recordEdit(`ברכיב <${tag}>${suffix}: ${PROP_HE[property] || property} → ${value}`, tag);
+    recordEdit(`On element <${tag}>${suffix}: ${PROP_HE[property] || property} → ${value}`, tag);
   }, [recordEdit]);
 
   const handleTextChange = useCallback((path: string, text: string) => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-update-text', path, text }, '*');
     const { tag, suffix } = elLabel();
-    recordEdit(`שנה את הטקסט של <${tag}>${suffix} ל-"${text}"`, tag);
+    recordEdit(`Change the text of <${tag}>${suffix} to "${text}"`, tag);
   }, [recordEdit]);
 
   const handleInsertIcon = useCallback((path: string, icon: string) => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-insert-icon', path, icon }, '*');
     const { tag, suffix } = elLabel();
-    recordEdit(`הוסף אייקון SVG מתאים בתחילת <${tag}>${suffix}`, tag);
+    recordEdit(`Add a suitable SVG icon at the start of <${tag}>${suffix}`, tag);
   }, [recordEdit]);
 
   // Bake all accumulated visual edits into the source code via the edit pipeline.
@@ -748,8 +767,8 @@ function BuilderContent() {
     if (!pendingEdits.length || !currentResult || applyingEdits) return;
     const lines = pendingEdits.map((e, i) => `${i + 1}. ${e.desc}`).join('\n');
     const instruction =
-      'החל את העריכות הוויזואליות הבאות על הקוד הקיים, ושמור על כל השאר זהה לחלוטין ' +
-      '(אותם מסכים, state, פונקציות, ניווט וקלאסים). אל תוסיף אמוג\'ים:\n' + lines;
+      'Apply the following visual edits to the existing code, and keep everything else exactly the same ' +
+      '(same screens, state, functions, navigation and classes). Do not add emojis:\n' + lines;
     setApplyingEdits(true);
     try {
       await handleStructureEdit(instruction);
@@ -814,14 +833,14 @@ function BuilderContent() {
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <span className="font-display">טוען…</span>
+          <span className="font-display">Loading…</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-bg text-text-primary flex flex-col overflow-hidden builder-dark" dir="rtl">
+    <div className="h-screen bg-bg text-text-primary flex flex-col overflow-hidden builder-dark" dir="ltr">
       {/* Forge AI assistant */}
       <ForgeAssistant
         isOpen={showAssistant}
@@ -864,7 +883,7 @@ function BuilderContent() {
               <span className="text-white font-bold text-[10px]">MF</span>
             </div>
             <span className="font-display font-semibold text-sm truncate max-w-[200px]">
-              {project?.name || 'טוען…'}
+              {project?.name || 'Loading…'}
             </span>
           </div>
           <SaveIndicator status={saveStatus} />
@@ -876,13 +895,13 @@ function BuilderContent() {
             <>
               {/* Undo / Redo */}
               <div className="flex items-center gap-0.5 mr-1">
-                <button onClick={handleUndo} disabled={!canUndo} title="בטל (Ctrl+Z)"
+                <button onClick={handleUndo} disabled={!canUndo} title="Undo (Ctrl+Z)"
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-all disabled:opacity-20 disabled:cursor-not-allowed">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a4 4 0 014 4v0a4 4 0 01-4 4H3m0-8l4-4m-4 4l4 4" />
                   </svg>
                 </button>
-                <button onClick={handleRedo} disabled={!canRedo} title="חזור (Ctrl+Shift+Z)"
+                <button onClick={handleRedo} disabled={!canRedo} title="Redo (Ctrl+Shift+Z)"
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-all disabled:opacity-20 disabled:cursor-not-allowed">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10H11a4 4 0 00-4 4v0a4 4 0 004 4h10m0-8l-4-4m4 4l-4 4" />
@@ -904,7 +923,7 @@ function BuilderContent() {
                 <button
                   onClick={handleApplyVisualEdits}
                   disabled={applyingEdits}
-                  title="הטמע את העריכות הוויזואליות בקוד"
+                  title="Bake the visual edits into the code"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 text-xs font-medium transition-all disabled:opacity-50"
                 >
                   {applyingEdits ? (
@@ -917,7 +936,7 @@ function BuilderContent() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
-                  <span>{applyingEdits ? 'מטמיע…' : `החל ${pendingEdits.length} שינויים בקוד`}</span>
+                  <span>{applyingEdits ? 'Applying…' : `Apply ${pendingEdits.length} changes to code`}</span>
                 </button>
               )}
 
@@ -933,7 +952,7 @@ function BuilderContent() {
                   } catch { /* ignore — keep modal closed */ }
                   finally { setPhoneStatus('idle'); }
                 }}
-                title="פתח בטלפון"
+                title="Open on phone"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 text-xs font-medium transition-all"
               >
                 {phoneStatus === 'preparing' ? (
@@ -946,13 +965,13 @@ function BuilderContent() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                 )}
-                <span className="hidden sm:inline">טלפון</span>
+                <span className="hidden sm:inline">Phone</span>
               </button>
 
               {/* Live sync button — push changes to a watching device in real time */}
               <button
                 onClick={handleStartLive}
-                title="סנכרון חי לטלפון — שינויים מופיעים מיד"
+                title="Live sync to phone — changes appear instantly"
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
                   liveOn
                     ? 'bg-green-500/15 text-green-400 border-green-500/30'
@@ -960,7 +979,7 @@ function BuilderContent() {
                 }`}
               >
                 <span className={`w-2 h-2 rounded-full ${liveOn ? 'bg-green-400 animate-pulse' : 'bg-text-secondary'}`} />
-                <span className="hidden sm:inline">{liveOn ? 'לייב פעיל' : 'לייב'}</span>
+                <span className="hidden sm:inline">{liveOn ? 'Live on' : 'Live'}</span>
               </button>
 
               {/* Share button */}
@@ -991,7 +1010,7 @@ function BuilderContent() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                   </svg>
                 )}
-                <span className="hidden sm:inline">{shareStatus === 'copied' ? 'הועתק!' : 'שתף'}</span>
+                <span className="hidden sm:inline">{shareStatus === 'copied' ? 'Copied!' : 'Share'}</span>
               </button>
 
               {/* Export dropdown */}
@@ -1003,7 +1022,7 @@ function BuilderContent() {
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                  <span className="hidden sm:inline">ייצוא</span>
+                  <span className="hidden sm:inline">Export</span>
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -1011,28 +1030,28 @@ function BuilderContent() {
                 {showExportMenu && (
                   <>
                     <div className="fixed inset-0 z-50" onClick={() => setShowExportMenu(false)} />
-                    <div className="absolute left-0 top-full mt-1 w-56 bg-surface border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in-up" dir="rtl">
+                    <div className="absolute left-0 top-full mt-1 w-56 bg-surface border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in-up" dir="ltr">
                       <button onClick={exportAsHtml}
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
                         <span className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center text-sm">🌐</span>
-                        <div className="text-right">
-                          <p className="font-medium">HTML בודד</p>
-                          <p className="text-[10px] text-text-secondary">קובץ מוכן לאירוח</p>
+                        <div className="text-left">
+                          <p className="font-medium">Single HTML</p>
+                          <p className="text-[10px] text-text-secondary">A file ready for hosting</p>
                         </div>
                       </button>
                       <button onClick={exportAsCode}
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
                         <span className="w-7 h-7 rounded-lg bg-violet-500/10 text-violet-500 flex items-center justify-center text-sm">⚛️</span>
-                        <div className="text-right">
+                        <div className="text-left">
                           <p className="font-medium">React Component</p>
-                          <p className="text-[10px] text-text-secondary">קובץ App.jsx בלבד</p>
+                          <p className="text-[10px] text-text-secondary">App.jsx file only</p>
                         </div>
                       </button>
                       <button onClick={exportAsReactProject}
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
                         <span className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-sm">📦</span>
-                        <div className="text-right">
-                          <p className="font-medium">פרויקט React מלא</p>
+                        <div className="text-left">
+                          <p className="font-medium">Full React project</p>
                           <p className="text-[10px] text-text-secondary">package.json + src + public</p>
                         </div>
                       </button>
@@ -1040,35 +1059,35 @@ function BuilderContent() {
                       <button onClick={exportAsPwa}
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
                         <span className="w-7 h-7 rounded-lg bg-accent/10 text-accent flex items-center justify-center text-sm">📱</span>
-                        <div className="text-right">
-                          <p className="font-medium">התקן כ-PWA</p>
-                          <p className="text-[10px] text-text-secondary">אפליקציה להתקנה על טלפון</p>
+                        <div className="text-left">
+                          <p className="font-medium">Install as PWA</p>
+                          <p className="text-[10px] text-text-secondary">An installable app for phones</p>
                         </div>
                       </button>
 
-                      <div className="px-3 pt-2 pb-1 text-[10px] font-semibold text-text-secondary uppercase tracking-wide text-right">פרסום לחנויות</div>
+                      <div className="px-3 pt-2 pb-1 text-[10px] font-semibold text-text-secondary uppercase tracking-wide text-left">Publish to stores</div>
                       <button onClick={publishToStore}
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
                         <span className="w-7 h-7 rounded-lg bg-green-500/10 text-green-500 flex items-center justify-center text-sm">▶</span>
-                        <div className="text-right">
+                        <div className="text-left">
                           <p className="font-medium">Google Play / Galaxy Store</p>
-                          <p className="text-[10px] text-text-secondary">אריזה לחנות דרך PWABuilder</p>
+                          <p className="text-[10px] text-text-secondary">Package for the store via PWABuilder</p>
                         </div>
                       </button>
-                      <button onClick={() => comingSoon('פרסום אוטומטי ל-App Store + Google Play')}
+                      <button onClick={() => comingSoon('Auto-publish to App Store + Google Play')}
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
                         <span className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center text-sm"></span>
-                        <div className="text-right flex-1">
-                          <p className="font-medium flex items-center gap-1.5 justify-end">פרסום אוטומטי לחנויות <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold">PRO</span></p>
-                          <p className="text-[10px] text-text-secondary">App Store + Play בלחיצה (בקרוב)</p>
+                        <div className="text-left flex-1">
+                          <p className="font-medium flex items-center gap-1.5 justify-between">Auto-publish to stores <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold">PRO</span></p>
+                          <p className="text-[10px] text-text-secondary">App Store + Play in one click (coming soon)</p>
                         </div>
                       </button>
-                      <button onClick={() => comingSoon('יצירת סרטון פרסומת לאפליקציה')}
+                      <button onClick={() => comingSoon('Generate a promo video for the app')}
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
                         <span className="w-7 h-7 rounded-lg bg-fuchsia-500/10 text-fuchsia-500 flex items-center justify-center text-sm">🎬</span>
-                        <div className="text-right flex-1">
-                          <p className="font-medium flex items-center gap-1.5 justify-end">צור פרסומת לאפליקציה <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold">PRO</span></p>
-                          <p className="text-[10px] text-text-secondary">סרטון שיווקי ב-AI (בקרוב)</p>
+                        <div className="text-left flex-1">
+                          <p className="font-medium flex items-center gap-1.5 justify-between">Create an app promo <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold">PRO</span></p>
+                          <p className="text-[10px] text-text-secondary">AI marketing video (coming soon)</p>
                         </div>
                       </button>
                     </div>
@@ -1090,7 +1109,7 @@ function BuilderContent() {
           maxSize={currentResult ? '60%' : '100%'}
           className="flex flex-col border-l border-border/50 overflow-hidden glass-panel"
         >
-          <ErrorBoundary fallbackTitle="שגיאה בצ'אט">
+          <ErrorBoundary fallbackTitle="Chat error">
             <ChatInterface
               projectId={projectId}
               initialPrompt={searchParams.get('prompt') || undefined}
@@ -1129,7 +1148,7 @@ function BuilderContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                תצוגה מקדימה
+                Preview
               </button>
               <button
                 onClick={() => setRightPanel('code')}
@@ -1138,7 +1157,7 @@ function BuilderContent() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
                 </svg>
-                קוד
+                Code
               </button>
             </div>
 
@@ -1152,7 +1171,7 @@ function BuilderContent() {
 
                 {/* Multi-screen tabs */}
                 {appScreens.length > 1 && (
-                  <div className="flex items-center gap-1 px-3 py-1.5 border-b border-border/50 bg-surface/20 backdrop-blur-sm flex-shrink-0 overflow-x-auto" dir="rtl">
+                  <div className="flex items-center gap-1 px-3 py-1.5 border-b border-border/50 bg-surface/20 backdrop-blur-sm flex-shrink-0 overflow-x-auto" dir="ltr">
                     {appScreens.map((screen) => (
                       <button
                         key={screen.index}
@@ -1168,10 +1187,10 @@ function BuilderContent() {
                       </button>
                     ))}
                     <button
-                      onClick={() => handleAddScreen('הוסף מסך חדש לאפליקציה עם ניווט אליו')}
+                      onClick={() => handleAddScreen('Add a new screen to the app with navigation to it')}
                       className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] text-text-secondary hover:text-primary hover:bg-primary/5 border border-dashed border-border hover:border-primary/30 transition-all whitespace-nowrap"
                     >
-                      <span>+</span> מסך חדש
+                      <span>+</span> New screen
                     </button>
                   </div>
                 )}
@@ -1180,7 +1199,7 @@ function BuilderContent() {
                   <div className="flex-1 flex overflow-hidden">
                     {/* Preview area — dark canvas like Lovable */}
                     <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-[#0D0D0F] relative" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(139,92,246,0.06) 0%, transparent 60%)' }}>
-                      <ErrorBoundary fallbackTitle="שגיאה בתצוגה מקדימה">
+                      <ErrorBoundary fallbackTitle="Preview error">
                         <WebPreview
                           key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
                           htmlDoc={computeDisplayHtmlDoc(currentResult.htmlDoc || '', editSettings)}
@@ -1247,9 +1266,9 @@ function BuilderContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
                 </svg>
               </div>
-              <h3 className="font-display font-semibold text-lg text-text-primary mb-2">תאר את האפליקציה שלך</h3>
+              <h3 className="font-display font-semibold text-lg text-text-primary mb-2">Describe your app</h3>
               <p className="text-sm leading-relaxed text-text-secondary">
-                כתוב, העלה צילום מסך, צייר סקיצה, או דבר — AI יבנה ויציג את הקוד כאן
+                Type, upload a screenshot, sketch, or talk — AI will build it and show the code here
               </p>
             </div>
           </Panel>
@@ -1261,7 +1280,7 @@ function BuilderContent() {
 
 export default function BuilderPage() {
   return (
-    <ErrorBoundary fallbackTitle="הבילדר נתקל בשגיאה">
+    <ErrorBoundary fallbackTitle="The builder ran into an error">
       <Suspense
         fallback={
           <div className="h-screen bg-bg flex items-center justify-center">
@@ -1270,7 +1289,7 @@ export default function BuilderPage() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              <span className="font-display">טוען MobileForge…</span>
+              <span className="font-display">Loading MobileForge…</span>
             </div>
           </div>
         }

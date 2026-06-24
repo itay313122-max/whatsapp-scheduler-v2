@@ -22,13 +22,13 @@ const heebo = Heebo({
 
 export const metadata: Metadata = {
   title: 'MobileForge — Build Mobile Apps with AI',
-  description: 'תאר אפליקציה, קבל קוד Expo מלא. בנה אפליקציות iOS ו-Android עם AI.',
+  description: 'Describe an app, get full Expo code. Build iOS and Android apps with AI.',
   keywords: ['mobile app builder', 'React Native', 'Expo', 'AI', 'no-code'],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="he" dir="rtl" className={`${jakarta.variable} ${heebo.variable}`}>
+    <html lang="en" dir="ltr" className={`${jakarta.variable} ${heebo.variable}`}>
       <body className="bg-bg text-text-primary min-h-screen font-body">
         <ErrorBoundary>
           <BetaGate>

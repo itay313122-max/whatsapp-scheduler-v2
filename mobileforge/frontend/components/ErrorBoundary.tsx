@@ -27,7 +27,7 @@ export default class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="h-screen bg-bg flex items-center justify-center" dir="rtl">
+        <div className="h-screen bg-bg flex items-center justify-center" dir="ltr">
           <div className="text-center max-w-md px-6">
             <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-5">
               <svg className="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,10 +35,10 @@ export default class ErrorBoundary extends React.Component<
               </svg>
             </div>
             <h2 className="font-display font-semibold text-lg text-text-primary mb-2">
-              {this.props.fallbackTitle || 'משהו השתבש'}
+              {this.props.fallbackTitle || 'Something went wrong'}
             </h2>
             <p className="text-sm text-text-secondary mb-6 leading-relaxed">
-              {this.state.error?.message || 'שגיאה לא צפויה.'}
+              {this.state.error?.message || 'An unexpected error occurred.'}
             </p>
             <button
               onClick={() => {
@@ -46,7 +46,7 @@ export default class ErrorBoundary extends React.Component<
               }}
               className="px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-all"
             >
-              נסה שוב
+              Try again
             </button>
           </div>
         </div>

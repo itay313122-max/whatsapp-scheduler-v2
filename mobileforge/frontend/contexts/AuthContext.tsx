@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const guestUser = {
       uid: 'guest-' + Math.random().toString(36).slice(2, 10),
       email: 'guest@demo.local',
-      displayName: 'אורח',
+      displayName: 'Guest',
       photoURL: null,
       isGuest: true,
       getIdToken: async () => '',

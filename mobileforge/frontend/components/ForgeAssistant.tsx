@@ -18,10 +18,10 @@ interface ForgeAssistantProps {
 }
 
 const SUGGESTION_CHIPS = [
-  'שפר את עיצוב המסך הראשי',
-  "אילו פיצ'רים מומלצים?",
-  'הסבר את הקוד שנוצר',
-  'יש שגיאה — עזור לי',
+  'Improve the main screen design',
+  'What features do you recommend?',
+  'Explain the generated code',
+  "There's an error — help me",
 ];
 
 export default function ForgeAssistant({
@@ -93,7 +93,7 @@ export default function ForgeAssistant({
           if (last?.role === 'assistant') {
             updated[updated.length - 1] = {
               ...last,
-              content: 'שגיאה בתקשורת עם Forge AI. נסה שוב.',
+              content: 'Error communicating with Forge AI. Please try again.',
               streaming: false,
             };
           }
@@ -120,7 +120,7 @@ export default function ForgeAssistant({
         className={`fixed inset-y-0 left-0 w-full sm:w-[380px] glass-panel border-r border-border/50 z-50 flex flex-col transform transition-transform duration-300 ease-in-out shadow-2xl shadow-black/20 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-        dir="rtl"
+        dir="ltr"
       >
         {/* Header */}
         <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b border-border">
@@ -130,13 +130,13 @@ export default function ForgeAssistant({
             </div>
             <div>
               <div className="font-display font-semibold text-sm leading-tight">Forge AI</div>
-              <div className="text-[11px] text-text-secondary leading-tight">עוזר עיצוב ופיתוח</div>
+              <div className="text-[11px] text-text-secondary leading-tight">Design & development assistant</div>
             </div>
           </div>
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-surface-2 text-text-secondary hover:text-text-primary transition-colors"
-            aria-label="סגור"
+            aria-label="Close"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -150,9 +150,9 @@ export default function ForgeAssistant({
             <div className="space-y-4 pt-2">
               <div className="text-center py-4">
                 <div className="text-3xl mb-2">✨</div>
-                <h3 className="font-display font-semibold text-sm mb-1">שאל אותי כל דבר</h3>
+                <h3 className="font-display font-semibold text-sm mb-1">Ask me anything</h3>
                 <p className="text-[11px] text-text-secondary leading-relaxed px-2">
-                  עיצוב · פיצ&#39;רים · הסברת קוד · דיבאגינג
+                  Design · Features · Code explanations · Debugging
                 </p>
               </div>
               <div className="space-y-2">
@@ -160,7 +160,7 @@ export default function ForgeAssistant({
                   <button
                     key={chip}
                     onClick={() => sendMessage(chip)}
-                    className="w-full text-right px-3 py-2.5 rounded-xl bg-surface-2 border border-border hover:border-primary/40 hover:bg-surface-2/80 text-xs text-text-secondary hover:text-text-primary transition-all"
+                    className="w-full text-left px-3 py-2.5 rounded-xl bg-surface-2 border border-border hover:border-primary/40 hover:bg-surface-2/80 text-xs text-text-secondary hover:text-text-primary transition-all"
                   >
                     {chip}
                   </button>
@@ -209,7 +209,7 @@ export default function ForgeAssistant({
                   sendMessage(input);
                 }
               }}
-              placeholder="שאל על עיצוב, פיצ'רים, קוד…"
+              placeholder="Ask about design, features, code…"
               rows={1}
               className="flex-1 bg-transparent text-xs text-text-primary placeholder-text-secondary resize-none outline-none leading-relaxed"
               style={{ maxHeight: '96px', overflowY: 'auto' }}
@@ -218,7 +218,7 @@ export default function ForgeAssistant({
               onClick={() => sendMessage(input)}
               disabled={!input.trim() || isStreaming}
               className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40 mb-0.5"
-              aria-label="שלח"
+              aria-label="Send"
             >
               {isStreaming ? (
                 <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -233,7 +233,7 @@ export default function ForgeAssistant({
             </button>
           </div>
           <p className="text-[10px] text-text-secondary text-center mt-2 opacity-60">
-            Enter לשליחה · Shift+Enter לשורה חדשה
+            Enter to send · Shift+Enter for a new line
           </p>
         </div>
       </div>

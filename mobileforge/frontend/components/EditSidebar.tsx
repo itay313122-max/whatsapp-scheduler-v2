@@ -79,61 +79,61 @@ function OptionButton({
 
 const AI_QUICK_ACTIONS = [
   {
-    category: 'כפתורים',
+    category: 'Buttons',
     icon: '🔘',
     actions: [
-      { label: 'מודרניים + gradient', prompt: 'שנה את כל הכפתורים לעיצוב מודרני עם gradient, צללים רכים, ואנימציית hover חלקה' },
-      { label: 'הוסף hover effects', prompt: 'הוסף אפקטי hover לכל הכפתורים - שינוי צבע חלק, הגדלה קלה (scale), וצל' },
-      { label: 'כפתורים עגולים', prompt: 'הפוך את כל הכפתורים לעגולים עם border-radius מלא ו-padding נוח' },
-      { label: 'סגנון outline', prompt: 'שנה את הכפתורים לסגנון outline - רקע שקוף עם מסגרת צבעונית' },
+      { label: 'Modern + gradient', prompt: 'Change all buttons to a modern design with gradient, soft shadows, and smooth hover animation' },
+      { label: 'Add hover effects', prompt: 'Add hover effects to all buttons - smooth color change, slight scale up, and shadow' },
+      { label: 'Rounded buttons', prompt: 'Make all buttons rounded with full border-radius and comfortable padding' },
+      { label: 'Outline style', prompt: 'Change the buttons to an outline style - transparent background with a colored border' },
     ],
   },
   {
-    category: 'עיצוב כללי',
+    category: 'General design',
     icon: '🎨',
     actions: [
-      { label: 'הפוך למודרני', prompt: 'שפר את העיצוב הכללי - הוסף gradient רקע, צללים רכים לכרטיסים, ומרווחים נכונים' },
-      { label: 'מינימליסטי', prompt: 'הפוך את העיצוב למינימליסטי - הסר צללים מיותרים, צבעים רגועים, הרבה white space' },
-      { label: 'הוסף צללים', prompt: 'הוסף box-shadow רך לכל הכרטיסים והרכיבים הראשיים' },
-      { label: 'אנימציות כניסה', prompt: 'הוסף אנימציות כניסה (fade-in, slide-up) לרכיבים בעמוד. השתמש ב-CSS keyframes.' },
+      { label: 'Make it modern', prompt: 'Improve the overall design - add a background gradient, soft shadows on cards, and proper spacing' },
+      { label: 'Minimalist', prompt: 'Make the design minimalist - remove unnecessary shadows, use calm colors, and lots of white space' },
+      { label: 'Add shadows', prompt: 'Add a soft box-shadow to all cards and main elements' },
+      { label: 'Entrance animations', prompt: 'Add entrance animations (fade-in, slide-up) to elements on the page. Use CSS keyframes.' },
     ],
   },
   {
-    category: 'לייאאוט',
+    category: 'Layout',
     icon: '📐',
     actions: [
-      { label: 'מרכז תוכן', prompt: 'מרכז את כל התוכן הראשי בעמוד עם max-width ו-margin auto' },
-      { label: 'header קבוע', prompt: 'הפוך את ה-header ל-sticky/fixed שנשאר למעלה בזמן גלילה עם backdrop-filter blur' },
-      { label: 'Grid רספונסיבי', prompt: 'שנה את התצוגה של הכרטיסים/פריטים ל-CSS Grid רספונסיבי 2-3 עמודות' },
-      { label: 'הוסף footer', prompt: 'הוסף footer מעוצב לאפליקציה עם לינקים, לוגו קטן, וטקסט זכויות יוצרים' },
+      { label: 'Center content', prompt: 'Center all the main content on the page with max-width and margin auto' },
+      { label: 'Sticky header', prompt: 'Make the header sticky/fixed so it stays at the top while scrolling, with backdrop-filter blur' },
+      { label: 'Responsive grid', prompt: 'Change the cards/items layout to a responsive CSS Grid with 2-3 columns' },
+      { label: 'Add footer', prompt: 'Add a styled footer to the app with links, a small logo, and copyright text' },
     ],
   },
   {
-    category: 'תוכן',
+    category: 'Content',
     icon: '📝',
     actions: [
-      { label: 'הוסף אייקונים', prompt: 'הוסף אייקוני emoji או SVG מתאימים ליד כל כותרת, כפתור ופריט בתפריט' },
-      { label: 'שפר טקסטים', prompt: 'שפר את כל הטקסטים באפליקציה - כותרות ברורות יותר, תיאורים מושכים' },
-      { label: 'תמונות placeholder', prompt: 'הוסף תמונות placeholder מ-unsplash בגדלים מתאימים לכל מקום רלוונטי' },
-      { label: 'RTL מלא', prompt: 'ודא שכל האפליקציה ב-RTL מלא - כיוון טקסט, יישור, ו-flex-direction' },
+      { label: 'Add icons', prompt: 'Add suitable emoji or SVG icons next to every heading, button, and menu item' },
+      { label: 'Improve text', prompt: 'Improve all the text in the app - clearer headings and more engaging descriptions' },
+      { label: 'Placeholder images', prompt: 'Add placeholder images from unsplash in appropriate sizes wherever relevant' },
+      { label: 'Full RTL', prompt: 'Ensure the entire app is fully RTL - text direction, alignment, and flex-direction' },
     ],
   },
 ];
 
 const SHAPE_PRESETS = [
-  { id: 'square', label: 'מרובע', radius: '0px', icon: (
+  { id: 'square', label: 'Square', radius: '0px', icon: (
     <div className="w-5 h-5 border-2 border-current" style={{ borderRadius: 0 }} />
   )},
-  { id: 'rounded-sm', label: 'עגול קטן', radius: '8px', icon: (
+  { id: 'rounded-sm', label: 'Small radius', radius: '8px', icon: (
     <div className="w-5 h-5 border-2 border-current" style={{ borderRadius: 4 }} />
   )},
-  { id: 'rounded', label: 'עגול', radius: '16px', icon: (
+  { id: 'rounded', label: 'Rounded', radius: '16px', icon: (
     <div className="w-5 h-5 border-2 border-current" style={{ borderRadius: 8 }} />
   )},
-  { id: 'pill', label: 'כמוסה', radius: '9999px', icon: (
+  { id: 'pill', label: 'Pill', radius: '9999px', icon: (
     <div className="w-7 h-4 border-2 border-current" style={{ borderRadius: 9999 }} />
   )},
-  { id: 'circle', label: 'עיגול', radius: '50%', icon: (
+  { id: 'circle', label: 'Circle', radius: '50%', icon: (
     <div className="w-5 h-5 border-2 border-current" style={{ borderRadius: '50%' }} />
   )},
 ];

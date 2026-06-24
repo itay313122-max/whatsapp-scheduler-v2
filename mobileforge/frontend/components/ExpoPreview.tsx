@@ -65,7 +65,7 @@ export default function ExpoPreview({ embedUrl, shareUrl, appName }: ExpoPreview
             <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow animate-pulse-slow">
               <span className="text-white font-display font-bold text-lg">M</span>
             </div>
-            <p className="text-text-secondary text-sm">טוען את {appName || 'האפליקציה'}…</p>
+            <p className="text-text-secondary text-sm">Loading {appName || 'your app'}…</p>
             <div className="flex gap-1">
               {[0, 1, 2].map((i) => (
                 <div

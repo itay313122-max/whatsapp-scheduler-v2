@@ -47,11 +47,11 @@ export default function BetaGate({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div dir="rtl" style={{ minHeight: '100vh', background: '#0a0a0b', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'Heebo, system-ui, sans-serif' }}>
+    <div dir="ltr" style={{ minHeight: '100vh', background: '#0a0a0b', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'Heebo, system-ui, sans-serif' }}>
       <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' }}>
         <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg,#8b5cf6,#ec4899)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 22px', color: '#fff', fontWeight: 800, fontSize: 20 }}>MF</div>
-        <h1 style={{ color: '#fafafa', fontSize: 26, fontWeight: 800, margin: 0, letterSpacing: -0.5 }}>גרסת בטא סגורה</h1>
-        <p style={{ color: '#9ca3af', fontSize: 15, marginTop: 10, lineHeight: 1.5 }}>הזן את קוד ההזמנה שקיבלת כדי להיכנס ולבנות אפליקציות.</p>
+        <h1 style={{ color: '#fafafa', fontSize: 26, fontWeight: 800, margin: 0, letterSpacing: -0.5 }}>Closed beta</h1>
+        <p style={{ color: '#9ca3af', fontSize: 15, marginTop: 10, lineHeight: 1.5 }}>Enter the invite code you received to get in and start building apps.</p>
         <input
           value={key}
           onChange={(e) => { setKey(e.target.value); setError(false); }}
@@ -60,15 +60,15 @@ export default function BetaGate({ children }: { children: React.ReactNode }) {
           dir="ltr"
           style={{ width: '100%', marginTop: 22, padding: '15px 16px', borderRadius: 14, background: '#141416', border: `1px solid ${error ? '#ef4444' : '#2a2a2e'}`, color: '#fff', fontSize: 16, textAlign: 'center', letterSpacing: 1, outline: 'none' }}
         />
-        {error && <div style={{ color: '#f87171', fontSize: 13, marginTop: 8 }}>קוד לא תקין — בדוק ונסה שוב.</div>}
+        {error && <div style={{ color: '#f87171', fontSize: 13, marginTop: 8 }}>Invalid code — check it and try again.</div>}
         <button
           onClick={submit}
           disabled={!key.trim() || busy}
           style={{ width: '100%', marginTop: 14, padding: 15, borderRadius: 14, border: 'none', cursor: 'pointer', background: '#8b5cf6', color: '#fff', fontSize: 16, fontWeight: 700, opacity: !key.trim() || busy ? 0.5 : 1 }}
         >
-          {busy ? 'בודק…' : 'כניסה'}
+          {busy ? 'Checking…' : 'Enter'}
         </button>
-        <p style={{ color: '#52525b', fontSize: 12, marginTop: 18 }}>אין לך קוד? בקש מהצוות.</p>
+        <p style={{ color: '#52525b', fontSize: 12, marginTop: 18 }}>Don't have a code? Ask the team.</p>
       </div>
     </div>
   );

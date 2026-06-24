@@ -35,11 +35,11 @@ export default function Navbar() {
         {/* Nav links */}
         <div className="hidden md:flex items-center gap-6">
           <Link href="/" className="text-text-secondary hover:text-primary text-sm font-medium transition-colors">
-            בית
+            Home
           </Link>
           {user && (
             <Link href="/dashboard" className="text-text-secondary hover:text-primary text-sm font-medium transition-colors">
-              הפרויקטים שלי
+              My Projects
             </Link>
           )}
         </div>
@@ -64,7 +64,7 @@ export default function Navbar() {
                 onClick={() => logout()}
                 className="px-3 py-2 rounded-xl border border-border text-text-secondary hover:text-text-primary hover:border-primary/40 text-sm transition-all"
               >
-                יציאה
+                Log out
               </button>
             </>
           ) : (
@@ -73,13 +73,13 @@ export default function Navbar() {
                 href="/auth"
                 className="min-h-[44px] flex items-center text-text-secondary hover:text-primary text-sm font-medium transition-colors"
               >
-                התחברות
+                Log in
               </Link>
               <Link
                 href="/auth?mode=register"
                 className="min-h-[44px] flex items-center px-4 py-2 rounded-xl bg-gradient-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow-glow"
               >
-                התחל בחינם
+                Start free
               </Link>
             </>
           )}

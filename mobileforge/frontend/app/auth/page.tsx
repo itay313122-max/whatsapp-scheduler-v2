@@ -59,15 +59,15 @@ function AuthForm() {
       }
       await afterAuth(result.user);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'שגיאה בהתחברות';
+      const msg = err instanceof Error ? err.message : 'Sign-in failed';
       if (msg.includes('wrong-password') || msg.includes('invalid-credential')) {
-        setError('אימייל או סיסמה שגויים');
+        setError('Incorrect email or password');
       } else if (msg.includes('email-already-in-use')) {
-        setError('אימייל זה כבר רשום. נסה להתחבר.');
+        setError('This email is already registered. Try signing in.');
       } else if (msg.includes('weak-password')) {
-        setError('הסיסמה חלשה מדי — לפחות 6 תווים');
+        setError('Password is too weak — at least 6 characters');
       } else if (msg.includes('not configured')) {
-        setError('Firebase לא מוגדר. הוסף משתני סביבה.');
+        setError('Firebase is not configured. Add the environment variables.');
       } else {
         setError(msg);
       }
@@ -85,13 +85,13 @@ function AuthForm() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';
       if (msg.includes('not configured')) {
-        setError('Firebase לא מוגדר — לחץ "המשך כאורח" למטה');
+        setError('Firebase is not configured — click "Continue as guest" below');
       } else if (msg.includes('unauthorized-domain') || msg.includes('auth-domain')) {
-        setError('הדומיין הנוכחי לא מורשה ב-Firebase. לחץ "המשך כאורח"');
+        setError('The current domain is not authorized in Firebase. Click "Continue as guest"');
       } else if (msg.includes('network-request-failed')) {
-        setError('בעיית רשת — בדוק חיבור אינטרנט או לחץ "המשך כאורח"');
+        setError('Network error — check your internet connection or click "Continue as guest"');
       } else if (!msg.includes('popup-closed-by-user') && !msg.includes('cancelled-popup-request')) {
-        setError('שגיאה בהתחברות עם Google — נסה "המשך כאורח"');
+        setError('Google sign-in failed — try "Continue as guest"');
       }
     } finally {
       setLoading(false);
@@ -111,7 +111,7 @@ function AuthForm() {
           </span>
         </Link>
         <p className="text-text-secondary mt-2 text-sm">
-          {mode === 'login' ? 'ברוך השב! התחבר לחשבונך' : 'צור חשבון חינמי · 10 credits מתנה 🎁'}
+          {mode === 'login' ? 'Welcome back! Sign in to your account' : 'Create a free account · 10 credits gift 🎁'}
         </p>
       </div>
 
@@ -129,7 +129,7 @@ function AuthForm() {
                   : 'text-text-secondary hover:text-text-primary'
               }`}
             >
-              {m === 'login' ? 'התחברות' : 'הרשמה'}
+              {m === 'login' ? 'Sign In' : 'Sign Up'}
             </button>
           ))}
         </div>
@@ -148,7 +148,7 @@ function AuthForm() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
-            המשך עם Google
+            Continue with Google
           </button>
 
           {/* Apple — placeholder */}
@@ -163,15 +163,15 @@ function AuthForm() {
               <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
               </svg>
-              המשך עם Apple
+              Continue with Apple
               <span className="mr-auto text-xs px-2 py-0.5 rounded-full border border-border bg-surface-2 text-text-soft">
-                בקרוב
+                Soon
               </span>
             </button>
             {showAppleTooltip && (
               <div className="absolute bottom-full mb-2 right-0 left-0 mx-auto w-max max-w-xs px-3 py-2 rounded-xl glass-card text-text-secondary text-xs text-center z-10">
-                Apple Sign-In דורש Apple Developer Account.<br />
-                יתווסף בקרוב 🍎
+                Apple Sign-In requires an Apple Developer Account.<br />
+                Coming soon 🍎
               </div>
             )}
           </div>
@@ -179,7 +179,7 @@ function AuthForm() {
 
         <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 h-px bg-border" />
-          <span className="text-text-soft text-xs">או עם אימייל</span>
+          <span className="text-text-soft text-xs">or with email</span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
@@ -187,19 +187,19 @@ function AuthForm() {
         <form onSubmit={handleEmailAuth} className="space-y-4">
           {mode === 'register' && (
             <div>
-              <label className="block text-text-secondary text-xs font-medium mb-1.5">שם מלא</label>
+              <label className="block text-text-secondary text-xs font-medium mb-1.5">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="ישראל ישראלי"
-                dir="rtl"
+                placeholder="John Doe"
+                dir="ltr"
                 className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-text-primary placeholder-text-soft text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
               />
             </div>
           )}
           <div>
-            <label className="block text-text-secondary text-xs font-medium mb-1.5">אימייל</label>
+            <label className="block text-text-secondary text-xs font-medium mb-1.5">Email</label>
             <input
               type="email"
               value={email}
@@ -211,14 +211,14 @@ function AuthForm() {
             />
           </div>
           <div>
-            <label className="block text-text-secondary text-xs font-medium mb-1.5">סיסמה</label>
+            <label className="block text-text-secondary text-xs font-medium mb-1.5">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              placeholder="לפחות 6 תווים"
+              placeholder="At least 6 characters"
               className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-text-primary placeholder-text-soft text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
             />
           </div>
@@ -236,27 +236,27 @@ function AuthForm() {
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
-                <Spinner /> טוען…
+                <Spinner /> Loading…
               </span>
             ) : mode === 'login' ? (
-              'התחבר'
+              'Sign In'
             ) : (
-              'צור חשבון · 10 credits חינם 🎁'
+              'Create Account · 10 credits free 🎁'
             )}
           </button>
         </form>
 
         {mode === 'register' && (
           <p className="text-text-soft text-xs text-center mt-4">
-            בלחיצה על &quot;צור חשבון&quot; אתה מסכים לתנאי השימוש ·{' '}
-            <span className="text-primary font-medium">10 credits חינם</span> להתחלה
+            By clicking &quot;Create Account&quot; you agree to the Terms of Service ·{' '}
+            <span className="text-primary font-medium">10 free credits</span> to start
           </p>
         )}
 
         {/* Guest mode */}
         <div className="flex items-center gap-3 mt-6">
           <div className="flex-1 h-px bg-border" />
-          <span className="text-text-soft text-xs">או</span>
+          <span className="text-text-soft text-xs">or</span>
           <div className="flex-1 h-px bg-border" />
         </div>
         <button
@@ -266,24 +266,24 @@ function AuthForm() {
           }}
           className="w-full mt-4 py-3 rounded-2xl border-2 border-dashed border-border hover:border-primary/40 text-text-secondary hover:text-primary text-sm font-semibold transition-all hover:bg-primary/5"
         >
-          המשך כאורח — ללא הרשמה
+          Continue as guest — no sign-up
         </button>
         <p className="text-[10px] text-text-soft text-center mt-2">
-          פרויקטים נשמרים מקומית בדפדפן
+          Projects are saved locally in your browser
         </p>
       </div>
 
       <p className="text-center text-text-soft text-xs mt-6">
         {mode === 'login' ? (
-          <>אין לך חשבון?{' '}
+          <>Don&apos;t have an account?{' '}
             <button onClick={() => setMode('register')} className="text-primary font-semibold hover:text-primary-light">
-              הרשם חינם
+              Sign up free
             </button>
           </>
         ) : (
-          <>כבר יש לך חשבון?{' '}
+          <>Already have an account?{' '}
             <button onClick={() => setMode('login')} className="text-primary font-semibold hover:text-primary-light">
-              התחבר
+              Sign in
             </button>
           </>
         )}
@@ -294,14 +294,14 @@ function AuthForm() {
 
 export default function AuthPage() {
   return (
-    <div className="min-h-screen hero-bg flex items-center justify-center p-4" dir="rtl">
+    <div className="min-h-screen hero-bg flex items-center justify-center p-4" dir="ltr">
       <Suspense fallback={
         <div className="flex items-center gap-2 text-text-secondary">
           <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          טוען…
+          Loading…
         </div>
       }>
         <AuthForm />

@@ -75,10 +75,10 @@ function LoadingOverlay({ appName, failed }: { appName?: string; failed?: boolea
            style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' }}>
         <div className="text-4xl">⚠️</div>
         <p className="text-sm font-semibold" style={{ color: '#92400e' }}>
-          לא ניתן לטעון את התצוגה
+          Unable to load the preview
         </p>
         <p className="text-xs leading-relaxed max-w-[220px]" style={{ color: '#a16207' }}>
-          בדוק חיבור לאינטרנט ורענן את הדף. התצוגה דורשת גישה לרשת.
+          Check your internet connection and refresh the page. The preview requires network access.
         </p>
       </div>
     );
