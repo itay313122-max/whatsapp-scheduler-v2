@@ -102,7 +102,7 @@ const PRESET_SCREENS = [
 ];
 
 const LANGUAGES = [
-  { id: 'he', label: 'עברית' },
+  { id: 'he', label: 'Hebrew' },
   { id: 'en', label: 'English' },
   { id: 'ar', label: 'العربية' },
 ];

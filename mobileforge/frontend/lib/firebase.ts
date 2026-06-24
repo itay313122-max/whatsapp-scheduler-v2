@@ -137,7 +137,7 @@ export async function createUserDocIfNeeded(user: User): Promise<void> {
     if (!snap.exists()) {
       await setDoc(ref, {
         email: user.email ?? '',
-        displayName: user.displayName ?? user.email?.split('@')[0] ?? 'משתמש',
+        displayName: user.displayName ?? user.email?.split('@')[0] ?? 'User',
         photoURL: user.photoURL ?? null,
         credits: 10,
         plan: 'free',
