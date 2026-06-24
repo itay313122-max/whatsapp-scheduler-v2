@@ -33,9 +33,3 @@ services:
         sync: false
       - key: BETA_KEYS
         sync: false
-      - key: DATA_DIR
-        value: /data
-    disk:
-      name: mobileforge-data
-      mountPath: /data
-      sizeGB: 1
