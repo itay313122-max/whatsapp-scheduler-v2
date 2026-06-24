@@ -562,6 +562,7 @@ export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChan
             <button
               key={id}
               onClick={() => selectDevice(id)}
+              aria-label={`Switch to ${label} view`}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200"
               style={device === id ? {
                 background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
