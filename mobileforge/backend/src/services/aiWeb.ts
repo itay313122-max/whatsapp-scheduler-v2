@@ -1321,7 +1321,16 @@ export interface PlanResult {
   questions?: PlanQuestion[];
 }
 
-const PLAN_SYSTEM_PROMPT = `
+function isHebrewPrompt(text: string): boolean {
+  return /[֐-׿]/.test(text);
+}
+
+function getPlanSystemPrompt(hebrew: boolean): string {
+  const lang = hebrew ? 'Hebrew' : 'the same language the user wrote in';
+  const example = hebrew
+    ? '{"ready":false,"intro":"<one short Hebrew sentence>","questions":[{"id":"<slug>","q":"<short Hebrew question>","options":["<opt1>","<opt2>","<opt3>"]}]}'
+    : '{"ready":false,"intro":"<one short sentence in user\'s language>","questions":[{"id":"<slug>","q":"<short question in user\'s language>","options":["<opt1>","<opt2>","<opt3>"]}]}';
+  return `
 You are WebForge AI's planning brain — the equivalent of Lovable's Chat Mode.
 Before building, decide if you already have enough to build an EXCELLENT mobile
 app, or if 1-3 quick clarifying questions would materially improve the result.
@@ -1333,10 +1342,10 @@ If the request is already detailed/specific enough to build a great app:
 
 If a few quick choices would help, ask 1-3 questions, each with 2-4 short
 tap-able options:
-{"ready":false,"intro":"<one short Hebrew sentence>","questions":[{"id":"<slug>","q":"<short Hebrew question>","options":["<opt1>","<opt2>","<opt3>"]}]}
+${example}
 
 RULES:
-- ALL questions and options MUST be in Hebrew.
+- ALL questions and options MUST be in ${lang}.
 - Max 3 questions. Each option max 4 words.
 - Ask ONLY about things that change design/feature direction: visual style,
   target audience, the key feature, color mood, or the primary screen.
@@ -1346,6 +1355,7 @@ RULES:
 - Keep it light — these are one-tap choices, not an interview.
 - Output the JSON on a single line. Nothing before or after it.
 `;
+}
 
 export function parsePlan(raw: string): PlanResult {
   const s = raw.indexOf('{');
@@ -1378,9 +1388,9 @@ export function parsePlan(raw: string): PlanResult {
 /** Heuristic planner used in demo mode (all API keys are placeholders). */
 export function getDemoPlan(userPrompt: string): PlanResult {
   const p = userPrompt.trim();
-  // A long/detailed prompt (templates, rich descriptions) → build right away.
   if (p.length > 130) return { ready: true };
 
+  const hebrew = isHebrewPrompt(p);
   const lower = p.toLowerCase();
   const cat =
     /מניות|מניה|בורסה|stock|portfolio|השקעות|invest|trading|מסחר|תיק מניות/.test(lower) ? 'stocks' :
@@ -1391,19 +1401,21 @@ export function getDemoPlan(userPrompt: string): PlanResult {
     /תקציב|finance|כסף|הוצא|הכנס/.test(lower) ? 'finance' :
     /מזג|weather|טמפרטור/.test(lower) ? 'weather' : 'general';
 
-  const styleQ: PlanQuestion = {
-    id: 'style',
-    q: 'איזה סגנון עיצוב מתאים לך?',
-    options: ['מודרני ונקי', 'צבעוני ונועז', 'מינימליסטי', 'יוקרתי כהה'],
-  };
-  const audienceQ: PlanQuestion = {
-    id: 'audience',
-    q: 'למי האפליקציה מיועדת?',
-    options: cat === 'store' || cat === 'food'
-      ? ['לקוחות פרטיים', 'עסקים', 'הכל']
-      : ['שימוש אישי', 'צוות/עסק', 'קהל רחב'],
-  };
-  const featureByCat: Record<string, PlanQuestion> = {
+  const styleQ: PlanQuestion = hebrew
+    ? { id: 'style', q: 'איזה סגנון עיצוב מתאים לך?', options: ['מודרני ונקי', 'צבעוני ונועז', 'מינימליסטי', 'יוקרתי כהה'] }
+    : { id: 'style', q: 'What design style fits best?', options: ['Modern & clean', 'Bold & colorful', 'Minimalist', 'Dark luxury'] };
+
+  const audienceQ: PlanQuestion = hebrew
+    ? {
+        id: 'audience', q: 'למי האפליקציה מיועדת?',
+        options: cat === 'store' || cat === 'food' ? ['לקוחות פרטיים', 'עסקים', 'הכל'] : ['שימוש אישי', 'צוות/עסק', 'קהל רחב'],
+      }
+    : {
+        id: 'audience', q: 'Who is the app for?',
+        options: cat === 'store' || cat === 'food' ? ['Consumers', 'Businesses', 'Everyone'] : ['Personal use', 'Team / business', 'Wide audience'],
+      };
+
+  const featureByCat: Record<string, PlanQuestion> = hebrew ? {
     stocks:  { id: 'feature', q: 'גרפים בזמן אמת?',     options: ['כן, גרפים חיים', 'מספרים בלבד', 'שניהם'] },
     store:   { id: 'feature', q: 'מה הכי חשוב בחנות?',  options: ['סל קניות', 'מבצעים', 'חיפוש מוצרים'] },
     food:    { id: 'feature', q: 'מה הכי חשוב בתפריט?',  options: ['הזמנה ומשלוח', 'דירוגים', 'קטגוריות'] },
@@ -1412,11 +1424,22 @@ export function getDemoPlan(userPrompt: string): PlanResult {
     finance: { id: 'feature', q: 'מה הכי חשוב בתקציב?',  options: ['תרשימים', 'יעדי חיסכון', 'התראות'] },
     weather: { id: 'feature', q: 'מה להציג קודם?',       options: ['תחזית שבועית', 'מפה', 'התראות'] },
     general: { id: 'feature', q: 'מה הכי חשוב שיהיה?',    options: ['ניווט נוח', 'עיצוב מרשים', 'מהירות'] },
+  } : {
+    stocks:  { id: 'feature', q: 'Real-time charts?',           options: ['Yes, live charts', 'Numbers only', 'Both'] },
+    store:   { id: 'feature', q: 'Most important store feature?', options: ['Shopping cart', 'Deals & sales', 'Product search'] },
+    food:    { id: 'feature', q: 'Key menu feature?',            options: ['Order & delivery', 'Ratings', 'Categories'] },
+    fitness: { id: 'feature', q: 'Most important for workouts?', options: ['Timer', 'Progress tracking', 'Programs'] },
+    tasks:   { id: 'feature', q: 'Key task management feature?', options: ['Categories', 'Calendar', 'Statistics'] },
+    finance: { id: 'feature', q: 'Most important for budget?',   options: ['Charts', 'Savings goals', 'Alerts'] },
+    weather: { id: 'feature', q: 'What to show first?',          options: ['Weekly forecast', 'Map', 'Alerts'] },
+    general: { id: 'feature', q: 'What matters most?',           options: ['Easy navigation', 'Great design', 'Speed'] },
   };
 
   return {
     ready: false,
-    intro: 'כדי לבנות לך בדיוק את מה שדמיינת — כמה בחירות מהירות:',
+    intro: hebrew
+      ? 'כדי לבנות לך בדיוק את מה שדמיינת — כמה בחירות מהירות:'
+      : 'A few quick choices to build exactly what you imagined:',
     questions: [styleQ, audienceQ, featureByCat[cat]],
   };
 }
@@ -1430,7 +1453,7 @@ export async function planWebApp(
   if (allPlaceholder) return getDemoPlan(userPrompt);
 
   const messages: ChatMessage[] = [
-    { role: 'system', content: PLAN_SYSTEM_PROMPT },
+    { role: 'system', content: getPlanSystemPrompt(isHebrewPrompt(userPrompt)) },
     ...conversationHistory,
     { role: 'user', content: userPrompt },
   ];

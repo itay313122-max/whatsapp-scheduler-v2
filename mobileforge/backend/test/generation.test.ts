@@ -1037,6 +1037,48 @@ describe('Chat-Mode planning — parsePlan parser', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// Language-adaptive planning (English support) (4 בדיקות)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('Language-adaptive planning — English prompts', () => {
+  const { getDemoPlan } = require('../src/services/aiWeb');
+
+  it('returns English questions for an English prompt', () => {
+    const plan = getDemoPlan('stock portfolio app');
+    expect(plan.ready).toBe(false);
+    expect(plan.intro).not.toMatch(/[֐-׿]/);
+    for (const q of plan.questions) {
+      expect(q.q).not.toMatch(/[֐-׿]/);
+      for (const opt of q.options) {
+        expect(opt).not.toMatch(/[֐-׿]/);
+      }
+    }
+  });
+
+  it('returns Hebrew questions for a Hebrew prompt', () => {
+    const plan = getDemoPlan('אפליקציית מניות');
+    expect(plan.ready).toBe(false);
+    expect(plan.intro).toMatch(/[֐-׿]/);
+    expect(plan.questions[0].q).toMatch(/[֐-׿]/);
+  });
+
+  it('tailors English feature question to the detected category', () => {
+    const plan = getDemoPlan('fitness tracker');
+    const featureQ = plan.questions.find((q: any) => q.id === 'feature');
+    expect(featureQ).toBeTruthy();
+    expect(featureQ.options).toContain('Timer');
+  });
+
+  it('builds directly for a long English prompt', () => {
+    const longPrompt =
+      'Build a modern e-commerce store app with product catalog, shopping cart with add and remove, ' +
+      'checkout screen, bottom navigation between catalog cart and profile, clean black and white design for consumers';
+    const plan = getDemoPlan(longPrompt);
+    expect(plan.ready).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // חבילה 12 — SDK placeholder keys (3 בדיקות)
 // ═══════════════════════════════════════════════════════════════════════════
 
