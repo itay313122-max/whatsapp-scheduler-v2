@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import BuildDemo from '@/components/BuildDemo';
 import { createLocalProjectId } from '@/lib/localProjects';
 
 const TEMPLATES = [
@@ -223,6 +224,24 @@ export default function LandingPage() {
             </div>
           </motion.div>
         </motion.div>
+      </section>
+
+      {/* ── Live Build Demo ("promo video") ─────────────────────────────── */}
+      <section className="py-16 px-4 bg-bg">
+        <div className="max-w-4xl mx-auto">
+          <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary-light text-xs font-semibold mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" /> Watch it build — live
+            </span>
+            <h2 className="font-display font-bold text-3xl sm:text-4xl mb-3 text-text-primary">
+              Type an idea. Watch it become an app.
+            </h2>
+            <p className="text-text-secondary">No code. No setup. This is the whole process — really.</p>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <BuildDemo />
+          </motion.div>
+        </div>
       </section>
 
       {/* ── How It Works ────────────────────────────────────────────────── */}
