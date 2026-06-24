@@ -16,8 +16,11 @@ export default function Navbar() {
   const isBuilder = pathname?.startsWith('/builder');
   if (isBuilder) return null;
 
+  // The landing page is dark; other pages (dashboard, auth) stay light.
+  const isHome = pathname === '/';
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-white/80 backdrop-blur-xl elevation-1">
+    <nav className={`fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-xl elevation-1 ${isHome ? 'bg-[#0A0A0B]/70 border-white/10' : 'border-border bg-white/80'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">

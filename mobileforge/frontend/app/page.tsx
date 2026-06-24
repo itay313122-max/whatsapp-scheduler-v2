@@ -23,16 +23,33 @@ const STEPS = [
 ];
 
 const FEATURES = [
-  { icon: '⚡', title: 'ייצור ב-10 שניות', desc: 'AI בונה אפליקציה מלאה מתיאור קצר — כולל UI, לוגיקה וניווט', color: 'from-yellow-400/20 to-orange-400/10 border-orange-200' },
-  { icon: '📱', title: 'פריוויו מיידי', desc: 'ראה את האפליקציה על iPhone, Android ודסקטופ — עוד לפני שיתוף', color: 'from-sky-400/20 to-blue-400/10 border-sky-200' },
-  { icon: '✏️', title: 'עריכה חיה', desc: 'לחץ על כל טקסט בפריוויו כדי לערוך אותו ישירות. שנה צבעים, פונטים ורכיבים', color: 'from-emerald-400/20 to-green-400/10 border-emerald-200' },
-  { icon: '🔗', title: 'שתף בלינק', desc: 'כפתור אחד — לינק ציבורי לאפליקציה שלך. שלח לחברים, ללקוחות, למשקיעים', color: 'from-violet-400/20 to-purple-400/10 border-violet-200' },
-  { icon: '📦', title: 'הורד והתקן', desc: 'הורד כ-HTML עצמאי או כ-PWA להתקנה על הטלפון — בחינם, בלי חנויות', color: 'from-pink-400/20 to-rose-400/10 border-pink-200' },
-  { icon: '🌍', title: 'עברית מלאה', desc: 'RTL מובנה, תמיכה בעברית, ערבית ואנגלית — AI מבין מה שאתה כותב', color: 'from-indigo-400/20 to-primary/10 border-indigo-200' },
+  { icon: '⚡', title: 'ייצור ב-10 שניות', desc: 'AI בונה אפליקציה מלאה מתיאור קצר — כולל UI, לוגיקה וניווט', color: 'from-yellow-400/10 to-orange-400/5 border-white/10' },
+  { icon: '📱', title: 'פריוויו מיידי', desc: 'ראה את האפליקציה על iPhone, Android ודסקטופ — עוד לפני שיתוף', color: 'from-sky-400/10 to-blue-400/5 border-white/10' },
+  { icon: '✏️', title: 'עריכה חיה', desc: 'לחץ על כל טקסט בפריוויו כדי לערוך אותו ישירות. שנה צבעים, פונטים ורכיבים', color: 'from-emerald-400/10 to-green-400/5 border-white/10' },
+  { icon: '🔗', title: 'שתף בלינק', desc: 'כפתור אחד — לינק ציבורי לאפליקציה שלך. שלח לחברים, ללקוחות, למשקיעים', color: 'from-violet-400/10 to-purple-400/5 border-white/10' },
+  { icon: '📦', title: 'הורד והתקן', desc: 'הורד כ-HTML עצמאי או כ-PWA להתקנה על הטלפון — בחינם, בלי חנויות', color: 'from-pink-400/10 to-rose-400/5 border-white/10' },
+  { icon: '🌍', title: 'רב-לשוני', desc: 'אנגלית כברירת מחדל, עם תמיכה מלאה בעברית, ערבית ועוד — AI מבין מה שאתה כותב', color: 'from-indigo-400/10 to-primary/5 border-white/10' },
 ];
 
 const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
+
+// Product-first hero visual — a real app built with MobileForge, shown inside
+// the phone frame so visitors see authentic output the moment they land
+// (the Lovable/v0 pattern). Using a real screenshot guarantees it renders
+// crisply everywhere.
+function HeroAppMockup() {
+  return (
+    <img
+      src="/hero-app.png"
+      alt="אפליקציה שנבנתה ב-MobileForge"
+      width={246}
+      height={533}
+      className="block w-full rounded-[28px]"
+      loading="eager"
+    />
+  );
+}
 
 export default function LandingPage() {
   const router = useRouter();
@@ -46,23 +63,23 @@ export default function LandingPage() {
   }
 
   return (
-    <main className="min-h-screen text-text-primary overflow-x-hidden" dir="rtl">
+    <main className="theme-dark min-h-screen text-text-primary overflow-x-hidden bg-bg" dir="rtl">
       <Navbar />
 
       {/* ── Hero with Input ─────────────────────────────────────────────── */}
-      <section className="hero-bg relative pt-28 pb-20 px-4 text-center overflow-hidden">
-        <div className="absolute top-10 right-10 w-72 h-72 rounded-full bg-primary/8 blur-[80px] pointer-events-none" />
-        <div className="absolute bottom-10 left-10 w-72 h-72 rounded-full bg-accent/8 blur-[80px] pointer-events-none" />
+      <section className="grid-bg relative pt-28 pb-24 px-4 text-center overflow-hidden">
+        <div className="glow-orb top-[-60px] right-1/4 w-[420px] h-[420px]" style={{ background: '#8B5CF6' }} />
+        <div className="glow-orb bottom-[-80px] left-1/4 w-[380px] h-[380px]" style={{ background: '#EC4899', opacity: 0.35 }} />
 
         <motion.div className="relative max-w-4xl mx-auto" initial="hidden" animate="show" variants={stagger}>
           <motion.div variants={fadeUp}>
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 border border-primary/20 text-primary text-sm font-semibold shadow-soft mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-primary/30 text-primary-light text-sm font-semibold backdrop-blur-md mb-6">
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-              AI בונה לך אפליקציה מוכנה — בחינם
+              עוצב לעידן ה-AI · בונה אפליקציות מובייל בחינם
             </span>
           </motion.div>
 
-          <motion.h1 variants={fadeUp} className="font-display font-extrabold text-5xl sm:text-6xl md:text-7xl leading-[1.1] mb-5 text-text-primary">
+          <motion.h1 variants={fadeUp} className="font-display font-extrabold text-5xl sm:text-6xl md:text-7xl leading-[1.05] mb-5 text-text-primary tracking-tight">
             תאר.{' '}
             <span className="gradient-text">AI יבנה.</span>
             <br />
@@ -77,7 +94,7 @@ export default function LandingPage() {
 
           {/* Prompt Input */}
           <motion.div variants={fadeUp} className="max-w-xl mx-auto mb-6">
-            <div className="relative flex items-center gap-2 p-2 rounded-2xl glass-card shadow-glow border border-primary/20">
+            <div className="relative flex items-center gap-2 p-2 rounded-2xl bg-white/5 backdrop-blur-xl border border-primary/30 shadow-glow">
               <input
                 type="text"
                 value={prompt}
@@ -97,17 +114,17 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
-          <motion.p variants={fadeUp} className="text-text-soft text-xs mb-10">
+          <motion.p variants={fadeUp} className="text-text-soft text-xs mb-9">
             ללא הרשמה. ללא כרטיס אשראי. התחל מייד.
           </motion.p>
 
           {/* Template chips */}
-          <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto">
+          <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto mb-16">
             {TEMPLATES.map((t) => (
               <button
                 key={t.name}
                 onClick={() => handleGo(t.prompt)}
-                className="group flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-full glass-card border border-border hover:border-primary/30 text-text-secondary hover:text-text-primary text-sm transition-all hover:shadow-soft"
+                className="group flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-full bg-white/5 border border-border hover:border-primary/40 text-text-secondary hover:text-text-primary text-sm transition-all backdrop-blur-md"
               >
                 <span>{t.emoji}</span>
                 <span>{t.name}</span>
@@ -116,6 +133,16 @@ export default function LandingPage() {
                 </svg>
               </button>
             ))}
+          </motion.div>
+
+          {/* ── Product-first visual: live app mockup in a phone frame ─────── */}
+          <motion.div
+            variants={fadeUp}
+            className="relative mx-auto w-[270px] animate-float"
+          >
+            <div className="phone-frame">
+              <HeroAppMockup />
+            </div>
           </motion.div>
         </motion.div>
       </section>
@@ -163,9 +190,9 @@ export default function LandingPage() {
                 key={title}
                 variants={fadeUp}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className={`p-6 rounded-2xl bg-gradient-to-br border glass-card press-effect ${color}`}
+                className={`p-6 rounded-2xl bg-gradient-to-br border backdrop-blur-md press-effect ${color}`}
               >
-                <div className="text-2xl mb-3 w-12 h-12 rounded-xl flex items-center justify-center bg-white/50">{icon}</div>
+                <div className="text-2xl mb-3 w-12 h-12 rounded-xl flex items-center justify-center bg-white/10 border border-white/10">{icon}</div>
                 <h3 className="font-display font-bold text-base mb-2 text-text-primary">{title}</h3>
                 <p className="text-text-secondary text-sm leading-relaxed">{desc}</p>
               </motion.div>
