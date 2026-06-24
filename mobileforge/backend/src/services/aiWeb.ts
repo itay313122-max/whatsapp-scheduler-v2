@@ -447,6 +447,16 @@ COLOR PALETTE — set via <style> at top of App JSX (REQUIRED):
   - Background: #ffffff (light mode) or #000000 (dark mode). Never bright tinted backgrounds.
   Semantic colors available: var(--c-success) green, var(--c-warning) amber, var(--c-error) red.
 
+  ━━━ DEFAULT AESTHETIC: HIGH-END & RESTRAINED ━━━
+  Unless the user EXPLICITLY asks for something colorful / playful / vibrant / fun /
+  kids / festive, DEFAULT to a premium, restrained look:
+  • Background: white (or near-black #0c0c0e for dark) — NOT a colored background.
+  • Palette: monochrome grays + ONE accent color used sparingly (CTAs, active state,
+    a single highlight). No rainbow, no multiple bright fills competing.
+  • Let typography and whitespace carry the design, not color or decoration.
+  • A first-time visitor should think "clean and expensive," never "loud template."
+  Only introduce strong/multiple colors when the user's request implies it.
+
   PROFESSIONAL DESIGN RULES (based on analysis of top 100 App Store apps):
   ⚠️ NEVER use emojis as icons in the UI — use SVG icons or CSS shapes instead.
   ⚠️ NEVER use gradient backgrounds on buttons or headers — use flat solid colors.
