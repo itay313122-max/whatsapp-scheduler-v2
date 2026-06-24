@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import {
   getAuth,
   GoogleAuthProvider,
+  GithubAuthProvider,
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -64,11 +65,18 @@ export function getFirebaseStorage(): FirebaseStorage | null {
 }
 
 export const googleProvider = new GoogleAuthProvider();
+export const githubProvider = new GithubAuthProvider();
 
 export async function signInWithGoogle() {
   const auth = getFirebaseAuth();
   if (!auth) throw new Error('Firebase not configured');
   return signInWithPopup(auth, googleProvider);
+}
+
+export async function signInWithGithub() {
+  const auth = getFirebaseAuth();
+  if (!auth) throw new Error('Firebase not configured');
+  return signInWithPopup(auth, githubProvider);
 }
 
 export async function signInWithEmail(email: string, password: string) {
