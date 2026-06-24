@@ -320,3 +320,23 @@ export async function streamAssistantMessage(
 
   onDone();
 }
+
+// ── Beta feedback ────────────────────────────────────────────────────────────
+export async function submitFeedback(input: {
+  text: string;
+  rating?: number;
+  page?: string;
+  name?: string;
+}): Promise<{ ok: boolean; id?: string }> {
+  try {
+    const res = await fetch(`${API_URL}/api/feedback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    });
+    if (!res.ok) return { ok: false };
+    return await res.json();
+  } catch {
+    return { ok: false };
+  }
+}

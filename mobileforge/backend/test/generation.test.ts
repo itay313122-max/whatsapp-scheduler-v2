@@ -1261,6 +1261,51 @@ describe('Live sync route', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// Feedback route — beta tester reports
+// ═══════════════════════════════════════════════════════════════════════════
+describe('Feedback route', () => {
+  let app: any;
+  let request: any;
+
+  beforeAll(() => {
+    const express = require('express');
+    const feedbackRouter = require('../src/routes/feedback').default;
+    app = express();
+    app.use(express.json());
+    app.use('/api/feedback', feedbackRouter);
+    request = require('supertest')(app);
+  });
+
+  it('rejects feedback with no text', async () => {
+    const res = await request.post('/api/feedback').send({ rating: 5 });
+    expect(res.status).toBe(400);
+  });
+
+  it('stores feedback and returns an id', async () => {
+    const res = await request.post('/api/feedback').send({ text: 'great app', rating: 5, name: 'Avi' });
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(true);
+    expect(typeof res.body.id).toBe('string');
+  });
+
+  it('lists feedback with a count and average rating', async () => {
+    await request.post('/api/feedback').send({ text: 'nice', rating: 4 });
+    const res = await request.get('/api/feedback');
+    expect(res.status).toBe(200);
+    expect(res.body.count).toBeGreaterThan(0);
+    expect(Array.isArray(res.body.feedback)).toBe(true);
+    expect(typeof res.body.avgRating).toBe('number');
+  });
+
+  it('clamps rating to 0–5', async () => {
+    const res = await request.post('/api/feedback').send({ text: 'x', rating: 99 });
+    expect(res.status).toBe(200);
+    const list = await request.get('/api/feedback');
+    expect(list.body.feedback.every((f: any) => f.rating >= 0 && f.rating <= 5)).toBe(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // Persistent store — survives a simulated server restart
 // ═══════════════════════════════════════════════════════════════════════════
 describe('PersistentStore — file-backed, restart-proof', () => {

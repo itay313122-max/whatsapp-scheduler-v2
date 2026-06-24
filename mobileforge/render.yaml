@@ -1,0 +1,34 @@
+# Render blueprint for the MobileForge backend.
+# In Render: New → Blueprint → connect this repo → it reads this file.
+# Set the secret env vars (API keys) in the Render dashboard after first deploy.
+services:
+  - type: web
+    name: mobileforge-backend
+    runtime: node
+    rootDir: mobileforge/backend
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: PORT
+        value: "4000"
+      # Set this to your Vercel frontend URL after deploying the frontend.
+      - key: FRONTEND_URL
+        sync: false
+      # Optional: protects GET /api/feedback. Pick any secret string.
+      - key: ADMIN_TOKEN
+        sync: false
+      # LLM providers — at least one for real AI (else demo mode). Set in dashboard.
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: CEREBRAS_API_KEY
+        sync: false
+      - key: TOGETHER_API_KEY
+        sync: false
