@@ -200,194 +200,143 @@ function RichEditPanel({
   onStructureEdit: (prompt: string) => void;
   onLanguageChange?: (langId: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [section, setSection] = useState('colors');
   const set = <K extends keyof EditSettings>(k: K, v: EditSettings[K]) =>
     onSettings({ ...settings, [k]: v });
 
   return (
-    <div className="border-b border-border/50 bg-surface/30 backdrop-blur-md flex-shrink-0" dir="ltr">
-      {/* ── compact bar ──────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 px-3 py-1.5 overflow-x-auto">
-        {PALETTES.map((p) => (
-          <button key={p.id} onClick={() => set('paletteId', p.id as PaletteId)} title={p.label}
-            className={`w-5 h-5 rounded-full border-2 flex-shrink-0 transition-all hover:scale-110 ${settings.paletteId === p.id ? 'border-text-primary scale-110' : 'border-transparent opacity-60 hover:opacity-100'}`}
-            style={{ background: `linear-gradient(135deg, ${p.from}, ${p.to})` }} />
-        ))}
-        <div className="h-4 w-px bg-border flex-shrink-0" />
-        <button onClick={() => set('darkMode', !settings.darkMode)}
-          aria-label={settings.darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          className={`px-2 py-0.5 rounded text-xs border flex-shrink-0 transition-all ${settings.darkMode ? 'bg-slate-800 text-slate-200 border-slate-600' : 'text-text-secondary border-border hover:text-text-primary'}`}>
-          {settings.darkMode ? '☀️' : '🌙'}
-        </button>
-        <div className="h-4 w-px bg-border flex-shrink-0" />
-        <button onClick={() => setOpen((x) => !x)}
-          className="flex items-center gap-1 px-2 py-0.5 rounded text-xs text-text-secondary hover:text-text-primary border border-border transition-all flex-shrink-0">
-          ⚙️ Edit {open ? '▲' : '▼'}
-        </button>
+    <div className="p-3 space-y-4" dir="ltr">
+      {/* ── Design System header ──────────────────────────────────────── */}
+      <div className="flex items-center gap-2 pb-2 border-b border-border/30">
+        <div className="w-4 h-4 rounded" style={{ background: settings.accentColor || '#6366f1' }} />
+        <span className="text-xs font-semibold text-text-primary">Design System</span>
       </div>
 
-      {/* ── expanded panel ───────────────────────────────────────────────── */}
-      {open && (
-        <div className="px-3 pb-3 border-t border-border/30">
-          {/* Section tabs */}
-          <div className="flex gap-1 pt-2 pb-2 overflow-x-auto">
-            {(['colors', 'typography', 'components', 'structure'] as const).map((s) => (
-              <button key={s} onClick={() => setSection(s)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex-shrink-0 ${section === s ? 'bg-primary text-white' : 'text-text-secondary border border-border hover:text-text-primary'}`}>
-                {s === 'colors' ? '🎨 Colors' : s === 'typography' ? 'Aa Typography' : s === 'components' ? '□ Components' : '⊞ Structure'}
-              </button>
-            ))}
-          </div>
+      {/* ── Appearance (Light / Dark) ──────────────────────────────────── */}
+      <div>
+        <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">Appearance</p>
+        <div className="flex gap-1">
+          {[{id:'light',label:'Light',icon:'☀️'},{id:'dark',label:'Dark',icon:'🌙'}].map((m) => (
+            <button key={m.id} onClick={() => set('darkMode', m.id === 'dark')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium border transition-all ${(m.id === 'dark') === settings.darkMode ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-border text-text-secondary hover:text-text-primary hover:border-primary/30'}`}>
+              <span>{m.icon}</span> {m.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-          {/* Colors */}
-          {section === 'colors' && (
-            <div className="space-y-3">
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Palette</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {PALETTES.map((p) => (
-                    <button key={p.id} onClick={() => set('paletteId', p.id as PaletteId)} title={p.label}
-                      className={`flex flex-col items-center gap-0.5 p-1.5 rounded-lg border transition-all hover:scale-105 ${settings.paletteId === p.id ? 'border-primary bg-primary/10' : 'border-border'}`}>
-                      <div className="w-7 h-7 rounded-md" style={{ background: `linear-gradient(135deg, ${p.from}, ${p.to})` }} />
-                      <span className="text-[9px] text-text-secondary leading-none">{p.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Primary color (whole app)</p>
-                <div className="grid grid-cols-8 gap-1.5">
-                  {COLOR_SWATCHES.map((c) => (
-                    <button key={c} onClick={() => set('accentColor', c)} title={c}
-                      className={`w-full aspect-square rounded-md transition-all hover:scale-110 ${settings.accentColor?.toLowerCase() === c.toLowerCase() ? 'ring-2 ring-offset-1 ring-offset-surface ring-white' : ''}`}
-                      style={{ background: c }} />
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Mode</p>
-                <div className="flex gap-1.5">
-                  {[{id:'light',label:'☀️ Light'},{id:'dark',label:'🌙 Dark'}].map((m) => (
-                    <button key={m.id} onClick={() => set('darkMode', m.id === 'dark')}
-                      className={`flex-1 py-1.5 rounded-lg text-xs border transition-all ${(m.id === 'dark') === settings.darkMode ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary'}`}>
-                      {m.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Custom color</p>
-                <div className="flex items-center gap-2">
-                  <input type="color" value={settings.accentColor || '#6366f1'}
-                    onChange={(e) => set('accentColor', e.target.value)}
-                    className="w-7 h-7 rounded cursor-pointer border border-border" />
-                  <span className="text-xs text-text-secondary">{settings.accentColor || 'Default'}</span>
-                  {settings.accentColor && (
-                    <button onClick={() => set('accentColor', '')} className="text-xs text-text-secondary hover:text-red-400">✕</button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Typography */}
-          {section === 'typography' && (
-            <div className="space-y-3">
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Font</p>
-                <div className="grid grid-cols-2 gap-1">
-                  {FONTS.map((f) => (
-                    <button key={f.id} onClick={() => set('fontId', f.id)}
-                      className={`py-1.5 px-2 rounded-lg text-sm border transition-all ${settings.fontId === f.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary'}`}
-                      style={{ fontFamily: f.family }}>
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Text size</p>
-                <div className="flex gap-1">
-                  {TEXT_SIZES.map((s) => (
-                    <button key={s.id} onClick={() => set('textSize', s.id)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs border transition-all ${settings.textSize === s.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary'}`}>
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Components */}
-          {section === 'components' && (
-            <div className="space-y-3">
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Buttons</p>
-                <div className="grid grid-cols-2 gap-1">
-                  {BUTTON_STYLES.map((b) => (
-                    <button key={b.id} onClick={() => set('buttonStyle', b.id)}
-                      className={`py-1.5 px-2 rounded-lg text-xs border transition-all ${settings.buttonStyle === b.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary'}`}>
-                      {b.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Cards</p>
-                <div className="grid grid-cols-2 gap-1">
-                  {CARD_STYLES.map((c) => (
-                    <button key={c.id} onClick={() => set('cardStyle', c.id)}
-                      className={`py-1.5 px-2 rounded-lg text-xs border transition-all ${settings.cardStyle === c.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary'}`}>
-                      {c.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Corner radius</p>
-                <div className="flex gap-1">
-                  {RADIUS_PRESETS.map((r) => (
-                    <button key={r.id} onClick={() => set('radiusPreset', r.id)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs border transition-all ${settings.radiusPreset === r.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary'}`}>
-                      {r.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Structure */}
-          {section === 'structure' && (
-            <div className="space-y-3">
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Add screen</p>
-                <div className="grid grid-cols-2 gap-1">
-                  {PRESET_SCREENS.map((s) => (
-                    <button key={s.id} onClick={() => onStructureEdit(`Add a ${s.label} screen to the app`)}
-                      className="py-1.5 px-2 rounded-lg text-xs border border-border text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all text-left">
-                      {s.icon} {s.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Interface language</p>
-                <div className="flex gap-1">
-                  {LANGUAGES.map((l) => (
-                    <button key={l.id} onClick={() => { onLanguageChange?.(l.id); onStructureEdit(`Translate all visible text in the app to ${l.label}. Keep all logic intact, only translate the text. Use RTL layout: ${l.id === 'he' || l.id === 'ar' ? 'yes' : 'no'}.`); }}
-                      className="flex-1 py-1.5 rounded-lg text-xs border border-border text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all">
-                      {l.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+      {/* ── Accent Color ─────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">Accent color</p>
+        <div className="grid grid-cols-6 gap-1.5">
+          {COLOR_SWATCHES.slice(0, 18).map((c) => (
+            <button key={c} onClick={() => set('accentColor', c)} title={c}
+              className={`w-full aspect-square rounded-lg transition-all hover:scale-110 ${settings.accentColor?.toLowerCase() === c.toLowerCase() ? 'ring-2 ring-offset-1 ring-offset-surface ring-primary scale-105' : 'ring-1 ring-border/30'}`}
+              style={{ background: c }} />
+          ))}
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <input type="color" value={settings.accentColor || '#6366f1'}
+            onChange={(e) => set('accentColor', e.target.value)}
+            className="w-6 h-6 rounded-lg cursor-pointer border border-border" />
+          <span className="text-[11px] text-text-secondary font-mono">{settings.accentColor || 'Default'}</span>
+          {settings.accentColor && (
+            <button onClick={() => set('accentColor', '')} className="text-[11px] text-text-secondary hover:text-red-400 ml-auto">Reset</button>
           )}
         </div>
-      )}
+      </div>
+
+      {/* ── Corner Radius ────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">Corner radius</p>
+        <div className="flex gap-1">
+          {RADIUS_PRESETS.map((r) => (
+            <button key={r.id} onClick={() => set('radiusPreset', r.id)}
+              className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-xl text-[11px] font-medium border transition-all ${settings.radiusPreset === r.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary hover:border-primary/30'}`}>
+              <div className={`w-5 h-5 border-2 border-current ${r.id === 'sharp' ? 'rounded-sm' : r.id === 'medium' ? 'rounded-lg' : 'rounded-full'}`} />
+              {r.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Font Family ──────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">Font</p>
+        <div className="grid grid-cols-2 gap-1">
+          {FONTS.map((f) => (
+            <button key={f.id} onClick={() => set('fontId', f.id)}
+              className={`py-2 px-2.5 rounded-xl text-[12px] border transition-all text-left ${settings.fontId === f.id ? 'border-primary bg-primary/10 text-primary font-medium' : 'border-border text-text-secondary hover:text-text-primary hover:border-primary/30'}`}
+              style={{ fontFamily: f.family }}>
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Text Size ────────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">Text size</p>
+        <div className="flex gap-1">
+          {TEXT_SIZES.map((s) => (
+            <button key={s.id} onClick={() => set('textSize', s.id)}
+              className={`flex-1 py-2 rounded-xl text-xs font-medium border transition-all ${settings.textSize === s.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary hover:border-primary/30'}`}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Buttons Style ────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">Button style</p>
+        <div className="grid grid-cols-3 gap-1">
+          {BUTTON_STYLES.map((b) => (
+            <button key={b.id} onClick={() => set('buttonStyle', b.id)}
+              className={`py-2 px-2 rounded-xl text-[11px] font-medium border transition-all ${settings.buttonStyle === b.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary hover:border-primary/30'}`}>
+              {b.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Card Style ───────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">Card style</p>
+        <div className="grid grid-cols-2 gap-1">
+          {CARD_STYLES.map((c) => (
+            <button key={c.id} onClick={() => set('cardStyle', c.id)}
+              className={`py-2 px-2 rounded-xl text-[11px] font-medium border transition-all ${settings.cardStyle === c.id ? 'border-primary bg-primary/10 text-primary' : 'border-border text-text-secondary hover:text-text-primary hover:border-primary/30'}`}>
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Structure ────────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">Add screen</p>
+        <div className="grid grid-cols-2 gap-1">
+          {PRESET_SCREENS.map((s) => (
+            <button key={s.id} onClick={() => onStructureEdit(`Add a ${s.label} screen to the app`)}
+              className="py-2 px-2.5 rounded-xl text-[11px] border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all text-left">
+              {s.icon} {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Language ──────────────────────────────────────────────────── */}
+      <div>
+        <p className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold mb-2">Language</p>
+        <div className="flex gap-1">
+          {LANGUAGES.map((l) => (
+            <button key={l.id} onClick={() => { onLanguageChange?.(l.id); onStructureEdit(`Translate all visible text in the app to ${l.label}. Keep all logic intact, only translate the text. Use RTL layout: ${l.id === 'he' || l.id === 'ar' ? 'yes' : 'no'}.`); }}
+              className="flex-1 py-2 rounded-xl text-xs font-medium border border-border text-text-secondary hover:text-text-primary hover:border-primary/30 transition-all">
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -873,28 +822,27 @@ function BuilderContent() {
         />
       )}
 
-      {/* Top bar — Lovable-style glass header */}
+      {/* Top bar — Stitch-style minimal header */}
       <header className="flex-shrink-0 flex items-center justify-between px-4 py-2 glass-header z-40">
         {/* Left side */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <Link
             href="/dashboard"
-            className="flex items-center gap-1.5 text-text-secondary hover:text-text-primary text-sm transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-xl text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-all"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <div className="h-4 w-px bg-border/50" />
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-sm">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-white font-bold text-[10px]">MF</span>
             </div>
             <span className="font-display font-semibold text-sm truncate max-w-[200px]">
               {project?.name || 'Loading…'}
             </span>
+            <SaveIndicator status={saveStatus} />
           </div>
-          <SaveIndicator status={saveStatus} />
         </div>
 
         {/* Right side — Version history, Share & Export */}
@@ -1111,44 +1059,19 @@ function BuilderContent() {
         </div>
       </header>
 
-      {/* Main layout — resizable panels */}
+      {/* Main layout — Stitch-style canvas-first workspace */}
       <PanelGroup orientation="horizontal" className="flex-1 overflow-hidden">
-        {/* Chat panel — Lovable-style glass sidebar */}
-        <Panel
-          id="chat"
-          defaultSize="30%"
-          minSize="20%"
-          maxSize={currentResult ? '60%' : '100%'}
-          className="flex flex-col border-l border-border/50 overflow-hidden glass-panel"
-        >
-          <ErrorBoundary fallbackTitle="Chat error">
-            <ChatInterface
-              projectId={projectId}
-              initialPrompt={searchParams.get('prompt') || undefined}
-              currentAppResult={currentResult}
-              onAppGenerated={handleAppGenerated}
-              onShowPreview={handleShowPreview}
-              onGeneratingChange={handleGeneratingChange}
-            />
-          </ErrorBoundary>
-        </Panel>
-
-        {/* Resize handle */}
-        {currentResult && (
-          <PanelResizeHandle className="hidden md:block" />
-        )}
-
-        {/* Right panel */}
-        {currentResult && (
-          <Panel id="preview" defaultSize="70%" minSize="40%" className="hidden md:flex flex-col overflow-hidden bg-bg">
-            {/* Preview / Code tabs */}
+        {/* Left panel — Canvas / Preview (hero area) */}
+        {currentResult ? (
+          <Panel id="canvas" defaultSize="65%" minSize="40%" className="flex flex-col overflow-hidden bg-bg relative">
+            {/* Canvas toolbar — Preview / Code toggle + screen tabs */}
             <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border/50 bg-surface/40 backdrop-blur-md flex-shrink-0">
               <button
                 onClick={() => setRightPanel('preview')}
                 aria-label="Show preview panel"
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'preview' ? 'bg-primary/10 text-primary shadow-panel' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'preview' ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -1157,54 +1080,61 @@ function BuilderContent() {
               <button
                 onClick={() => setRightPanel('code')}
                 aria-label="Show code panel"
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'code' ? 'bg-primary/10 text-primary shadow-panel' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'code' ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
                 </svg>
                 Code
               </button>
+
+              {/* Multi-screen tabs inline */}
+              {appScreens.length > 1 && (
+                <>
+                  <div className="h-4 w-px bg-border/50 mx-1" />
+                  {appScreens.map((screen) => (
+                    <button
+                      key={screen.index}
+                      onClick={() => handleNavigateScreen(screen.index)}
+                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap ${
+                        screen.active
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'
+                      }`}
+                    >
+                      {screen.label}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => handleAddScreen('Add a new screen to the app with navigation to it')}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] text-text-secondary hover:text-primary hover:bg-primary/5 transition-all"
+                  >
+                    +
+                  </button>
+                </>
+              )}
+
+              <div className="flex-1" />
+
+              {/* Theme controls toggle */}
+              <button
+                onClick={() => setShowEditSidebar(v => !v)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${showEditSidebar ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Design
+              </button>
             </div>
 
             {rightPanel === 'preview' && (
-              <>
-                <RichEditPanel
-                  settings={editSettings}
-                  onSettings={setEditSettings}
-                  onStructureEdit={handleStructureEdit}
-                  onLanguageChange={setSelectedLanguage}
-                />
-
-                {/* Multi-screen tabs */}
-                {appScreens.length > 1 && (
-                  <div className="flex items-center gap-1 px-3 py-1.5 border-b border-border/50 bg-surface/20 backdrop-blur-sm flex-shrink-0 overflow-x-auto" dir="ltr">
-                    {appScreens.map((screen) => (
-                      <button
-                        key={screen.index}
-                        onClick={() => handleNavigateScreen(screen.index)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap ${
-                          screen.active
-                            ? 'bg-primary/10 text-primary border border-primary/20'
-                            : 'text-text-secondary hover:text-text-primary hover:bg-surface-2 border border-transparent'
-                        }`}
-                      >
-                        <span className="text-xs">{screen.active ? '◉' : '○'}</span>
-                        {screen.label}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() => handleAddScreen('Add a new screen to the app with navigation to it')}
-                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] text-text-secondary hover:text-primary hover:bg-primary/5 border border-dashed border-border hover:border-primary/30 transition-all whitespace-nowrap"
-                    >
-                      <span>+</span> New screen
-                    </button>
-                  </div>
-                )}
-
-                {(currentResult.htmlDoc || currentResult.embedUrl) ? (
-                  <div className="flex-1 flex overflow-hidden">
-                    {/* Preview area — dark canvas */}
-                    <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-bg relative" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(139,92,246,0.04) 0%, transparent 50%)' }}>
+              <div className="flex-1 flex overflow-hidden">
+                {/* Canvas area — Stitch-style workspace */}
+                <div className="flex-1 overflow-auto flex items-center justify-center relative canvas-bg">
+                  {(currentResult.htmlDoc || currentResult.embedUrl) ? (
+                    <>
                       <ErrorBoundary fallbackTitle="Preview error">
                         <WebPreview
                           key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
@@ -1229,40 +1159,37 @@ function BuilderContent() {
                           />
                         </div>
                       )}
+                    </>
+                  ) : null}
+                </div>
 
-                      {/* Sidebar toggle — fixed on the right edge of preview */}
-                      <button
-                        onClick={() => setShowEditSidebar(v => !v)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-6 h-12 rounded-l-lg bg-surface/80 backdrop-blur-sm border border-border/50 border-r-0 flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface transition-all"
-                        title={showEditSidebar ? 'Hide edit panel' : 'Show edit panel'}
-                      >
-                        <svg className={`w-3 h-3 transition-transform ${showEditSidebar ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
+                {/* Stitch-style floating theme panel — collapsible */}
+                {showEditSidebar && (
+                  <div className="w-[260px] flex-shrink-0 border-l border-border/50 bg-surface/60 backdrop-blur-xl overflow-y-auto overflow-x-hidden">
+                    <RichEditPanel
+                      settings={editSettings}
+                      onSettings={setEditSettings}
+                      onStructureEdit={handleStructureEdit}
+                      onLanguageChange={setSelectedLanguage}
+                    />
+                    <div className="border-t border-border/30">
+                      <EditSidebar
+                        onAIEdit={handleStructureEdit}
+                        isGenerating={isGenerating}
+                        appName={currentResult.appName}
+                        screens={appScreens}
+                        onNavigate={handleNavigateScreen}
+                        onAddScreen={handleAddScreen}
+                        selectedElement={selectedElement}
+                        onStyleChange={handleStyleChange}
+                        onTextChange={handleTextChange}
+                        onInsertIcon={handleInsertIcon}
+                        onDeselect={handleDeselectElement}
+                      />
                     </div>
-
-                    {/* Edit Sidebar — collapsible */}
-                    {showEditSidebar && (
-                      <div className="w-[280px] flex-shrink-0 border-l border-border/50 glass-panel overflow-hidden">
-                        <EditSidebar
-                          onAIEdit={handleStructureEdit}
-                          isGenerating={isGenerating}
-                          appName={currentResult.appName}
-                          screens={appScreens}
-                          onNavigate={handleNavigateScreen}
-                          onAddScreen={handleAddScreen}
-                          selectedElement={selectedElement}
-                          onStyleChange={handleStyleChange}
-                          onTextChange={handleTextChange}
-                          onInsertIcon={handleInsertIcon}
-                          onDeselect={handleDeselectElement}
-                        />
-                      </div>
-                    )}
                   </div>
-                ) : null}
-              </>
+                )}
+              </div>
             )}
 
             {rightPanel === 'code' && (
@@ -1274,24 +1201,45 @@ function BuilderContent() {
               </div>
             )}
           </Panel>
-        )}
-
-        {/* Empty state — Lovable-inspired minimal */}
-        {!currentResult && (
-          <Panel id="empty" defaultSize="70%" minSize="40%" className="hidden md:flex items-center justify-center text-text-secondary bg-bg" style={{ backgroundImage: 'radial-gradient(circle at 50% 40%, rgba(139,92,246,0.10) 0%, transparent 55%)' }}>
-            <div className="text-center max-w-sm">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/20 flex items-center justify-center mx-auto mb-5">
-                <svg className="w-7 h-7 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+        ) : (
+          /* Empty state — Stitch-style canvas workspace */
+          <Panel id="empty-canvas" defaultSize="65%" minSize="40%" className="hidden md:flex items-center justify-center text-text-secondary bg-bg canvas-bg">
+            <div className="text-center max-w-md animate-fade-in-up">
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-500/15 to-fuchsia-500/15 border border-violet-500/10 flex items-center justify-center mx-auto mb-6">
+                <svg className="w-9 h-9 text-violet-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
                 </svg>
               </div>
-              <h3 className="font-display font-semibold text-lg text-text-primary mb-2">Describe your app</h3>
-              <p className="text-sm leading-relaxed text-text-secondary">
-                Type, upload a screenshot, sketch, or talk — AI will build it and show the code here
+              <h3 className="font-display font-semibold text-xl text-text-primary mb-2">Your canvas is ready</h3>
+              <p className="text-sm leading-relaxed text-text-secondary max-w-xs mx-auto">
+                Describe what you want to build and your app will appear here
               </p>
             </div>
           </Panel>
         )}
+
+        {/* Resize handle */}
+        <PanelResizeHandle className="hidden md:block" />
+
+        {/* Right panel — Chat (Stitch-style conversation panel) */}
+        <Panel
+          id="chat"
+          defaultSize="35%"
+          minSize="20%"
+          maxSize="55%"
+          className="flex flex-col border-l border-border/50 overflow-hidden glass-panel"
+        >
+          <ErrorBoundary fallbackTitle="Chat error">
+            <ChatInterface
+              projectId={projectId}
+              initialPrompt={searchParams.get('prompt') || undefined}
+              currentAppResult={currentResult}
+              onAppGenerated={handleAppGenerated}
+              onShowPreview={handleShowPreview}
+              onGeneratingChange={handleGeneratingChange}
+            />
+          </ErrorBoundary>
+        </Panel>
       </PanelGroup>
     </div>
   );

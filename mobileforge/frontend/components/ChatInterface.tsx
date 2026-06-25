@@ -248,8 +248,9 @@ export default function ChatInterface({
   const [themes, setThemes] = useState<ThemeMeta[]>([]);
   const [selectedTheme, setSelectedTheme] = useState('');
   // Stitch-style build modes: Ideate (explore via clarifying questions),
-  // Flash (fast direct build), Thinking (slower, higher-quality build).
-  const [buildMode, setBuildMode] = useState<'ideate' | 'flash' | 'thinking'>('flash');
+  // Flash (fast direct build), Thinking (slower, higher-quality build),
+  // Redesign (upload screenshot/image to transform).
+  const [buildMode, setBuildMode] = useState<'ideate' | 'flash' | 'thinking' | 'redesign'>('flash');
 
   useEffect(() => { getThemes().then(setThemes); }, []);
 
@@ -705,16 +706,11 @@ export default function ChatInterface({
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-thin">
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full gap-5 text-center py-8">
-              {/* Logo — Lovable-style gradient icon */}
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center animate-fade-in-up shadow-lg shadow-violet-500/20">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-                </svg>
-              </div>
-              <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                <h2 className="font-display font-bold text-lg text-text-primary mb-1">What should we build today?</h2>
-                <p className="text-text-secondary text-sm">Pick a template, take a screenshot, or just tell me</p>
+            <div className="flex flex-col items-center justify-center h-full gap-4 text-center py-6 px-2">
+              {/* Header — clean and minimal */}
+              <div className="animate-fade-in-up">
+                <h2 className="font-display font-bold text-lg text-text-primary mb-1">What should we build?</h2>
+                <p className="text-text-secondary text-sm">Describe your app, pick a template, or upload a screenshot</p>
               </div>
 
               {/* Template Gallery — Lovable-style cards */}
@@ -1089,19 +1085,23 @@ export default function ChatInterface({
           {!(messages.some((m) => m.result) || currentAppResult) && (
             <div className="flex items-center gap-1 mb-2" dir="ltr">
               {([
-                { id: 'ideate',   label: 'Ideate',   hint: 'Explore — a few quick questions first', icon: 'M12 2a7 7 0 00-7 7c0 2.4 1.2 4 2.5 5.2.5.5.5 1 .5 1.8h8c0-.8 0-1.3.5-1.8C17.8 13 19 11.4 19 9a7 7 0 00-7-7z M9 21h6 M10 18h4' },
-                { id: 'flash',    label: 'Flash',    hint: 'Fast — build straight away', icon: 'M13 2L3 14h7l-1 8 10-12h-7l1-8z' },
-                { id: 'thinking', label: 'Thinking', hint: 'Highest quality — slower, more polish', icon: 'M12 3a9 9 0 100 18 9 9 0 000-18z M12 8v4l3 2' },
+                { id: 'ideate',   label: 'Ideate',   hint: 'Explore ideas — asks questions first', icon: 'M12 2a7 7 0 00-7 7c0 2.4 1.2 4 2.5 5.2.5.5.5 1 .5 1.8h8c0-.8 0-1.3.5-1.8C17.8 13 19 11.4 19 9a7 7 0 00-7-7z M9 21h6 M10 18h4' },
+                { id: 'flash',    label: 'Flash',    hint: 'Fast generation — build straight away', icon: 'M13 2L3 14h7l-1 8 10-12h-7l1-8z' },
+                { id: 'thinking', label: 'Thinking', hint: 'Highest quality — refined layout and polish', icon: 'M12 3a9 9 0 100 18 9 9 0 000-18z M12 8v4l3 2' },
+                { id: 'redesign', label: 'Redesign', hint: 'Upload a screenshot to redesign', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
               ] as const).map((m) => (
                 <button
                   key={m.id}
-                  onClick={() => setBuildMode(m.id)}
+                  onClick={() => {
+                    setBuildMode(m.id);
+                    if (m.id === 'redesign') fileInputRef.current?.click();
+                  }}
                   title={m.hint}
                   disabled={isGenerating}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all disabled:opacity-40 ${
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-medium border transition-all disabled:opacity-40 ${
                     buildMode === m.id
                       ? 'border-primary/40 bg-primary/10 text-primary'
-                      : 'border-border/50 bg-surface/40 text-text-secondary hover:text-text-primary hover:border-primary/30'
+                      : 'border-border/50 bg-surface/30 text-text-secondary hover:text-text-primary hover:border-primary/30'
                   }`}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

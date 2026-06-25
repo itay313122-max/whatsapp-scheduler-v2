@@ -318,6 +318,18 @@ button, a, [role="button"] {
   transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
 }
 
+/* ── Stitch-style canvas workspace background ────────────────────────── */
+.canvas-bg {
+  background-color: var(--bg);
+  background-image: radial-gradient(circle, var(--border) 0.75px, transparent 0.75px);
+  background-size: 24px 24px;
+  background-position: 12px 12px;
+}
+html.dark .canvas-bg,
+.builder-dark .canvas-bg {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 0.75px, transparent 0.75px);
+}
+
 /* ── Resizable panel handles ──────────────────────────────────────────── */
 [data-separator] {
   width: 6px;
