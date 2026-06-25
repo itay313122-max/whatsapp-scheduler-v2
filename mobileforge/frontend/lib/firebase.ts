@@ -39,28 +39,56 @@ function getFirebaseApp(): FirebaseApp | null {
   if (typeof window === 'undefined') return null;
   if (!isConfigured()) return null;
   if (_app) return _app;
-  _app = getApps().length ? getApp() : initializeApp(getFirebaseConfig());
+  try {
+    _app = getApps().length ? getApp() : initializeApp(getFirebaseConfig());
+  } catch (e) {
+    // Bad/invalid config (e.g. a wrong API key in the env) must not crash the
+    // whole app — degrade to guest mode instead.
+    console.error('Firebase failed to initialize — running in guest mode.', e);
+    return null;
+  }
   return _app;
 }
 
 export function getFirebaseAuth(): Auth | null {
   const app = getFirebaseApp();
   if (!app) return null;
-  if (!_auth) _auth = getAuth(app);
+  if (!_auth) {
+    try {
+      _auth = getAuth(app);
+    } catch (e) {
+      console.error('Firebase Auth unavailable — running in guest mode.', e);
+      return null;
+    }
+  }
   return _auth;
 }
 
 export function getFirebaseDb(): Firestore | null {
   const app = getFirebaseApp();
   if (!app) return null;
-  if (!_db) _db = getFirestore(app);
+  if (!_db) {
+    try {
+      _db = getFirestore(app);
+    } catch (e) {
+      console.error('Firestore unavailable.', e);
+      return null;
+    }
+  }
   return _db;
 }
 
 export function getFirebaseStorage(): FirebaseStorage | null {
   const app = getFirebaseApp();
   if (!app) return null;
-  if (!_storage) _storage = getStorage(app);
+  if (!_storage) {
+    try {
+      _storage = getStorage(app);
+    } catch (e) {
+      console.error('Firebase Storage unavailable.', e);
+      return null;
+    }
+  }
   return _storage;
 }
 
@@ -123,14 +151,26 @@ export function isFirebaseConfigured(): boolean {
 }
 
 export function onAuthChange(callback: (user: User | null) => void) {
-  const auth = getFirebaseAuth();
+  let auth: Auth | null = null;
+  try {
+    auth = getFirebaseAuth();
+  } catch {
+    auth = null;
+  }
   if (!auth) {
-    // Firebase not configured — auto-create guest session for demo mode
+    // Firebase not configured / unavailable — auto-create guest session.
     const guest = createGuestUser() as unknown as User;
     setTimeout(() => callback(guest), 0);
     return () => {};
   }
-  return onAuthStateChanged(auth, callback);
+  try {
+    return onAuthStateChanged(auth, callback);
+  } catch (e) {
+    console.error('Auth listener failed — running in guest mode.', e);
+    const guest = createGuestUser() as unknown as User;
+    setTimeout(() => callback(guest), 0);
+    return () => {};
+  }
 }
 
 export { type User };
