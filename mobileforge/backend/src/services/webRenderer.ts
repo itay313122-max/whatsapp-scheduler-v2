@@ -971,6 +971,34 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>${safeName}</title>
+  <script>
+    /* MobileForge storage shim — the preview iframe is sandboxed WITHOUT
+       allow-same-origin (for security), so real localStorage/sessionStorage
+       throw a SecurityError on access. Generated apps frequently persist state
+       there, which would crash them to the error screen. We detect the failure
+       and transparently swap in an in-memory store so every app runs. */
+    (function () {
+      function memStore() {
+        var m = Object.create(null);
+        return {
+          getItem: function (k) { k = String(k); return k in m ? m[k] : null; },
+          setItem: function (k, v) { m[String(k)] = String(v); },
+          removeItem: function (k) { delete m[String(k)]; },
+          clear: function () { for (var k in m) delete m[k]; },
+          key: function (i) { return Object.keys(m)[i] != null ? Object.keys(m)[i] : null; },
+          get length() { return Object.keys(m).length; }
+        };
+      }
+      ['localStorage', 'sessionStorage'].forEach(function (name) {
+        var ok = false;
+        try { var s = window[name]; s.getItem('__mf_probe'); ok = true; } catch (e) { ok = false; }
+        if (!ok) {
+          try { Object.defineProperty(window, name, { value: memStore(), configurable: true, writable: false }); }
+          catch (e2) { try { window[name] = memStore(); } catch (e3) {} }
+        }
+      });
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Heebo:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />

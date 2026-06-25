@@ -28,6 +28,12 @@ async function callGroq(messages: ChatMessage[]): Promise<string> {
   return response.choices[0]?.message?.content ?? '';
 }
 
+// Gemini model fallback order. gemini-2.5-flash is the current, in-quota
+// workhorse; 2.0-flash is kept as a secondary in case 2.5 is unavailable on a
+// given key. (gemini-1.5-flash was REMOVED — it 404s on v1beta generateContent.)
+// Verified 2026-06: 2.5-flash → 200 OK, 2.0-flash → 429 quota, 1.5-flash → 404.
+const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash'] as const;
+
 async function callGemini(messages: ChatMessage[]): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) { const e = new Error('GEMINI_API_KEY not set'); (e as any).skip = true; throw e; }
@@ -37,28 +43,36 @@ async function callGemini(messages: ChatMessage[]): Promise<string> {
     .filter(m => m.role !== 'system')
     .map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents,
-        ...(systemMsg && { systemInstruction: { parts: [{ text: systemMsg.content }] } }),
-        generationConfig: { maxOutputTokens: 16384, temperature: 0.7 },
-      }),
+  let lastErr: Error | null = null;
+  for (const model of GEMINI_MODELS) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents,
+          ...(systemMsg && { systemInstruction: { parts: [{ text: systemMsg.content }] } }),
+          generationConfig: { maxOutputTokens: 16384, temperature: 0.7 },
+        }),
+      }
+    );
+    if (res.ok) {
+      const data = await res.json() as any;
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+      if (text) return text;
+      lastErr = new Error(`Gemini (${model}) returned empty response`);
+      continue;
     }
-  );
-  if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    const e = new Error(`Gemini ${res.status}: ${(err as any)?.error?.message ?? 'unknown'}`);
-    (e as any).status = res.status;
-    throw e;
+    lastErr = new Error(`Gemini ${model} ${res.status}: ${(err as any)?.error?.message ?? 'unknown'}`);
+    (lastErr as any).status = res.status;
+    // 429 (quota) / 404 (model gone) → try the next model. Other errors (e.g.
+    // 400 bad key) won't be fixed by switching models, so stop early.
+    if (res.status !== 429 && res.status !== 404) break;
+    console.warn(`[AI/web]   Gemini ${model} → ${res.status}, trying next model…`);
   }
-  const data = await res.json() as any;
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-  if (!text) throw new Error('Gemini returned empty response');
-  return text;
+  throw lastErr ?? new Error('Gemini failed');
 }
 
 async function callOpenRouter(messages: ChatMessage[]): Promise<string> {
