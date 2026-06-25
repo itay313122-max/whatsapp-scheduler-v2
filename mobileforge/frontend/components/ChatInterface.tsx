@@ -247,6 +247,9 @@ export default function ChatInterface({
   const [isGenerating, setIsGenerating] = useState(false);
   const [themes, setThemes] = useState<ThemeMeta[]>([]);
   const [selectedTheme, setSelectedTheme] = useState('');
+  // Stitch-style build modes: Ideate (explore via clarifying questions),
+  // Flash (fast direct build), Thinking (slower, higher-quality build).
+  const [buildMode, setBuildMode] = useState<'ideate' | 'flash' | 'thinking'>('flash');
 
   useEffect(() => { getThemes().then(setThemes); }, []);
 
@@ -573,13 +576,25 @@ export default function ChatInterface({
     setInput('');
     if (inputRef.current) inputRef.current.style.height = 'auto';
 
+    // Thinking mode → append a quality directive so the model invests more in
+    // layout, polish and depth (Stitch "Thinking"/Gemini-Pro equivalent).
+    const effectivePrompt = (!isEditMode && buildMode === 'thinking')
+      ? `${prompt}\n\n[Build at the highest quality: refined layout, careful spacing, real depth and polish — a flagship, $100M-product result.]`
+      : prompt;
+
     // EDIT mode → build directly, no planning questions.
     if (isEditMode) {
       await runBuild(prompt, { isEditMode: true, existingCode, history });
       return;
     }
 
-    // FIRST build → Chat-Mode planning phase. Ask a few quick questions if it
+    // Flash / Thinking → build straight away, skip the clarifying-questions step.
+    if (buildMode !== 'ideate') {
+      await runBuild(effectivePrompt, { isEditMode: false, existingCode: undefined, history });
+      return;
+    }
+
+    // Ideate → Chat-Mode planning phase. Ask a few quick questions if it
     // would improve the result, otherwise build straight away.
     setGenerating(true);
     const planMsg: Message = {
@@ -1067,6 +1082,34 @@ export default function ChatInterface({
             <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-xl bg-primary/5 border border-primary/15">
               <span className="text-primary text-xs">✏️</span>
               <span className="text-primary/80 text-[11px] font-medium">Describe what to change — or tap a quick improvement above</span>
+            </div>
+          )}
+
+          {/* Stitch-style build-mode selector — only on first build (not edits) */}
+          {!(messages.some((m) => m.result) || currentAppResult) && (
+            <div className="flex items-center gap-1 mb-2" dir="ltr">
+              {([
+                { id: 'ideate',   label: 'Ideate',   hint: 'Explore — a few quick questions first', icon: 'M12 2a7 7 0 00-7 7c0 2.4 1.2 4 2.5 5.2.5.5.5 1 .5 1.8h8c0-.8 0-1.3.5-1.8C17.8 13 19 11.4 19 9a7 7 0 00-7-7z M9 21h6 M10 18h4' },
+                { id: 'flash',    label: 'Flash',    hint: 'Fast — build straight away', icon: 'M13 2L3 14h7l-1 8 10-12h-7l1-8z' },
+                { id: 'thinking', label: 'Thinking', hint: 'Highest quality — slower, more polish', icon: 'M12 3a9 9 0 100 18 9 9 0 000-18z M12 8v4l3 2' },
+              ] as const).map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setBuildMode(m.id)}
+                  title={m.hint}
+                  disabled={isGenerating}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all disabled:opacity-40 ${
+                    buildMode === m.id
+                      ? 'border-primary/40 bg-primary/10 text-primary'
+                      : 'border-border/50 bg-surface/40 text-text-secondary hover:text-text-primary hover:border-primary/30'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d={m.icon} />
+                  </svg>
+                  {m.label}
+                </button>
+              ))}
             </div>
           )}
 
