@@ -251,6 +251,8 @@ export default function ChatInterface({
   // Flash (fast direct build), Thinking (slower, higher-quality build),
   // Redesign (upload screenshot/image to transform).
   const [buildMode, setBuildMode] = useState<'ideate' | 'flash' | 'thinking' | 'redesign'>('flash');
+  // Stitch-style platform target: App (mobile-first) or Web (desktop-first)
+  const [targetPlatform, setTargetPlatform] = useState<'app' | 'web'>('app');
 
   useEffect(() => { getThemes().then(setThemes); }, []);
 
@@ -577,11 +579,16 @@ export default function ChatInterface({
     setInput('');
     if (inputRef.current) inputRef.current.style.height = 'auto';
 
+    // Platform targeting — prepend a context hint so the AI generates the right layout.
+    const platformHint = targetPlatform === 'web'
+      ? '[Target: responsive desktop web page — full-width layout, sidebar navigation, large typography, desktop-optimized spacing.]'
+      : '[Target: mobile app — single-column layout, bottom navigation, touch-friendly sizing, compact spacing.]';
+
     // Thinking mode → append a quality directive so the model invests more in
     // layout, polish and depth (Stitch "Thinking"/Gemini-Pro equivalent).
     const effectivePrompt = (!isEditMode && buildMode === 'thinking')
-      ? `${prompt}\n\n[Build at the highest quality: refined layout, careful spacing, real depth and polish — a flagship, $100M-product result.]`
-      : prompt;
+      ? `${prompt}\n\n${platformHint}\n\n[Build at the highest quality: refined layout, careful spacing, real depth and polish — a flagship, $100M-product result.]`
+      : (!isEditMode ? `${prompt}\n\n${platformHint}` : prompt);
 
     // EDIT mode → build directly, no planning questions.
     if (isEditMode) {
@@ -749,44 +756,11 @@ export default function ChatInterface({
                 </div>
               </div>
 
-              {/* Design theme picker */}
-              {themes.length > 0 && (
-                <div className="w-full max-w-sm">
-                  <p className="text-text-secondary text-xs font-medium mb-2 text-left">Design theme</p>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => setSelectedTheme('')}
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-medium transition-all ${
-                        selectedTheme === '' ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-surface/40 text-text-secondary hover:border-primary/30'
-                      }`}
-                    >
-                      Automatic
-                    </button>
-                    {themes.map((t) => (
-                      <button
-                        key={t.id}
-                        onClick={() => setSelectedTheme(t.id)}
-                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-medium transition-all ${
-                          selectedTheme === t.id ? 'border-primary bg-primary/10 text-primary' : 'border-border/50 bg-surface/40 text-text-secondary hover:border-primary/30'
-                        }`}
-                      >
-                        <span className="flex -space-x-1">
-                          {t.swatches.map((c, i) => (
-                            <span key={i} className="w-3 h-3 rounded-full border border-white/40" style={{ background: c }} />
-                          ))}
-                        </span>
-                        {t.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Divider */}
               <div className="flex items-center gap-3 w-full max-w-sm">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-text-secondary text-xs">or</span>
-                <div className="flex-1 h-px bg-border" />
+                <div className="flex-1 h-px bg-border/50" />
+                <span className="text-text-secondary text-[11px]">or use</span>
+                <div className="flex-1 h-px bg-border/50" />
               </div>
 
               {/* Input methods row */}
@@ -1081,9 +1055,36 @@ export default function ChatInterface({
             </div>
           )}
 
-          {/* Stitch-style build-mode selector — only on first build (not edits) */}
+          {/* Stitch-style controls — only on first build (not edits) */}
           {!(messages.some((m) => m.result) || currentAppResult) && (
-            <div className="flex items-center gap-1 mb-2" dir="ltr">
+            <div className="flex items-center gap-2 mb-2" dir="ltr">
+              {/* Platform target: App vs Web */}
+              <div className="flex items-center gap-0.5 p-0.5 rounded-xl bg-surface/50 border border-border/40">
+                {([
+                  { id: 'app', label: 'App', icon: 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z' },
+                  { id: 'web', label: 'Web', icon: 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9' },
+                ] as const).map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setTargetPlatform(p.id)}
+                    disabled={isGenerating}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all disabled:opacity-40 ${
+                      targetPlatform === p.id
+                        ? 'bg-primary/15 text-primary'
+                        : 'text-text-secondary hover:text-text-primary'
+                    }`}
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={p.icon} />
+                    </svg>
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="h-4 w-px bg-border/30" />
+
+              {/* Build mode selector */}
               {([
                 { id: 'ideate',   label: 'Ideate',   hint: 'Explore ideas — asks questions first', icon: 'M12 2a7 7 0 00-7 7c0 2.4 1.2 4 2.5 5.2.5.5.5 1 .5 1.8h8c0-.8 0-1.3.5-1.8C17.8 13 19 11.4 19 9a7 7 0 00-7-7z M9 21h6 M10 18h4' },
                 { id: 'flash',    label: 'Flash',    hint: 'Fast generation — build straight away', icon: 'M13 2L3 14h7l-1 8 10-12h-7l1-8z' },
@@ -1098,13 +1099,13 @@ export default function ChatInterface({
                   }}
                   title={m.hint}
                   disabled={isGenerating}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-medium border transition-all disabled:opacity-40 ${
+                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-[11px] font-medium border transition-all disabled:opacity-40 ${
                     buildMode === m.id
                       ? 'border-primary/40 bg-primary/10 text-primary'
-                      : 'border-border/50 bg-surface/30 text-text-secondary hover:text-text-primary hover:border-primary/30'
+                      : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border/40'
                   }`}
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d={m.icon} />
                   </svg>
                   {m.label}
