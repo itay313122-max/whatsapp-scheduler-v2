@@ -25,11 +25,17 @@ interface Message {
   planLocked?: boolean;
 }
 
+// Stitch-style agent build log — a sequence of concrete steps the "agent"
+// works through. Durations are tuned so the log keeps progressing across the
+// full ~30s generation instead of stalling on the last line.
 const LOADING_STEPS = [
-  { label: 'Analyzing your request…', icon: '🧠', duration: 1200 },
-  { label: 'Designing the interface…', icon: '🎨', duration: 2000 },
-  { label: 'Building the code…', icon: '⚡', duration: 3000 },
-  { label: 'Finishing touches…', icon: '✨', duration: 2000 },
+  { label: 'Understanding your idea…',        icon: '🧠', duration: 2500 },
+  { label: 'Planning screens & navigation…',  icon: '🗺️', duration: 4000 },
+  { label: 'Choosing layout & components…',   icon: '🧩', duration: 4500 },
+  { label: 'Designing the visual system…',    icon: '🎨', duration: 4500 },
+  { label: 'Writing the React code…',         icon: '⚡', duration: 6000 },
+  { label: 'Wiring up interactions…',         icon: '🔗', duration: 4500 },
+  { label: 'Polishing & final touches…',      icon: '✨', duration: 4000 },
 ];
 
 type AppCategory = 'store' | 'restaurant' | 'fitness' | 'tasks' | 'finance' | 'social' | 'weather' | 'learning' | 'general';
@@ -467,15 +473,22 @@ export default function ChatInterface({
     setGenerating(true);
 
     const loadingId = loadingMsg.id;
-    let stepIdx = 0;
-    const stepInterval = setInterval(() => {
-      stepIdx++;
-      if (stepIdx < LOADING_STEPS.length) {
-        setMessages((prev) =>
-          prev.map((m) => (m.id === loadingId ? { ...m, loadingStep: stepIdx } : m))
-        );
-      }
-    }, LOADING_STEPS[0].duration);
+    // Advance the agent log using each step's own duration (chained timeouts) so
+    // it progresses across the whole generation instead of stalling on step 1.
+    // We hold on the final step until the real result arrives.
+    const stepTimers: ReturnType<typeof setTimeout>[] = [];
+    let elapsed = 0;
+    for (let i = 1; i < LOADING_STEPS.length; i++) {
+      elapsed += LOADING_STEPS[i - 1].duration;
+      stepTimers.push(
+        setTimeout(() => {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === loadingId ? { ...m, loadingStep: i } : m))
+          );
+        }, elapsed)
+      );
+    }
+    const clearStepTimers = () => stepTimers.forEach(clearTimeout);
 
     try {
       const result = await generateApp({
@@ -509,7 +522,7 @@ export default function ChatInterface({
         },
       ]);
     } finally {
-      clearInterval(stepInterval);
+      clearStepTimers();
       setGenerating(false);
     }
   }

@@ -1031,6 +1031,10 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
     var selected = null;
     var toolbar = null;
     var editing = false;
+    // Play / prototype mode — when on, the click-to-edit overlay stands down so
+    // the generated app's OWN buttons and navigation are fully interactive
+    // (Stitch-style "instant prototype"). Toggled from the builder via postMessage.
+    var playMode = false;
     // Click-to-edit is only meaningful inside the builder (the preview iframe).
     // In a standalone/shared page opened directly on a device, it must stay off.
     var __embedded = (function() { try { return window.self !== window.top; } catch(e) { return true; } })();
@@ -1122,7 +1126,7 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
     if (__embedded) {
     // Hover
     document.addEventListener('mouseover', function(e) {
-      if (editing) return;
+      if (editing || playMode) return;
       var el = e.target.closest(EDITABLE);
       if (!el || el.id === '__mf_toolbar' || el.closest('#__mf_toolbar') || el.id === '__err') return;
       el.style.outline = '2px dashed rgba(99,102,241,0.5)';
@@ -1135,7 +1139,7 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
 
     // Click
     document.addEventListener('click', function(e) {
-      if (editing) return;
+      if (editing || playMode) return;
       // Let navigation tabs work normally — don't intercept them for editing
       if (e.target.closest && e.target.closest('.nav-tab')) return;
       var el = e.target.closest(EDITABLE);
@@ -1177,6 +1181,7 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
 
     // Double-click to edit directly
     document.addEventListener('dblclick', function(e) {
+      if (playMode) return;
       var el = e.target.closest(EDITABLE);
       if (!el || el.id === '__mf_toolbar' || el.closest('#__mf_toolbar')) return;
       e.preventDefault();
@@ -1202,6 +1207,7 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
 
     // Click on empty space to deselect
     document.addEventListener('click', function(e) {
+      if (editing || playMode) return;
       if (!e.target.closest(EDITABLE) && !e.target.closest('#__mf_toolbar')) {
         clearSelection();
         try { window.parent.postMessage({ type: 'mf-element-deselected' }, '*'); } catch(x) {}
@@ -1279,6 +1285,17 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
 
       if (d.type === 'mf-deselect') {
         clearSelection();
+      }
+
+      // Toggle play / prototype mode — stand the edit overlay down (or back up)
+      // so the app's own controls become fully interactive.
+      if (d.type === 'mf-set-play') {
+        playMode = !!d.on;
+        if (playMode) {
+          clearSelection();
+          try { window.parent.postMessage({ type: 'mf-element-deselected' }, '*'); } catch(x) {}
+        }
+        document.body.style.cursor = '';
       }
     });
 

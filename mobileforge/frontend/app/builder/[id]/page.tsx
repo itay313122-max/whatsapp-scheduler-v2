@@ -408,6 +408,13 @@ function BuilderContent() {
   const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [builderStep, setBuilderStep] = useState<BuilderStep>('describe');
+  // Play / prototype mode — when on, the in-app edit overlay stands down so the
+  // generated app is fully interactive (navigate, tap, type), Stitch-style.
+  const [playMode, setPlayMode] = useState(false);
+  // Annotate mode — Stitch-style: pick an element on the canvas and describe a
+  // change to it in plain words; the AI applies it scoped to that element.
+  const [annotateMode, setAnnotateMode] = useState(false);
+  const [annotateText, setAnnotateText] = useState('');
 
   // ── Version History ──────────────────────────────────────────────────────
   const [versions, setVersions] = useState<GenerateResponse[]>([]);
@@ -660,6 +667,60 @@ function BuilderContent() {
   const handleNavigateScreen = useCallback((index: number) => {
     iframeRef.current?.contentWindow?.postMessage({ type: 'mf-navigate', index }, '*');
   }, []);
+
+  // Tell the preview iframe to enter/leave play mode. Entering play deselects
+  // any element being edited so the two modes never fight.
+  const sendPlayState = useCallback((on: boolean) => {
+    iframeRef.current?.contentWindow?.postMessage({ type: 'mf-set-play', on }, '*');
+  }, []);
+
+  const handleTogglePlay = useCallback(() => {
+    setPlayMode((prev) => {
+      const next = !prev;
+      if (next) { setSelectedElement(null); setAnnotateMode(false); }
+      sendPlayState(next);
+      return next;
+    });
+  }, [sendPlayState]);
+
+  const handleToggleAnnotate = useCallback(() => {
+    setAnnotateMode((prev) => {
+      const next = !prev;
+      if (next && playMode) { setPlayMode(false); sendPlayState(false); }
+      if (!next) { setAnnotateText(''); handleDeselectElement(); }
+      return next;
+    });
+  // handleDeselectElement is stable (defined below); intentionally omitted to avoid TDZ.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playMode, sendPlayState]);
+
+  // Submit a natural-language annotation scoped to the selected element. We pass
+  // the element's tag and text so the AI knows exactly which part to change.
+  const handleSubmitAnnotation = useCallback(() => {
+    const el = selectedElementRef.current;
+    const desc = annotateText.trim();
+    if (!desc || !el) return;
+    const target = (el.text || '').trim().slice(0, 60);
+    const where = target ? `the <${el.tag}> element with the text "${target}"` : `the selected <${el.tag}> element`;
+    const prompt =
+      `Make this change to ${where}: ${desc}. ` +
+      `Apply it ONLY to that element/region and keep the rest of the app exactly the same ` +
+      `(same screens, state, functions, navigation, layout and styling elsewhere).`;
+    setAnnotateText('');
+    setAnnotateMode(false);
+    handleStructureEdit(prompt);
+    handleDeselectElement();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [annotateText, handleStructureEdit]);
+
+  // The iframe reloads whenever the app or theme changes, which resets its
+  // internal play flag. Re-assert the current play state shortly after so the
+  // mode "sticks" across regenerations and design tweaks.
+  useEffect(() => {
+    if (!currentResult?.htmlDoc) return;
+    const t = setTimeout(() => sendPlayState(playMode), 600);
+    return () => clearTimeout(t);
+  }, [playMode, currentResult?.htmlDoc, editSettings, sendPlayState]);
 
   // Record a visual edit (with the element's context) so it can later be baked
   // into the source code via the AI edit pipeline.
@@ -1088,6 +1149,43 @@ function BuilderContent() {
                 Code
               </button>
 
+              {/* Play / Prototype toggle — make the app fully interactive */}
+              {rightPanel === 'preview' && (
+                <>
+                  <div className="h-4 w-px bg-border/50 mx-1" />
+                  <button
+                    onClick={handleTogglePlay}
+                    aria-label={playMode ? 'Exit play mode' : 'Enter play mode'}
+                    title={playMode ? 'Editing mode — tap elements to edit' : 'Play mode — interact with the app like a real user'}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${playMode ? 'bg-green-500/15 text-green-400' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                  >
+                    {playMode ? (
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 5h4v14H6zM14 5h4v14h-4z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    )}
+                    {playMode ? 'Playing' : 'Play'}
+                  </button>
+
+                  {/* Annotate — pick an element, describe a change in words */}
+                  <button
+                    onClick={handleToggleAnnotate}
+                    aria-label={annotateMode ? 'Exit annotate mode' : 'Enter annotate mode'}
+                    title="Annotate — tap any element and describe the change you want"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${annotateMode ? 'bg-amber-500/15 text-amber-400' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Annotate
+                  </button>
+                </>
+              )}
+
               {/* Multi-screen tabs inline */}
               {appScreens.length > 1 && (
                 <>
@@ -1148,8 +1246,55 @@ function BuilderContent() {
                         />
                       </ErrorBoundary>
 
-                      {/* Figma-style visual editing toolbar */}
-                      {selectedElement && (
+                      {/* Annotate mode hint — shown until an element is picked */}
+                      {annotateMode && !selectedElement && (
+                        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+                          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-medium shadow-lg backdrop-blur-xl">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            Tap any element to describe a change
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Annotate input — appears once an element is selected */}
+                      {annotateMode && selectedElement ? (
+                        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 w-[320px] max-w-[90%]">
+                          <div className="p-2.5 rounded-2xl bg-surface/95 border border-amber-500/30 shadow-2xl backdrop-blur-xl" dir="ltr">
+                            <div className="flex items-center gap-1.5 mb-1.5 px-1">
+                              <span className="w-2 h-2 rounded-full bg-amber-400" />
+                              <span className="text-[11px] font-semibold text-text-primary">
+                                Change &lt;{selectedElement.tag}&gt;
+                                {selectedElement.text ? <span className="text-text-secondary font-normal"> · {selectedElement.text.trim().slice(0, 28)}</span> : null}
+                              </span>
+                              <button onClick={handleDeselectElement} className="ml-auto text-text-secondary hover:text-text-primary" aria-label="Cancel annotation">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                              </button>
+                            </div>
+                            <div className="flex items-end gap-1.5">
+                              <textarea
+                                value={annotateText}
+                                onChange={(e) => setAnnotateText(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmitAnnotation(); } }}
+                                placeholder='e.g. "make it bigger and blue" or "change the text to Checkout"'
+                                rows={2}
+                                autoFocus
+                                className="flex-1 bg-surface-2/60 text-text-primary placeholder-text-secondary text-xs rounded-xl px-2.5 py-2 resize-none outline-none border border-border/50 focus:border-amber-500/50 leading-relaxed"
+                              />
+                              <button
+                                onClick={handleSubmitAnnotation}
+                                disabled={!annotateText.trim() || isGenerating}
+                                aria-label="Apply annotation"
+                                className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center bg-amber-500 text-white disabled:opacity-30 hover:bg-amber-600 transition-all"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12l7-7 7 7M12 5v14" /></svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : selectedElement && (
+                        /* Figma-style visual editing toolbar (normal edit mode) */
                         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
                           <FigmaToolbar
                             element={selectedElement}
