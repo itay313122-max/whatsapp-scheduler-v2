@@ -4,10 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { logout, onAuthChange, type User } from '@/lib/firebase';
+import { useTheme } from '@/contexts/ThemeContext';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const pathname = usePathname();
+  const { theme } = useTheme();
 
   useEffect(() => {
     return onAuthChange(setUser);
@@ -16,11 +19,11 @@ export default function Navbar() {
   const isBuilder = pathname?.startsWith('/builder');
   if (isBuilder) return null;
 
-  // The landing page is dark; other pages (dashboard, auth) stay light.
-  const isHome = pathname === '/';
+  // The bar follows the selected theme so it stays consistent on every page.
+  const isDark = theme === 'dark';
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-xl elevation-1 ${isHome ? 'bg-[#0A0A0B]/70 border-white/10' : 'border-border bg-white/80'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-xl elevation-1 ${isDark ? 'bg-[#0A0A0B]/70 border-white/10' : 'border-border bg-white/80'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
@@ -46,6 +49,7 @@ export default function Navbar() {
 
         {/* Auth */}
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           {user ? (
             <>
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2 border border-border">

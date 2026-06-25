@@ -14,6 +14,8 @@ import FigmaToolbar from '@/components/FigmaToolbar';
 import ForgeAssistant from '@/components/ForgeAssistant';
 import AssistantToggle from '@/components/AssistantToggle';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import ThemeToggle from '@/components/ThemeToggle';
 import { getProject, generateApp, shareApp, pushLive, liveUrl } from '@/lib/api';
 import type { GenerateResponse, ProjectContext } from '@/lib/api';
 import { saveLocalProject, getLocalProject } from '@/lib/localProjects';
@@ -474,6 +476,7 @@ function BuilderContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, isGuest, enterGuestMode } = useAuth();
+  const { theme } = useTheme();
   const projectId = params.id as string;
 
   const [project, setProject] = useState<Project | null>(null);
@@ -865,7 +868,7 @@ function BuilderContent() {
   }
 
   return (
-    <div className="h-screen bg-bg text-text-primary flex flex-col overflow-hidden builder-dark" dir="ltr">
+    <div className={`h-screen bg-bg text-text-primary flex flex-col overflow-hidden ${theme === 'dark' ? 'builder-dark' : ''}`} dir="ltr">
       {/* Toast notification */}
       {toast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] animate-fade-in-up">
@@ -939,6 +942,7 @@ function BuilderContent() {
 
         {/* Right side — Version history, Share & Export */}
         <div className="flex items-center gap-1.5">
+          <ThemeToggle className="mr-1" />
           {currentResult && (
             <>
               {/* Undo / Redo */}
@@ -1313,7 +1317,7 @@ function BuilderContent() {
 
         {/* Empty state — Lovable-inspired minimal */}
         {!currentResult && (
-          <Panel id="empty" defaultSize="70%" minSize="40%" className="hidden md:flex items-center justify-center text-text-secondary bg-[#0D0D0F]" style={{ backgroundImage: 'radial-gradient(circle at 50% 40%, rgba(139,92,246,0.08) 0%, transparent 50%)' }}>
+          <Panel id="empty" defaultSize="70%" minSize="40%" className="hidden md:flex items-center justify-center text-text-secondary bg-bg" style={{ backgroundImage: 'radial-gradient(circle at 50% 40%, rgba(139,92,246,0.10) 0%, transparent 55%)' }}>
             <div className="text-center max-w-sm">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/20 flex items-center justify-center mx-auto mb-5">
                 <svg className="w-7 h-7 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

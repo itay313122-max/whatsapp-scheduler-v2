@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import BuildDemo from '@/components/BuildDemo';
 import { createLocalProjectId } from '@/lib/localProjects';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const TEMPLATES = [
   { emoji: '🛍️', name: 'Online Store', prompt: 'Build me an online store app with a product catalog, shopping cart, and checkout screen', gradient: 'from-purple-500 to-pink-500' },
@@ -131,6 +132,7 @@ function HeroAppMockup() {
 
 export default function LandingPage() {
   const router = useRouter();
+  const { theme } = useTheme();
   const [prompt, setPrompt] = useState('');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -142,7 +144,7 @@ export default function LandingPage() {
   }
 
   return (
-    <main className="theme-dark min-h-screen text-text-primary overflow-x-hidden bg-bg" dir="ltr">
+    <main className={`${theme === 'dark' ? 'theme-dark' : ''} min-h-screen text-text-primary overflow-x-hidden bg-bg`} dir="ltr">
       <Navbar />
 
       {/* ── Hero with Input ─────────────────────────────────────────────── */}

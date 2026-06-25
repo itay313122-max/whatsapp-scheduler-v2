@@ -51,12 +51,22 @@ html.dark,
   --text-soft: #6B7280;
   --border: #2A2A2E;
 }
+/* These utility remaps apply both under the scoped landing wrapper (.theme-dark)
+   and globally whenever the user-selected dark theme is active (html.dark), so
+   every page — landing, builder, dashboard, auth — responds to the theme toggle. */
+html.dark .text-text-primary,
 .theme-dark .text-text-primary { color: var(--text-primary); }
+html.dark .text-text-secondary,
 .theme-dark .text-text-secondary { color: var(--text-secondary); }
+html.dark .text-text-soft,
 .theme-dark .text-text-soft { color: var(--text-soft); }
+html.dark .bg-bg,
 .theme-dark .bg-bg { background-color: var(--bg); }
+html.dark .bg-surface,
 .theme-dark .bg-surface { background-color: var(--surface); }
+html.dark .bg-surface-2,
 .theme-dark .bg-surface-2 { background-color: var(--surface-2); }
+html.dark .border-border,
 .theme-dark .border-border { border-color: var(--border); }
 .theme-dark .hero-bg { background: linear-gradient(135deg, #0F172A 0%, #1E1338 50%, #0F0F10 100%); }
 .theme-dark .gradient-text {

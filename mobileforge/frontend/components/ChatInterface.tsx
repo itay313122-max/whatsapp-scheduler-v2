@@ -123,7 +123,8 @@ const TEMPLATES = [
     emoji: '🛍️',
     name: 'Online Store',
     desc: 'Product catalog, cart and checkout',
-    gradient: 'from-violet-500/15 to-purple-500/10',
+    recommended: true,
+    gradient: 'from-violet-500/40 to-purple-500/25',
     border: 'border-violet-200/60',
     prompt: "Build a polished online store app with a product catalog (6 items with emoji, name, price), a shopping cart with add and remove, and a checkout screen. Bottom navigation between catalog, cart and profile. Modern design with a gradient banner and empty states",
   },
@@ -132,7 +133,8 @@ const TEMPLATES = [
     emoji: '🍕',
     name: 'Restaurant App',
     desc: 'Menu, orders and delivery status',
-    gradient: 'from-orange-500/15 to-red-500/10',
+    recommended: true,
+    gradient: 'from-orange-500/40 to-red-500/25',
     border: 'border-orange-200/60',
     prompt: "Build a polished restaurant app with a menu split into categories (mains, sides, drinks, desserts), each dish with an emoji, name, price and short description. Ability to add to an order, an order summary screen with a total, and a delivery status screen. Warm design with orange and red colors",
   },
@@ -141,7 +143,7 @@ const TEMPLATES = [
     emoji: '💪',
     name: 'Fitness App',
     desc: 'Workouts, progress tracking and timer',
-    gradient: 'from-red-500/15 to-pink-500/10',
+    gradient: 'from-red-500/40 to-pink-500/25',
     border: 'border-red-200/60',
     prompt: "Build a fitness app with a list of workouts (strength, cardio, yoga, HIIT), each workout with exercises, sets and reps. A workout timer with a stopwatch, a progress tracking screen with a weekly chart (bars), and a profile screen with statistics. Energetic design with red and pink colors",
   },
@@ -150,7 +152,8 @@ const TEMPLATES = [
     emoji: '✅',
     name: 'Task Manager',
     desc: 'Tasks, categories and progress bar',
-    gradient: 'from-emerald-500/15 to-green-500/10',
+    recommended: true,
+    gradient: 'from-emerald-500/40 to-green-500/25',
     border: 'border-emerald-200/60',
     prompt: "Build a task management app with adding new tasks, marking complete, deleting, filtering (all/active/completed), a visual progress bar with percentages, and colorful categories (work, personal, shopping). Clean design in green",
   },
@@ -159,7 +162,7 @@ const TEMPLATES = [
     emoji: '💰',
     name: 'Budget Tracker',
     desc: 'Expenses, income and charts',
-    gradient: 'from-emerald-500/15 to-teal-500/10',
+    gradient: 'from-emerald-500/40 to-teal-500/25',
     border: 'border-teal-200/60',
     prompt: "Build a personal budget tracking app with a main screen showing the balance, income and expenses for the month. Ability to add an expense/income with a category (food, transport, entertainment, bills), a transaction history, and a summary screen broken down by category. Financial design in green-blue",
   },
@@ -168,7 +171,7 @@ const TEMPLATES = [
     emoji: '💬',
     name: 'Social Network',
     desc: 'Feed, profile and likes',
-    gradient: 'from-blue-500/15 to-cyan-500/10',
+    gradient: 'from-blue-500/40 to-cyan-500/25',
     border: 'border-blue-200/60',
     prompt: "Build a social network app with a post feed (cards with avatar, name, content, likes and comments), a profile screen with a photo, statistics and posts, a messages screen, and a button to create a new post. Modern design in blue",
   },
@@ -177,7 +180,7 @@ const TEMPLATES = [
     emoji: '🌤️',
     name: 'Weather',
     desc: 'Forecast, temperature and map',
-    gradient: 'from-sky-500/15 to-blue-500/10',
+    gradient: 'from-sky-500/40 to-blue-500/25',
     border: 'border-sky-200/60',
     prompt: "Build a weather app with a main screen showing a large current temperature, the weather condition with an emoji, an hourly forecast (horizontal scroll), a weekly forecast (7 days), and additional details (humidity, wind, UV). Clean design with a blue-purple gradient",
   },
@@ -186,7 +189,7 @@ const TEMPLATES = [
     emoji: '📚',
     name: 'Learning Platform',
     desc: 'Courses, lessons and progress',
-    gradient: 'from-indigo-500/15 to-violet-500/10',
+    gradient: 'from-indigo-500/40 to-violet-500/25',
     border: 'border-indigo-200/60',
     prompt: "Build a learning app with a course catalog (6 courses with emoji, name, instructor, number of lessons), a course screen with a lesson list and completion marking, a progress bar, and a profile screen with learning statistics. Academic design in indigo",
   },
@@ -700,7 +703,11 @@ export default function ChatInterface({
               <div className="w-full max-w-sm">
                 <p className="text-text-secondary text-xs font-medium mb-2 text-left">Start from a ready-made template</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {TEMPLATES.map((t) => (
+                  {[...TEMPLATES]
+                    .sort((a, b) => Number(Boolean((b as { recommended?: boolean }).recommended)) - Number(Boolean((a as { recommended?: boolean }).recommended)))
+                    .map((t) => {
+                    const isRecommended = Boolean((t as { recommended?: boolean }).recommended);
+                    return (
                     <button
                       key={t.id}
                       onClick={() => {
@@ -708,9 +715,14 @@ export default function ChatInterface({
                         setTimeout(() => handleSubmit(t.prompt), 50);
                       }}
                       disabled={isGenerating}
-                      className="flex items-center gap-2.5 p-3 rounded-xl border border-border/50 bg-surface/40 text-left transition-all hover:bg-surface/70 hover:border-primary/30 active:scale-[0.98] disabled:opacity-40"
+                      className={`group relative flex items-center gap-2.5 p-3 rounded-xl border bg-surface/40 text-left transition-all hover:bg-surface/80 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-40 ${isRecommended ? 'border-primary/40' : 'border-border/50 hover:border-primary/40'}`}
                     >
-                      <div className="w-9 h-9 rounded-lg bg-surface/60 border border-border/30 flex items-center justify-center flex-shrink-0 text-lg">
+                      {isRecommended && (
+                        <span className="absolute -top-1.5 -right-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white text-[8px] font-bold shadow-sm" title="Recommended">
+                          <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 7.1-1.01L12 2z" /></svg>
+                        </span>
+                      )}
+                      <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${t.gradient} ring-1 ring-white/10 flex items-center justify-center flex-shrink-0 text-lg shadow-sm transition-transform group-hover:scale-110`}>
                         {t.emoji}
                       </div>
                       <div className="min-w-0">
@@ -718,7 +730,8 @@ export default function ChatInterface({
                         <p className="text-text-secondary text-[11px] truncate">{t.desc}</p>
                       </div>
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

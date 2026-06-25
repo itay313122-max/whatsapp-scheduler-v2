@@ -1248,7 +1248,7 @@ describe('Live sync route', () => {
   it('serves a waiting placeholder for an unknown session doc', async () => {
     const res = await request.get('/api/live/never-seen/doc');
     expect(res.status).toBe(200);
-    expect(res.text).toContain('ממתין');
+    expect(res.text).toContain('Waiting');
   });
 
   it('serves the wrapper page that connects to the live stream', async () => {
@@ -1268,12 +1268,18 @@ describe('Feedback route', () => {
   let request: any;
 
   beforeAll(() => {
+    // The feedback list endpoint is admin-protected; give the test a known token.
+    process.env.ADMIN_TOKEN = 'test-admin-token';
     const express = require('express');
     const feedbackRouter = require('../src/routes/feedback').default;
     app = express();
     app.use(express.json());
     app.use('/api/feedback', feedbackRouter);
     request = require('supertest')(app);
+  });
+
+  afterAll(() => {
+    delete process.env.ADMIN_TOKEN;
   });
 
   it('rejects feedback with no text', async () => {
@@ -1290,7 +1296,7 @@ describe('Feedback route', () => {
 
   it('lists feedback with a count and average rating', async () => {
     await request.post('/api/feedback').send({ text: 'nice', rating: 4 });
-    const res = await request.get('/api/feedback');
+    const res = await request.get('/api/feedback').set('x-admin-token', 'test-admin-token');
     expect(res.status).toBe(200);
     expect(res.body.count).toBeGreaterThan(0);
     expect(Array.isArray(res.body.feedback)).toBe(true);
@@ -1300,7 +1306,7 @@ describe('Feedback route', () => {
   it('clamps rating to 0–5', async () => {
     const res = await request.post('/api/feedback').send({ text: 'x', rating: 99 });
     expect(res.status).toBe(200);
-    const list = await request.get('/api/feedback');
+    const list = await request.get('/api/feedback').set('x-admin-token', 'test-admin-token');
     expect(list.body.feedback.every((f: any) => f.rating >= 0 && f.rating <= 5)).toBe(true);
   });
 });
@@ -1381,7 +1387,7 @@ describe('Rate limit middleware', () => {
     const res = await request.post('/g').set('Authorization', 'Bearer client-B');
     expect(res.status).toBe(429);
     expect(res.body.error).toBe('RATE_LIMITED');
-    expect(res.body.message).toMatch(/בקשות/);
+    expect(res.body.message).toMatch(/Too many requests/i);
     expect(res.headers['retry-after']).toBe('60');
   });
 
