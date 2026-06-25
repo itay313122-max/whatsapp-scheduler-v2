@@ -480,10 +480,13 @@ export default function ChatInterface({
         existingCode: ctx.existingCode,
         theme: ctx.isEditMode ? undefined : (selectedTheme || undefined),
       });
+      const demoWarning = result.demoMode
+        ? '\n\n⚠️ Demo Mode — AI providers are not connected. This is a pre-built template, not a custom app. Configure a valid GROQ_API_KEY in the backend to enable real AI generation.'
+        : '';
       const assistantMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: result.hebrewSummary,
+        content: result.hebrewSummary + demoWarning,
         result,
         timestamp: new Date(),
       };

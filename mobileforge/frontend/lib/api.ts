@@ -51,6 +51,8 @@ export interface GenerateResponse {
   snackId: string;       // legacy — empty for web-mode apps
   embedUrl: string;      // legacy — empty for web-mode apps
   shareUrl: string;      // legacy — empty for web-mode apps
+  demoMode?: boolean;
+  demoReason?: string;
 }
 
 export async function generateApp(req: GenerateRequest): Promise<GenerateResponse> {

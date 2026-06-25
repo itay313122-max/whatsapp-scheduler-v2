@@ -921,10 +921,11 @@ describe('Demo mode — getDemoResponse', () => {
     expect(parsed.appName).toBe('TaskFlow');
   });
 
-  it('falls back to calculator for unknown prompts', () => {
+  it('falls back to a varied demo for unknown prompts', () => {
     const raw = getDemoResponse('something random xyz');
     const parsed = parseGroqResponse(raw);
-    expect(parsed.appName).toBe('CalcPro');
+    expect(parsed.appName).toBeTruthy();
+    expect(parsed.appName).not.toBe('');
   });
 
   it('returns valid parseable format with ===CODE=== delimiters', () => {

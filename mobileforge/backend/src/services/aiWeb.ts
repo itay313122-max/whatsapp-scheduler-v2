@@ -149,13 +149,19 @@ function allKeysPlaceholder(): boolean {
  * ANY Groq failure (auth error, server error, network error, etc.) so that
  * a bad/missing Groq key still lets the other providers serve the request.
  */
-async function callWithFallback(messages: ChatMessage[]): Promise<string> {
+interface FallbackResult {
+  text: string;
+  demoMode: boolean;
+  demoReason?: string;
+}
+
+async function callWithFallback(messages: ChatMessage[]): Promise<FallbackResult> {
   // Demo mode: skip network calls entirely if all API keys are placeholders
   const allPlaceholder = allKeysPlaceholder();
   if (allPlaceholder) {
     console.log('[AI/web] \u{1F3AD} Demo mode — all API keys are placeholders');
     const userMsg = messages.find(m => m.role === 'user');
-    return getDemoResponse(userMsg?.content ?? '');
+    return { text: getDemoResponse(userMsg?.content ?? ''), demoMode: true, demoReason: 'No AI provider keys configured' };
   }
 
   let groqLastError: unknown;
@@ -166,7 +172,7 @@ async function callWithFallback(messages: ChatMessage[]): Promise<string> {
       console.log(`[AI/web] Groq attempt ${attempt + 1}/2…`);
       const result = await callGroq(messages);
       console.log('[AI/web] ✓ Groq succeeded');
-      return result;
+      return { text: result, demoMode: false };
     } catch (err) {
       groqLastError = err;
       const status = (err as any)?.status ?? (err as any)?.error?.status;
@@ -187,7 +193,7 @@ async function callWithFallback(messages: ChatMessage[]): Promise<string> {
     console.log('[AI/web] → Gemini');
     const result = await callGemini(messages);
     console.log('[AI/web] ✓ Gemini succeeded');
-    return result;
+    return { text: result, demoMode: false };
   } catch (err) {
     if ((err as any).skip) console.log('[AI/web]   Gemini skipped (no key)');
     else console.error('[AI/web]   Gemini failed:', (err as Error).message);
@@ -198,7 +204,7 @@ async function callWithFallback(messages: ChatMessage[]): Promise<string> {
     console.log('[AI/web] → OpenRouter');
     const result = await callOpenRouter(messages);
     console.log('[AI/web] ✓ OpenRouter succeeded');
-    return result;
+    return { text: result, demoMode: false };
   } catch (err) {
     if ((err as any).skip) console.log('[AI/web]   OpenRouter skipped (no key)');
     else console.error('[AI/web]   OpenRouter failed:', (err as Error).message);
@@ -209,7 +215,7 @@ async function callWithFallback(messages: ChatMessage[]): Promise<string> {
     console.log('[AI/web] → Cerebras');
     const result = await callCerebras(messages);
     console.log('[AI/web] ✓ Cerebras succeeded');
-    return result;
+    return { text: result, demoMode: false };
   } catch (err) {
     if ((err as any).skip) console.log('[AI/web]   Cerebras skipped (no key)');
     else console.error('[AI/web]   Cerebras failed:', (err as Error).message);
@@ -220,7 +226,7 @@ async function callWithFallback(messages: ChatMessage[]): Promise<string> {
     console.log('[AI/web] → Together');
     const result = await callTogether(messages);
     console.log('[AI/web] ✓ Together succeeded');
-    return result;
+    return { text: result, demoMode: false };
   } catch (err) {
     if ((err as any).skip) console.log('[AI/web]   Together skipped (no key)');
     else console.error('[AI/web]   Together failed:', (err as Error).message);
@@ -233,7 +239,7 @@ async function callWithFallback(messages: ChatMessage[]): Promise<string> {
   const rootMsg = groqLastError instanceof Error ? groqLastError.message : String(groqLastError);
   console.error(`[AI/web] ⚠️ All providers failed — serving demo fallback. Root error: ${rootMsg}`);
   const userMsg = messages.find(m => m.role === 'user');
-  return getDemoResponse(userMsg?.content ?? '');
+  return { text: getDemoResponse(userMsg?.content ?? ''), demoMode: true, demoReason: `All AI providers failed: ${rootMsg.slice(0, 120)}` };
 }
 
 const WEB_SYSTEM_PROMPT = `
@@ -1252,6 +1258,8 @@ export interface GeneratedWebApp {
   };
   features: string[];
   hebrewSummary: string;
+  demoMode?: boolean;
+  demoReason?: string;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -1406,15 +1414,16 @@ export async function generateWebApp(
   if (allPlaceholder && options?.editMode && options.existingCode) {
     console.log('[AI/web] \u{1F3AD} Demo mode — edit request, returning existing code');
     const raw = getDemoEditResponse(options.existingCode);
-    return parseGroqResponse(raw);
+    return { ...parseGroqResponse(raw), demoMode: true, demoReason: 'No AI provider keys configured' };
   }
 
-  const raw = await callWithFallback(messages);
-  console.log('[AI/web] Raw response length:', raw.length);
+  const { text: raw, demoMode, demoReason } = await callWithFallback(messages);
+  console.log('[AI/web] Raw response length:', raw.length, '| demoMode:', demoMode);
   console.log('[AI/web] Raw (first 500):\n', raw.slice(0, 500));
 
   try {
-    return parseGroqResponse(raw);
+    const parsed = parseGroqResponse(raw);
+    return { ...parsed, demoMode, demoReason };
   } catch (parseErr) {
     const msg = (parseErr as Error).message;
     console.error('[AI/web] ALL parse strategies failed:', msg);
@@ -1426,6 +1435,8 @@ export async function generateWebApp(
       colorScheme: { primary: '#6C3AE8', background: '#F8F9FA', text: '#1A1A2E' },
       features: [],
       hebrewSummary: `Parse error: ${msg.slice(0, 80)}`,
+      demoMode,
+      demoReason,
     };
   }
 }
@@ -1446,27 +1457,29 @@ export async function* streamGenerateWebApp(
     { role: 'user' as const, content: userPrompt },
   ];
 
-  // Try Groq streaming first
+  // Try Groq streaming first; fall back to callWithFallback on ANY error
+  // (not just 429) so that auth errors, server errors, and network failures
+  // all gracefully degrade instead of killing the stream.
   try {
-  const stream = await client.chat.completions.create({
-    model: MODEL,
-    max_tokens: 16000,
-    stream: true,
-    messages: msgs,
-  });
+    const stream = await client.chat.completions.create({
+      model: MODEL,
+      max_tokens: 16000,
+      stream: true,
+      messages: msgs,
+    });
     for await (const chunk of stream) {
       const text = chunk.choices[0]?.delta?.content ?? '';
       if (text) yield text;
     }
     return;
   } catch (err) {
-    if ((err as any)?.status !== 429) throw err;
-    console.warn('[AI/web] Groq stream rate-limited — falling back to non-streaming…');
+    const status = (err as any)?.status ?? 'n/a';
+    console.warn(`[AI/web] Groq stream failed (status=${status}) — falling back to non-streaming…`);
   }
 
-  // Fallback: non-streaming, emit entire response as one chunk
-  const raw = await callWithFallback(msgs);
-  yield raw;
+  // Fallback: non-streaming via the full provider chain, emit as one chunk
+  const { text } = await callWithFallback(msgs);
+  yield text;
 }
 
 // ── Chat-Mode planning (Lovable-style clarifying questions) ──────────────────
@@ -1625,8 +1638,9 @@ export async function planWebApp(
   ];
 
   try {
-    const raw = await callWithFallback(messages);
-    return parsePlan(raw);
+    const { text, demoMode } = await callWithFallback(messages);
+    if (demoMode) return { ready: true };
+    return parsePlan(text);
   } catch (err) {
     console.error('[AI/web] planWebApp failed — building directly:', (err as Error).message);
     return { ready: true }; // fail open — never block building

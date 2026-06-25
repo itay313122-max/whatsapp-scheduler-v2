@@ -952,8 +952,14 @@ const DEMO_APPS: DemoApp[] = [CLOTHING_STORE, TODO_APP, WEATHER_APP, RESTAURANT_
 
 /**
  * Returns a complete AI response in the format parseGroqResponse expects.
- * Matches prompt keywords to pick the best demo app; falls back to calculator.
+ * Matches prompt keywords to pick the best demo app. When no keywords match,
+ * picks a varied demo (cycling through all non-calculator apps) instead of
+ * always returning the calculator, which confused users into thinking AI was
+ * "ignoring" their request.
  */
+let _fallbackIdx = 0;
+const FALLBACK_POOL = DEMO_APPS.filter(a => a !== CALCULATOR_APP);
+
 export function getDemoResponse(prompt: string): string {
   const lower = prompt.toLowerCase();
 
@@ -962,7 +968,8 @@ export function getDemoResponse(prompt: string): string {
   );
 
   if (!match) {
-    match = CALCULATOR_APP;
+    match = FALLBACK_POOL[_fallbackIdx % FALLBACK_POOL.length];
+    _fallbackIdx++;
   }
 
   const metaJson = JSON.stringify(match.metadata);
