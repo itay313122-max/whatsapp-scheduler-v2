@@ -1067,10 +1067,24 @@ export default function ChatInterface({
             </div>
           )}
 
-          {/* Main input row — Lovable-style dark glass input */}
-          <div className="flex items-end gap-2 p-3 rounded-2xl bg-surface/60 border border-border/50 focus-within:border-primary/50 focus-within:shadow-[0_0_0_1px_rgba(139,92,246,0.2)] transition-all">
-            {/* Viral feature buttons */}
-            <div className="flex items-center gap-1 flex-shrink-0 mb-0.5">
+          {/* Main input — full-width textarea, actions below */}
+          <div className="flex flex-col gap-2 p-3 rounded-2xl bg-surface/60 border border-border/50 focus-within:border-primary/50 focus-within:shadow-[0_0_0_1px_rgba(139,92,246,0.2)] transition-all">
+            {/* Textarea — full width, roomy */}
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => { setInput(e.target.value); adjustTextareaHeight(); }}
+              onKeyDown={handleKeyDown}
+              placeholder={imagePreview ? 'Add extra instructions (optional)…' : (messages.some((m) => m.result) || currentAppResult) ? 'e.g. "Change the color to pink" or "Add a settings screen"…' : 'Describe the app you want to build…'}
+              rows={3}
+              dir="ltr"
+              disabled={isGenerating}
+              className="w-full bg-transparent text-text-primary placeholder-text-secondary text-sm resize-none outline-none min-h-[72px] max-h-[280px] leading-relaxed disabled:opacity-50"
+            />
+            {/* Action row */}
+            <div className="flex items-center gap-1">
+              {/* Viral feature buttons */}
+              <div className="flex items-center gap-1 flex-shrink-0">
               {/* Screenshot */}
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -1116,21 +1130,7 @@ export default function ChatInterface({
               )}
             </div>
 
-            {/* Divider */}
-            <div className="h-6 w-px bg-border flex-shrink-0 mb-1" />
-
-            {/* Textarea */}
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => { setInput(e.target.value); adjustTextareaHeight(); }}
-              onKeyDown={handleKeyDown}
-              placeholder={imagePreview ? 'Add extra instructions (optional)…' : (messages.some((m) => m.result) || currentAppResult) ? 'e.g. "Change the color to pink" or "Add a settings screen"…' : 'Describe the app you want to build…'}
-              rows={1}
-              dir="ltr"
-              disabled={isGenerating}
-              className="flex-1 bg-transparent text-text-primary placeholder-text-secondary text-sm resize-none outline-none max-h-[200px] leading-relaxed disabled:opacity-50"
-            />
+            <div className="flex-1" />
 
             {/* Send */}
             <button
@@ -1154,6 +1154,7 @@ export default function ChatInterface({
                 </svg>
               )}
             </button>
+            </div>
           </div>
 
           <p className="text-text-secondary text-[10px] mt-1.5 text-center opacity-60">

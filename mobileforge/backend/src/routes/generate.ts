@@ -19,6 +19,43 @@ router.get('/themes', (_req: Request, res: Response) => {
   res.json({ themes: THEME_LIST });
 });
 
+// GET /api/generate/ai-status — diagnostic. Reports which provider keys are
+// configured (booleans only — never the secret) and runs a live test call to
+// Groq so we can see exactly WHY generation falls back to demo mode. Open this
+// URL in a browser to debug "still a calculator" without exposing secrets.
+router.get('/ai-status', async (_req: Request, res: Response) => {
+  const isReal = (v?: string) => !!v && v.trim().length > 8 && !/placeholder|your[-_]?key|xxx/i.test(v);
+  const keysConfigured = {
+    GROQ: isReal(process.env.GROQ_API_KEY),
+    GEMINI: isReal(process.env.GEMINI_API_KEY),
+    OPENROUTER: isReal(process.env.OPENROUTER_API_KEY),
+    CEREBRAS: isReal(process.env.CEREBRAS_API_KEY),
+    TOGETHER: isReal(process.env.TOGETHER_API_KEY),
+  };
+  let groqTest: { ok: boolean; status?: number; error?: string } = { ok: false };
+  if (keysConfigured.GROQ) {
+    try {
+      const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+        body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: 'ping' }], max_tokens: 3 }),
+      });
+      groqTest = r.ok ? { ok: true, status: r.status } : { ok: false, status: r.status, error: (await r.text()).slice(0, 400) };
+    } catch (e) {
+      groqTest = { ok: false, error: (e as Error).message };
+    }
+  } else {
+    groqTest = { ok: false, error: 'GROQ_API_KEY is empty or looks like a placeholder — set it in Render and redeploy' };
+  }
+  const anyRealKey = Object.values(keysConfigured).some(Boolean);
+  return res.json({
+    keysConfigured,
+    groqTest,
+    willUseDemoMode: !anyRealKey || (!groqTest.ok && !keysConfigured.GEMINI && !keysConfigured.OPENROUTER && !keysConfigured.CEREBRAS && !keysConfigured.TOGETHER),
+    hint: groqTest.ok ? 'Groq works — real AI should generate. If you still see demo apps, redeploy the service.' : 'Groq is NOT working — see groqTest.error. Fix the key in Render → Environment → GROQ_API_KEY, then Manual Deploy.',
+  });
+});
+
 // Cost/abuse guard on every (LLM-backed) generation endpoint below this line.
 router.use(rateLimit);
 
