@@ -63,7 +63,10 @@ export async function generateApp(req: GenerateRequest): Promise<GenerateRespons
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(err.error || 'Generation failed');
+    // Surface the real reason (the backend includes it in `details`) so failures
+    // are diagnosable on screen instead of a generic "Generation failed".
+    const msg = err.details ? `${err.error || 'Generation failed'} — ${err.details}` : (err.error || 'Generation failed');
+    throw new Error(msg);
   }
 
   return res.json();
