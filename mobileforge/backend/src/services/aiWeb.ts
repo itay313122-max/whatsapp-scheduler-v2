@@ -226,9 +226,14 @@ async function callWithFallback(messages: ChatMessage[]): Promise<string> {
     else console.error('[AI/web]   Together failed:', (err as Error).message);
   }
 
-  // All providers failed — surface the original Groq error for clarity
+  // All providers failed (bad/expired key, rate limit, or provider downtime).
+  // Rather than hard-failing the user's request, serve a polished, prompt-matched
+  // demo app so the chat always produces something usable. The real provider
+  // error is logged here for diagnosis (check Render logs to fix the key).
   const rootMsg = groqLastError instanceof Error ? groqLastError.message : String(groqLastError);
-  throw new Error(`All AI providers unavailable. Original Groq error: ${rootMsg}`);
+  console.error(`[AI/web] ⚠️ All providers failed — serving demo fallback. Root error: ${rootMsg}`);
+  const userMsg = messages.find(m => m.role === 'user');
+  return getDemoResponse(userMsg?.content ?? '');
 }
 
 const WEB_SYSTEM_PROMPT = `
