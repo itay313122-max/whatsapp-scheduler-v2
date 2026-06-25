@@ -10,25 +10,41 @@ export const securityHeaders = helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 });
 
+/**
+ * Whether a request Origin is allowed. Accepts:
+ *  - any origin in FRONTEND_URL (comma-separated list supported)
+ *  - localhost / 127.0.0.1 on any port (local dev)
+ *  - any *.vercel.app subdomain (so renaming the Vercel project never breaks
+ *    the API again)
+ */
+export function isAllowedOrigin(origin?: string | null): boolean {
+  if (!origin) return true; // non-browser clients / same-origin requests
+
+  const configured = (process.env.FRONTEND_URL || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  try {
+    const url = new URL(origin);
+    if (configured.some((c) => url.origin === new URL(c).origin)) return true;
+    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return true;
+    if (url.hostname.endsWith('.vercel.app')) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 // Origin validation for state-changing requests (CSRF protection).
-// Only enforced when FRONTEND_URL is explicitly set (i.e. production).
 export function csrfGuard(req: Request, res: Response, next: NextFunction) {
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
-
-  const allowedOrigin = process.env.FRONTEND_URL;
-  if (!allowedOrigin) return next();
 
   const origin = req.headers.origin || req.headers.referer;
   if (!origin) return next();
 
-  const allowed = new URL(allowedOrigin).origin;
-  try {
-    const incoming = new URL(origin as string).origin;
-    if (incoming !== allowed) {
-      return res.status(403).json({ error: 'Origin not allowed' });
-    }
-  } catch {
-    return res.status(403).json({ error: 'Invalid origin' });
+  if (!isAllowedOrigin(origin as string)) {
+    return res.status(403).json({ error: 'Origin not allowed' });
   }
   return next();
 }

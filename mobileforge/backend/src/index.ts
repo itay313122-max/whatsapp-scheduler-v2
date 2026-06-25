@@ -12,7 +12,7 @@ import feedbackRouter from './routes/feedback';
 import betaRouter from './routes/beta';
 import backupRouter from './routes/backup';
 import { rateLimit } from './middleware/rateLimit';
-import { securityHeaders, csrfGuard, auditLog } from './middleware/security';
+import { securityHeaders, csrfGuard, auditLog, isAllowedOrigin } from './middleware/security';
 import './services/backup';
 
 const app = express();
@@ -30,7 +30,7 @@ app.use(securityHeaders);
 app.use(auditLog);
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
     credentials: true,
   })
 );
