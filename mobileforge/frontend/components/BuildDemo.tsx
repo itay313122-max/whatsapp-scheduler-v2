@@ -9,6 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion';
  * the phone. No real video file (keeps the bundle tiny and renders crisply on
  * every device); it's a deterministic CSS/framer-motion sequence that cycles
  * through several example apps so visitors immediately grasp how easy it is.
+ *
+ * The demo apps are intentionally restrained — lots of whitespace, one accent
+ * colour each, thin type — so they read as premium product UI, not toy mockups.
  */
 
 interface DemoApp {
@@ -21,86 +24,102 @@ interface DemoApp {
 
 const DEMOS: DemoApp[] = [
   {
-    prompt: 'A food delivery app with categories and cart',
-    name: 'FoodGo',
-    accent: '#FF6B35',
-    bg: '#FFF8F3',
+    prompt: 'A minimal banking app with balance and transactions',
+    name: 'Lumen',
+    accent: '#4F46E5',
+    bg: '#FBFBFD',
     screen: (
-      <div className="flex flex-col gap-2 p-3 h-full">
-        <div className="h-6 rounded-lg" style={{ background: '#FF6B35' }} />
-        <div className="flex gap-2">
-          {['🍕', '🍔', '🍣', '🥗'].map((e, i) => (
-            <div key={i} className="flex-1 aspect-square rounded-xl flex items-center justify-center text-base" style={{ background: '#FFEDE3' }}>{e}</div>
-          ))}
+      <div className="flex flex-col gap-3 p-4 h-full">
+        <div className="flex items-center justify-between">
+          <span className="text-[9px] font-medium text-gray-400 tracking-wide">Total balance</span>
+          <div className="w-5 h-5 rounded-full bg-gray-100" />
         </div>
-        <div className="flex-1 rounded-xl p-2 flex flex-col gap-2" style={{ background: '#fff', boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg" style={{ background: '#FFEDE3' }} />
-              <div className="flex-1">
-                <div className="h-2 w-3/4 rounded-full" style={{ background: '#E5E5E5' }} />
-                <div className="h-2 w-1/3 rounded-full mt-1" style={{ background: '#FF6B35' }} />
+        <div className="text-[26px] font-semibold tracking-tight text-gray-900 leading-none">
+          $12,480<span className="text-gray-300">.00</span>
+        </div>
+        <div className="flex gap-2 mt-1">
+          <div className="flex-1 h-8 rounded-xl flex items-center justify-center text-[10px] font-semibold text-white" style={{ background: '#4F46E5' }}>Send</div>
+          <div className="flex-1 h-8 rounded-xl flex items-center justify-center text-[10px] font-semibold text-gray-700 border border-gray-200">Request</div>
+        </div>
+        <div className="mt-2 flex flex-col gap-3">
+          {([['Apple', '−$4.99', '#111827'], ['Spotify', '−$9.99', '#1DB954'], ['Salary', '+$3,200', '#4F46E5']] as const).map(([n, v, c], i) => (
+            <div key={i} className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-full" style={{ background: `${c}1a` }} />
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] font-medium text-gray-800">{n}</div>
+                <div className="text-[8px] text-gray-400">Today</div>
               </div>
+              <div className="text-[10px] font-semibold" style={{ color: v.startsWith('+') ? '#16a34a' : '#374151' }}>{v}</div>
             </div>
           ))}
         </div>
-        <div className="h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold" style={{ background: '#FF6B35' }}>Order now · $24</div>
       </div>
     ),
   },
   {
-    prompt: 'A fitness tracker with workout logging',
-    name: 'FitPulse',
-    accent: '#7C3AED',
-    bg: '#F5F3FF',
+    prompt: 'A clean health tracker with daily activity',
+    name: 'Vita',
+    accent: '#111827',
+    bg: '#FAFAFA',
     screen: (
-      <div className="flex flex-col gap-2 p-3 h-full">
-        <div className="rounded-xl p-3 text-white" style={{ background: 'linear-gradient(135deg,#7C3AED,#A78BFA)' }}>
-          <div className="text-[8px] opacity-80">Today</div>
-          <div className="text-lg font-bold">1,240 kcal</div>
+      <div className="flex flex-col gap-3 p-4 h-full">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[9px] text-gray-400 font-medium">Wednesday</div>
+            <div className="text-[13px] font-semibold text-gray-900 tracking-tight">Today</div>
+          </div>
+          <div className="w-7 h-7 rounded-full bg-gray-900" />
         </div>
-        <div className="flex gap-2">
-          {[['Steps', '8.2k'], ['Min', '46'], ['BPM', '72']].map(([l, v], i) => (
-            <div key={i} className="flex-1 rounded-xl p-2 text-center" style={{ background: '#fff', boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-              <div className="text-xs font-bold" style={{ color: '#7C3AED' }}>{v}</div>
-              <div className="text-[7px] text-gray-400">{l}</div>
+        <div className="rounded-2xl p-3 flex items-center gap-3" style={{ background: '#fff', boxShadow: '0 1px 10px rgba(0,0,0,.05)' }}>
+          <div className="relative w-12 h-12 flex-shrink-0">
+            <div className="absolute inset-0 rounded-full" style={{ background: 'conic-gradient(#111827 75%, #ececef 0)' }} />
+            <div className="absolute inset-[3px] rounded-full bg-white flex items-center justify-center text-[9px] font-bold text-gray-900">75%</div>
+          </div>
+          <div>
+            <div className="text-[11px] font-semibold text-gray-900">Daily goal</div>
+            <div className="text-[8px] text-gray-400">1,860 / 2,400 kcal</div>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {([['Steps', '7.4k'], ['Sleep', '7h'], ['Water', '1.6L']] as const).map(([l, v], i) => (
+            <div key={i} className="rounded-xl p-2 text-center" style={{ background: '#fff', boxShadow: '0 1px 6px rgba(0,0,0,.04)' }}>
+              <div className="text-[11px] font-semibold text-gray-900">{v}</div>
+              <div className="text-[7px] text-gray-400 mt-0.5">{l}</div>
             </div>
           ))}
         </div>
-        <div className="flex-1 rounded-xl p-2 flex items-end gap-1.5" style={{ background: '#fff', boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-          {[40, 70, 55, 90, 65, 80, 50].map((h, i) => (
-            <div key={i} className="flex-1 rounded-t" style={{ height: `${h}%`, background: i === 3 ? '#7C3AED' : '#DDD6FE' }} />
-          ))}
-        </div>
-        <div className="h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold" style={{ background: '#7C3AED' }}>+ Log workout</div>
+        <div className="mt-auto h-9 rounded-xl flex items-center justify-center text-[10px] font-semibold text-white" style={{ background: '#111827' }}>View insights</div>
       </div>
     ),
   },
   {
-    prompt: 'A booking app for a hair salon',
-    name: 'GlowBook',
-    accent: '#EC4899',
-    bg: '#FDF2F8',
+    prompt: 'An elegant booking app for a studio',
+    name: 'Aura',
+    accent: '#9333EA',
+    bg: '#FCFBFE',
     screen: (
-      <div className="flex flex-col gap-2 p-3 h-full">
-        <div className="h-6 rounded-lg flex items-center px-2 text-[9px] font-bold text-white" style={{ background: '#EC4899' }}>Book an appointment</div>
+      <div className="flex flex-col gap-3 p-4 h-full">
+        <div>
+          <div className="text-[13px] font-semibold text-gray-900 leading-tight tracking-tight">Book a session</div>
+          <div className="text-[8px] text-gray-400 mt-0.5">Pick a time that works for you</div>
+        </div>
         <div className="flex gap-1.5">
-          {['Mon', 'Tue', 'Wed', 'Thu'].map((d, i) => (
-            <div key={i} className="flex-1 rounded-lg py-1.5 text-center text-[8px]" style={{ background: i === 1 ? '#EC4899' : '#fff', color: i === 1 ? '#fff' : '#999', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
-              <div className="font-bold">{d}</div>
-              <div>{12 + i}</div>
+          {([['Mon', '12'], ['Tue', '13'], ['Wed', '14'], ['Thu', '15']] as const).map(([d, n], i) => (
+            <div key={i} className="flex-1 rounded-xl py-2 text-center" style={{ background: i === 2 ? '#9333EA' : '#fff', color: i === 2 ? '#fff' : '#9ca3af', boxShadow: '0 1px 5px rgba(0,0,0,.05)' }}>
+              <div className="text-[7px] font-medium opacity-80">{d}</div>
+              <div className="text-[11px] font-semibold">{n}</div>
             </div>
           ))}
         </div>
-        <div className="flex-1 rounded-xl p-2 flex flex-col gap-1.5" style={{ background: '#fff', boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-          {['09:00', '10:30', '13:00'].map((t, i) => (
-            <div key={i} className="flex items-center justify-between rounded-lg px-2 py-1.5" style={{ background: i === 0 ? '#FCE7F3' : '#F9FAFB' }}>
-              <span className="text-[9px] font-semibold text-gray-700">{t}</span>
-              <span className="text-[8px]" style={{ color: '#EC4899' }}>Available</span>
+        <div className="flex flex-col gap-2 mt-1">
+          {([['09:00', 'Available'], ['11:30', 'Available'], ['14:00', '2 left']] as const).map(([t, s], i) => (
+            <div key={i} className="flex items-center justify-between rounded-xl px-3 py-2.5 border" style={{ borderColor: i === 0 ? '#9333EA' : '#f0f0f2', background: i === 0 ? '#faf5ff' : '#fff' }}>
+              <span className="text-[11px] font-medium text-gray-800">{t}</span>
+              <span className="text-[8px]" style={{ color: i === 0 ? '#9333EA' : '#9ca3af' }}>{s}</span>
             </div>
           ))}
         </div>
-        <div className="h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold" style={{ background: '#EC4899' }}>Confirm booking</div>
+        <div className="mt-auto h-9 rounded-xl flex items-center justify-center text-[10px] font-semibold text-white" style={{ background: '#9333EA' }}>Confirm · 14:00</div>
       </div>
     ),
   },

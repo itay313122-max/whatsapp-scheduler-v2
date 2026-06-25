@@ -14,14 +14,28 @@ import {
 import { getFirestore, doc, setDoc, getDoc, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
+// Firebase Web config. These client-side values are PUBLIC by design (they ship
+// in every Firebase web bundle; access is controlled by Security Rules and
+// Authorized Domains, not by hiding the apiKey). We bake the project defaults in
+// as a fallback so auth/saving keep working even if the hosting env vars are
+// missing or wrong — env vars still take priority when present.
+const FIREBASE_DEFAULTS = {
+  apiKey: 'AIzaSyBpzsSDcJdgFDJ4WjM10kbFkBgJmXeQHl0',
+  authDomain: 'app-maker-57e40.firebaseapp.com',
+  projectId: 'app-maker-57e40',
+  storageBucket: 'app-maker-57e40.firebasestorage.app',
+  messagingSenderId: '133422063144',
+  appId: '1:133422063144:web:f3e781307fbc9478b39f1d',
+};
+
 function getFirebaseConfig() {
   return {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || FIREBASE_DEFAULTS.apiKey,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || FIREBASE_DEFAULTS.authDomain,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || FIREBASE_DEFAULTS.projectId,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || FIREBASE_DEFAULTS.storageBucket,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || FIREBASE_DEFAULTS.messagingSenderId,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || FIREBASE_DEFAULTS.appId,
   };
 }
 

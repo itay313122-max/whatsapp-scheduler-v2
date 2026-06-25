@@ -25,12 +25,12 @@ const STEPS = [
 ];
 
 const FEATURES = [
-  { icon: '⚡', title: 'Generate in 10 seconds', desc: 'AI builds a complete app from a short description — including UI, logic, and navigation', color: 'from-yellow-400/10 to-orange-400/5 border-white/10' },
-  { icon: '📱', title: 'Instant preview', desc: 'See your app on iPhone, Android, and desktop — before you even share it', color: 'from-sky-400/10 to-blue-400/5 border-white/10' },
-  { icon: '✏️', title: 'Live editing', desc: 'Click any text in the preview to edit it directly. Change colors, fonts, and components', color: 'from-emerald-400/10 to-green-400/5 border-white/10' },
-  { icon: '🔗', title: 'Share a link', desc: 'One button — a public link to your app. Send it to friends, clients, and investors', color: 'from-violet-400/10 to-purple-400/5 border-white/10' },
-  { icon: '📦', title: 'Download and install', desc: 'Download as standalone HTML or a PWA to install on your phone — free, no app stores', color: 'from-pink-400/10 to-rose-400/5 border-white/10' },
-  { icon: '🌍', title: 'Multilingual', desc: 'English by default, with full support for Hebrew, Arabic, and more — AI understands whatever you write', color: 'from-indigo-400/10 to-primary/5 border-white/10' },
+  { icon: '⚡', title: 'Generate in 10 seconds', desc: 'AI builds a complete app from a short description — including UI, logic, and navigation', color: 'from-yellow-400/10 to-orange-400/5 border-border' },
+  { icon: '📱', title: 'Instant preview', desc: 'See your app on iPhone, Android, and desktop — before you even share it', color: 'from-sky-400/10 to-blue-400/5 border-border' },
+  { icon: '✏️', title: 'Live editing', desc: 'Click any text in the preview to edit it directly. Change colors, fonts, and components', color: 'from-emerald-400/10 to-green-400/5 border-border' },
+  { icon: '🔗', title: 'Share a link', desc: 'One button — a public link to your app. Send it to friends, clients, and investors', color: 'from-violet-400/10 to-purple-400/5 border-border' },
+  { icon: '📦', title: 'Download and install', desc: 'Download as standalone HTML or a PWA to install on your phone — free, no app stores', color: 'from-pink-400/10 to-rose-400/5 border-border' },
+  { icon: '🌍', title: 'Multilingual', desc: 'English by default, with full support for Hebrew, Arabic, and more — AI understands whatever you write', color: 'from-indigo-400/10 to-primary/5 border-border' },
 ];
 
 const COMPARISONS = [
@@ -154,7 +154,7 @@ export default function LandingPage() {
 
         <motion.div className="relative max-w-4xl mx-auto" initial="hidden" animate="show" variants={stagger}>
           <motion.div variants={fadeUp}>
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-primary/30 text-primary-light text-sm font-semibold backdrop-blur-md mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-2 border border-primary/30 text-primary-light text-sm font-semibold backdrop-blur-md mb-6">
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
               Built for the AI era · Build mobile apps for free
             </span>
@@ -175,7 +175,7 @@ export default function LandingPage() {
 
           {/* Prompt Input */}
           <motion.div variants={fadeUp} className="max-w-xl mx-auto mb-6">
-            <div className="relative flex items-center gap-2 p-2 rounded-2xl bg-white/5 backdrop-blur-xl border border-primary/30 shadow-glow">
+            <div className="relative flex items-center gap-2 p-2 rounded-2xl bg-surface-2 backdrop-blur-xl border border-primary/30 shadow-glow">
               <input
                 type="text"
                 value={prompt}
@@ -205,7 +205,7 @@ export default function LandingPage() {
               <button
                 key={t.name}
                 onClick={() => handleGo(t.prompt)}
-                className="group flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-full bg-white/5 border border-border hover:border-primary/40 text-text-secondary hover:text-text-primary text-sm transition-all backdrop-blur-md"
+                className="group flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-full bg-surface-2 border border-border hover:border-primary/40 text-text-secondary hover:text-text-primary text-sm transition-all backdrop-blur-md"
               >
                 <span>{t.emoji}</span>
                 <span>{t.name}</span>
@@ -291,7 +291,7 @@ export default function LandingPage() {
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 className={`p-6 rounded-2xl bg-gradient-to-br border backdrop-blur-md press-effect ${color}`}
               >
-                <div className="text-2xl mb-3 w-12 h-12 rounded-xl flex items-center justify-center bg-white/10 border border-white/10">{icon}</div>
+                <div className="text-2xl mb-3 w-12 h-12 rounded-xl flex items-center justify-center bg-surface-2 border border-border">{icon}</div>
                 <h3 className="font-display font-bold text-base mb-2 text-text-primary">{title}</h3>
                 <p className="text-text-secondary text-sm leading-relaxed">{desc}</p>
               </motion.div>
@@ -311,13 +311,13 @@ export default function LandingPage() {
           </motion.div>
 
           <motion.div
-            className="rounded-2xl overflow-hidden border border-[#2A2A2E] bg-[#111113]"
+            className="rounded-2xl overflow-hidden border border-border bg-surface"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
             {/* Header row */}
-            <div className="grid grid-cols-3 text-center border-b border-[#2A2A2E]">
+            <div className="grid grid-cols-3 text-center border-b border-border">
               <div className="p-4 sm:p-5 text-text-secondary font-display font-semibold text-sm">Feature</div>
               <div className="p-4 sm:p-5 text-text-secondary font-display font-semibold text-sm">Others</div>
               <div className="p-4 sm:p-5 font-display font-bold text-sm relative">
@@ -329,7 +329,7 @@ export default function LandingPage() {
             {COMPARISONS.map(({ feature, others, mf }, i) => (
               <div
                 key={feature}
-                className={`grid grid-cols-3 text-center ${i < COMPARISONS.length - 1 ? 'border-b border-[#2A2A2E]' : ''}`}
+                className={`grid grid-cols-3 text-center ${i < COMPARISONS.length - 1 ? 'border-b border-border' : ''}`}
               >
                 <div className="p-4 sm:p-5 text-text-primary text-sm font-medium text-left pl-6">{feature}</div>
                 <div className="p-4 sm:p-5 flex items-center justify-center">
@@ -374,7 +374,7 @@ export default function LandingPage() {
                 key={name}
                 variants={fadeUp}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="p-6 rounded-2xl bg-[#111113]/80 backdrop-blur-md border border-[#2A2A2E] hover:border-[rgba(139,92,246,0.3)] transition-colors"
+                className="p-6 rounded-2xl bg-surface/80 backdrop-blur-md border border-border hover:border-[rgba(139,92,246,0.3)] transition-colors"
               >
                 {/* Quote icon */}
                 <svg className="w-8 h-8 text-[#8B5CF6] opacity-40 mb-4" fill="currentColor" viewBox="0 0 24 24">
@@ -437,7 +437,7 @@ export default function LandingPage() {
               <motion.div
                 key={i}
                 variants={fadeUp}
-                className="rounded-2xl bg-[#111113] border border-[#2A2A2E] overflow-hidden"
+                className="rounded-2xl bg-surface border border-border overflow-hidden"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -493,7 +493,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────────────── */}
-      <footer className="pt-16 pb-8 px-4 border-t border-[#2A2A2E]" style={{ backgroundColor: '#0a0a0b' }}>
+      <footer className="pt-16 pb-8 px-4 border-t border-border" style={{ backgroundColor: '#0a0a0b' }}>
         <div className="max-w-6xl mx-auto">
           {/* Footer columns */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
@@ -555,7 +555,7 @@ export default function LandingPage() {
           </div>
 
           {/* Social links row */}
-          <div className="border-t border-[#2A2A2E] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="border-t border-border pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-text-soft text-xs">Built with AI for builders everywhere</p>
             <div className="flex items-center gap-4">
               {/* Twitter/X */}

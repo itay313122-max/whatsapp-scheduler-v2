@@ -1347,6 +1347,34 @@ const FALLBACK_APP = (reason: string) =>
   );
 }`;
 
+// Premium design bar appended to every FRESH generation (not edits). Pushes the
+// model toward calm, high-end, Apple/Linear/Stripe-grade UI instead of busy,
+// over-coloured "toy" output.
+const PREMIUM_DESIGN_RULES = `
+
+═══════════════════════════════════════════════════════════
+PREMIUM VISUAL BAR — the app must look like a $100M product
+═══════════════════════════════════════════════════════════
+• RESTRAINT: one primary accent colour + neutrals. Never more than two hues.
+  No rainbow gradients, no emoji as primary UI, no clashing brights.
+• TYPOGRAPHY drives hierarchy: one large semibold heading (24–32px, tight
+  tracking), readable body (14–15px), muted captions (#6B7280). Use weight and
+  size for emphasis — not colour.
+• WHITESPACE is a feature: generous padding (16–24px), real breathing room
+  between sections. When unsure, remove an element and add space.
+• DEPTH is subtle: soft shadows (0 1px 8px rgba(0,0,0,.05)), 1px hairline
+  borders (#ECECEF), 16–20px corner radii. No neon glows or heavy drop shadows.
+• PALETTE: off-white backgrounds (#FAFAFA / #FBFBFD), near-black text
+  (#111827), grey for secondary. The accent appears ONLY on the one primary
+  action per screen.
+• CONTENT feels real: plausible names, prices, dates, avatars — never "Lorem
+  ipsum". Prefer clean line icons over emoji.
+• MOTION is restrained: press-scale on buttons, gentle hover lifts on cards.
+  Nothing bouncy or distracting.
+• Model the feel of Apple, Linear, Stripe, Revolut, Notion — calm, confident,
+  precise, consistent spacing on an 8pt grid.
+`;
+
 // ── Public API ─────────────────────────────────────────────────────────────
 
 export async function generateWebApp(
@@ -1356,7 +1384,7 @@ export async function generateWebApp(
 ): Promise<GeneratedWebApp> {
   let systemPrompt = options?.editMode && options.existingCode
     ? buildEditSystemPrompt(options.existingCode)
-    : WEB_SYSTEM_PROMPT;
+    : WEB_SYSTEM_PROMPT + PREMIUM_DESIGN_RULES;
   // Apply a chosen design theme only on fresh generation (not edits).
   if (!options?.editMode && options?.theme) systemPrompt += '\n' + getThemePrompt(options.theme);
 
@@ -1404,7 +1432,7 @@ export async function* streamGenerateWebApp(
 ): AsyncGenerator<string> {
   let systemPrompt = options?.editMode && options.existingCode
     ? buildEditSystemPrompt(options.existingCode)
-    : WEB_SYSTEM_PROMPT;
+    : WEB_SYSTEM_PROMPT + PREMIUM_DESIGN_RULES;
   if (!options?.editMode && options?.theme) systemPrompt += '\n' + getThemePrompt(options.theme);
 
   const msgs = [
