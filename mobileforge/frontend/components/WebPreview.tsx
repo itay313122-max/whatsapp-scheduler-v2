@@ -548,53 +548,37 @@ export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChan
   const frameProps: FrameProps = { htmlDoc, appName, loaded, loadFailed, onLoad: handleLoad, iframeKey, onIframeMount };
 
   return (
-    <div className="flex flex-col w-full gap-4">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between px-1">
-        {/* Device selector */}
-        <div className="flex items-center gap-1 p-1 rounded-xl"
-             style={{
-               background: 'rgba(241,245,249,0.8)',
-               backdropFilter: 'blur(8px)',
-               border: '1px solid rgba(226,232,240,0.6)',
-             }}>
+    <div className="flex flex-col w-full gap-4 p-4">
+      {/* Floating toolbar — Stitch-style, centered at bottom */}
+      <div className="flex items-center justify-center">
+        <div className="flex items-center gap-1 p-1 rounded-2xl bg-surface/80 backdrop-blur-xl border border-border/50 shadow-lg">
           {DEVICES.map(({ id, label, icon }) => (
             <button
               key={id}
               onClick={() => selectDevice(id)}
               aria-label={`Switch to ${label} view`}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200"
-              style={device === id ? {
-                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                color: '#fff',
-                boxShadow: '0 2px 8px rgba(99,102,241,0.35), 0 1px 2px rgba(0,0,0,0.1)',
-              } : {
-                color: '#64748b',
-                background: 'transparent',
-              }}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 ${
+                device === id
+                  ? 'bg-primary text-white shadow-md shadow-primary/25'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'
+              }`}
             >
               {icon}
               <span className="hidden sm:inline">{label}</span>
             </button>
           ))}
+          <div className="h-5 w-px bg-border/50 mx-0.5" />
+          <button
+            onClick={openInNewTab}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs text-text-secondary hover:text-text-primary hover:bg-surface-2 transition-all"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            <span className="hidden sm:inline">Open in tab</span>
+          </button>
         </div>
-
-        {/* Open in new tab */}
-        <button
-          onClick={openInNewTab}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all duration-200"
-          style={{
-            color: '#64748b',
-            border: '1px solid rgba(226,232,240,0.6)',
-            background: 'rgba(241,245,249,0.5)',
-          }}
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-          <span className="hidden sm:inline">Open in tab</span>
-        </button>
       </div>
 
       {/* Preview area */}
