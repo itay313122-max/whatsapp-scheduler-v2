@@ -374,7 +374,7 @@ export default function LandingPage() {
                 key={name}
                 variants={fadeUp}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="p-6 rounded-2xl bg-surface/80 backdrop-blur-md border border-border hover:border-[rgba(139,92,246,0.3)] transition-colors"
+                className="flex flex-col h-full p-6 rounded-2xl bg-surface/80 backdrop-blur-md border border-border hover:border-[rgba(139,92,246,0.3)] transition-colors"
               >
                 {/* Quote icon */}
                 <svg className="w-8 h-8 text-[#8B5CF6] opacity-40 mb-4" fill="currentColor" viewBox="0 0 24 24">
@@ -388,8 +388,8 @@ export default function LandingPage() {
                     </svg>
                   ))}
                 </div>
-                <p className="text-text-primary text-sm leading-relaxed mb-6">&ldquo;{quote}&rdquo;</p>
-                <div className="flex items-center gap-3">
+                <p className="flex-1 text-text-primary text-sm leading-relaxed mb-6">&ldquo;{quote}&rdquo;</p>
+                <div className="flex items-center gap-3 mt-auto">
                   <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-white text-xs font-bold`}>
                     {initials}
                   </div>
