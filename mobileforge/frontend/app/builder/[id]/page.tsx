@@ -398,52 +398,8 @@ interface Project {
   description?: string;
 }
 
-// ── Builder Steps ───────────────────────────────────────────────────────────
+// Builder step type kept for state compatibility but stepper UI removed for cleaner layout
 type BuilderStep = 'describe' | 'design' | 'customize' | 'publish';
-
-const BUILDER_STEPS: { id: BuilderStep; label: string; icon: string; desc: string }[] = [
-  { id: 'describe', label: 'Describe', icon: '💬', desc: 'Describe your app' },
-  { id: 'design', label: 'Design', icon: '🎨', desc: 'Choose a design style' },
-  { id: 'customize', label: 'Customize', icon: '✏️', desc: 'Edit and fine-tune components' },
-  { id: 'publish', label: 'Publish', icon: '🚀', desc: 'Share and distribute' },
-];
-
-function BuilderStepper({ currentStep, onStepClick }: {
-  currentStep: BuilderStep;
-  onStepClick: (step: BuilderStep) => void;
-}) {
-  const stepOrder: BuilderStep[] = ['describe', 'design', 'customize', 'publish'];
-  const currentIdx = stepOrder.indexOf(currentStep);
-
-  return (
-    <div className="flex items-center gap-1 px-4 py-1.5 bg-surface/30 border-b border-border/50 backdrop-blur-md flex-shrink-0" dir="ltr">
-      {BUILDER_STEPS.map((step, i) => {
-        const isActive = step.id === currentStep;
-        const isDone = i < currentIdx;
-        return (
-          <div key={step.id} className="flex items-center gap-1 flex-1">
-            <button
-              onClick={() => onStepClick(step.id)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium w-full justify-center ${
-                isActive
-                  ? 'bg-primary/10 text-primary border border-primary/20 shadow-panel'
-                  : isDone
-                    ? 'text-accent bg-accent/5 border border-accent/15'
-                    : 'text-text-soft hover:text-text-secondary hover:bg-surface-2 border border-transparent'
-              }`}
-            >
-              <span className={`text-sm ${isDone ? 'text-accent' : ''}`}>{isDone ? '✓' : step.icon}</span>
-              <span className="hidden lg:inline">{step.label}</span>
-            </button>
-            {i < BUILDER_STEPS.length - 1 && (
-              <div className={`w-6 h-px flex-shrink-0 transition-colors duration-300 ${i < currentIdx ? 'bg-accent' : 'bg-border'}`} />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 // ── Save status indicator ────────────────────────────────────────────────────
 function SaveIndicator({ status }: { status: SaveStatus }) {
@@ -508,6 +464,7 @@ function BuilderContent() {
   const [versions, setVersions] = useState<GenerateResponse[]>([]);
   const [versionIdx, setVersionIdx] = useState(-1);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showEditSidebar, setShowEditSidebar] = useState(true);
 
   const canUndo = versionIdx > 0;
   const canRedo = versionIdx < versions.length - 1;
@@ -1184,15 +1141,6 @@ function BuilderContent() {
         {/* Right panel */}
         {currentResult && (
           <Panel id="preview" defaultSize="70%" minSize="40%" className="hidden md:flex flex-col overflow-hidden bg-bg">
-            {/* Builder progress stepper */}
-            <BuilderStepper
-              currentStep={builderStep}
-              onStepClick={(step) => {
-                setBuilderStep(step);
-                if (step === 'publish') setRightPanel('preview');
-              }}
-            />
-
             {/* Preview / Code tabs */}
             <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border/50 bg-surface/40 backdrop-blur-md flex-shrink-0">
               <button
@@ -1255,8 +1203,8 @@ function BuilderContent() {
 
                 {(currentResult.htmlDoc || currentResult.embedUrl) ? (
                   <div className="flex-1 flex overflow-hidden">
-                    {/* Preview area — dark canvas like Lovable */}
-                    <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-[#0D0D0F] relative" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(139,92,246,0.06) 0%, transparent 60%)' }}>
+                    {/* Preview area — dark canvas */}
+                    <div className="flex-1 overflow-auto flex items-start justify-center p-6 bg-bg relative" style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(139,92,246,0.04) 0%, transparent 50%)' }}>
                       <ErrorBoundary fallbackTitle="Preview error">
                         <WebPreview
                           key={currentResult.htmlDoc ? currentResult.htmlDoc.slice(0, 80) : currentResult.embedUrl}
@@ -1281,24 +1229,37 @@ function BuilderContent() {
                           />
                         </div>
                       )}
+
+                      {/* Sidebar toggle — fixed on the right edge of preview */}
+                      <button
+                        onClick={() => setShowEditSidebar(v => !v)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-6 h-12 rounded-l-lg bg-surface/80 backdrop-blur-sm border border-border/50 border-r-0 flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface transition-all"
+                        title={showEditSidebar ? 'Hide edit panel' : 'Show edit panel'}
+                      >
+                        <svg className={`w-3 h-3 transition-transform ${showEditSidebar ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
                     </div>
 
-                    {/* Edit Sidebar — AI design, layers, properties */}
-                    <div className="w-[280px] flex-shrink-0 border-r border-border/50 glass-panel overflow-hidden">
-                      <EditSidebar
-                        onAIEdit={handleStructureEdit}
-                        isGenerating={isGenerating}
-                        appName={currentResult.appName}
-                        screens={appScreens}
-                        onNavigate={handleNavigateScreen}
-                        onAddScreen={handleAddScreen}
-                        selectedElement={selectedElement}
-                        onStyleChange={handleStyleChange}
-                        onTextChange={handleTextChange}
-                        onInsertIcon={handleInsertIcon}
-                        onDeselect={handleDeselectElement}
-                      />
-                    </div>
+                    {/* Edit Sidebar — collapsible */}
+                    {showEditSidebar && (
+                      <div className="w-[280px] flex-shrink-0 border-l border-border/50 glass-panel overflow-hidden">
+                        <EditSidebar
+                          onAIEdit={handleStructureEdit}
+                          isGenerating={isGenerating}
+                          appName={currentResult.appName}
+                          screens={appScreens}
+                          onNavigate={handleNavigateScreen}
+                          onAddScreen={handleAddScreen}
+                          selectedElement={selectedElement}
+                          onStyleChange={handleStyleChange}
+                          onTextChange={handleTextChange}
+                          onInsertIcon={handleInsertIcon}
+                          onDeselect={handleDeselectElement}
+                        />
+                      </div>
+                    )}
                   </div>
                 ) : null}
               </>
