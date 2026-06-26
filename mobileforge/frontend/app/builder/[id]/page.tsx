@@ -402,6 +402,7 @@ function BuilderContent() {
   const [editSettings, setEditSettings] = useState<EditSettings>(DEFAULT_SETTINGS);
   const [shareStatus, setShareStatus] = useState<'idle' | 'sharing' | 'copied'>('idle');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showVersionPanel, setShowVersionPanel] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('he');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [appScreens, setAppScreens] = useState<PreviewScreen[]>([]);
@@ -600,6 +601,84 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
     URL.revokeObjectURL(url);
     setShowExportMenu(false);
     showToast('DESIGN.md exported — drop it into Cursor, Claude Code or Figma');
+  }, [currentResult, editSettings, appScreens, showToast]);
+
+  const exportAsDesignJson = useCallback(() => {
+    if (!currentResult) return;
+    const accent = editSettings.accentColor || (currentResult.colorScheme?.primary as string) || '#6366f1';
+    const dark = editSettings.darkMode;
+    const font = FONTS.find((f) => f.id === editSettings.fontId) ?? FONTS[0];
+    const roundedMd = editSettings.radiusPreset === 'sharp' ? '4px' : editSettings.radiusPreset === 'round' ? '16px' : '12px';
+    const roundedSm = editSettings.radiusPreset === 'sharp' ? '2px' : editSettings.radiusPreset === 'round' ? '12px' : '8px';
+    const bg = dark ? '#0F1115' : '#FFFFFF';
+    const text = dark ? '#F3F4F6' : '#111827';
+    const surface = dark ? '#1C1F26' : '#F7F7F8';
+
+    const tokens = {
+      $schema: 'https://mobileforge.app/design-tokens/v1',
+      name: currentResult.appName || 'My App',
+      generatedAt: new Date().toISOString(),
+      theme: dark ? 'dark' : 'light',
+      colors: {
+        primary: accent,
+        onPrimary: '#FFFFFF',
+        background: bg,
+        surface,
+        text,
+        textSecondary: dark ? '#8E8E93' : '#6B7280',
+        border: dark ? '#38383A' : '#E5E7EB',
+        success: '#22C55E',
+        warning: '#F59E0B',
+        error: '#EF4444',
+        tones: Object.fromEntries(
+          [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100].map(t => {
+            const mix = t / 100;
+            const r = Math.round(parseInt(accent.slice(1, 3), 16) * (1 - mix) + (dark ? 0 : 255) * mix);
+            const g = Math.round(parseInt(accent.slice(3, 5), 16) * (1 - mix) + (dark ? 0 : 255) * mix);
+            const b = Math.round(parseInt(accent.slice(5, 7), 16) * (1 - mix) + (dark ? 0 : 255) * mix);
+            return [`T${t}`, `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`];
+          })
+        ),
+      },
+      typography: {
+        fontFamily: font.family,
+        scale: {
+          display: { size: '2.25rem', weight: 700, lineHeight: '2.75rem' },
+          title: { size: '1.625rem', weight: 800, lineHeight: '2rem' },
+          titleMd: { size: '1.25rem', weight: 700, lineHeight: '1.75rem' },
+          bodyLg: { size: '1rem', weight: 400, lineHeight: '1.5rem' },
+          body: { size: '0.875rem', weight: 400, lineHeight: '1.375rem' },
+          label: { size: '0.75rem', weight: 600, lineHeight: '1rem' },
+          caption: { size: '0.75rem', weight: 400, lineHeight: '1rem' },
+        },
+      },
+      spacing: { xs: '4px', sm: '8px', md: '16px', lg: '24px', xl: '32px' },
+      radii: { sm: roundedSm, md: roundedMd, lg: '20px', full: '9999px' },
+      shadows: {
+        sm: '0 1px 2px rgba(0,0,0,0.04)',
+        md: '0 1px 3px rgba(0,0,0,0.08)',
+        lg: '0 4px 12px rgba(0,0,0,0.1)',
+      },
+      components: {
+        button: { bg: accent, color: '#FFFFFF', radius: roundedMd, height: '52px' },
+        card: { bg: dark ? surface : '#FFFFFF', radius: '20px', shadow: '0 1px 3px rgba(0,0,0,0.08)' },
+        input: { height: '48px', radius: roundedSm, border: dark ? '#38383A' : '#E5E7EB' },
+        avatar: { size: '40px', radius: '9999px' },
+        nav: { height: '56px', items: 4 },
+      },
+      screens: appScreens.map(s => s.label),
+      features: currentResult.features || [],
+    };
+
+    const blob = new Blob([JSON.stringify(tokens, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'design-tokens.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowExportMenu(false);
+    showToast('Design tokens exported as JSON');
   }, [currentResult, editSettings, appScreens, showToast]);
 
   const exportAsHtml = useCallback(() => {
@@ -1031,9 +1110,44 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                   </svg>
                 </button>
                 {versions.length > 1 && (
-                  <span className="text-[10px] text-text-secondary tabular-nums ml-0.5">{versionIdx + 1}/{versions.length}</span>
+                  <button
+                    onClick={() => setShowVersionPanel(v => !v)}
+                    className="text-[10px] text-text-secondary tabular-nums ml-0.5 hover:text-primary transition-colors cursor-pointer flex items-center gap-0.5"
+                    title="View version history"
+                  >
+                    {versionIdx + 1}/{versions.length}
+                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
                 )}
               </div>
+              {showVersionPanel && versions.length > 1 && (
+                <>
+                  <div className="fixed inset-0 z-50" onClick={() => setShowVersionPanel(false)} />
+                  <div className="absolute right-16 top-full mt-1 w-64 bg-surface border border-border rounded-xl shadow-lg z-50 py-1.5 animate-fade-in-up max-h-72 overflow-y-auto" dir="ltr">
+                    <div className="px-3 py-1.5 text-[10px] font-semibold text-text-secondary uppercase tracking-wider">Version History</div>
+                    {versions.map((v, i) => (
+                      <button
+                        key={i}
+                        onClick={() => { setVersionIdx(i); setCurrentResult(v); setShowVersionPanel(false); }}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-all ${i === versionIdx ? 'bg-primary/10 text-primary' : 'text-text-primary hover:bg-primary/5'}`}
+                      >
+                        <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${i === versionIdx ? 'bg-primary text-white' : 'bg-surface-2 text-text-secondary'}`}>
+                          {i + 1}
+                        </span>
+                        <div className="text-left flex-1 min-w-0">
+                          <p className="font-medium truncate">{v.appName || `Version ${i + 1}`}</p>
+                          <p className="text-[10px] text-text-secondary truncate">{(v.features || []).slice(0, 3).join(', ') || 'No features listed'}</p>
+                        </div>
+                        {i === versionIdx && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/15 text-primary font-medium flex-shrink-0">Current</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
 
               <div className="h-5 w-px bg-border" />
             </>
@@ -1187,6 +1301,14 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                         <div className="text-left">
                           <p className="font-medium">DESIGN.md</p>
                           <p className="text-[10px] text-text-secondary">Design system for AI agents (Stitch format)</p>
+                        </div>
+                      </button>
+                      <button onClick={exportAsDesignJson}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
+                        <span className="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-500 flex items-center justify-center text-sm">🎨</span>
+                        <div className="text-left">
+                          <p className="font-medium">Design Tokens JSON</p>
+                          <p className="text-[10px] text-text-secondary">Colors, typography, spacing + tonal scale</p>
                         </div>
                       </button>
                       <div className="h-px bg-border mx-2 my-1" />
