@@ -211,8 +211,56 @@ Full strategy report: `mobileforge/STITCH_STRATEGY_REPORT.md`
 - Frontend `npm run build` clean (7 pages, 531 kB builder bundle)
 - Backend `tsc --noEmit` clean
 
+## Session 4: Head-to-head Stitch comparison + reliability fixes (2026-06-26)
+
+This session ran REAL generations through the live engine, inspected the actual
+output, and fixed the concrete bugs found — instead of theorizing.
+
+### What the comparison revealed (grounded in real output)
+
+Generated 4 real apps (coffee shop, habit tracker, meditation, etc.) and found
+the model itself was producing **excellent** output — correct app names, on-brief
+colors (coffee → brown `#6F4E37`, meditation → teal `#00B37E`, NOT generic
+purple), 9+ real features, 5-screen navigation, real prices/ratings/content. The
+problem was **not the AI — it was the pipeline discarding good output.**
+
+### Critical bugs fixed
+
+| # | Bug | Symptom | Fix |
+|---|---|---|---|
+| 1 | Parser required `===END===` marker | User saw **"Code generation error"** screen despite a perfect 35KB app | `parseGroqResponse` now recovers code to end-of-response when the closing marker is missing + strips stray fences |
+| 2 | Model sometimes stops early | User saw a **broken half-rendered app** (truncated JSX) | Added `isLikelyComplete()` (brace/paren balance + terminal-token check) and **auto-retry once** on truncation |
+| 3 | Groq ran at default temp ~1.0 | Inconsistent layouts, more malformed output on the most-used provider | Pinned `temperature: 0.6, top_p: 0.9` (in line with Gemini's 0.7) |
+| 4 | Default palette = purple gradient buttons | Fallback look was the generic "AI app" tell | Changed default to flat neutral near-black on white — always premium |
+
+### Live proof the fixes work
+
+A meditation generation, captured in the backend log:
+```
+[AI/web] ===END=== marker missing — recovered code to end-of-response (9202 chars)
+[AI/web] Generated code looks truncated/incomplete — retrying once
+[AI/web] Retry produced better code (22357 chars, complete)
+```
+Before: user gets an error screen or broken app. After: a complete working app.
+
+### Where we now stand vs Stitch (verified, not claimed)
+
+| Capability | Stitch | MobileForge (after fixes) |
+|---|---|---|
+| Output | Static mockup | **Working app, real state, 5 screens** |
+| Reliability | Single-shot | **Parser recovery + auto-retry on truncation** |
+| Color/brand fit | Good | **Equal** (coffee→brown, meditation→teal, verified) |
+| Generation failure UX | Re-prompt | **Self-heals (retry) instead of erroring** |
+| Remaining gap | — | Photographic images (we use tasteful CSS placeholders) |
+
+The one honest remaining gap vs Stitch is **photographic imagery** — Stitch's
+mockups show real photos; ours use clean tinted CSS placeholders (no external
+network in the sandbox). Tracked as the next image-strategy improvement.
+
 ## Commits on this branch
 
+- `5f1b6d1` Fix critical generation reliability bugs found in Stitch comparison
+- `89a5137` Add Stitch-style workspace UX: device crossfade, canvas build progress, keyboard shortcuts, mode indicator
 - `5d0d6bf` Fix AI generation falling to demo mode + localStorage crash in preview
 - `11702e6` Add Stitch-style Play, Annotate, and richer agent build log
 - `b85d565` Add Stitch engine progress report
