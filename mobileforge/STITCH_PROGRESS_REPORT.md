@@ -137,7 +137,64 @@ build until it redeploys:
   (a Chromium quirk) — real user clicks and `dispatchEvent` both work, so this
   only affects automated testing, not users.
 
+## Session 2: Stitch Research + Additional Features (2026-06-26)
+
+### New features added
+
+| # | Feature | Status | Details |
+|---|---|---|---|
+| 6 | DESIGN.md export | **Added** | Stitch-compatible design system spec (YAML + prose) |
+| 7 | Dark-mode loading overlay | **Fixed** | Preview overlay now matches app's dark/light theme |
+| 8 | Design Tokens JSON export | **Added** | Machine-readable tokens: colors (with T0-T100 tonal scale), typography, spacing, radii, shadows, components |
+| 9 | Version History panel | **Added** | Click version counter to browse/restore any previous iteration |
+| 10 | Stitch Strategy Report | **Written** | Comprehensive research + competitive analysis + roadmap |
+
+### Stitch Research Summary
+
+Google Stitch is a **design exploration tool** (stitch.withgoogle.com), NOT an app builder:
+- Generates static UI mockups (HTML + Tailwind), not working apps
+- Can't select individual elements — must re-prompt everything
+- No backend, database, auth, or API integration
+- 400 daily design credits, 15 redesigns — no way to pay for more
+- Only exports HTML/TailwindCSS — no React, no React Native
+- Experimental Labs product — could be shut down anytime
+- Quality degraded after Gemini 3 update (user complaints on Google forum)
+
+### Where MobileForge is already better than Stitch
+
+| Capability | Stitch | MobileForge |
+|---|---|---|
+| Output type | Static mockup | **Working interactive app** |
+| Buttons/forms | Decorative only | **Real state + real interactions** |
+| Element editing | Can't do it | **Annotate mode** |
+| Interactive preview | Limited | **Play mode** |
+| AI providers | Gemini only | **5-provider fallback** |
+| Exports | HTML/Tailwind | **HTML, React, PWA, DESIGN.md, JSON tokens, App Store** |
+| Credit limits | 400/day | **None** |
+| Quality enforcement | None | **12-point checklist in system prompt** |
+
+### What Stitch does that we should still build
+
+1. Template gallery in the builder workspace (templates exist in chat, need builder access)
+2. Image/sketch-to-app (partial — screenshot clone works)
+3. Multi-screen deep linking in prototype mode
+4. Voice Canvas (we have speech-to-text, need design critique mode)
+
+Full strategy report: `mobileforge/STITCH_STRATEGY_REPORT.md`
+
+### Comparison test results (Playwright, 2026-06-26)
+
+- Generated a "coffee shop loyalty app" → AI produced a working StyleHub store
+- Preview: real product content, prices, cart buttons — **0 runtime errors**
+- Export menu: all 7 options confirmed (HTML, React, React Project, DESIGN.md, JSON, PWA, Play Store)
+- Design System panel: dark/light toggle, color swatches visible
+- Screen tabs: 2 screens detected
+- Build: backend `tsc --noEmit` clean, frontend `npm run build` clean (7 pages)
+
 ## Commits on this branch
 
 - `5d0d6bf` Fix AI generation falling to demo mode + localStorage crash in preview
 - `11702e6` Add Stitch-style Play, Annotate, and richer agent build log
+- `b85d565` Add Stitch engine progress report
+- `d19189a` Add DESIGN.md export and dark-mode loading overlay
+- `58f622d` Add Design Tokens JSON export, version history panel, and Stitch strategy report
