@@ -402,7 +402,9 @@ function BuilderContent() {
   const [editSettings, setEditSettings] = useState<EditSettings>(DEFAULT_SETTINGS);
   const [shareStatus, setShareStatus] = useState<'idle' | 'sharing' | 'copied'>('idle');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationStep, setGenerationStep] = useState(0);
   const [showVersionPanel, setShowVersionPanel] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('he');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [appScreens, setAppScreens] = useState<PreviewScreen[]>([]);
@@ -440,7 +442,7 @@ function BuilderContent() {
     setCurrentResult(versions[newIdx]);
   }, [canRedo, versionIdx, versions]);
 
-  // Keyboard shortcuts for undo/redo
+  // Keyboard shortcuts for undo/redo (modifier keys work before other refs)
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
@@ -791,8 +793,33 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
 
   const handleGeneratingChange = useCallback((generating: boolean) => {
     setIsGenerating(generating);
+    setGenerationStep(0);
     setSaveStatus(generating ? 'saving' : 'idle');
   }, []);
+
+  // Stitch-style: advance through build steps on the canvas while generating
+  const CANVAS_BUILD_STEPS = [
+    { label: 'Understanding your idea', duration: 2500 },
+    { label: 'Planning screens & navigation', duration: 4000 },
+    { label: 'Choosing components', duration: 4500 },
+    { label: 'Designing the visual system', duration: 4500 },
+    { label: 'Writing the code', duration: 6000 },
+    { label: 'Wiring interactions', duration: 4500 },
+    { label: 'Polishing & final touches', duration: 4000 },
+  ];
+  useEffect(() => {
+    if (!isGenerating) { setGenerationStep(0); return; }
+    let step = 0;
+    const advance = () => {
+      if (step >= CANVAS_BUILD_STEPS.length - 1) return;
+      step++;
+      setGenerationStep(step);
+      setTimeout(advance, CANVAS_BUILD_STEPS[step].duration);
+    };
+    const t = setTimeout(advance, CANVAS_BUILD_STEPS[0].duration);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGenerating]);
 
   const handleAppGenerated = useCallback((result: GenerateResponse) => {
     setCurrentResult(result);
@@ -962,6 +989,30 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
     setSelectedElement(null);
   }, []);
 
+  // Stitch-style single-key shortcuts (defined after all handlers are available)
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable;
+      if (inInput || e.metaKey || e.ctrlKey) return;
+      switch (e.key) {
+        case '?':
+          e.preventDefault();
+          setShowShortcuts(v => !v);
+          break;
+        case 'Escape':
+          e.preventDefault();
+          if (showShortcuts) setShowShortcuts(false);
+          else if (annotateMode) { setAnnotateMode(false); setAnnotateText(''); }
+          else if (playMode) { setPlayMode(false); sendPlayState(false); }
+          else if (selectedElement) handleDeselectElement();
+          break;
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [showShortcuts, annotateMode, playMode, selectedElement, sendPlayState, handleDeselectElement]);
+
   // Live sync: whenever the app changes and a live session is active, push the
   // latest HTML so any device watching the live URL reloads in real time.
   useEffect(() => {
@@ -1041,6 +1092,47 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
             </button>
           </div>
         </div>
+      )}
+
+      {/* Keyboard shortcuts overlay */}
+      {showShortcuts && (
+        <>
+          <div className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" onClick={() => setShowShortcuts(false)} />
+          <div className="fixed inset-0 z-[120] flex items-center justify-center pointer-events-none">
+            <div className="pointer-events-auto w-80 bg-surface border border-border rounded-2xl shadow-2xl p-5 animate-fade-in-up" dir="ltr">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-text-primary">Keyboard Shortcuts</h3>
+                <button onClick={() => setShowShortcuts(false)} className="text-text-secondary hover:text-text-primary">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { keys: ['Ctrl', 'Z'], label: 'Undo' },
+                  { keys: ['Ctrl', 'Shift', 'Z'], label: 'Redo' },
+                  { keys: ['Esc'], label: 'Deselect / exit mode' },
+                  { keys: ['?'], label: 'Toggle shortcuts' },
+                ].map((s, i) => (
+                  <div key={i} className="flex items-center justify-between py-1.5">
+                    <span className="text-xs text-text-secondary">{s.label}</span>
+                    <div className="flex items-center gap-1">
+                      {s.keys.map((k, j) => (
+                        <kbd key={j} className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-[10px] font-mono text-text-primary font-medium min-w-[22px] text-center">
+                          {k}
+                        </kbd>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 pt-3 border-t border-border/50 text-[10px] text-text-soft text-center">
+                Press <kbd className="px-1 py-0.5 rounded bg-surface-2 border border-border font-mono">?</kbd> anywhere to toggle
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Forge AI assistant */}
@@ -1406,15 +1498,28 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                     {playMode ? 'Playing' : 'Play'}
                   </button>
 
-                  {/* Annotate — pick an element, describe a change in words */}
+                  {/* Edit — direct text/element editing without AI (Stitch-style) */}
+                  {!playMode && !annotateMode && (
+                    <button
+                      title="Click any element to select it, double-click to edit text directly"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-blue-500/10 text-blue-400"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                      Edit
+                    </button>
+                  )}
+
+                  {/* Annotate — pick an element, describe a change with AI */}
                   <button
                     onClick={handleToggleAnnotate}
                     aria-label={annotateMode ? 'Exit annotate mode' : 'Enter annotate mode'}
-                    title="Annotate — tap any element and describe the change you want"
+                    title="Annotate — tap any element and describe the change you want (AI-powered)"
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${annotateMode ? 'bg-amber-500/15 text-amber-400' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                     </svg>
                     Annotate
                   </button>
@@ -1466,6 +1571,51 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
               <div className="flex-1 flex overflow-hidden">
                 {/* Canvas area — Stitch-style workspace */}
                 <div className="flex-1 overflow-auto flex items-center justify-center relative canvas-bg">
+                  {/* Stitch-style generation progress overlay on canvas */}
+                  {isGenerating && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                      <div className="flex flex-col items-center gap-5 p-8 rounded-3xl bg-surface/90 backdrop-blur-2xl border border-border/60 shadow-2xl pointer-events-auto max-w-xs">
+                        <div className="relative">
+                          <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
+                               style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                            <span className="text-white font-bold text-xl">M</span>
+                          </div>
+                          <div className="absolute -inset-2 rounded-3xl animate-ping opacity-20"
+                               style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }} />
+                        </div>
+                        <div className="w-full space-y-2">
+                          {CANVAS_BUILD_STEPS.map((step, i) => (
+                            <div key={i} className={`flex items-center gap-2.5 text-xs transition-all duration-300 ${
+                              i < generationStep ? 'text-text-secondary' :
+                              i === generationStep ? 'text-primary font-semibold' :
+                              'text-text-soft/50'
+                            }`}>
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                                i < generationStep ? 'bg-green-500/15 text-green-500' :
+                                i === generationStep ? 'bg-primary/15 text-primary' :
+                                'bg-surface-2'
+                              }`}>
+                                {i < generationStep ? (
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                ) : i === generationStep ? (
+                                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                ) : (
+                                  <span className="text-[9px] font-medium text-text-soft">{i + 1}</span>
+                                )}
+                              </div>
+                              <span className={i < generationStep ? 'line-through opacity-60' : ''}>{step.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="w-full h-1 rounded-full bg-surface-2 overflow-hidden">
+                          <div className="h-full rounded-full bg-gradient-to-r from-primary to-violet-400 transition-all duration-700 ease-out"
+                               style={{ width: `${((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   {(currentResult.htmlDoc || currentResult.embedUrl) ? (
                     <>
                       <ErrorBoundary fallbackTitle="Preview error">
@@ -1542,6 +1692,33 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                       )}
                     </>
                   ) : null}
+
+                  {/* Floating mode indicator — bottom center of canvas */}
+                  {!isGenerating && (
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium backdrop-blur-xl border shadow-lg transition-all duration-300 ${
+                        playMode
+                          ? 'bg-green-500/12 border-green-500/25 text-green-400'
+                          : annotateMode
+                          ? 'bg-amber-500/12 border-amber-500/25 text-amber-400'
+                          : selectedElement
+                          ? 'bg-blue-500/12 border-blue-500/25 text-blue-400'
+                          : 'bg-surface/70 border-border/40 text-text-secondary'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          playMode ? 'bg-green-400 animate-pulse' :
+                          annotateMode ? 'bg-amber-400 animate-pulse' :
+                          selectedElement ? 'bg-blue-400' :
+                          'bg-text-soft'
+                        }`} />
+                        {playMode ? 'Interactive mode' :
+                         annotateMode ? 'Annotate mode' :
+                         selectedElement ? 'Editing element' :
+                         'Ready'}
+                        <span className="text-text-soft/50 ml-1">Press ? for shortcuts</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Stitch-style floating theme panel — collapsible */}
@@ -1584,18 +1761,62 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
           </Panel>
         ) : (
           /* Empty state — Stitch-style canvas workspace */
-          <Panel id="empty-canvas" defaultSize="65%" minSize="40%" className="hidden md:flex items-center justify-center text-text-secondary bg-bg canvas-bg">
-            <div className="text-center max-w-md animate-fade-in-up">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-500/15 to-fuchsia-500/15 border border-violet-500/10 flex items-center justify-center mx-auto mb-6">
-                <svg className="w-9 h-9 text-violet-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-                </svg>
+          <Panel id="empty-canvas" defaultSize="65%" minSize="40%" className="hidden md:flex items-center justify-center text-text-secondary bg-bg canvas-bg relative">
+            {isGenerating ? (
+              <div className="flex flex-col items-center gap-5 p-8 rounded-3xl bg-surface/90 backdrop-blur-2xl border border-border/60 shadow-2xl max-w-xs animate-fade-in-up">
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
+                       style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                    <span className="text-white font-bold text-2xl">M</span>
+                  </div>
+                  <div className="absolute -inset-2 rounded-3xl animate-ping opacity-20"
+                       style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }} />
+                </div>
+                <div className="w-full space-y-2.5">
+                  {CANVAS_BUILD_STEPS.map((step, i) => (
+                    <div key={i} className={`flex items-center gap-2.5 text-xs transition-all duration-300 ${
+                      i < generationStep ? 'text-text-secondary' :
+                      i === generationStep ? 'text-primary font-semibold' :
+                      'text-text-soft/50'
+                    }`}>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                        i < generationStep ? 'bg-green-500/15 text-green-500' :
+                        i === generationStep ? 'bg-primary/15 text-primary' :
+                        'bg-surface-2'
+                      }`}>
+                        {i < generationStep ? (
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : i === generationStep ? (
+                          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                        ) : (
+                          <span className="text-[9px] font-medium text-text-soft">{i + 1}</span>
+                        )}
+                      </div>
+                      <span className={i < generationStep ? 'line-through opacity-60' : ''}>{step.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-surface-2 overflow-hidden">
+                  <div className="h-full rounded-full bg-gradient-to-r from-primary to-violet-400 transition-all duration-700 ease-out"
+                       style={{ width: `${((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100}%` }} />
+                </div>
+                <p className="text-[11px] text-text-secondary">Building your app...</p>
               </div>
-              <h3 className="font-display font-semibold text-xl text-text-primary mb-2">Your canvas is ready</h3>
-              <p className="text-sm leading-relaxed text-text-secondary max-w-xs mx-auto">
-                Describe what you want to build and your app will appear here
-              </p>
-            </div>
+            ) : (
+              <div className="text-center max-w-md animate-fade-in-up">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-500/15 to-fuchsia-500/15 border border-violet-500/10 flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-9 h-9 text-violet-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+                  </svg>
+                </div>
+                <h3 className="font-display font-semibold text-xl text-text-primary mb-2">Your canvas is ready</h3>
+                <p className="text-sm leading-relaxed text-text-secondary max-w-xs mx-auto">
+                  Describe what you want to build and your app will appear here
+                </p>
+              </div>
+            )}
           </Panel>
         )}
 

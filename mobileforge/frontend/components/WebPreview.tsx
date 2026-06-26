@@ -502,6 +502,7 @@ export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChan
   const [loaded, setLoaded] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const [device, setDevice] = useState<DeviceId>('iphone');
+  const [transitioning, setTransitioning] = useState(false);
   const localIframeRef = useRef<HTMLIFrameElement | null>(null);
   const loadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -542,7 +543,15 @@ export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChan
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
   }, [htmlDoc]);
 
-  const selectDevice = (id: DeviceId) => { setDevice(id); setLoaded(false); };
+  const selectDevice = useCallback((id: DeviceId) => {
+    if (id === device) return;
+    setTransitioning(true);
+    setTimeout(() => {
+      setDevice(id);
+      setLoaded(false);
+      setTimeout(() => setTransitioning(false), 50);
+    }, 200);
+  }, [device]);
 
   const iframeKey = `${device}-${refreshKey ?? ''}-${htmlDoc.slice(0, 40)}`;
   const handleLoad = useCallback(() => {
@@ -554,7 +563,7 @@ export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChan
 
   return (
     <div className="flex flex-col w-full gap-4 p-4">
-      {/* Floating toolbar — Stitch-style, centered at bottom */}
+      {/* Floating toolbar — Stitch-style, centered at top */}
       <div className="flex items-center justify-center">
         <div className="flex items-center gap-1 p-1 rounded-2xl bg-surface/80 backdrop-blur-xl border border-border/50 shadow-lg">
           {DEVICES.map(({ id, label, icon }) => (
@@ -586,10 +595,10 @@ export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChan
         </div>
       </div>
 
-      {/* Preview area */}
+      {/* Preview area with crossfade on device switch */}
       <div
-        className={`flex ${device === 'desktop' ? 'w-full justify-center' : 'items-start justify-center'}`}
-        style={{ minHeight: 780 }}
+        className={`flex ${device === 'desktop' ? 'w-full justify-center' : 'items-start justify-center'} transition-opacity duration-200 ease-out`}
+        style={{ minHeight: 780, opacity: transitioning ? 0 : 1 }}
       >
         {device === 'iphone'  && <IPhoneFrame  {...frameProps} />}
         {device === 'galaxy'  && <GalaxyFrame  {...frameProps} />}

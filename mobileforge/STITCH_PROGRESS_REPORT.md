@@ -191,6 +191,26 @@ Full strategy report: `mobileforge/STITCH_STRATEGY_REPORT.md`
 - Screen tabs: 2 screens detected
 - Build: backend `tsc --noEmit` clean, frontend `npm run build` clean (7 pages)
 
+## Session 3: Stitch Workspace UX Polish (2026-06-26)
+
+### New features added
+
+| # | Feature | Status | Details |
+|---|---|---|---|
+| 11 | Smooth device-switch crossfade | **Added** | Switching iPhone/Galaxy/iPad/Desktop fades out → switches → fades in (200ms) instead of hard-reload jump |
+| 12 | Canvas generation progress overlay | **Added** | 7-step build log displayed on the canvas during generation, synced with chat progress — shows which step is active, checkmarks for completed steps, gradient progress bar |
+| 13 | Keyboard shortcuts (? key) | **Added** | Press ? anywhere to see shortcuts overlay: Ctrl+Z undo, Ctrl+Shift+Z redo, Esc deselect/exit mode |
+| 14 | Floating mode indicator | **Added** | Bottom-center pill on canvas shows current state: Ready / Interactive mode / Annotate mode / Editing element — with color-coded accent and pulse animation |
+| 15 | Direct Edit button | **Added** | Blue "Edit" button in canvas toolbar makes the existing direct text editing more discoverable (Stitch-style); Annotate icon changed to chat bubble to differentiate |
+| 16 | Esc key exits all modes | **Added** | Escape key now cascades: closes shortcuts → exits annotate → exits play → deselects element |
+
+### Verification (Playwright, 2026-06-26)
+
+- Shortcuts overlay opens with `?`, closes with `Esc` — confirmed in headless browser
+- Empty canvas renders cleanly in dark mode with dot grid
+- Frontend `npm run build` clean (7 pages, 531 kB builder bundle)
+- Backend `tsc --noEmit` clean
+
 ## Commits on this branch
 
 - `5d0d6bf` Fix AI generation falling to demo mode + localStorage crash in preview
