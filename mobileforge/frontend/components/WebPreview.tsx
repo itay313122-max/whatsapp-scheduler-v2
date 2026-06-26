@@ -30,6 +30,7 @@ interface WebPreviewProps {
   onElementSelected?: (element: PreviewSelectedElement) => void;
   onElementDeselected?: () => void;
   iframeRef?: React.MutableRefObject<HTMLIFrameElement | null>;
+  dark?: boolean;
 }
 
 type DeviceId = 'iphone' | 'galaxy' | 'ipad' | 'desktop';
@@ -68,24 +69,27 @@ const DEVICES: { id: DeviceId; label: string; icon: React.ReactNode }[] = [
   { id: 'ipad',    label: 'iPad',       icon: <IconTablet /> },
 ];
 
-function LoadingOverlay({ appName, failed }: { appName?: string; failed?: boolean }) {
+function LoadingOverlay({ appName, failed, dark }: { appName?: string; failed?: boolean; dark?: boolean }) {
   if (failed) {
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 text-center px-6"
-           style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' }}>
+           style={{ background: dark ? 'linear-gradient(135deg, #1c1917 0%, #292524 100%)' : 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' }}>
         <div className="text-4xl">⚠️</div>
-        <p className="text-sm font-semibold" style={{ color: '#92400e' }}>
+        <p className="text-sm font-semibold" style={{ color: dark ? '#fbbf24' : '#92400e' }}>
           Unable to load the preview
         </p>
-        <p className="text-xs leading-relaxed max-w-[220px]" style={{ color: '#a16207' }}>
+        <p className="text-xs leading-relaxed max-w-[220px]" style={{ color: dark ? '#d6a960' : '#a16207' }}>
           Check your internet connection and refresh the page. The preview requires network access.
         </p>
       </div>
     );
   }
+  // Match the loader to the app's own theme so a dark app doesn't flash a bright
+  // white screen (and vice-versa) while it mounts.
+  const bg = dark ? 'linear-gradient(135deg, #0f172a 0%, #1e1b2e 100%)' : 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)';
+  const labelColor = dark ? '#cbd5e1' : '#475569';
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10"
-         style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)' }}>
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10" style={{ background: bg }}>
       <div className="relative">
         <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
@@ -95,7 +99,7 @@ function LoadingOverlay({ appName, failed }: { appName?: string; failed?: boolea
              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }} />
       </div>
       <div className="text-center">
-        <p className="text-sm font-medium" style={{ color: '#475569' }}>
+        <p className="text-sm font-medium" style={{ color: labelColor }}>
           {appName ? `Loading ${appName}...` : 'Loading preview...'}
         </p>
       </div>
@@ -117,11 +121,12 @@ interface FrameProps {
   onLoad: () => void;
   iframeKey: string;
   onIframeMount?: (el: HTMLIFrameElement | null) => void;
+  dark?: boolean;
 }
 
 // ── iPhone 15 Pro — Titanium Design ──────────────────────────────────────
 
-function IPhoneFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount }: FrameProps) {
+function IPhoneFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount, dark }: FrameProps) {
   return (
     <div className="relative flex-shrink-0" style={{ width: 390 }}>
       {/* Hardware buttons */}
@@ -211,7 +216,7 @@ function IPhoneFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, 
           background: '#000', position: 'relative',
           boxShadow: '0 0 0 0.5px rgba(255,255,255,0.04) inset',
         }}>
-          {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} />}
+          {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} dark={dark} />}
           <iframe
             ref={onIframeMount}
             key={iframeKey}
@@ -239,7 +244,7 @@ function IPhoneFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, 
 
 // ── Samsung Galaxy S24 Ultra — Premium Design ────────────────────────────
 
-function GalaxyFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount }: FrameProps) {
+function GalaxyFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount, dark }: FrameProps) {
   return (
     <div className="relative flex-shrink-0" style={{ width: 384 }}>
       {/* Hardware buttons */}
@@ -312,7 +317,7 @@ function GalaxyFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, 
           background: '#000', position: 'relative',
           boxShadow: '0 0 0 0.5px rgba(255,255,255,0.03) inset',
         }}>
-          {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} />}
+          {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} dark={dark} />}
           <iframe
             ref={onIframeMount}
             key={iframeKey}
@@ -339,7 +344,7 @@ function GalaxyFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, 
 
 // ── iPad Pro — Silver Aluminium ──────────────────────────────────────────
 
-function IPadFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount }: FrameProps) {
+function IPadFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount, dark }: FrameProps) {
   const shellW = IPAD_DISP_W + 44;
 
   return (
@@ -395,7 +400,7 @@ function IPadFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, on
           position: 'relative',
           boxShadow: '0 0 0 0.5px rgba(0,0,0,0.1) inset',
         }}>
-          {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} />}
+          {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} dark={dark} />}
           <div style={{
             position: 'absolute', top: 0, left: 0,
             width: IPAD_SCREEN_W, height: IPAD_SCREEN_H,
@@ -420,7 +425,7 @@ function IPadFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, on
 
 // ── Desktop — macOS Style Browser ────────────────────────────────────────
 
-function DesktopFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount }: FrameProps) {
+function DesktopFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey, onIframeMount, dark }: FrameProps) {
   return (
     <div className="relative w-full" style={{ maxWidth: 960 }}>
       {/* Browser chrome - macOS style */}
@@ -475,7 +480,7 @@ function DesktopFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey,
         border: '1px solid #d0d0d4', borderTop: 'none',
         boxShadow: '0 20px 50px -10px rgba(0,0,0,0.2), 0 8px 20px -6px rgba(0,0,0,0.12)',
       }}>
-        {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} />}
+        {(!loaded || loadFailed) && <LoadingOverlay appName={appName} failed={loadFailed} dark={dark} />}
         <iframe
           ref={onIframeMount}
           key={iframeKey}
@@ -493,7 +498,7 @@ function DesktopFrame({ htmlDoc, appName, loaded, loadFailed, onLoad, iframeKey,
 
 // ── Main component ────────────────────────────────────────────────────────
 
-export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChanged, onElementSelected, onElementDeselected, iframeRef }: WebPreviewProps) {
+export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChanged, onElementSelected, onElementDeselected, iframeRef, dark }: WebPreviewProps) {
   const [loaded, setLoaded] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const [device, setDevice] = useState<DeviceId>('iphone');
@@ -545,7 +550,7 @@ export default function WebPreview({ htmlDoc, appName, refreshKey, onScreensChan
     setLoadFailed(false);
     if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
   }, []);
-  const frameProps: FrameProps = { htmlDoc, appName, loaded, loadFailed, onLoad: handleLoad, iframeKey, onIframeMount };
+  const frameProps: FrameProps = { htmlDoc, appName, loaded, loadFailed, onLoad: handleLoad, iframeKey, onIframeMount, dark };
 
   return (
     <div className="flex flex-col w-full gap-4 p-4">
