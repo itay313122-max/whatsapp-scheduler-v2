@@ -23,6 +23,12 @@ async function callGroq(messages: ChatMessage[]): Promise<string> {
   const response = await client.chat.completions.create({
     model: MODEL,
     max_tokens: 16000,
+    // Pin sampling for design consistency. Groq otherwise defaults to ~1.0,
+    // which runs the most-used provider HOTTER than the Gemini fallback (0.7)
+    // and maximises "weird layout / malformed output" variance. 0.6 + top_p
+    // keeps output stable and on-brief without making it robotic.
+    temperature: 0.6,
+    top_p: 0.9,
     messages: messages as Parameters<typeof client.chat.completions.create>[0]['messages'],
   });
   return response.choices[0]?.message?.content ?? '';
@@ -1312,12 +1318,42 @@ function decodeEscapedUnicode(str: string): string {
  *
  * Falls back to the old JSON-embedded format if markers are not found.
  */
+/**
+ * Heuristic: does this look like a COMPLETE App component, or did the model stop
+ * early and leave us truncated JSX? A truncated app has badly unbalanced braces /
+ * parens (dozens of unclosed `{` from open JSX) and doesn't end on a terminal
+ * token. This is intentionally lenient (slack of a few) because braces inside
+ * strings/template-literals throw the count off slightly — we only want to catch
+ * GROSS truncation, not nitpick well-formed code.
+ */
+export function isLikelyComplete(code: string): boolean {
+  if (!code || code.length < 200) return false;
+  if (!/function\s+App\s*\(|App\s*=\s*\(|const\s+App\s*=/.test(code)) return false;
+  const count = (re: RegExp) => (code.match(re) || []).length;
+  const braceGap = count(/\{/g) - count(/\}/g);
+  const parenGap = count(/\(/g) - count(/\)/g);
+  // A complete component nets out near zero. Truncated JSX leaves many opens.
+  if (braceGap > 3 || braceGap < -3) return false;
+  if (parenGap > 3 || parenGap < -3) return false;
+  // Must end on a terminal-looking token, not mid-tag (e.g. `<div className="...">`)
+  const tail = code.trimEnd().slice(-3);
+  if (!/[)};]/.test(tail.slice(-1))) return false;
+  return true;
+}
+
 export function parseGroqResponse(raw: string): GeneratedWebApp {
   // ── Strategy 1: delimiter format (===CODE=== … ===END===) ──────────────
+  // Resilient to a MISSING ===END=== marker: long generations frequently omit
+  // the closing marker (or get cut at the token limit). When that happens we
+  // must NOT discard a perfectly good app — we take everything after ===CODE===
+  // to the end of the response as the code. (This was the #1 cause of users
+  // seeing a "Code generation error" screen despite the model succeeding.)
   const codeStart = raw.indexOf('===CODE===');
-  const codeEnd   = raw.indexOf('===END===');
-  if (codeStart !== -1 && codeEnd > codeStart) {
-    const code     = raw.slice(codeStart + 10, codeEnd).trim();
+  if (codeStart !== -1) {
+    const codeEnd = raw.indexOf('===END===', codeStart);
+    let code = (codeEnd > codeStart ? raw.slice(codeStart + 10, codeEnd) : raw.slice(codeStart + 10)).trim();
+    // Strip any stray markdown code fences the model may have wrapped the code in.
+    code = code.replace(/^```(?:jsx?|tsx?|javascript)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
     const metaPart = raw.slice(0, codeStart).trim();
     const js = metaPart.indexOf('{');
     const je = metaPart.lastIndexOf('}');
@@ -1332,6 +1368,9 @@ export function parseGroqResponse(raw: string): GeneratedWebApp {
       }
     }
 
+    if (codeEnd <= codeStart) {
+      console.warn('[AI/web] Delimiter: ===END=== marker missing — recovered code to end-of-response (', code.length, 'chars)');
+    }
     console.log('[AI/web] Parsed via delimiter format — appName:', meta.appName, '| code length:', code.length);
     return {
       appName:      decodeEscapedUnicode(meta.appName      ?? 'Generated App'),
@@ -1431,12 +1470,33 @@ export async function generateWebApp(
     return { ...parseGroqResponse(raw), demoMode: true, demoReason: 'No AI provider keys configured' };
   }
 
-  const { text: raw, demoMode, demoReason } = await callWithFallback(messages);
+  let { text: raw, demoMode, demoReason } = await callWithFallback(messages);
   console.log('[AI/web] Raw response length:', raw.length, '| demoMode:', demoMode);
   console.log('[AI/web] Raw (first 500):\n', raw.slice(0, 500));
 
   try {
-    const parsed = parseGroqResponse(raw);
+    let parsed = parseGroqResponse(raw);
+
+    // Reliability: the model occasionally stops early and hands back truncated,
+    // syntactically-broken JSX (unbalanced braces, ends mid-tag). Rather than
+    // ship a broken preview, retry ONCE — a single retry recovers the large
+    // majority of these. Never retry in demo mode (no real provider) or for
+    // edits (we'd risk discarding a valid partial edit).
+    if (!demoMode && !options?.editMode && !isLikelyComplete(parsed.files['App.jsx'])) {
+      console.warn('[AI/web] Generated code looks truncated/incomplete — retrying once');
+      const retry = await callWithFallback(messages);
+      const reparsed = parseGroqResponse(retry.text);
+      const better = isLikelyComplete(reparsed.files['App.jsx']) ||
+        reparsed.files['App.jsx'].length > parsed.files['App.jsx'].length;
+      if (better) {
+        console.log('[AI/web] Retry produced better code (', reparsed.files['App.jsx'].length, 'chars,',
+          isLikelyComplete(reparsed.files['App.jsx']) ? 'complete' : 'still partial', ')');
+        parsed = reparsed; demoMode = retry.demoMode; demoReason = retry.demoReason;
+      } else {
+        console.warn('[AI/web] Retry not better — keeping original');
+      }
+    }
+
     return { ...parsed, demoMode, demoReason };
   } catch (parseErr) {
     const msg = (parseErr as Error).message;

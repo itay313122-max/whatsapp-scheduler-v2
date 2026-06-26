@@ -52,29 +52,33 @@ const TAILWIND_SHIM = `
 const DESIGN_SYSTEM_CSS = `
 /* ── MobileForge Design System ─────────────────────────────────────────── */
 
-/* Default palette — AI overrides these by adding a <style> tag inside App() JSX */
+/* Default palette — AI overrides these by adding a <style> tag inside App() JSX.
+   These defaults are deliberately a FLAT, neutral, near-black accent on white —
+   the calm "$100M product" look — NOT a purple gradient. If the model ever
+   forgets to emit its own <style> override, the app must still fall back to a
+   premium look, never the generic "purple-gradient AI app" tell. */
 :root {
-  --c-from:          #6366f1;
-  --c-to:            #8b5cf6;
-  --c-primary:       #6366f1;
-  --c-primary-light: rgba(99,102,241,0.12);
-  --c-bg:            #f8fafc;
+  --c-from:          #111827;
+  --c-to:            #111827;
+  --c-primary:       #111827;
+  --c-primary-light: rgba(17,24,39,0.08);
+  --c-bg:            #ffffff;
   --c-surface:       #ffffff;
-  --c-border:        #e2e8f0;
-  --c-text:          #0f172a;
-  --c-text-2:        #475569;
-  --c-text-3:        #94a3b8;
+  --c-border:        #ececef;
+  --c-text:          #111827;
+  --c-text-2:        #6b7280;
+  --c-text-3:        #9ca3af;
   --r-sm: 12px; --r-md: 16px; --r-lg: 20px; --r-xl: 24px;
   /* Typography — overrideable by quick-edit panel */
   --c-font:           'Inter', system-ui, -apple-system, sans-serif;
   --c-text-size:      14px;
-  /* Buttons — overrideable by quick-edit panel */
+  /* Buttons — flat accent (no gradient), subtle shadow. Overrideable. */
   --btn-radius:       var(--r-md);
-  --btn-bg:           linear-gradient(135deg, var(--c-from), var(--c-to));
+  --btn-bg:           var(--c-primary);
   --btn-color:        #ffffff;
   --btn-border-width: 0px;
   --btn-border-color: transparent;
-  --btn-shadow:       0 4px 14px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.1);
+  --btn-shadow:       0 1px 3px rgba(0,0,0,0.08);
   /* Cards — overrideable by quick-edit panel */
   --card-radius:      var(--r-lg);
   --card-bg:          var(--c-surface);
