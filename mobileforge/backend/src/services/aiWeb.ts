@@ -1,6 +1,7 @@
 import Groq from 'groq-sdk';
 import { getDemoResponse, getDemoEditResponse } from './demoApps';
 import { getThemePrompt } from './themes';
+import { analyzeQuality, buildRepairPrompt } from './qualityGate';
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY || 'placeholder-for-demo-mode' });
 const MODEL = 'llama-3.3-70b-versatile';
@@ -1259,6 +1260,8 @@ export interface GenerateOptions {
   editMode?: boolean;
   existingCode?: string;
   theme?: string;
+  /** Skip the post-generation quality gate + auto-repair pass (e.g. for speed-sensitive paths). */
+  skipQualityGate?: boolean;
 }
 
 export interface ConversationMessage {
@@ -1280,6 +1283,16 @@ export interface GeneratedWebApp {
   hebrewSummary: string;
   demoMode?: boolean;
   demoReason?: string;
+  /** Post-generation quality gate result (blueprint + dead-UI / unreachable-screen findings). */
+  quality?: {
+    ok: boolean;
+    score: number;
+    issues: { kind: string; severity: string; message: string }[];
+    screens: number;
+    reachable: number;
+    buttons: string;
+    repaired: boolean;
+  };
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -1495,6 +1508,72 @@ export async function generateWebApp(
       } else {
         console.warn('[AI/web] Retry not better — keeping original');
       }
+    }
+
+    // Quality gate: reconstruct the app's blueprint (screens + nav graph +
+    // controls) from the generated code and check the contract Stitch enforces
+    // by design — every screen reachable, every button wired. When the gate
+    // finds dead UI on a FRESH generation, attempt ONE targeted repair pass.
+    // We never gate demo mode (no real provider) and we keep the original if the
+    // repair doesn't actually improve the score.
+    if (!demoMode && !options?.skipQualityGate) {
+      let report = analyzeQuality(parsed.files['App.jsx']);
+      let repaired = false;
+      console.log('[AI/web] Quality gate —', {
+        score: report.score,
+        ok: report.ok,
+        screens: report.blueprint.definedScreens.length,
+        reachable: report.blueprint.reachableScreens.length,
+        buttons: `${report.blueprint.wiredButtonCount}/${report.blueprint.buttonCount} wired`,
+        issues: report.issues.length,
+      });
+      if (report.issues.length) {
+        for (const it of report.issues.slice(0, 6)) console.warn(`[AI/web]   • [${it.kind}] ${it.message}`);
+      }
+
+      if (!report.ok) {
+        const repair = buildRepairPrompt(report);
+        if (repair) {
+          console.warn('[AI/web] Quality gate failed — attempting one repair pass');
+          const repairMessages: ChatMessage[] = [
+            { role: 'system', content: buildEditSystemPrompt(parsed.files['App.jsx']) },
+            { role: 'user', content: repair },
+          ];
+          try {
+            const fixed = await callWithFallback(repairMessages);
+            const reparsed = parseGroqResponse(fixed.text);
+            if (isLikelyComplete(reparsed.files['App.jsx'])) {
+              const after = analyzeQuality(reparsed.files['App.jsx']);
+              console.log('[AI/web] Post-repair quality —', { score: after.score, ok: after.ok, issues: after.issues.length });
+              if (after.score > report.score) {
+                console.log('[AI/web] Repair improved quality — keeping repaired version');
+                parsed = reparsed; report = after; repaired = true;
+              } else {
+                console.warn('[AI/web] Repair did not improve score — keeping original');
+              }
+            } else {
+              console.warn('[AI/web] Repair produced incomplete code — keeping original');
+            }
+          } catch (repairErr) {
+            console.warn('[AI/web] Repair pass errored — keeping original:', (repairErr as Error).message);
+          }
+        }
+      }
+
+      return {
+        ...parsed,
+        demoMode,
+        demoReason,
+        quality: {
+          ok: report.ok,
+          score: report.score,
+          issues: report.issues.map((i) => ({ kind: i.kind, severity: i.severity, message: i.message })),
+          screens: report.blueprint.definedScreens.length,
+          reachable: report.blueprint.reachableScreens.length,
+          buttons: `${report.blueprint.wiredButtonCount}/${report.blueprint.buttonCount}`,
+          repaired,
+        },
+      };
     }
 
     return { ...parsed, demoMode, demoReason };
