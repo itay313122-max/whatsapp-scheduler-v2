@@ -1429,3 +1429,103 @@ describe('Design themes', () => {
     expect(isValidTheme('nope')).toBe(false);
   });
 });
+
+// ── Quality gate — dead UI, unreachable screens, blueprint coverage ─────────
+import { analyzeQuality } from '../src/services/qualityGate';
+import { parseBlueprint, blueprintToPromptFragment } from '../src/services/aiWeb';
+
+describe('Quality gate — analyzeQuality', () => {
+  const GOOD = `function App() {
+    const { useState } = React;
+    const [screen, setScreen] = useState('home');
+    function renderContent() {
+      switch (screen) {
+        case 'home': return <div>Home <button onClick={() => setScreen('profile')}>Go</button></div>;
+        case 'profile': return <div>Profile <button onClick={() => setScreen('home')}>Back</button></div>;
+      }
+    }
+    return <div className="app-shell">{renderContent()}
+      <nav><button onClick={() => setScreen('home')}>H</button><button onClick={() => setScreen('profile')}>P</button></nav>
+    </div>;
+  }`;
+
+  it('passes a well-wired multi-screen app', () => {
+    const r = analyzeQuality(GOOD);
+    expect(r.ok).toBe(true);
+    expect(r.score).toBe(100);
+    expect(r.blueprint.definedScreens.sort()).toEqual(['home', 'profile']);
+    expect(r.blueprint.reachableScreens).toContain('profile');
+    expect(r.blueprint.wiredButtonCount).toBe(r.blueprint.buttonCount);
+  });
+
+  it('flags a button with no onClick handler', () => {
+    const code = `function App(){const {useState}=React;const [s,setS]=useState('home');return <div><button onClick={()=>setS('home')}>Ok</button><button>Dead</button></div>;}`;
+    const r = analyzeQuality(code);
+    expect(r.ok).toBe(false);
+    expect(r.issues.some((i) => i.kind === 'dead-button')).toBe(true);
+  });
+
+  it('flags an empty () => {} handler', () => {
+    const code = `function App(){const {useState}=React;const [s,setS]=useState('home');return <div><button onClick={()=>setS('home')}>Ok</button><button onClick={() => {}}>Empty</button></div>;}`;
+    const r = analyzeQuality(code);
+    expect(r.issues.some((i) => i.kind === 'empty-handler')).toBe(true);
+  });
+
+  it('flags an unreachable (defined but never navigated) screen', () => {
+    const code = `function App(){const {useState}=React;const [tab,setTab]=useState('feed');
+      function render(){switch(tab){case 'feed':return <div>Feed <button onClick={()=>setTab('search')}>S</button></div>;case 'search':return <div>Search</div>;case 'orphan':return <div>X</div>;}}
+      return <div>{render()}</div>;}`;
+    const r = analyzeQuality(code);
+    expect(r.issues.some((i) => i.kind === 'unlinked-screen' && i.message.includes('orphan'))).toBe(true);
+  });
+
+  it('flags a blueprint screen the code never defines (missing-screen)', () => {
+    const code = `function App(){const {useState}=React;const [screen,setScreen]=useState('home');
+      function render(){switch(screen){case 'home':return <div><button onClick={()=>setScreen('detail')}>Open</button></div>;case 'detail':return <div>Detail</div>;}}
+      return <div>{render()}</div>;}`;
+    const r = analyzeQuality(code, ['home', 'detail', 'cart']);
+    expect(r.issues.some((i) => i.kind === 'missing-screen' && i.message.includes('cart'))).toBe(true);
+  });
+
+  it('returns a failing report for empty code', () => {
+    const r = analyzeQuality('');
+    expect(r.ok).toBe(false);
+    expect(r.score).toBe(0);
+  });
+});
+
+describe('Blueprint — parseBlueprint', () => {
+  const RAW = `Plan: {"appName":"BrewFinder","summary":"Find coffee","screens":[
+    {"id":"home","name":"Home","purpose":"Browse","components":["search"]},
+    {"id":"detail","name":"Detail","purpose":"One shop","components":["menu"]},
+    {"id":"cart","name":"Cart","purpose":"Order","components":["items"]}],
+    "navigation":[{"from":"home","to":"detail","trigger":"Tap shop"},{"from":"detail","to":"cart","trigger":"Order"}],
+    "primaryFlow":["home","detail","cart"]} done`;
+
+  it('parses screens, navigation and flow', () => {
+    const bp = parseBlueprint(RAW);
+    expect(bp).not.toBeNull();
+    expect(bp!.screens.map((s) => s.id)).toEqual(['home', 'detail', 'cart']);
+    expect(bp!.navigation.length).toBe(2);
+    expect(bp!.primaryFlow).toEqual(['home', 'detail', 'cart']);
+  });
+
+  it('drops navigation edges that reference unknown screens', () => {
+    const bp = parseBlueprint(`{"appName":"X","summary":"y","screens":[{"id":"a","name":"A"},{"id":"b","name":"B"}],"navigation":[{"from":"a","to":"ghost","trigger":"t"},{"from":"a","to":"b","trigger":"t"}]}`);
+    expect(bp!.navigation.length).toBe(1);
+    expect(bp!.navigation[0].to).toBe('b');
+  });
+
+  it('returns null for a single-screen (non-blueprint) blob', () => {
+    expect(parseBlueprint(`{"appName":"X","screens":[{"id":"only","name":"Only"}]}`)).toBeNull();
+  });
+
+  it('produces a prompt fragment naming each screen and the landing marker', () => {
+    const bp = parseBlueprint(RAW)!;
+    const frag = blueprintToPromptFragment(bp);
+    expect(frag).toContain('BLUEPRINT CONTRACT');
+    expect(frag).toContain('id="home"');
+    expect(frag).toContain('LANDING');
+    expect(frag).toContain('home → detail');
+  });
+});
