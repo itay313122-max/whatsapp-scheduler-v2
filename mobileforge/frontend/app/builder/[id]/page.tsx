@@ -1624,6 +1624,29 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                           ✓ Auto-repaired one pass after the first generation fell short.
                         </p>
                       )}
+
+                      {/* Ideate blueprint — the plan this app was generated against */}
+                      {currentResult.blueprint && currentResult.blueprint.screens.length > 0 && (
+                        <div className="mt-2.5 pt-2.5 border-t border-border/40">
+                          <div className="flex items-center gap-1.5 mb-1.5">
+                            <svg className="w-3 h-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                            </svg>
+                            <span className="text-[10px] font-bold uppercase tracking-wide text-text-soft">Blueprint</span>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-1 text-[10px] text-text-secondary">
+                            {currentResult.blueprint.primaryFlow.map((id, i) => {
+                              const sc = currentResult.blueprint!.screens.find((s) => s.id === id);
+                              return (
+                                <span key={id} className="flex items-center gap-1">
+                                  <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">{sc?.name || id}</span>
+                                  {i < currentResult.blueprint!.primaryFlow.length - 1 && <span className="text-text-soft/60">→</span>}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

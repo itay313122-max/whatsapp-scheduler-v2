@@ -460,6 +460,7 @@ export default function ChatInterface({
       isEditMode: boolean;
       existingCode?: string;
       history: { role: 'user' | 'assistant'; content: string }[];
+      ideate?: boolean;
     }
   ) {
     const loadingMsg: Message = {
@@ -498,6 +499,7 @@ export default function ChatInterface({
         editMode: ctx.isEditMode,
         existingCode: ctx.existingCode,
         theme: ctx.isEditMode ? undefined : (selectedTheme || undefined),
+        ideate: ctx.ideate,
       });
       const demoWarning = result.demoMode
         ? '\n\n⚠️ Demo Mode — AI providers are not connected. This is a pre-built template, not a custom app. Configure a valid GROQ_API_KEY in the backend to enable real AI generation.'
@@ -555,6 +557,7 @@ export default function ChatInterface({
       isEditMode: false,
       existingCode: undefined,
       history: msg.planHistory || [],
+      ideate: true, // reached only via the Ideate flow (clarifying questions)
     });
   }
 
@@ -651,10 +654,12 @@ export default function ChatInterface({
       return;
     }
 
-    // Ready → drop the planning bubble and build.
+    // Ready → drop the planning bubble and build. Ideate mode runs the
+    // blueprint phase so the app is generated against an explicit screen +
+    // navigation contract (Stitch's two-phase model).
     setMessages((prev) => prev.slice(0, -1));
     setGenerating(false);
-    await runBuild(prompt, { isEditMode: false, existingCode: undefined, history });
+    await runBuild(prompt, { isEditMode: false, existingCode: undefined, history, ideate: true });
   }
 
   // Auto-submit initial prompt from landing page

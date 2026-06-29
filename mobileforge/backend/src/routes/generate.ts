@@ -85,14 +85,14 @@ router.post('/plan', async (req: Request, res: Response) => {
 
 // POST /api/generate
 router.post('/', async (req: Request, res: Response) => {
-  const { projectId, prompt, conversationHistory = [], editMode = false, existingCode, theme } = req.body;
+  const { projectId, prompt, conversationHistory = [], editMode = false, existingCode, theme, ideate = false } = req.body;
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
 
   try {
     const generated = await generateWebApp(
       prompt,
       conversationHistory as ConversationMessage[],
-      { editMode: !!editMode, existingCode: existingCode ?? undefined, theme: theme ?? undefined }
+      { editMode: !!editMode, existingCode: existingCode ?? undefined, theme: theme ?? undefined, ideate: !!ideate }
     );
     const appCode = extractAppCode(generated.files);
 

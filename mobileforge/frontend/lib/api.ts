@@ -20,6 +20,8 @@ export interface GenerateRequest {
   editMode?: boolean;
   existingCode?: string;
   theme?: string;
+  /** Run the Ideate phase: build a blueprint first, generate against it, verify coverage. */
+  ideate?: boolean;
 }
 
 export interface ThemeMeta {
@@ -63,6 +65,23 @@ export interface GenerateResponse {
     buttons: string;   // e.g. "5/5"
     repaired: boolean;
   };
+  /** The Ideate blueprint this app was generated against (Ideate mode only). */
+  blueprint?: Blueprint;
+}
+
+export interface BlueprintScreen {
+  id: string;
+  name: string;
+  purpose: string;
+  components: string[];
+}
+
+export interface Blueprint {
+  appName: string;
+  summary: string;
+  screens: BlueprintScreen[];
+  navigation: { from: string; to: string; trigger: string }[];
+  primaryFlow: string[];
 }
 
 export async function generateApp(req: GenerateRequest): Promise<GenerateResponse> {

@@ -18,7 +18,7 @@
 // because a noisy gate that cries wolf gets ignored.
 
 export interface QualityIssue {
-  kind: 'dead-button' | 'unlinked-screen' | 'no-navigation' | 'empty-handler';
+  kind: 'dead-button' | 'unlinked-screen' | 'no-navigation' | 'empty-handler' | 'missing-screen';
   severity: 'error' | 'warn';
   message: string;
   /** Best-effort source snippet so a human (or the repair prompt) can locate it. */
@@ -166,8 +166,12 @@ function analyzeButtons(rawCode: string): {
 /**
  * Analyze generated App.jsx and return a quality report describing the
  * reconstructed blueprint plus any dead-UI / unreachable-screen issues.
+ *
+ * @param expectedScreens Optional blueprint screen ids (the Ideate contract).
+ *        When provided, the gate also verifies every promised screen exists in
+ *        the code — catching screens the model silently dropped.
  */
-export function analyzeQuality(appJsx: string): QualityReport {
+export function analyzeQuality(appJsx: string, expectedScreens?: string[]): QualityReport {
   const issues: QualityIssue[] = [];
   if (!appJsx || appJsx.length < 100) {
     return {
@@ -199,6 +203,26 @@ export function analyzeQuality(appJsx: string): QualityReport {
       message: `Screen "${s}" is defined in the render but nothing ever navigates to it — it is unreachable.`,
       evidence: s,
     });
+  }
+
+  // Blueprint coverage: every screen the Ideate phase promised must exist in the
+  // code. We match loosely (a defined screen id contains the expected id or vice
+  // versa) to tolerate minor naming drift (e.g. "detail" vs "productdetail").
+  if (expectedScreens && expectedScreens.length) {
+    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const have = definedScreens.map(norm);
+    for (const exp of expectedScreens) {
+      const e = norm(exp);
+      const present = have.some((d) => d === e || d.includes(e) || e.includes(d));
+      if (!present) {
+        issues.push({
+          kind: 'missing-screen',
+          severity: 'error',
+          message: `Blueprint promised a "${exp}" screen but the generated code never defines it.`,
+          evidence: exp,
+        });
+      }
+    }
   }
 
   // Multi-screen app with no navigation setter at all → the tabs/links are decorative.

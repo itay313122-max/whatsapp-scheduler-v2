@@ -1262,6 +1262,10 @@ export interface GenerateOptions {
   theme?: string;
   /** Skip the post-generation quality gate + auto-repair pass (e.g. for speed-sensitive paths). */
   skipQualityGate?: boolean;
+  /** Run the Ideate phase first: build a blueprint, generate against it, verify coverage. */
+  ideate?: boolean;
+  /** Pre-built blueprint to generate against (skips the internal Ideate call). */
+  blueprint?: Blueprint;
 }
 
 export interface ConversationMessage {
@@ -1293,6 +1297,8 @@ export interface GeneratedWebApp {
     buttons: string;
     repaired: boolean;
   };
+  /** The Ideate blueprint this app was generated against (when ideate mode ran). */
+  blueprint?: Blueprint;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -1467,13 +1473,26 @@ export async function generateWebApp(
   // Apply a chosen design theme only on fresh generation (not edits).
   if (!options?.editMode && options?.theme) systemPrompt += '\n' + getThemePrompt(options.theme);
 
+  // Ideate phase: on a fresh generation, build (or accept) a blueprint and feed
+  // it in as a contract. The generated code must then implement exactly those
+  // screens with that navigation graph — the same two-phase approach Stitch uses
+  // to guarantee every screen is reachable.
+  let blueprint: Blueprint | null = options?.blueprint ?? null;
+  if (!options?.editMode && options?.ideate && !blueprint) {
+    blueprint = await buildBlueprint(userPrompt, conversationHistory);
+  }
+  if (!options?.editMode && blueprint) {
+    systemPrompt += '\n' + blueprintToPromptFragment(blueprint);
+  }
+
   const messages: ChatMessage[] = [
     { role: 'system', content: systemPrompt },
     ...conversationHistory,
     { role: 'user', content: userPrompt },
   ];
 
-  console.log('[AI/web] Mode:', options?.editMode ? 'EDIT' : 'GENERATE', '| theme:', options?.theme || 'none', '| prompt:', userPrompt.slice(0, 80));
+  console.log('[AI/web] Mode:', options?.editMode ? 'EDIT' : 'GENERATE', '| theme:', options?.theme || 'none',
+    '| blueprint:', blueprint ? `${blueprint.screens.length} screens` : 'none', '| prompt:', userPrompt.slice(0, 80));
 
   // In demo mode + edit mode, return existing code as-is (can't modify without LLM)
   const allPlaceholder = allKeysPlaceholder();
@@ -1517,7 +1536,8 @@ export async function generateWebApp(
     // We never gate demo mode (no real provider) and we keep the original if the
     // repair doesn't actually improve the score.
     if (!demoMode && !options?.skipQualityGate) {
-      let report = analyzeQuality(parsed.files['App.jsx']);
+      const expectedScreens = blueprint?.screens.map((s) => s.id);
+      let report = analyzeQuality(parsed.files['App.jsx'], expectedScreens);
       let repaired = false;
       console.log('[AI/web] Quality gate —', {
         score: report.score,
@@ -1543,7 +1563,7 @@ export async function generateWebApp(
             const fixed = await callWithFallback(repairMessages);
             const reparsed = parseGroqResponse(fixed.text);
             if (isLikelyComplete(reparsed.files['App.jsx'])) {
-              const after = analyzeQuality(reparsed.files['App.jsx']);
+              const after = analyzeQuality(reparsed.files['App.jsx'], expectedScreens);
               console.log('[AI/web] Post-repair quality —', { score: after.score, ok: after.ok, issues: after.issues.length });
               if (after.score > report.score) {
                 console.log('[AI/web] Repair improved quality — keeping repaired version');
@@ -1564,6 +1584,7 @@ export async function generateWebApp(
         ...parsed,
         demoMode,
         demoReason,
+        blueprint: blueprint ?? undefined,
         quality: {
           ok: report.ok,
           score: report.score,
@@ -1576,7 +1597,7 @@ export async function generateWebApp(
       };
     }
 
-    return { ...parsed, demoMode, demoReason };
+    return { ...parsed, demoMode, demoReason, blueprint: blueprint ?? undefined };
   } catch (parseErr) {
     const msg = (parseErr as Error).message;
     console.error('[AI/web] ALL parse strategies failed:', msg);
@@ -1798,4 +1819,160 @@ export async function planWebApp(
     console.error('[AI/web] planWebApp failed — building directly:', (err as Error).message);
     return { ready: true }; // fail open — never block building
   }
+}
+
+// ── Ideate / Blueprint phase (Stitch's two-phase model) ──────────────────────
+//
+// Stitch generates in two phases: it first produces a structured *blueprint*
+// (the screens, the navigation graph between them, the key components on each)
+// and THEN renders pixels that must satisfy that blueprint. We were generating
+// in one shot, which is why dead UI / unreachable screens leaked through. This
+// builds the blueprint explicitly so it can (a) be shown to the user as a plan
+// and (b) act as a contract the generated code is checked against.
+
+export interface BlueprintScreen {
+  id: string;        // stable nav id, e.g. "home" (matches setScreen('home'))
+  name: string;      // human label, e.g. "Home"
+  purpose: string;   // one sentence — what this screen is for
+  components: string[]; // key UI pieces on the screen
+}
+
+export interface BlueprintEdge {
+  from: string;      // screen id
+  to: string;        // screen id
+  trigger: string;   // what causes the navigation, e.g. "Tap a product card"
+}
+
+export interface Blueprint {
+  appName: string;
+  summary: string;
+  screens: BlueprintScreen[];
+  navigation: BlueprintEdge[];
+  primaryFlow: string[]; // ordered screen ids of the main user journey
+}
+
+function getBlueprintSystemPrompt(hebrew: boolean): string {
+  const lang = hebrew ? 'Hebrew' : "the user's language";
+  return `
+You are WebForge AI's architect — the Ideate phase. BEFORE any code is written,
+design the app's BLUEPRINT: its screens, the navigation graph between them, and
+the key components on each screen. This blueprint is a CONTRACT the generated
+code must satisfy — every screen reachable, every nav edge real.
+
+Given the user's request, respond with STRICT JSON ONLY (one object, no markdown,
+no prose before or after):
+
+{
+  "appName": "<short app name>",
+  "summary": "<one sentence describing the app, in ${lang}>",
+  "screens": [
+    {"id":"home","name":"<label in ${lang}>","purpose":"<one sentence in ${lang}>","components":["<comp>","<comp>"]}
+  ],
+  "navigation": [
+    {"from":"home","to":"detail","trigger":"<what the user taps, in ${lang}>"}
+  ],
+  "primaryFlow": ["home","detail","..."]
+}
+
+RULES:
+- 3-5 screens. Each "id" is a lowercase slug with no spaces (home, search, cart, profile, detail).
+- EVERY screen except the landing screen MUST appear as a "to" in navigation — no orphans.
+- The landing screen (first in screens[]) is where the app opens.
+- "primaryFlow" is the main journey as an ordered list of screen ids.
+- Names, purposes, and triggers in ${lang}. Ids stay English slugs.
+- Keep components concrete (e.g. "search bar", "product grid", "cart summary").
+- Output the JSON on as few lines as possible. Nothing outside the JSON.
+`;
+}
+
+export function parseBlueprint(raw: string): Blueprint | null {
+  const s = raw.indexOf('{');
+  const e = raw.lastIndexOf('}');
+  if (s === -1 || e <= s) return null;
+  try {
+    const obj = JSON.parse(raw.slice(s, e + 1)) as any;
+    const screens: BlueprintScreen[] = Array.isArray(obj.screens)
+      ? obj.screens
+          .filter((x: any) => x && x.id)
+          .map((x: any) => ({
+            id: String(x.id).toLowerCase().replace(/[^a-z0-9]/g, ''),
+            name: String(x.name || x.id),
+            purpose: String(x.purpose || ''),
+            components: Array.isArray(x.components) ? x.components.map((c: any) => String(c)).slice(0, 8) : [],
+          }))
+          .slice(0, 6)
+      : [];
+    if (screens.length < 2) return null; // not a real multi-screen blueprint
+    const ids = new Set(screens.map((s) => s.id));
+    const navigation: BlueprintEdge[] = Array.isArray(obj.navigation)
+      ? obj.navigation
+          .filter((x: any) => x && x.from && x.to)
+          .map((x: any) => ({
+            from: String(x.from).toLowerCase().replace(/[^a-z0-9]/g, ''),
+            to: String(x.to).toLowerCase().replace(/[^a-z0-9]/g, ''),
+            trigger: String(x.trigger || 'Tap'),
+          }))
+          .filter((x: BlueprintEdge) => ids.has(x.from) && ids.has(x.to))
+      : [];
+    const primaryFlow: string[] = Array.isArray(obj.primaryFlow)
+      ? obj.primaryFlow.map((x: any) => String(x).toLowerCase().replace(/[^a-z0-9]/g, '')).filter((x: string) => ids.has(x))
+      : [];
+    return {
+      appName: String(obj.appName || 'App'),
+      summary: String(obj.summary || ''),
+      screens,
+      navigation,
+      primaryFlow: primaryFlow.length ? primaryFlow : screens.map((s) => s.id),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Produce the app blueprint (Ideate phase). Returns null on failure or in demo
+ * mode so callers fall through to direct generation — the blueprint is an
+ * enhancement, never a hard gate.
+ */
+export async function buildBlueprint(
+  userPrompt: string,
+  conversationHistory: ConversationMessage[]
+): Promise<Blueprint | null> {
+  if (allKeysPlaceholder()) return null;
+  const messages: ChatMessage[] = [
+    { role: 'system', content: getBlueprintSystemPrompt(isHebrewPrompt(userPrompt)) },
+    ...conversationHistory,
+    { role: 'user', content: userPrompt },
+  ];
+  try {
+    const { text, demoMode } = await callWithFallback(messages);
+    if (demoMode) return null;
+    const bp = parseBlueprint(text);
+    if (bp) console.log('[AI/web] Blueprint —', bp.screens.length, 'screens:', bp.screens.map((s) => s.id).join(', '));
+    return bp;
+  } catch (err) {
+    console.warn('[AI/web] buildBlueprint failed — generating without blueprint:', (err as Error).message);
+    return null;
+  }
+}
+
+/** Render a blueprint into a prompt fragment that constrains generation to it. */
+export function blueprintToPromptFragment(bp: Blueprint): string {
+  const screenLines = bp.screens
+    .map((s, i) => `  ${i + 1}. id="${s.id}" (${s.name})${i === 0 ? ' [LANDING — app opens here]' : ''} — ${s.purpose}${s.components.length ? `  · components: ${s.components.join(', ')}` : ''}`)
+    .join('\n');
+  const navLines = bp.navigation.map((e) => `  ${e.from} → ${e.to}  (${e.trigger})`).join('\n');
+  return `
+BLUEPRINT CONTRACT — the app you build MUST implement EXACTLY these screens and this
+navigation graph. Use a single navigation state (e.g. const [screen,setScreen]=useState('${bp.screens[0]?.id}'))
+and render each screen by its id. Every screen below must be reachable via a working control.
+
+SCREENS:
+${screenLines}
+
+NAVIGATION (every edge must be a real onClick that calls the nav setter):
+${navLines || '  (single primary flow — wire the bottom nav / back buttons)'}
+
+Do NOT invent extra top-level screens beyond these. Do NOT leave any screen unreachable.
+`;
 }
