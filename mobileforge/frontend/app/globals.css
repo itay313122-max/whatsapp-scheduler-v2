@@ -330,6 +330,16 @@ html.dark .canvas-bg,
   background-image: radial-gradient(circle, rgba(255,255,255,0.04) 0.75px, transparent 0.75px);
 }
 
+/* ── Mobile builder: one pane at a time ───────────────────────────────────
+   The desktop builder is a horizontal split (canvas | chat). The panel library
+   forwards `id` but not `className`, so we toggle visibility from a parent class
+   targeting the forwarded ids. The remaining panel auto-fills via its flex-grow,
+   so hiding the inactive one is all that's needed. Desktop (≥768px) is untouched. */
+@media (max-width: 767px) {
+  .mobile-view-chat #canvas { display: none !important; }
+  .mobile-view-canvas #chat { display: none !important; }
+}
+
 /* ── Resizable panel handles ──────────────────────────────────────────── */
 [data-separator] {
   width: 6px;

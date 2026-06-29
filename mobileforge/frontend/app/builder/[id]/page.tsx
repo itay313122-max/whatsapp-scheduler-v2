@@ -388,6 +388,9 @@ function BuilderContent() {
   const [currentResult, setCurrentResult] = useState<GenerateResponse | null>(null);
   const [rightPanel, setRightPanel] = useState<RightPanel>('preview');
   const [showQuality, setShowQuality] = useState(false);
+  // Mobile-only: the builder is a horizontal split on desktop, but on a phone we
+  // show ONE pane at a time (chat to type, canvas to preview) via this toggle.
+  const [mobileView, setMobileView] = useState<'chat' | 'canvas'>('chat');
   const [showDeviceSync, setShowDeviceSync] = useState(false);
   const [deviceSyncUrl, setDeviceSyncUrl] = useState('');
   const [phoneStatus, setPhoneStatus] = useState<'idle' | 'preparing'>('idle');
@@ -798,6 +801,13 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
     setSaveStatus(generating ? 'saving' : 'idle');
   }, []);
 
+  // The Design sidebar is a desktop-side panel; on a phone it would cover the
+  // preview, so start it collapsed on small screens (client-only — avoids a
+  // hydration mismatch with the server-rendered default).
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) setShowEditSidebar(false);
+  }, []);
+
   // Stitch-style: advance through build steps on the canvas while generating
   const CANVAS_BUILD_STEPS = [
     { label: 'Understanding your idea', duration: 2500 },
@@ -835,6 +845,8 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
     setSaveStatus('saved');
     setTimeout(() => setSaveStatus('idle'), 3000);
     if (builderStep === 'describe') setBuilderStep('design');
+    // On mobile, jump to the canvas so the freshly-built app is what you see.
+    setMobileView('canvas');
   }, [projectId, builderStep, versionIdx]);
 
   // Auto-save on edit settings change (debounced)
@@ -1071,7 +1083,7 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
   }
 
   return (
-    <div className={`h-screen bg-bg text-text-primary flex flex-col overflow-hidden ${theme === 'dark' ? 'builder-dark' : ''}`} dir="ltr">
+    <div className={`h-screen bg-bg text-text-primary flex flex-col overflow-hidden ${theme === 'dark' ? 'builder-dark' : ''} ${mobileView === 'canvas' ? 'mobile-view-canvas' : 'mobile-view-chat'}`} dir="ltr">
       {/* Toast notification */}
       {toast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] animate-fade-in-up">
@@ -1821,7 +1833,7 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
 
                 {/* Stitch-style floating theme panel — collapsible */}
                 {showEditSidebar && (
-                  <div className="w-[260px] flex-shrink-0 border-l border-border/50 bg-surface/60 backdrop-blur-xl overflow-y-auto overflow-x-hidden">
+                  <div className="w-[260px] flex-shrink-0 border-l border-border/50 bg-surface/60 backdrop-blur-xl overflow-y-auto overflow-x-hidden max-md:absolute max-md:inset-y-0 max-md:right-0 max-md:z-30 max-md:w-[min(85vw,320px)] max-md:shadow-2xl">
                     <RichEditPanel
                       settings={editSettings}
                       onSettings={setEditSettings}
@@ -1941,6 +1953,32 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
           </ErrorBoundary>
         </Panel>
       </PanelGroup>
+
+      {/* Mobile-only view switcher — the desktop split becomes a one-pane-at-a-time
+          toggle on phones, so neither canvas nor chat gets squished. */}
+      {currentResult && (
+        <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1 p-1 rounded-full bg-black/80 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/40">
+          <button
+            onClick={() => setMobileView('canvas')}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${mobileView === 'canvas' ? 'bg-white text-black' : 'text-white/70'}`}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Preview
+          </button>
+          <button
+            onClick={() => setMobileView('chat')}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${mobileView === 'chat' ? 'bg-white text-black' : 'text-white/70'}`}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Chat
+          </button>
+        </div>
+      )}
     </div>
   );
 }
