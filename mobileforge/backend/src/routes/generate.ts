@@ -28,6 +28,7 @@ router.get('/ai-status', async (_req: Request, res: Response) => {
   const isReal = (v?: string) => !!v && v.trim().length > 8 && !/placeholder|your[-_]?key|xxx/i.test(v);
   const keysConfigured = {
     GROQ: isReal(process.env.GROQ_API_KEY),
+    NVIDIA: isReal(process.env.NVIDIA_API_KEY),
     GEMINI: isReal(process.env.GEMINI_API_KEY),
     OPENROUTER: isReal(process.env.OPENROUTER_API_KEY),
     CEREBRAS: isReal(process.env.CEREBRAS_API_KEY),
@@ -52,7 +53,7 @@ router.get('/ai-status', async (_req: Request, res: Response) => {
   return res.json({
     keysConfigured,
     groqTest,
-    willUseDemoMode: !anyRealKey || (!groqTest.ok && !keysConfigured.GEMINI && !keysConfigured.OPENROUTER && !keysConfigured.CEREBRAS && !keysConfigured.TOGETHER),
+    willUseDemoMode: !anyRealKey || (!groqTest.ok && !keysConfigured.NVIDIA && !keysConfigured.GEMINI && !keysConfigured.OPENROUTER && !keysConfigured.CEREBRAS && !keysConfigured.TOGETHER),
     hint: groqTest.ok ? 'Groq works — real AI should generate. If you still see demo apps, redeploy the service.' : 'Groq is NOT working — see groqTest.error. Fix the key in Render → Environment → GROQ_API_KEY, then Manual Deploy.',
   });
 });

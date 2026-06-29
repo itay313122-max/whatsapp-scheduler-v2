@@ -24,6 +24,8 @@ services:
       # LLM providers — at least one for real AI (else demo mode). Set in dashboard.
       - key: GROQ_API_KEY
         sync: false
+      - key: NVIDIA_API_KEY
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: OPENROUTER_API_KEY

@@ -10,6 +10,7 @@ const MODEL = 'llama-3.3-70b-versatile';
 const _k = (v: string | undefined) => v ? (v.length > 4 ? `…${v.slice(-4)}` : '(set)') : '⚠️ MISSING';
 console.log('[AI/web] Provider keys —', {
   GROQ:        _k(process.env.GROQ_API_KEY),
+  NVIDIA:      _k(process.env.NVIDIA_API_KEY),
   GEMINI:      _k(process.env.GEMINI_API_KEY),
   OPENROUTER:  _k(process.env.OPENROUTER_API_KEY),
   CEREBRAS:    _k(process.env.CEREBRAS_API_KEY),
@@ -143,6 +144,14 @@ const callCerebras = (m: ChatMessage[]) => callOpenAICompatible(m, {
   url: 'https://api.cerebras.ai/v1/chat/completions', model: 'llama-3.3-70b',
 });
 
+// NVIDIA NIM (build.nvidia.com) — OpenAI-compatible, free tier, serves the same
+// Llama-3.3-70B class as our primary Groq model, so it's the strongest fallback
+// for output consistency. Get a key at build.nvidia.com → set NVIDIA_API_KEY.
+const callNvidia = (m: ChatMessage[]) => callOpenAICompatible(m, {
+  name: 'NVIDIA', envVar: 'NVIDIA_API_KEY',
+  url: 'https://integrate.api.nvidia.com/v1/chat/completions', model: 'meta/llama-3.3-70b-instruct',
+});
+
 const callTogether = (m: ChatMessage[]) => callOpenAICompatible(m, {
   name: 'Together', envVar: 'TOGETHER_API_KEY',
   url: 'https://api.together.xyz/v1/chat/completions',
@@ -151,7 +160,7 @@ const callTogether = (m: ChatMessage[]) => callOpenAICompatible(m, {
 
 // Provider keys, in fallback order. A non-placeholder value means "try me".
 const PROVIDER_KEYS = [
-  'GROQ_API_KEY', 'GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'CEREBRAS_API_KEY', 'TOGETHER_API_KEY',
+  'GROQ_API_KEY', 'NVIDIA_API_KEY', 'GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'CEREBRAS_API_KEY', 'TOGETHER_API_KEY',
 ] as const;
 
 function allKeysPlaceholder(): boolean {
@@ -209,7 +218,18 @@ async function callWithFallback(messages: ChatMessage[]): Promise<FallbackResult
 
   console.warn('[AI/web] Groq failed — trying fallback providers…');
 
-  // 2. Gemini
+  // 2. NVIDIA NIM — same Llama-3.3-70B class as Groq, so the best-quality fallback
+  try {
+    console.log('[AI/web] → NVIDIA');
+    const result = await callNvidia(messages);
+    console.log('[AI/web] ✓ NVIDIA succeeded');
+    return { text: result, demoMode: false };
+  } catch (err) {
+    if ((err as any).skip) console.log('[AI/web]   NVIDIA skipped (no key)');
+    else console.error('[AI/web]   NVIDIA failed:', (err as Error).message);
+  }
+
+  // 3. Gemini
   try {
     console.log('[AI/web] → Gemini');
     const result = await callGemini(messages);
