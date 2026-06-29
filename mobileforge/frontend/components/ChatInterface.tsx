@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { generateApp, generateFromImage, planApp, getThemes, type GenerateResponse, type PlanQuestion, type PlanResult, type ThemeMeta } from '@/lib/api';
+import { generateApp, streamGenerateApp, generateFromImage, planApp, getThemes, type GenerateResponse, type PlanQuestion, type PlanResult, type ThemeMeta } from '@/lib/api';
 
 const SketchCanvas = dynamic(() => import('./SketchCanvas'), { ssr: false });
 
@@ -14,6 +14,7 @@ interface Message {
   isLoading?: boolean;
   isPlanning?: boolean;
   loadingStep?: number;
+  streamBytes?: number; // live byte count while streaming generation
   sourceType?: 'text' | 'screenshot' | 'sketch' | 'voice';
   imagePreview?: string;
   timestamp: Date;
@@ -492,7 +493,7 @@ export default function ChatInterface({
     const clearStepTimers = () => stepTimers.forEach(clearTimeout);
 
     try {
-      const result = await generateApp({
+      const req = {
         projectId,
         prompt: buildPrompt,
         conversationHistory: ctx.history,
@@ -500,7 +501,36 @@ export default function ChatInterface({
         existingCode: ctx.existingCode,
         theme: ctx.isEditMode ? undefined : (selectedTheme || undefined),
         ideate: ctx.ideate,
-      });
+      };
+      // Stream fresh, non-Ideate builds so the user watches the app being written
+      // in real time (Stitch's "watch it build" feel). Ideate keeps the full
+      // two-phase server path (blueprint + gate + auto-repair, no stream); edits
+      // stay non-streaming. On any stream error we fall back to a normal build.
+      const canStream = !ctx.isEditMode && !ctx.ideate;
+      let result: GenerateResponse;
+      if (canStream) {
+        try {
+          result = await new Promise<GenerateResponse>((resolve, reject) => {
+            let bytes = 0;
+            streamGenerateApp(
+              req,
+              (chunk) => {
+                bytes += chunk.length;
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === loadingId ? { ...m, loadingStep: Math.max(m.loadingStep || 0, 4), streamBytes: bytes } : m))
+                );
+              },
+              (res) => resolve(res),
+              (errStr) => reject(new Error(errStr))
+            );
+          });
+        } catch (streamErr) {
+          console.warn('[stream] falling back to non-streaming build:', streamErr);
+          result = await generateApp(req);
+        }
+      } else {
+        result = await generateApp(req);
+      }
       const demoWarning = result.demoMode
         ? '\n\n⚠️ Demo Mode — AI providers are not connected. This is a pre-built template, not a custom app. Configure a valid GROQ_API_KEY in the backend to enable real AI generation.'
         : '';
@@ -859,6 +889,18 @@ export default function ChatInterface({
                         );
                       })}
                     </div>
+                    {/* Live streaming indicator — real bytes arriving from the model */}
+                    {typeof msg.streamBytes === 'number' && msg.streamBytes > 0 && (
+                      <div className="mt-2.5 pt-2.5 border-t border-border/30 flex items-center gap-2">
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
+                        </span>
+                        <span className="text-[11px] text-text-secondary font-mono">
+                          streaming · {(msg.streamBytes / 1024).toFixed(1)}KB written
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ) : msg.questions ? (
                   <div className="px-4 py-3 rounded-2xl bg-surface/60 border border-border/30 text-text-primary rounded-tl-sm" dir="ltr">

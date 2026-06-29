@@ -6,6 +6,7 @@ import {
   planWebApp,
   type ConversationMessage,
 } from '../services/aiWeb';
+import { analyzeQuality } from '../services/qualityGate';
 import { buildHtmlDocument } from '../services/webRenderer';
 import { getFirestore } from '../services/firebase-admin';
 import { rateLimit } from '../middleware/rateLimit';
@@ -144,7 +145,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 // POST /api/generate/stream
 router.post('/stream', async (req: Request, res: Response) => {
-  const { prompt, conversationHistory = [], editMode = false, existingCode, theme } = req.body;
+  const { projectId, prompt, conversationHistory = [], editMode = false, existingCode, theme } = req.body;
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -172,7 +173,53 @@ router.post('/stream', async (req: Request, res: Response) => {
       const htmlDoc = appCode ? buildHtmlDocument(appCode, parsed.appName) : '';
       console.log('[Generate/stream] htmlDoc length:', htmlDoc.length);
 
-      res.write(`data: ${JSON.stringify({ done: true, result: { ...parsed, htmlDoc, snackId: '', embedUrl: '', shareUrl: '' } })}\n\n`);
+      // Run the quality gate on the streamed result so the live path gets the
+      // same dead-UI / unreachable-screen check as the non-streaming path.
+      // (We don't auto-repair here — that would need a second hidden generation
+      // and defeat the "watch it build" feel; the report still surfaces issues.)
+      const qr = analyzeQuality(parsed.files['App.jsx']);
+      const quality = {
+        ok: qr.ok,
+        score: qr.score,
+        issues: qr.issues.map((i) => ({ kind: i.kind, severity: i.severity, message: i.message })),
+        screens: qr.blueprint.definedScreens.length,
+        reachable: qr.blueprint.reachableScreens.length,
+        buttons: `${qr.blueprint.wiredButtonCount}/${qr.blueprint.buttonCount}`,
+        repaired: false,
+      };
+      console.log('[Generate/stream] Quality —', { score: quality.score, ok: quality.ok, issues: quality.issues.length });
+
+      // Persist the assistant message exactly like the non-streaming POST /, so
+      // streamed (Flash-mode) builds survive a builder reload — the conversation
+      // is rehydrated from Firestore via GET /projects/:id/messages.
+      if (projectId) {
+        try {
+          const db = getFirestore();
+          const msgId = uuidv4();
+          await db
+            .collection('conversations').doc(projectId)
+            .collection('messages').doc(msgId)
+            .set({
+              role: 'assistant',
+              content: parsed.hebrewSummary,
+              files: parsed.files,
+              hebrewSummary: parsed.hebrewSummary,
+              appName: parsed.appName,
+              colorScheme: parsed.colorScheme,
+              features: parsed.features,
+              timestamp: new Date().toISOString(),
+            });
+          await db.collection('projects').doc(projectId).update({
+            colorScheme: parsed.colorScheme,
+            features: parsed.features,
+            updatedAt: new Date().toISOString(),
+          });
+        } catch (dbErr) {
+          console.error('[Generate/stream] Firestore save failed:', dbErr);
+        }
+      }
+
+      res.write(`data: ${JSON.stringify({ done: true, result: { ...parsed, htmlDoc, quality, snackId: '', embedUrl: '', shareUrl: '' } })}\n\n`);
     } catch (parseErr) {
       const reason = (parseErr as Error).message.slice(0, 80);
       console.error('[Generate/stream] Parse failed:', reason);
