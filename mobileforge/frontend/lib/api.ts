@@ -53,6 +53,16 @@ export interface GenerateResponse {
   shareUrl: string;      // legacy — empty for web-mode apps
   demoMode?: boolean;
   demoReason?: string;
+  /** Post-generation quality gate: blueprint stats + dead-UI / unreachable-screen findings. */
+  quality?: {
+    ok: boolean;
+    score: number;
+    issues: { kind: string; severity: string; message: string }[];
+    screens: number;
+    reachable: number;
+    buttons: string;   // e.g. "5/5"
+    repaired: boolean;
+  };
 }
 
 export async function generateApp(req: GenerateRequest): Promise<GenerateResponse> {

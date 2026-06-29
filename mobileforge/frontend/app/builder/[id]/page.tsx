@@ -387,6 +387,7 @@ function BuilderContent() {
   const [project, setProject] = useState<Project | null>(null);
   const [currentResult, setCurrentResult] = useState<GenerateResponse | null>(null);
   const [rightPanel, setRightPanel] = useState<RightPanel>('preview');
+  const [showQuality, setShowQuality] = useState(false);
   const [showDeviceSync, setShowDeviceSync] = useState(false);
   const [deviceSyncUrl, setDeviceSyncUrl] = useState('');
   const [phoneStatus, setPhoneStatus] = useState<'idle' | 'preparing'>('idle');
@@ -1553,6 +1554,80 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
               )}
 
               <div className="flex-1" />
+
+              {/* Quality badge — surfaces the post-generation gate (Stitch-style
+                  confidence that nothing is dead/unreachable). Click to expand. */}
+              {currentResult?.quality && (
+                <div className="relative">
+                  {(() => {
+                    const q = currentResult.quality!;
+                    const tone = q.ok
+                      ? 'bg-green-500/10 text-green-400 hover:bg-green-500/15'
+                      : 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/15';
+                    return (
+                      <button
+                        onClick={() => setShowQuality(v => !v)}
+                        title="Quality check — screens reachable, buttons wired"
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${tone}`}
+                      >
+                        {q.ok ? (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                          </svg>
+                        )}
+                        Quality {q.score}
+                        {q.repaired && <span className="text-[9px] opacity-70">· auto-fixed</span>}
+                      </button>
+                    );
+                  })()}
+
+                  {showQuality && (
+                    <div className="absolute right-0 top-full mt-2 z-30 w-72 rounded-xl bg-surface/95 backdrop-blur-xl border border-border/60 shadow-2xl p-3.5 text-left">
+                      <div className="flex items-center justify-between mb-2.5">
+                        <span className="text-xs font-bold text-text-primary">Quality report</span>
+                        <span className={`text-[11px] font-semibold ${currentResult.quality!.ok ? 'text-green-400' : 'text-amber-400'}`}>
+                          {currentResult.quality!.score}/100
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5 mb-2.5 text-[11px]">
+                        <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-surface-2/60">
+                          <span className="text-text-soft">Screens</span>
+                          <span className="font-semibold text-text-primary ml-auto">
+                            {currentResult.quality!.reachable}/{currentResult.quality!.screens}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-surface-2/60">
+                          <span className="text-text-soft">Buttons</span>
+                          <span className="font-semibold text-text-primary ml-auto">{currentResult.quality!.buttons}</span>
+                        </div>
+                      </div>
+                      {currentResult.quality!.issues.length === 0 ? (
+                        <p className="text-[11px] text-text-secondary leading-relaxed">
+                          Every screen is reachable and every button is wired. No dead UI detected.
+                        </p>
+                      ) : (
+                        <ul className="space-y-1.5 max-h-44 overflow-y-auto">
+                          {currentResult.quality!.issues.map((it, i) => (
+                            <li key={i} className="flex gap-1.5 text-[11px] text-text-secondary leading-snug">
+                              <span className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${it.severity === 'error' ? 'bg-red-400' : 'bg-amber-400'}`} />
+                              <span>{it.message}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      {currentResult.quality!.repaired && (
+                        <p className="mt-2.5 pt-2.5 border-t border-border/40 text-[10px] text-green-400/80">
+                          ✓ Auto-repaired one pass after the first generation fell short.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Theme controls toggle */}
               <button
