@@ -256,23 +256,55 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
 /**
  * Build a focused repair instruction the model can act on. Returns null when
  * there is nothing worth repairing (so callers can skip the round-trip).
+ *
+ * The instructions are issue-SPECIFIC and prescriptive: a generic "fix dead UI"
+ * prompt let the model reproduce the same bug (observed live), so each defect now
+ * names the exact symbol and the exact edit that resolves it.
  */
 export function buildRepairPrompt(report: QualityReport): string | null {
   const errors = report.issues.filter((i) => i.severity === 'error');
   if (errors.length === 0) return null;
 
-  const lines = errors.map((e, i) => `${i + 1}. [${e.kind}] ${e.message}${e.evidence ? `  (near: ${e.evidence})` : ''}`);
+  // Identify the navigation setter so the fix can name it concretely (the model
+  // is far more reliable when told `setScreen('profile')` than "the nav setter").
+  const setter = report.blueprint.navStateVars.length
+    ? `set${report.blueprint.navStateVars[0].charAt(0).toUpperCase()}${report.blueprint.navStateVars[0].slice(1)}`
+    : 'setScreen';
+
+  const steps: string[] = [];
+  for (const e of errors) {
+    if (e.kind === 'unlinked-screen' || e.kind === 'missing-screen') {
+      const id = e.evidence || 'that screen';
+      steps.push(
+        `Screen "${id}" is unreachable. Add a REAL, tappable control that runs ${setter}('${id}') — ` +
+        `put it in the bottom navigation bar (a nav tab) AND/OR as a button/list-item on a screen the user already sees. ` +
+        `Every screen must have at least one path to it. If "${id}" is truly not needed, delete its render branch entirely.`
+      );
+    } else if (e.kind === 'dead-button') {
+      steps.push(
+        `A <button> has no onClick. Give EVERY button a real onClick that navigates (${setter}(...)), ` +
+        `toggles state, opens a modal, or performs the action its label implies. No decorative buttons.`
+      );
+    } else if (e.kind === 'empty-handler') {
+      steps.push(
+        `A <button> has an empty onClick (() => {}). Replace it with a real action — navigation, state change, or modal. ` +
+        `If the button has no purpose, remove it.`
+      );
+    } else if (e.kind === 'no-navigation') {
+      steps.push(
+        `The app defines multiple screens but has no working navigation. Add a bottom nav bar whose tabs call ${setter}(...) ` +
+        `for each screen, and make the initial screen render correctly.`
+      );
+    }
+  }
 
   return [
-    'The previous app has quality defects that MUST be fixed. Keep everything else identical.',
+    'The previous app has QUALITY DEFECTS that MUST be fixed. Change ONLY what is needed to fix them; keep all other code, styles, and content identical.',
     '',
-    'DEFECTS:',
-    ...lines,
+    'DEFECTS AND THEIR EXACT FIX:',
+    ...steps.map((s, i) => `${i + 1}. ${s}`),
     '',
-    'FIX RULES:',
-    '- Every <button> must have a real onClick that changes state, navigates, or performs an action. No empty () => {}.',
-    '- Every screen you define (case / === branch) must be reachable: add a control that calls the navigation setter with that screen id.',
-    '- If a screen is genuinely unused, REMOVE it rather than leave it unreachable.',
-    '- Do not introduce new defects. Return the COMPLETE updated function App(){...}.',
+    'AFTER FIXING, self-check: trace every screen — can the user reach it by tapping something? Can every button be tapped to do something real? If not, you have not fixed it.',
+    'Return the COMPLETE updated function App(){...}. Do not introduce new defects.',
   ].join('\n');
 }

@@ -1584,3 +1584,32 @@ describe('buildHtmlDocument — photo helper injection', () => {
     expect(html).toContain('/api/image?q=');
   });
 });
+
+// ── Repair prompt — issue-specific, names the exact setter + screen ─────────
+import { buildRepairPrompt } from '../src/services/qualityGate';
+
+describe('buildRepairPrompt', () => {
+  it('returns null when there are no error-level issues', () => {
+    const r = analyzeQuality(`function App(){const {useState}=React;const [screen,setScreen]=useState('a');
+      function render(){switch(screen){case 'a':return <div><button onClick={()=>setScreen('b')}>go</button></div>;case 'b':return <div><button onClick={()=>setScreen('a')}>back</button></div>;}}
+      return <div>{render()}</div>;}`);
+    expect(buildRepairPrompt(r)).toBeNull();
+  });
+
+  it('names the exact nav setter and unreachable screen id', () => {
+    const code = `function App(){const {useState}=React;const [tab,setTab]=useState('feed');
+      function render(){switch(tab){case 'feed':return <div><button onClick={()=>setTab('feed')}>x</button></div>;case 'orphan':return <div>o</div>;}}
+      return <div>{render()}</div>;}`;
+    const r = analyzeQuality(code);
+    const prompt = buildRepairPrompt(r);
+    expect(prompt).toContain('orphan');
+    expect(prompt).toContain("setTab('orphan')");
+    expect(prompt).toContain('unreachable');
+  });
+
+  it('gives a concrete fix for a dead button', () => {
+    const code = `function App(){const {useState}=React;const [s,setS]=useState('a');return <div><button>dead</button></div>;}`;
+    const prompt = buildRepairPrompt(analyzeQuality(code));
+    expect(prompt).toMatch(/no onClick/i);
+  });
+});
