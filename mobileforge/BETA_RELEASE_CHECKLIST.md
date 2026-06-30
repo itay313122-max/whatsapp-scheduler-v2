@@ -14,7 +14,7 @@ click-path and a pass criterion.
 |---|---|---|
 | ✅ Backend builds | `cd backend && npm run build` | exits 0, `dist/` populated |
 | ✅ Frontend builds | `cd frontend && npm run build` | "Compiled successfully", all routes listed |
-| ✅ Tests pass | `cd backend && npm test` | 211 passed |
+| ✅ Tests pass | `cd backend && npm test` | 219 passed |
 | ✅ Typecheck clean | `npx tsc --noEmit` in each app | no errors |
 
 All four are green as of this checklist.
@@ -66,6 +66,14 @@ and redeploy (the JSON's `hint` field tells you what's wrong).
 
 > Note: Render free tier cold-starts (~30–50s after idle). For a smoother beta,
 > use a paid instance or a cron ping to keep it warm.
+
+> **Network egress (important):** the backend must be able to reach the LLM
+> provider hosts. If your host has an egress allowlist (firewall), add the ones
+> you use, or generation silently drops to demo mode:
+> `api.groq.com`, `integrate.api.nvidia.com`, `generativelanguage.googleapis.com`
+> (Gemini), `openrouter.ai`, `api.cerebras.ai`, `api.together.xyz`, and
+> `api.pexels.com` + `images.pexels.com` (photos). The `/api/generate/ai-status`
+> response shows exactly which provider is reachable and why demo mode is on.
 
 ---
 
@@ -123,10 +131,12 @@ These are handled — spot-check that they behave as described:
 - ☐ Beta keys distributed to testers
 
 **Known gaps (acceptable for beta, plan for v1):**
-- Photographic imagery — generated apps use SVG placeholders, not real photos.
 - Vision (image → app) — intentionally returns 503 ("Premium").
-- Multi-screen deep-linking within prototype mode, side-by-side version compare,
-  voice critique — nice-to-haves, not blockers.
+- Multi-screen deep-linking within prototype mode, voice critique — nice-to-haves.
+
+**Done since first draft:** real photographic imagery (`/api/image` + `photoImg()`,
+needs `PEXELS_API_KEY`), NVIDIA provider, streaming builds, Ideate blueprint phase,
+quality gate + issue-specific auto-repair, mobile builder, side-by-side version compare.
 
 ---
 
