@@ -404,16 +404,15 @@ Usage:  <img src={photoImg('cappuccino coffee', 400, 300)} alt="Cappuccino"
 - Avatars: photoImg('portrait person smiling', 80, 80) with borderRadius:'50%'.
 
 NEVER use picsum.photos or any other external image URL — they are BLOCKED.
-Use photoImg() for photos. The SVG placeholderImg below is ONLY for abstract/UI
-fills (chart backgrounds, empty-state art) — NOT for real-world imagery:
+If you prefer a helper named placeholderImg, define it to DELEGATE to photoImg so
+every image still gets a real (or premium themed) picture — never a grey box:
 
-const placeholderImg = (w, h, label, color='#e5e7eb') =>
-  \`data:image/svg+xml,\${encodeURIComponent(\`<svg xmlns="http://www.w3.org/2000/svg" width="\${w}" height="\${h}" viewBox="0 0 \${w} \${h}"><rect fill="\${color}" width="\${w}" height="\${h}"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#9ca3af" font-family="system-ui" font-size="14">\${label}</text></svg>\`)}\`;
+const placeholderImg = (w, h, label) => photoImg(label || 'image', w, h);
 
-Usage: placeholderImg(400, 200, 'Pizza', '#fef2f2')
-Use warm/cool tints that match the item category:
-  Food: '#fef2f2' (warm rose), '#fef9c3' (warm yellow)
-  Nature: '#ecfdf5' (mint), '#f0fdf4' (green)
+Usage: placeholderImg(400, 200, 'margherita pizza')   // label = a descriptive subject
+The 'label' MUST be a real-world subject (e.g. 'margherita pizza', 'mountain lake'),
+NOT a UI word — it becomes the photo search query. Do NOT draw your own grey
+SVG rectangles with text for photographic content; route it through photoImg.
   Tech: '#eff6ff' (blue), '#f5f3ff' (violet)
   Fashion: '#fdf2f8' (pink), '#faf5ff' (purple)
   Default: '#f3f4f6' (gray)
