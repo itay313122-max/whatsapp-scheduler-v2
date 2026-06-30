@@ -1597,32 +1597,37 @@ export async function generateWebApp(
         for (const it of report.issues.slice(0, 6)) console.warn(`[AI/web]   • [${it.kind}] ${it.message}`);
       }
 
-      if (!report.ok) {
+      // Up to 2 repair attempts: the model occasionally fixes one defect per
+      // pass, so a single attempt can leave residual issues (seen live). We keep
+      // the BEST result so far and stop early the moment the gate passes.
+      for (let attempt = 1; attempt <= 2 && !report.ok; attempt++) {
         const repair = buildRepairPrompt(report);
-        if (repair) {
-          console.warn('[AI/web] Quality gate failed — attempting one repair pass');
-          const repairMessages: ChatMessage[] = [
-            { role: 'system', content: buildEditSystemPrompt(parsed.files['App.jsx']) },
-            { role: 'user', content: repair },
-          ];
-          try {
-            const fixed = await callWithFallback(repairMessages);
-            const reparsed = parseGroqResponse(fixed.text);
-            if (isLikelyComplete(reparsed.files['App.jsx'])) {
-              const after = analyzeQuality(reparsed.files['App.jsx'], expectedScreens);
-              console.log('[AI/web] Post-repair quality —', { score: after.score, ok: after.ok, issues: after.issues.length });
-              if (after.score > report.score) {
-                console.log('[AI/web] Repair improved quality — keeping repaired version');
-                parsed = reparsed; report = after; repaired = true;
-              } else {
-                console.warn('[AI/web] Repair did not improve score — keeping original');
-              }
+        if (!repair) break;
+        console.warn(`[AI/web] Quality gate failed — repair pass ${attempt}/2`);
+        const repairMessages: ChatMessage[] = [
+          { role: 'system', content: buildEditSystemPrompt(parsed.files['App.jsx']) },
+          { role: 'user', content: repair },
+        ];
+        try {
+          const fixed = await callWithFallback(repairMessages);
+          const reparsed = parseGroqResponse(fixed.text);
+          if (isLikelyComplete(reparsed.files['App.jsx'])) {
+            const after = analyzeQuality(reparsed.files['App.jsx'], expectedScreens);
+            console.log(`[AI/web] Post-repair ${attempt} quality —`, { score: after.score, ok: after.ok, issues: after.issues.length });
+            if (after.score > report.score) {
+              console.log('[AI/web] Repair improved quality — keeping repaired version');
+              parsed = reparsed; report = after; repaired = true;
             } else {
-              console.warn('[AI/web] Repair produced incomplete code — keeping original');
+              console.warn('[AI/web] Repair did not improve score — keeping previous best, stopping');
+              break; // no progress this pass → further passes unlikely to help
             }
-          } catch (repairErr) {
-            console.warn('[AI/web] Repair pass errored — keeping original:', (repairErr as Error).message);
+          } else {
+            console.warn('[AI/web] Repair produced incomplete code — keeping previous best, stopping');
+            break;
           }
+        } catch (repairErr) {
+          console.warn('[AI/web] Repair pass errored — keeping previous best:', (repairErr as Error).message);
+          break;
         }
       }
 
