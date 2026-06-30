@@ -1679,3 +1679,19 @@ describe('parseSuggestions', () => {
     expect(parseSuggestions('')).toEqual([]);
   });
 });
+
+describe('analyzeQuality — edges from the === conditional pattern', () => {
+  it('extracts edges when the app uses tab === "x" instead of switch/case', () => {
+    const code = `function App(){const {useState}=React;const [tab,setTab]=useState('home');
+      return <div className="app-shell">
+        {tab === 'home' && <div><button onClick={()=>setTab('detail')}>open</button></div>}
+        {tab === 'detail' && <div><button onClick={()=>setTab('home')}>back</button></div>}
+        <nav><button onClick={()=>setTab('home')}>H</button><button onClick={()=>setTab('detail')}>D</button></nav>
+      </div>;}`;
+    const r = analyzeQuality(code);
+    const edges = r.blueprint.edges.map(e => e.from + '>' + e.to).sort();
+    expect(r.blueprint.edges.length).toBeGreaterThan(0);
+    expect(edges).toContain('home>detail');
+    expect(edges).toContain('detail>home');
+  });
+});

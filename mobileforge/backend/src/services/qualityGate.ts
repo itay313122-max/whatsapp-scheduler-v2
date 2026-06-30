@@ -113,21 +113,32 @@ function findReachableScreens(code: string, setters: string[], initials: string[
 }
 
 // Reconstruct the navigation GRAPH (which screen links to which). We slice the
-// code at `case 'X':` boundaries so each slice is the render for screen X, then
-// find the setScreen('Y') calls inside it → edge X→Y. This is best-effort and
-// only covers the switch/case shape the prompt steers the model toward; a global
-// nav bar (rendered outside any case) contributes edges from every screen, which
-// we model as edges from the landing screen so the bar still shows as connected.
-function findNavEdges(code: string, setters: string[], definedScreens: string[], landing: string): NavEdge[] {
+// code at screen-branch boundaries — both `case 'X':` (switch) AND `navVar === 'X'`
+// (conditional render, the other shape the prompt suggests) — so each slice is
+// the render for screen X, then find the setScreen('Y') calls inside it → edge
+// X→Y. Best-effort; a global nav bar (rendered before the first branch) is
+// attributed to the landing screen so the bar still shows as connected.
+function findNavEdges(code: string, setters: string[], navVars: string[], definedScreens: string[], landing: string): NavEdge[] {
   if (!setters.length || definedScreens.length < 2) return [];
   const setterAlt = setters.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
   const callRe = new RegExp(`(?:${setterAlt})\\s*\\(\\s*['"]([^'"]+)['"]`, 'g');
 
-  // Find each `case 'X':` and the index where its body starts.
-  const caseRe = /case\s+['"]([^'"]+)['"]\s*:/g;
+  // Collect branch markers from BOTH shapes, then sort by position so slicing
+  // between consecutive markers yields each screen's render body regardless of
+  // whether the app used switch/case or if/=== conditionals.
   const markers: { id: string; start: number }[] = [];
-  let cm: RegExpExecArray | null;
-  while ((cm = caseRe.exec(code))) markers.push({ id: cm[1], start: cm.index + cm[0].length });
+  let m: RegExpExecArray | null;
+
+  const caseRe = /case\s+['"]([^'"]+)['"]\s*:/g;
+  while ((m = caseRe.exec(code))) markers.push({ id: m[1], start: m.index + m[0].length });
+
+  for (const v of navVars) {
+    const vEsc = v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const eqRe = new RegExp(`(?:${vEsc}\\s*===?\\s*(['"])([^'"]+)\\1)|(?:(['"])([^'"]+)\\3\\s*===?\\s*${vEsc})`, 'g');
+    while ((m = eqRe.exec(code))) markers.push({ id: m[2] || m[4], start: m.index + m[0].length });
+  }
+
+  markers.sort((a, b) => a.start - b.start);
 
   const edges: NavEdge[] = [];
   const seen = new Set<string>();
@@ -139,9 +150,8 @@ function findNavEdges(code: string, setters: string[], definedScreens: string[],
   };
 
   if (markers.length) {
-    // Code before the first case (shared header / nav bar) → attribute to landing.
+    // Code before the first branch (shared header / nav bar) → attribute to landing.
     const preamble = code.slice(0, markers[0].start);
-    let m: RegExpExecArray | null;
     callRe.lastIndex = 0;
     while ((m = callRe.exec(preamble))) push(landing, m[1]);
 
@@ -236,7 +246,7 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
   const definedScreens = findDefinedScreens(clean, nav.vars);
   const reachableScreens = findReachableScreens(clean, nav.setters, nav.initials);
   const landing = nav.initials[0] || definedScreens[0] || '';
-  const edges = findNavEdges(clean, nav.setters, definedScreens, landing);
+  const edges = findNavEdges(clean, nav.setters, nav.vars, definedScreens, landing);
 
   // Dead buttons / empty handlers run on the RAW code (we need the real
   // attribute text), but string-noise inside attrs is rare enough not to matter.
