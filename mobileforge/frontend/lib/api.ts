@@ -106,6 +106,23 @@ export async function generateApp(req: GenerateRequest): Promise<GenerateRespons
   return res.json();
 }
 
+export interface Suggestion { title: string; prompt: string }
+
+/** Ask the AI to critique a generated app and propose 3 one-tap improvements. */
+export async function getSuggestions(appCode: string, appName: string): Promise<Suggestion[]> {
+  try {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${API_URL}/api/generate/suggest`, {
+      method: 'POST', headers, body: JSON.stringify({ appCode, appName }),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data.suggestions) ? data.suggestions : [];
+  } catch {
+    return [];
+  }
+}
+
 export interface PlanQuestion {
   id: string;
   q: string;

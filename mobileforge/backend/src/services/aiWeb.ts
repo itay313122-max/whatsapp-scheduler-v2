@@ -2025,3 +2025,70 @@ ${navLines || '  (single primary flow — wire the bottom nav / back buttons)'}
 Do NOT invent extra top-level screens beyond these. Do NOT leave any screen unreachable.
 `;
 }
+
+// ── Self-critique: suggest improvements (a second AI "reviews" the app) ───────
+//
+// After an app is generated, a second pass critiques it and proposes a few
+// concrete, one-tap improvements. Each suggestion is phrased as an EDIT prompt so
+// the existing edit flow applies it directly. This makes the product iterate the
+// way a designer would — "what would make this better?" — beyond just building.
+
+export interface Suggestion { title: string; prompt: string }
+
+function getSuggestSystemPrompt(hebrew: boolean): string {
+  const lang = hebrew ? 'Hebrew' : "the app's language (match it)";
+  return `
+You are WebForge AI's design critic. You are shown a finished React mobile app.
+Propose EXACTLY 3 high-impact, concrete improvements that would make it look and
+feel more premium and more useful — the kind a senior product designer would flag.
+
+Respond with STRICT JSON ONLY (one line, no markdown):
+{"suggestions":[{"title":"<≤4 words, in ${lang}>","prompt":"<one imperative edit instruction in English the builder can apply directly>"}]}
+
+RULES:
+- Each "title" is a short tap-able label in ${lang} (e.g. "Add empty states").
+- Each "prompt" is a SPECIFIC, self-contained edit instruction in English
+  (e.g. "Add a skeleton loading state to the feed and an empty-state card when there are no items").
+- Prioritize: missing states (loading/empty/error), visual polish (spacing, hierarchy,
+  depth), a genuinely useful missing feature, accessibility, or microinteractions.
+- Do NOT suggest things the app already clearly has. Be specific to THIS app.
+- Exactly 3. Output the JSON on a single line, nothing else.`;
+}
+
+export function parseSuggestions(raw: string): Suggestion[] {
+  const s = raw.indexOf('{');
+  const e = raw.lastIndexOf('}');
+  if (s === -1 || e <= s) return [];
+  try {
+    const obj = JSON.parse(raw.slice(s, e + 1)) as any;
+    if (!Array.isArray(obj.suggestions)) return [];
+    return obj.suggestions
+      .filter((x: any) => x && x.title && x.prompt)
+      .slice(0, 3)
+      .map((x: any) => ({ title: String(x.title).slice(0, 40), prompt: String(x.prompt).slice(0, 300) }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Critique a generated app and return up to 3 concrete improvement suggestions.
+ * Fails soft (empty array) so the UI simply shows nothing on any error.
+ */
+export async function suggestImprovements(appCode: string, appName: string): Promise<Suggestion[]> {
+  if (allKeysPlaceholder()) return [];
+  if (!appCode || appCode.length < 100) return [];
+  const hebrew = /[֐-׿]/.test(appCode);
+  const messages: ChatMessage[] = [
+    { role: 'system', content: getSuggestSystemPrompt(hebrew) },
+    { role: 'user', content: `App name: ${appName}\n\nCODE:\n${appCode.slice(0, 12000)}` },
+  ];
+  try {
+    const { text, demoMode } = await callWithFallback(messages);
+    if (demoMode) return [];
+    return parseSuggestions(text);
+  } catch (err) {
+    console.warn('[AI/web] suggestImprovements failed:', (err as Error).message);
+    return [];
+  }
+}

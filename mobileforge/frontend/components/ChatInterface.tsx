@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { generateApp, streamGenerateApp, generateFromImage, planApp, getThemes, type GenerateResponse, type PlanQuestion, type PlanResult, type ThemeMeta } from '@/lib/api';
+import { generateApp, streamGenerateApp, generateFromImage, planApp, getThemes, getSuggestions, type GenerateResponse, type PlanQuestion, type PlanResult, type ThemeMeta, type Suggestion } from '@/lib/api';
 
 const SketchCanvas = dynamic(() => import('./SketchCanvas'), { ssr: false });
 
@@ -15,6 +15,7 @@ interface Message {
   isPlanning?: boolean;
   loadingStep?: number;
   streamBytes?: number; // live byte count while streaming generation
+  suggestions?: Suggestion[]; // AI self-critique improvement chips
   sourceType?: 'text' | 'screenshot' | 'sketch' | 'voice';
   imagePreview?: string;
   timestamp: Date;
@@ -543,6 +544,17 @@ export default function ChatInterface({
       };
       setMessages((prev) => [...prev.slice(0, -1), assistantMsg]);
       onAppGenerated?.(result);
+
+      // Self-critique: in the background, ask the AI for 3 one-tap improvements
+      // and attach them to this message as chips. Never blocks the result.
+      const appCode = result.files?.['App.jsx'] ?? result.files?.['App.tsx'] ?? '';
+      if (!result.demoMode && appCode) {
+        getSuggestions(appCode, result.appName).then((suggestions) => {
+          if (suggestions.length) {
+            setMessages((prev) => prev.map((m) => (m.id === assistantMsg.id ? { ...m, suggestions } : m)));
+          }
+        });
+      }
     } catch (err) {
       setMessages((prev) => [
         ...prev.slice(0, -1),
@@ -1030,8 +1042,31 @@ export default function ChatInterface({
                           )}
                         </div>
 
-                        {/* Quick action chips — contextual suggestions */}
-                        {msg.id === [...messages].reverse().find((m) => m.result)?.id && (
+                        {/* AI self-critique — app-specific improvement chips */}
+                        {msg.suggestions && msg.suggestions.length > 0 && (
+                          <div className="space-y-1.5 mb-2">
+                            <p className="text-[11px] text-primary font-semibold flex items-center gap-1">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+                              AI suggestions to make it better:
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {msg.suggestions.map((s, i) => (
+                                <button
+                                  key={i}
+                                  onClick={() => handleSubmit(s.prompt)}
+                                  disabled={isGenerating}
+                                  title={s.prompt}
+                                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/8 border border-primary/25 text-xs font-medium text-primary hover:bg-primary/15 transition-all disabled:opacity-30 min-h-[32px]"
+                                >
+                                  {s.title}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Quick action chips — generic fallback when no AI suggestions yet */}
+                        {!msg.suggestions?.length && msg.id === [...messages].reverse().find((m) => m.result)?.id && (
                           <div className="space-y-1.5">
                             <p className="text-[11px] text-text-secondary font-medium">⚡ Quick improvements:</p>
                             <div className="flex flex-wrap gap-1.5">

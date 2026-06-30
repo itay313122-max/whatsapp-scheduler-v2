@@ -1651,3 +1651,31 @@ describe('analyzeQuality — navigation edges', () => {
     expect(r.blueprint.edges.some(e => e.from === 'home' && e.to === 'profile')).toBe(true);
   });
 });
+
+// ── Self-critique — parseSuggestions ────────────────────────────────────────
+import { parseSuggestions } from '../src/services/aiWeb';
+
+describe('parseSuggestions', () => {
+  it('parses up to 3 suggestions from JSON', () => {
+    const raw = `Sure: {"suggestions":[
+      {"title":"Add empty states","prompt":"Add an empty-state card to every list"},
+      {"title":"Skeleton loading","prompt":"Add skeleton loaders to async content"},
+      {"title":"Press feedback","prompt":"Add press-scale to all buttons"},
+      {"title":"Extra","prompt":"ignored — over the limit"}]}`;
+    const s = parseSuggestions(raw);
+    expect(s.length).toBe(3);
+    expect(s[0].title).toBe('Add empty states');
+    expect(s[0].prompt).toContain('empty-state');
+  });
+
+  it('drops entries missing title or prompt', () => {
+    const s = parseSuggestions(`{"suggestions":[{"title":"x"},{"title":"ok","prompt":"do it"}]}`);
+    expect(s.length).toBe(1);
+    expect(s[0].title).toBe('ok');
+  });
+
+  it('returns [] on malformed input', () => {
+    expect(parseSuggestions('not json')).toEqual([]);
+    expect(parseSuggestions('')).toEqual([]);
+  });
+});

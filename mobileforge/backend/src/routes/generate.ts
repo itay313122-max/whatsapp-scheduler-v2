@@ -4,6 +4,7 @@ import {
   streamGenerateWebApp,
   parseGroqResponse,
   planWebApp,
+  suggestImprovements,
   type ConversationMessage,
 } from '../services/aiWeb';
 import { analyzeQuality } from '../services/qualityGate';
@@ -82,6 +83,20 @@ router.post('/plan', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('[Generate/plan] Error:', err);
     return res.json({ ready: true }); // fail open — never block building
+  }
+});
+
+// POST /api/generate/suggest — self-critique: propose 3 one-tap improvements
+// for a generated app. Fails soft (empty array) so the UI just shows nothing.
+router.post('/suggest', async (req: Request, res: Response) => {
+  const { appCode, appName = 'App' } = req.body;
+  if (!appCode) return res.status(400).json({ error: 'appCode is required' });
+  try {
+    const suggestions = await suggestImprovements(appCode, appName);
+    return res.json({ suggestions });
+  } catch (err) {
+    console.error('[Generate/suggest] Error:', err);
+    return res.json({ suggestions: [] });
   }
 });
 
