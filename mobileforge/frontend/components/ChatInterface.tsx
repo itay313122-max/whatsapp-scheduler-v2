@@ -201,6 +201,42 @@ const TEMPLATES = [
     border: 'border-indigo-200/60',
     prompt: "Build a learning app with a course catalog (6 courses with emoji, name, instructor, number of lessons), a course screen with a lesson list and completion marking, a progress bar, and a profile screen with learning statistics. Academic design in indigo",
   },
+  {
+    id: 'booking',
+    emoji: '📅',
+    name: 'Appointments',
+    desc: 'Booking, calendar and reminders',
+    gradient: 'from-rose-500/40 to-pink-500/25',
+    border: 'border-rose-200/60',
+    prompt: "Build a booking app for a salon/clinic: a services list (each with photo, name, duration, price), a calendar to pick a day, available time slots to choose from, an appointment confirmation screen, and an 'My appointments' screen with upcoming and past bookings. Clean, trustworthy design",
+  },
+  {
+    id: 'music',
+    emoji: '🎵',
+    name: 'Music Player',
+    desc: 'Playlists, now-playing and library',
+    gradient: 'from-fuchsia-500/40 to-purple-500/25',
+    border: 'border-fuchsia-200/60',
+    prompt: "Build a music player app with a home screen of playlists and recently played (cards with cover art), a now-playing screen with a large cover, progress bar, play/pause and skip controls, a like button, and a library screen with songs and artists. Sleek dark design",
+  },
+  {
+    id: 'recipes',
+    emoji: '🍳',
+    name: 'Recipes',
+    desc: 'Discover, steps and favorites',
+    gradient: 'from-amber-500/40 to-orange-500/25',
+    border: 'border-amber-200/60',
+    prompt: "Build a recipe app with a discover feed (recipe cards with photo, title, time, difficulty), a recipe detail screen with ingredients and step-by-step instructions, a favorites screen, and a search with category filters. Warm, appetizing design with real food photos",
+  },
+  {
+    id: 'travel',
+    emoji: '✈️',
+    name: 'Travel',
+    desc: 'Destinations, trips and itinerary',
+    gradient: 'from-cyan-500/40 to-sky-500/25',
+    border: 'border-cyan-200/60',
+    prompt: "Build a travel app with a destinations feed (cards with photo, place name, country, rating), a destination detail screen with photos and highlights, a trip planner with a day-by-day itinerary, and a saved-places screen. Bright, inspiring design with real travel photos",
+  },
 ];
 
 // Compress image to base64 (max 1024px wide, jpeg 85%)
