@@ -45,25 +45,56 @@ const clampDim = (v: unknown, def: number) => {
   return Math.max(16, Math.min(1600, n));
 };
 
-// A calm gradient SVG so the fallback still looks intentional (never a broken
-// image, never the "generic AI" purple). Tint is derived from the query so two
-// different subjects don't look identical.
+// A PREMIUM themed placeholder: a tasteful gradient tinted by category plus a
+// centered line icon picked from the query keyword. This looks like an
+// intentional illustration rather than a "missing image", so apps look designed
+// even when no real-photo provider is configured. (When PEXELS_API_KEY is set
+// and reachable, real photos are served instead — this is only the fallback.)
+//
+// Each category bundles a gradient pair, an accent colour for the icon, and a
+// stroke-based glyph path drawn on a 0..24 viewBox (Heroicons-style).
+const CATEGORIES: { re: RegExp; grad: [string, string]; accent: string; icon: string }[] = [
+  { re: /coffee|latte|espresso|cappuccino|tea|drink|cafe|beverage/i, grad: ['#fdf6ec', '#f5e6d3'], accent: '#b45309',
+    icon: 'M4 8h13v4a5 5 0 01-5 5H9a5 5 0 01-5-5V8zM17 9h2a2 2 0 010 4h-2M6 2v2M10 2v2M14 2v2' },
+  { re: /pizza|burger|food|dish|meal|plate|restaurant|salad|sushi|breakfast|dinner|lunch|recipe|cook|bowl/i, grad: ['#fef2f2', '#fde4e1'], accent: '#dc2626',
+    icon: 'M4 3v8a3 3 0 003 3v7M4 3v5M7 3v5M20 3c-2 0-3 2-3 5s1 4 3 4v9' },
+  { re: /nature|plant|leaf|garden|tree|forest|flower|green|botanic|eco/i, grad: ['#ecfdf5', '#d1fae5'], accent: '#059669',
+    icon: 'M12 21v-7M12 14c0-4 3-8 8-9 0 5-3 9-8 9zM12 14c0-3-2-6-6-7 0 4 2 7 6 7z' },
+  { re: /meditat|calm|yoga|zen|mindful|wellness|spa|relax|breath/i, grad: ['#eff6ff', '#dbeafe'], accent: '#2563eb',
+    icon: 'M12 3a3 3 0 100 6 3 3 0 000-6zM3 20c2-3 5-4 9-4s7 1 9 4M5 13l3 2M19 13l-3 2' },
+  { re: /person|portrait|people|avatar|profile|face|man|woman|user|smiling|headshot/i, grad: ['#f5f3ff', '#ede9fe'], accent: '#7c3aed',
+    icon: 'M12 12a4 4 0 100-8 4 4 0 000 8zM5 21a7 7 0 0114 0' },
+  { re: /music|song|playlist|album|artist|concert|audio|sound/i, grad: ['#fdf2f8', '#fce7f3'], accent: '#db2777',
+    icon: 'M9 18V5l11-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zM20 16a3 3 0 11-6 0 3 3 0 016 0z' },
+  { re: /travel|trip|destination|place|city|mountain|beach|vacation|tour|hotel|landmark/i, grad: ['#f0f9ff', '#e0f2fe'], accent: '#0284c7',
+    icon: 'M3 20l6-12 4 7 3-5 5 10zM7 8a1.5 1.5 0 100-3 1.5 1.5 0 000 3z' },
+  { re: /fitness|workout|gym|exercise|sport|run|training|muscle|athlete/i, grad: ['#fff7ed', '#ffedd5'], accent: '#ea580c',
+    icon: 'M6.5 6.5l11 11M4 9l-1 1 3 3M20 15l1-1-3-3M8 4L6 6M16 20l2-2' },
+  { re: /shop|product|store|fashion|clothes|shoe|bag|retail|sale|buy|cart/i, grad: ['#faf5ff', '#f3e8ff'], accent: '#9333ea',
+    icon: 'M6 7h12l-1 13H7L6 7zM9 7V5a3 3 0 016 0v2' },
+  { re: /tech|device|phone|app|computer|gadget|digital|screen/i, grad: ['#f8fafc', '#e2e8f0'], accent: '#475569',
+    icon: 'M7 3h10a1 1 0 011 1v16a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1zM11 18h2' },
+];
+const DEFAULT_CAT = { grad: ['#eef2ff', '#e0e7ff'] as [string, string], accent: '#6366f1',
+  icon: 'M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1zM3 16l4-4 3 3 4-5 7 7' };
+
 function svgFallback(query: string, w: number, h: number): string {
-  const palettes = [
-    ['#eef2ff', '#e0e7ff'], ['#ecfdf5', '#d1fae5'], ['#fef2f2', '#fee2e2'],
-    ['#fffbeb', '#fef3c7'], ['#f5f3ff', '#ede9fe'], ['#f0f9ff', '#e0f2fe'],
-  ];
-  let hash = 0;
-  for (let i = 0; i < query.length; i++) hash = (hash * 31 + query.charCodeAt(i)) >>> 0;
-  const [c1, c2] = palettes[hash % palettes.length];
-  const label = (query || 'image').slice(0, 24).replace(/[<>&]/g, '');
+  const cat = CATEGORIES.find((c) => c.re.test(query)) || DEFAULT_CAT;
+  const [c1, c2] = cat.grad;
+  const s = Math.min(w, h);
+  const icon = Math.round(s * 0.34);          // icon box size
+  const x = Math.round((w - icon) / 2);
+  const y = Math.round((h - icon) / 2);
+  const sw = Math.max(1.2, 24 / icon * 1.6);  // stroke scaled so it stays crisp
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
     <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/>
     </linearGradient></defs>
     <rect width="${w}" height="${h}" fill="url(#g)"/>
-    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-      fill="#94a3b8" font-family="system-ui,sans-serif" font-size="${Math.max(11, Math.round(Math.min(w, h) / 12))}">${label}</text>
+    <g transform="translate(${x},${y}) scale(${icon / 24})" fill="none" stroke="${cat.accent}"
+       stroke-opacity="0.55" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">
+      <path d="${cat.icon}"/>
+    </g>
   </svg>`;
 }
 

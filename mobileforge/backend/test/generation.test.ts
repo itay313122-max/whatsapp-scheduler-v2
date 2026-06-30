@@ -1565,9 +1565,14 @@ describe('Image proxy — /api/image', () => {
     expect(body(res)).toContain('height="16"');  // clamped min
   });
 
-  it('derives the label from the query (escaped)', async () => {
-    const res = await request.get('/api/image?q=' + encodeURIComponent('grilled salmon'));
-    expect(body(res)).toContain('grilled salmon');
+  it('themes the placeholder by category — different subjects get different accent colors', async () => {
+    const coffee = body(await request.get('/api/image?q=coffee+latte'));
+    const nature = body(await request.get('/api/image?q=forest+leaves'));
+    expect(coffee).toContain('#b45309'); // coffee accent
+    expect(nature).toContain('#059669'); // nature accent
+    expect(coffee).not.toEqual(nature);
+    // a centered themed icon, drawn with a path, not a literal label
+    expect(coffee).toContain('<path');
   });
 
   it('defaults the query when q is missing', async () => {
