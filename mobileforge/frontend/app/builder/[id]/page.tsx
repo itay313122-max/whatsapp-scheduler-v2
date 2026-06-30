@@ -9,6 +9,7 @@ import WebPreview from '@/components/WebPreview';
 import type { PreviewScreen, PreviewSelectedElement } from '@/components/WebPreview';
 import CodeViewer from '@/components/CodeViewer';
 import ScreenFlowMap from '@/components/ScreenFlowMap';
+import { QRCodeSVG } from 'qrcode.react';
 import EditSidebar from '@/components/EditSidebar';
 import type { SelectedElement } from '@/components/PropertyPanel';
 import FigmaToolbar from '@/components/FigmaToolbar';
@@ -406,6 +407,7 @@ function BuilderContent() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [editSettings, setEditSettings] = useState<EditSettings>(DEFAULT_SETTINGS);
   const [shareStatus, setShareStatus] = useState<'idle' | 'sharing' | 'copied'>('idle');
+  const [shareModalUrl, setShareModalUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState(0);
   const [showVersionPanel, setShowVersionPanel] = useState(false);
@@ -1377,10 +1379,9 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                   setShareStatus('sharing');
                   try {
                     const { shareUrl } = await shareApp(currentResult.htmlDoc, currentResult.appName);
-                    await navigator.clipboard.writeText(shareUrl);
-                    setShareStatus('copied');
-                    showToast('Share link copied to clipboard');
-                    setTimeout(() => setShareStatus('idle'), 3000);
+                    setShareModalUrl(shareUrl);
+                    try { await navigator.clipboard.writeText(shareUrl); } catch { /* clipboard may be blocked; modal still shows the link */ }
+                    setShareStatus('idle');
                   } catch { setShareStatus('idle'); showToast('Failed to share app', 'error'); }
                 }}
                 aria-label="Share app"
@@ -2051,6 +2052,43 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
           </ErrorBoundary>
         </Panel>
       </PanelGroup>
+
+      {/* Share modal — public live link + QR so anyone can open it on a phone. */}
+      {shareModalUrl && (
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" dir="ltr" onClick={() => setShareModalUrl(null)}>
+          <div className="w-full max-w-sm rounded-2xl bg-surface border border-border/60 shadow-2xl p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-text-primary flex items-center gap-2">
+                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                Share your app
+              </h3>
+              <button onClick={() => setShareModalUrl(null)} className="w-7 h-7 rounded-lg flex items-center justify-center text-text-soft hover:text-text-primary hover:bg-surface-2 transition-all" aria-label="Close">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <p className="text-[11px] text-text-secondary mb-3">Anyone with this link can open your live app — scan the code to try it on your phone.</p>
+            <div className="flex justify-center mb-3">
+              <div className="p-3 rounded-xl bg-white">
+                <QRCodeSVG value={shareModalUrl} size={148} />
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 p-1 pl-3 rounded-xl bg-surface-2/60 border border-border/50">
+              <input readOnly value={shareModalUrl} className="flex-1 bg-transparent text-[11px] text-text-secondary outline-none min-w-0 truncate" onFocus={(e) => e.currentTarget.select()} />
+              <button
+                onClick={async () => { try { await navigator.clipboard.writeText(shareModalUrl); showToast('Link copied'); } catch { showToast('Copy failed', 'error'); } }}
+                className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary/90 transition-all"
+              >
+                Copy
+              </button>
+            </div>
+            <a href={shareModalUrl} target="_blank" rel="noopener noreferrer" className="mt-2 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-border/60 text-xs font-semibold text-text-primary hover:bg-surface-2 transition-all">
+              Open in new tab
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </a>
+            <p className="text-[10px] text-text-soft text-center mt-2.5">Link stays live for 7 days</p>
+          </div>
+        </div>
+      )}
 
       {/* Side-by-side version comparison — Stitch's infinite-canvas idea: see two
           iterations next to each other and pick the winner. */}
