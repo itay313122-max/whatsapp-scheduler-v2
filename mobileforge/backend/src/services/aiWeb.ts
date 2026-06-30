@@ -985,6 +985,12 @@ REQUIRED PATTERNS:
      if (tab === 'profile') return <ProfileScreen />;
    };
    // Each tab MUST show DIFFERENT content
+   // REACHABILITY RULE (critical): EVERY screen you define a branch for MUST be
+   // reachable. The bottom nav (app-nav) must contain a nav-tab calling setTab(id)
+   // for EACH primary screen. Secondary screens (e.g. 'detail', 'checkout') must be
+   // reached by a control on a screen the user can already see (a card onClick, a
+   // CTA button). Before finishing, mentally tap through: can the user reach every
+   // single screen? If a screen has no entry point, either add one or delete it.
 
 2. LIST STATE — items that add/remove/toggle:
    const [items, setItems] = useState([...]);
