@@ -64,6 +64,9 @@ export interface GenerateResponse {
     reachable: number;
     buttons: string;   // e.g. "5/5"
     repaired: boolean;
+    screenIds?: string[];
+    reachableIds?: string[];
+    edges?: { from: string; to: string }[];
   };
   /** The Ideate blueprint this app was generated against (Ideate mode only). */
   blueprint?: Blueprint;

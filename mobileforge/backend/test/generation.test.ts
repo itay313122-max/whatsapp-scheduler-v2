@@ -1613,3 +1613,41 @@ describe('buildRepairPrompt', () => {
     expect(prompt).toMatch(/no onClick/i);
   });
 });
+
+// ── Navigation graph extraction (for the flow map) ─────────────────────────
+describe('analyzeQuality — navigation edges', () => {
+  it('extracts edges from switch/case setScreen calls', () => {
+    const code = `function App(){const {useState}=React;const [screen,setScreen]=useState('home');
+      function render(){switch(screen){
+        case 'home': return <div><button onClick={()=>setScreen('detail')}>open</button></div>;
+        case 'detail': return <div><button onClick={()=>setScreen('cart')}>buy</button><button onClick={()=>setScreen('home')}>back</button></div>;
+        case 'cart': return <div><button onClick={()=>setScreen('home')}>done</button></div>;
+      }}
+      return <div>{render()}</div>;}`;
+    const r = analyzeQuality(code);
+    const edges = r.blueprint.edges.map(e => e.from + '>' + e.to).sort();
+    expect(edges).toContain('home>detail');
+    expect(edges).toContain('detail>cart');
+    expect(edges).toContain('detail>home');
+    expect(edges).toContain('cart>home');
+  });
+
+  it('does not emit self-edges (a screen re-rendering itself)', () => {
+    const code = `function App(){const {useState}=React;const [screen,setScreen]=useState('a');
+      function render(){switch(screen){case 'a':return <div><button onClick={()=>setScreen('a')}>x</button><button onClick={()=>setScreen('b')}>y</button></div>;case 'b':return <div>b</div>;}}
+      return <div>{render()}</div>;}`;
+    const r = analyzeQuality(code);
+    expect(r.blueprint.edges.some(e => e.from === 'a' && e.to === 'a')).toBe(false);
+    expect(r.blueprint.edges.some(e => e.from === 'a' && e.to === 'b')).toBe(true);
+  });
+
+  it('attributes shared pre-case nav (a global nav bar) to the landing screen', () => {
+    const code = `function App(){const {useState}=React;const [screen,setScreen]=useState('home');
+      const nav = <nav><button onClick={()=>setScreen('profile')}>P</button></nav>;
+      function render(){switch(screen){case 'home':return <div>h</div>;case 'profile':return <div>p</div>;}}
+      return <div>{render()}{nav}</div>;}`;
+    const r = analyzeQuality(code);
+    // the nav button is declared before the switch → attributed to landing 'home'
+    expect(r.blueprint.edges.some(e => e.from === 'home' && e.to === 'profile')).toBe(true);
+  });
+});

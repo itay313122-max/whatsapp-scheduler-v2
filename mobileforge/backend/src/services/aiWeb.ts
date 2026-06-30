@@ -1332,6 +1332,10 @@ export interface GeneratedWebApp {
     reachable: number;
     buttons: string;
     repaired: boolean;
+    /** Screen ids, the reachable subset, and the navigation graph (for the flow map). */
+    screenIds: string[];
+    reachableIds: string[];
+    edges: { from: string; to: string }[];
   };
   /** The Ideate blueprint this app was generated against (when ideate mode ran). */
   blueprint?: Blueprint;
@@ -1629,6 +1633,9 @@ export async function generateWebApp(
           reachable: report.blueprint.reachableScreens.length,
           buttons: `${report.blueprint.wiredButtonCount}/${report.blueprint.buttonCount}`,
           repaired,
+          screenIds: report.blueprint.definedScreens,
+          reachableIds: report.blueprint.reachableScreens,
+          edges: report.blueprint.edges,
         },
       };
     }

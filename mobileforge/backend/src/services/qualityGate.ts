@@ -25,6 +25,9 @@ export interface QualityIssue {
   evidence?: string;
 }
 
+/** A navigation edge reconstructed from the code: screen `from` links to `to`. */
+export interface NavEdge { from: string; to: string }
+
 export interface QualityReport {
   ok: boolean;
   score: number; // 0..100, higher is better
@@ -33,6 +36,8 @@ export interface QualityReport {
     navStateVars: string[];
     definedScreens: string[];
     reachableScreens: string[];
+    /** Navigation graph: which screen links to which (best-effort, switch/case). */
+    edges: NavEdge[];
     buttonCount: number;
     wiredButtonCount: number;
   };
@@ -107,6 +112,49 @@ function findReachableScreens(code: string, setters: string[], initials: string[
   return uniq(reached.filter(Boolean));
 }
 
+// Reconstruct the navigation GRAPH (which screen links to which). We slice the
+// code at `case 'X':` boundaries so each slice is the render for screen X, then
+// find the setScreen('Y') calls inside it → edge X→Y. This is best-effort and
+// only covers the switch/case shape the prompt steers the model toward; a global
+// nav bar (rendered outside any case) contributes edges from every screen, which
+// we model as edges from the landing screen so the bar still shows as connected.
+function findNavEdges(code: string, setters: string[], definedScreens: string[], landing: string): NavEdge[] {
+  if (!setters.length || definedScreens.length < 2) return [];
+  const setterAlt = setters.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const callRe = new RegExp(`(?:${setterAlt})\\s*\\(\\s*['"]([^'"]+)['"]`, 'g');
+
+  // Find each `case 'X':` and the index where its body starts.
+  const caseRe = /case\s+['"]([^'"]+)['"]\s*:/g;
+  const markers: { id: string; start: number }[] = [];
+  let cm: RegExpExecArray | null;
+  while ((cm = caseRe.exec(code))) markers.push({ id: cm[1], start: cm.index + cm[0].length });
+
+  const edges: NavEdge[] = [];
+  const seen = new Set<string>();
+  const push = (from: string, to: string) => {
+    if (from === to) return; // self-nav (re-render) isn't an edge worth showing
+    const k = `${from}>${to}`;
+    if (seen.has(k)) return;
+    seen.add(k); edges.push({ from, to });
+  };
+
+  if (markers.length) {
+    // Code before the first case (shared header / nav bar) → attribute to landing.
+    const preamble = code.slice(0, markers[0].start);
+    let m: RegExpExecArray | null;
+    callRe.lastIndex = 0;
+    while ((m = callRe.exec(preamble))) push(landing, m[1]);
+
+    for (let i = 0; i < markers.length; i++) {
+      const from = markers[i].id;
+      const body = code.slice(markers[i].start, i + 1 < markers.length ? markers[i + 1].start : code.length);
+      callRe.lastIndex = 0;
+      while ((m = callRe.exec(body))) push(from, m[1]);
+    }
+  }
+  return edges;
+}
+
 // Count buttons and how many carry a real handler. We treat as "clickable":
 //   <button ...>, role="button", .nav-tab / .btn-* class elements with onClick.
 // A button is "wired" if it has onClick={...non-empty...} OR type="submit"
@@ -178,7 +226,7 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
       ok: false,
       score: 0,
       issues: [{ kind: 'no-navigation', severity: 'error', message: 'Empty or trivially-short app code.' }],
-      blueprint: { navStateVars: [], definedScreens: [], reachableScreens: [], buttonCount: 0, wiredButtonCount: 0 },
+      blueprint: { navStateVars: [], definedScreens: [], reachableScreens: [], edges: [], buttonCount: 0, wiredButtonCount: 0 },
     };
   }
 
@@ -187,6 +235,8 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
   const nav = findNavState(clean);
   const definedScreens = findDefinedScreens(clean, nav.vars);
   const reachableScreens = findReachableScreens(clean, nav.setters, nav.initials);
+  const landing = nav.initials[0] || definedScreens[0] || '';
+  const edges = findNavEdges(clean, nav.setters, definedScreens, landing);
 
   // Dead buttons / empty handlers run on the RAW code (we need the real
   // attribute text), but string-noise inside attrs is rare enough not to matter.
@@ -247,6 +297,7 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
       navStateVars: nav.vars,
       definedScreens,
       reachableScreens,
+      edges,
       buttonCount: buttons.total,
       wiredButtonCount: buttons.wired,
     },

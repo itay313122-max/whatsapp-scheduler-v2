@@ -187,6 +187,9 @@ router.post('/stream', async (req: Request, res: Response) => {
         reachable: qr.blueprint.reachableScreens.length,
         buttons: `${qr.blueprint.wiredButtonCount}/${qr.blueprint.buttonCount}`,
         repaired: false,
+        screenIds: qr.blueprint.definedScreens,
+        reachableIds: qr.blueprint.reachableScreens,
+        edges: qr.blueprint.edges,
       };
       console.log('[Generate/stream] Quality —', { score: quality.score, ok: quality.ok, issues: quality.issues.length });
 
