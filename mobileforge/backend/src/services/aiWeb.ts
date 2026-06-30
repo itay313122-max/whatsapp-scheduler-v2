@@ -10,7 +10,7 @@ const MODEL = 'llama-3.3-70b-versatile';
 const _k = (v: string | undefined) => v ? (v.length > 4 ? `…${v.slice(-4)}` : '(set)') : '⚠️ MISSING';
 console.log('[AI/web] Provider keys —', {
   GROQ:        _k(process.env.GROQ_API_KEY),
-  NVIDIA:      _k(process.env.NVIDIA_API_KEY),
+  NVIDIA:      _k(process.env.NVIDIA_API_KEY) + (process.env.NVIDIA_API_KEY ? ` [${process.env.NVIDIA_MODEL || 'qwen/qwen2.5-coder-32b-instruct'}]` : ''),
   GEMINI:      _k(process.env.GEMINI_API_KEY),
   OPENROUTER:  _k(process.env.OPENROUTER_API_KEY),
   CEREBRAS:    _k(process.env.CEREBRAS_API_KEY),
@@ -144,12 +144,17 @@ const callCerebras = (m: ChatMessage[]) => callOpenAICompatible(m, {
   url: 'https://api.cerebras.ai/v1/chat/completions', model: 'llama-3.3-70b',
 });
 
-// NVIDIA NIM (build.nvidia.com) — OpenAI-compatible, free tier, serves the same
-// Llama-3.3-70B class as our primary Groq model, so it's the strongest fallback
-// for output consistency. Get a key at build.nvidia.com → set NVIDIA_API_KEY.
+// NVIDIA NIM (build.nvidia.com) — OpenAI-compatible. ONE key (NVIDIA_API_KEY)
+// unlocks the whole catalog; the model is chosen via NVIDIA_MODEL so you can A/B
+// it in production without code changes. Default is Qwen2.5-Coder-32B — a
+// code-specialized model that produces cleaner JSX than a general 70B. Strong
+// alternatives: 'nvidia/llama-3.3-nemotron-super-49b-v1' (reasoning, complex
+// layouts) and 'meta/llama-3.3-70b-instruct' (well-rounded). Get a key at
+// build.nvidia.com → "Get API Key".
+const NVIDIA_MODEL = process.env.NVIDIA_MODEL || 'qwen/qwen2.5-coder-32b-instruct';
 const callNvidia = (m: ChatMessage[]) => callOpenAICompatible(m, {
   name: 'NVIDIA', envVar: 'NVIDIA_API_KEY',
-  url: 'https://integrate.api.nvidia.com/v1/chat/completions', model: 'meta/llama-3.3-70b-instruct',
+  url: 'https://integrate.api.nvidia.com/v1/chat/completions', model: NVIDIA_MODEL,
 });
 
 const callTogether = (m: ChatMessage[]) => callOpenAICompatible(m, {

@@ -26,6 +26,9 @@ services:
         sync: false
       - key: NVIDIA_API_KEY
         sync: false
+      # Optional — which NVIDIA model to use (default: qwen/qwen2.5-coder-32b-instruct).
+      - key: NVIDIA_MODEL
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: OPENROUTER_API_KEY
