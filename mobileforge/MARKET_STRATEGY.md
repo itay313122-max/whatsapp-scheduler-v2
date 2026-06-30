@@ -84,5 +84,58 @@ default output matches Stitch's polish *and* keeps every advantage above.
 
 ---
 
-*Living document — Stitch-specific competitive details are being confirmed by
-live research and will be merged here.*
+---
+
+## Confirmed Stitch intel (live research, June 2026) — and what it changes
+
+Sourced from official Google blogs, hands-on reviews (LogRocket, DesignProject,
+Bitovi, UX Planet), and the Google AI Developers Forum.
+
+**Surprises that strengthen our position:**
+
+1. **Stitch images are PLACEHOLDERS too.** Official guidance: "image and asset
+   paths in Stitch code are placeholders — replace them with your actual asset
+   URLs." Real photography is expected to come from a *separate* tool (Imagen 4 /
+   ImagineArt). → Our assumed photo deficit is largely a myth. If we
+   auto-populate **real inline photos via Pexels**, we BEAT Stitch on the very
+   thing everyone assumes it does. This flips from a weakness to a wedge.
+
+2. **Stitch interactivity is prototype-level only** — screen-to-screen
+   transitions ("Play" through linked frames), NOT real app state/logic. Our
+   generated **working cart with live state** is genuinely more functional, not
+   just comparable.
+
+3. **"Generic AI look" is the #1 reviewer complaint** — "so generic and off-base
+   they're unusable even as inspiration." One comparison ranked Stitch LAST vs.
+   Claude Design / Claude Code / Figma Make. → Our design-variation system
+   (themes, layout archetypes, premium rules) directly attacks their loudest pain.
+
+4. **Native React/JSX export is disputed/limited.** Stitch exports HTML/Tailwind
+   (+ Figma). Our **runnable Vite + React project** is a clean edge for devs.
+
+5. **Accessibility gaps are a documented weakness** — Stitch designs "often fail
+   basic contrast and touch-target requirements." We already enforce ≥44px touch
+   targets + contrast in the prompt — and our quality gate can VERIFY it. This is
+   a build-now differentiator (see below).
+
+6. **No brand-kit enforcement** — Stitch can't apply a consistent uploaded brand
+   kit; you re-specify every generation. We have themes + design tokens +
+   DESIGN.md — a brand-kit upload feature would directly counter this.
+
+**Where Stitch is genuinely strong (respect it):** fast Gemini 2.5 Flash/Pro
+generation, up to 5 coherent Material-3 screens, clean Figma hand-off, and (since
+May 2026) real-time multi-user collaboration. Reach parity on collab later; don't
+fight Figma hand-off — beat it with runnable code.
+
+## Sharpened plays (exploit confirmed weaknesses)
+
+| Their confirmed weakness | Our counter | Status |
+|---|---|---|
+| Photos are placeholders, need a 2nd tool | Auto inline real photos (Pexels) | code done → needs key |
+| "Generic AI look" | Theme/archetype variation + premium rules | shipped |
+| Prototype-only, no real state | Working cart/forms/state | shipped |
+| Disputed React export | Runnable Vite+React zip | shipped |
+| **Accessibility fails (contrast/touch)** | **Quality gate accessibility checks** | **BUILD NEXT** |
+| No brand-kit enforcement | Brand-kit upload + design tokens | partial (themes) |
+
+*Living document — updated with confirmed June 2026 research.*
