@@ -426,6 +426,10 @@ function BuilderContent() {
   // ── Version History ──────────────────────────────────────────────────────
   const [versions, setVersions] = useState<GenerateResponse[]>([]);
   const [versionIdx, setVersionIdx] = useState(-1);
+  // Side-by-side version comparison (Stitch infinite-canvas style)
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareLeft, setCompareLeft] = useState(0);
+  const [compareRight, setCompareRight] = useState(0);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showEditSidebar, setShowEditSidebar] = useState(true);
 
@@ -1231,7 +1235,24 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                 <>
                   <div className="fixed inset-0 z-50" onClick={() => setShowVersionPanel(false)} />
                   <div className="absolute right-16 top-full mt-1 w-64 bg-surface border border-border rounded-xl shadow-lg z-50 py-1.5 animate-fade-in-up max-h-72 overflow-y-auto" dir="ltr">
-                    <div className="px-3 py-1.5 text-[10px] font-semibold text-text-secondary uppercase tracking-wider">Version History</div>
+                    <div className="flex items-center justify-between px-3 py-1.5">
+                      <span className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">Version History</span>
+                      <button
+                        onClick={() => {
+                          setCompareRight(versionIdx);
+                          setCompareLeft(Math.max(0, versionIdx - 1));
+                          setCompareMode(true);
+                          setShowVersionPanel(false);
+                        }}
+                        className="flex items-center gap-1 text-[10px] font-semibold text-primary hover:underline"
+                        title="Compare two versions side by side"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 4.5v15m6-15v15M4.5 9h15m-15 6h15" />
+                        </svg>
+                        Compare
+                      </button>
+                    </div>
                     {versions.map((v, i) => (
                       <button
                         key={i}
@@ -1953,6 +1974,68 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
           </ErrorBoundary>
         </Panel>
       </PanelGroup>
+
+      {/* Side-by-side version comparison — Stitch's infinite-canvas idea: see two
+          iterations next to each other and pick the winner. */}
+      {compareMode && versions.length > 1 && (
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex flex-col" dir="ltr">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 bg-black/40">
+            <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 4.5v15m6-15v15M4.5 9h15m-15 6h15" />
+              </svg>
+              Compare versions
+            </h3>
+            <button onClick={() => setCompareMode(false)} className="w-8 h-8 rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all" aria-label="Close comparison">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div className="flex-1 flex gap-3 p-4 overflow-hidden max-md:flex-col">
+            {([[compareLeft, setCompareLeft], [compareRight, setCompareRight]] as const).map(([idx, setIdx], col) => {
+              const v = versions[idx];
+              const q = v?.quality;
+              return (
+                <div key={col} className="flex-1 flex flex-col min-w-0 rounded-2xl bg-surface border border-border/60 overflow-hidden">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-border/50 bg-surface-2/50">
+                    <select
+                      value={idx}
+                      onChange={(e) => setIdx(Number(e.target.value))}
+                      className="text-xs font-semibold bg-transparent text-text-primary outline-none cursor-pointer flex-1 min-w-0"
+                    >
+                      {versions.map((vv, i) => (
+                        <option key={i} value={i}>v{i + 1} — {vv.appName || `Version ${i + 1}`}</option>
+                      ))}
+                    </select>
+                    {q && (
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${q.ok ? 'bg-green-500/15 text-green-500' : 'bg-amber-500/15 text-amber-500'}`} title={`${q.reachable}/${q.screens} screens reachable · ${q.buttons} buttons wired`}>
+                        Q{q.score}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => { setVersionIdx(idx); setCurrentResult(v); setCompareMode(false); }}
+                      className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-primary text-white hover:bg-primary/90 transition-all flex-shrink-0"
+                    >
+                      Use this
+                    </button>
+                  </div>
+                  <div className="flex-1 bg-white overflow-hidden">
+                    {v?.htmlDoc ? (
+                      <iframe
+                        title={`Version ${idx + 1}`}
+                        srcDoc={v.htmlDoc}
+                        sandbox="allow-scripts"
+                        className="w-full h-full border-0"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-text-soft text-xs">No preview</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Mobile-only view switcher — the desktop split becomes a one-pane-at-a-time
           toggle on phones, so neither canvas nor chat gets squished. */}
