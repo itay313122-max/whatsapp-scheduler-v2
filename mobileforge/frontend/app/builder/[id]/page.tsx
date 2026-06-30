@@ -475,38 +475,62 @@ function BuilderContent() {
   }, []);
 
   // ── Export helpers ───────────────────────────────────────────────────────
-  const exportAsReactProject = useCallback(() => {
+  // Export a COMPLETE, runnable Vite + React project as a .zip. Unlike the old
+  // concatenated-text dump, this unzips to a folder you can `npm install && npm
+  // run dev` immediately. It bundles the design-system CSS (extracted from the
+  // live preview), a photoImg() shim so images still render offline, and a README.
+  const exportAsReactProject = useCallback(async () => {
     if (!currentResult) return;
-    const appCode = currentResult.files?.['App.jsx'] ?? currentResult.files?.['App.tsx'] ?? '';
-    const packageJson = JSON.stringify({
-      name: (currentResult.appName || 'my-app').toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-      version: '1.0.0',
-      private: true,
-      dependencies: { react: '^18.2.0', 'react-dom': '^18.2.0', 'react-scripts': '5.0.1' },
-      scripts: { start: 'react-scripts start', build: 'react-scripts build' },
-      browserslist: { production: ['>0.2%', 'not dead'], development: ['last 1 chrome version'] },
-    }, null, 2);
+    let appCode = currentResult.files?.['App.jsx'] ?? currentResult.files?.['App.tsx'] ?? '';
+    if (!appCode) { showToast('No code to export', 'error'); return; }
+
+    const slug = (currentResult.appName || 'my-app').toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'my-app';
+    // The generated code does `const { useState } = React` and uses JSX but has no
+    // imports (React is a runtime global in the preview). For a real ESM project,
+    // prepend a default React import so the destructure + JSX resolve.
+    if (!/^\s*import\s+React\b/.test(appCode)) appCode = `import React from 'react';\n\n${appCode}`;
+
+    // Pull the injected design-system CSS out of the live preview document so the
+    // exported app looks identical, not unstyled.
+    const css = (currentResult.htmlDoc.match(/<style>([\s\S]*?)<\/style>/i)?.[1] || '').trim();
+
     const htmlDir = (selectedLanguage === 'he' || selectedLanguage === 'ar') ? 'rtl' : 'ltr';
-    const indexHtml = `<!DOCTYPE html>\n<html lang="${selectedLanguage}" dir="${htmlDir}">\n<head>\n<meta charset="utf-8"/>\n<meta name="viewport" content="width=device-width,initial-scale=1"/>\n<title>${currentResult.appName || 'App'}</title>\n</head>\n<body>\n<div id="root"></div>\n</body>\n</html>`;
-    const indexJs = `import React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport App from './App';\n\nReactDOM.createRoot(document.getElementById('root')).render(<App />);\n`;
+    const pkg = JSON.stringify({
+      name: slug, version: '1.0.0', private: true, type: 'module',
+      scripts: { dev: 'vite', build: 'vite build', preview: 'vite preview' },
+      dependencies: { react: '^18.2.0', 'react-dom': '^18.2.0' },
+      devDependencies: { '@vitejs/plugin-react': '^4.2.0', vite: '^5.0.0' },
+    }, null, 2);
 
     const files: Record<string, string> = {
-      'package.json': packageJson,
-      'public/index.html': indexHtml,
-      'src/index.js': indexJs,
+      'package.json': pkg,
+      'vite.config.js': `import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\n\nexport default defineConfig({ plugins: [react()] });\n`,
+      'index.html': `<!DOCTYPE html>\n<html lang="${selectedLanguage}" dir="${htmlDir}">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n    <title>${(currentResult.appName || 'App').replace(/[<>]/g, '')}</title>\n  </head>\n  <body>\n    <div id="root"></div>\n    <script type="module" src="/src/main.jsx"></script>\n  </body>\n</html>\n`,
+      'src/main.jsx': `import React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport App from './App.jsx';\nimport './index.css';\n\n// Photo helper — the generated app may call photoImg(query,w,h). Standalone, we\n// return a tasteful gradient SVG so images render without a backend. Swap this\n// for a real image service (Unsplash/Pexels) if you want live photos.\nwindow.photoImg = (q, w = 400, h = 300) => {\n  const label = String(q || 'image').slice(0, 24);\n  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef2ff"/><stop offset="1" stop-color="#e0e7ff"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="14">' + label + '</text></svg>';\n  return 'data:image/svg+xml,' + encodeURIComponent(svg);\n};\n\nReactDOM.createRoot(document.getElementById('root')).render(<App />);\n`,
       'src/App.jsx': appCode,
+      'src/index.css': css || `body { margin: 0; font-family: system-ui, sans-serif; }`,
+      'README.md': `# ${currentResult.appName || 'My App'}\n\nGenerated with MobileForge. A complete Vite + React project.\n\n## Run it\n\n\`\`\`bash\nnpm install\nnpm run dev\n\`\`\`\n\nThen open the URL Vite prints (usually http://localhost:5173).\n\n## Build for production\n\n\`\`\`bash\nnpm run build\n\`\`\`\n\nThe output goes to \`dist/\`. Deploy it to any static host (Vercel, Netlify, GitHub Pages).\n\n## Notes\n\n- \`src/App.jsx\` is your app. \`src/index.css\` holds the design system.\n- \`photoImg()\` returns placeholder images; wire it to a real photo API in \`src/main.jsx\` for live photos.\n`,
+      '.gitignore': `node_modules\ndist\n.DS_Store\n`,
     };
 
-    const fileList = Object.entries(files).map(([name, content]) => `// ===== ${name} =====\n${content}`).join('\n\n');
-    const blob = new Blob([fileList], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${currentResult.appName || 'app'}-react-project.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-    setShowExportMenu(false);
-    showToast('React project exported successfully');
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      const root = zip.folder(slug)!;
+      for (const [path, content] of Object.entries(files)) root.file(path, content);
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${slug}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setShowExportMenu(false);
+      showToast('Project exported — unzip and run npm install');
+    } catch (err) {
+      console.error('[export] zip failed', err);
+      showToast('Export failed', 'error');
+    }
   }, [currentResult, selectedLanguage, showToast]);
 
   // Export the app's design system as a DESIGN.md — Google Stitch's open-source,
@@ -1418,8 +1442,8 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text-primary hover:bg-primary/5 transition-all">
                         <span className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-sm">📦</span>
                         <div className="text-left">
-                          <p className="font-medium">Full React project</p>
-                          <p className="text-[10px] text-text-secondary">package.json + src + public</p>
+                          <p className="font-medium">Full React project (.zip)</p>
+                          <p className="text-[10px] text-text-secondary">Vite + React — npm install &amp; run</p>
                         </div>
                       </button>
                       <button onClick={exportAsDesignMd}
