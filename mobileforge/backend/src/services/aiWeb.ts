@@ -384,8 +384,23 @@ CALENDAR: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="cu
 FIRE: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14 0-5.5 3.5-7.5.67 2.17 1.5 3.5 3 5 2.09 2.09 3 4.5 3 6.5a7 7 0 1 1-14 0c0-1.15.29-2.06.8-2.9"/></svg>
 PACKAGE: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
 
-━━━ IMAGE PLACEHOLDERS — SVG DATA URIs (picsum.photos is BLOCKED) ━━━
-NEVER use picsum.photos or any external image URL. Use this SVG placeholder helper:
+━━━ IMAGES — REAL PHOTOS via photoImg(), SVG only as a last resort ━━━
+For ANY photographic content (food dishes, products, people/avatars, places,
+nature, fashion, real-world objects) use the GLOBAL helper window.photoImg:
+
+  photoImg(query, width, height)   // returns a real keyword-matched photo URL
+
+Usage:  <img src={photoImg('cappuccino coffee', 400, 300)} alt="Cappuccino"
+          style={{width:'100%',height:180,objectFit:'cover'}} />
+- Make the query SPECIFIC and descriptive ('grilled salmon plate', not 'food').
+- Match width/height to the slot so the photo crops nicely with objectFit:cover.
+- photoImg is always defined (global). It degrades to a tasteful placeholder on
+  its own if photos are unavailable — you do NOT need an onError handler.
+- Avatars: photoImg('portrait person smiling', 80, 80) with borderRadius:'50%'.
+
+NEVER use picsum.photos or any other external image URL — they are BLOCKED.
+Use photoImg() for photos. The SVG placeholderImg below is ONLY for abstract/UI
+fills (chart backgrounds, empty-state art) — NOT for real-world imagery:
 
 const placeholderImg = (w, h, label, color='#e5e7eb') =>
   \`data:image/svg+xml,\${encodeURIComponent(\`<svg xmlns="http://www.w3.org/2000/svg" width="\${w}" height="\${h}" viewBox="0 0 \${w} \${h}"><rect fill="\${color}" width="\${w}" height="\${h}"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#9ca3af" font-family="system-ui" font-size="14">\${label}</text></svg>\`)}\`;
@@ -831,13 +846,14 @@ The app should feel REAL and COMPLETE, not a demo or mockup.
 ━━━ VISUAL DESIGN — PROFESSIONAL QUALITY ━━━
 Design like Lovable.dev output — clean, minimal, professional. Follow these patterns:
 
-═══ IMAGES — SVG PLACEHOLDERS ONLY ═══
+═══ IMAGES — REAL PHOTOS via photoImg() ═══
 NEVER use picsum.photos or any external image URL — they are BLOCKED.
-Use the placeholderImg() helper defined above for all product/item images.
+Use the GLOBAL photoImg(query, w, h) helper for all product/item/people photos
+(it returns a real keyword-matched photo and degrades gracefully on its own).
 
   PRODUCT IMAGE CARD pattern:
   <div style={{width:'100%',height:180,borderRadius:16,overflow:'hidden'}}>
-    <img src={placeholderImg(400,200,'Item Name','#fef2f2')} alt="Item"
+    <img src={photoImg('margherita pizza', 400, 200)} alt="Item"
       style={{width:'100%',height:'100%',objectFit:'cover'}} />
   </div>
 

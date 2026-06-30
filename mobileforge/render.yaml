@@ -34,3 +34,9 @@ services:
         sync: false
       - key: TOGETHER_API_KEY
         sync: false
+      # Photos in generated apps (optional — free key at pexels.com/api).
+      - key: PEXELS_API_KEY
+        sync: false
+      # Public backend origin so the in-app photo proxy resolves from the preview.
+      - key: PUBLIC_BACKEND_URL
+        sync: false

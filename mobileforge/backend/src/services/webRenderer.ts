@@ -919,6 +919,11 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
   const safeCss = (DESIGN_SYSTEM_CSS + TAILWIND_SHIM).replace(/<\/style>/gi, '');
   const safeName = appName.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c] ?? c));
 
+  // Absolute backend origin for the photo proxy. The preview runs in a srcdoc
+  // iframe (origin "about:srcdoc"), so relative URLs can't resolve — photoImg()
+  // must point at the real backend. Defaults to localhost for dev.
+  const backendBase = (process.env.PUBLIC_BACKEND_URL || `http://localhost:${process.env.PORT || 4000}`).replace(/\/$/, '');
+
   // The app runs inside an IIFE so try/catch shares the code's eval context
   // (real error messages instead of "Script error"). JSX is transpiled on the
   // server below, so no in-browser Babel is needed.
@@ -1002,6 +1007,16 @@ export function buildHtmlDocument(componentCode: string, appName = 'MobileForge'
         }
       });
     })();
+
+    /* MobileForge photo helper — returns a real keyword-matched photo URL via the
+       backend image proxy. The proxy serves a tasteful SVG fallback when no
+       provider key is set or the fetch fails, so images NEVER break. Generated
+       apps call window.photoImg('coffee latte', 400, 300). */
+    window.photoImg = function (query, w, h) {
+      w = w || 400; h = h || 300;
+      var q = encodeURIComponent(String(query || 'image').slice(0, 80));
+      return '${backendBase}/api/image?q=' + q + '&w=' + w + '&h=' + h;
+    };
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -1529,3 +1529,58 @@ describe('Blueprint — parseBlueprint', () => {
     expect(frag).toContain('home → detail');
   });
 });
+
+// ── Image proxy — real-photo endpoint with graceful SVG fallback ───────────
+describe('Image proxy — /api/image', () => {
+  let request: any;
+  const savedKey = process.env.PEXELS_API_KEY;
+
+  beforeAll(() => {
+    delete process.env.PEXELS_API_KEY; // force the keyless fallback path
+    const express = require('express');
+    const imageRouter = require('../src/routes/image').default;
+    const app = express();
+    app.use('/api/image', imageRouter);
+    request = require('supertest')(app);
+  });
+  afterAll(() => { if (savedKey !== undefined) process.env.PEXELS_API_KEY = savedKey; });
+
+  // supertest delivers image/svg+xml as a Buffer in res.body, not res.text.
+  const body = (res: any) => res.text || (res.body && res.body.toString ? res.body.toString() : '');
+
+  it('returns an SVG placeholder when no provider key is set', async () => {
+    const res = await request.get('/api/image?q=coffee&w=400&h=300');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/image\/svg/);
+    expect(res.headers['x-mf-image']).toBe('fallback:no-key');
+    expect(body(res)).toContain('<svg');
+    expect(body(res)).toContain('width="400"');
+    expect(body(res)).toContain('height="300"');
+  });
+
+  it('clamps absurd dimensions into a safe range', async () => {
+    const res = await request.get('/api/image?q=x&w=99999&h=0');
+    expect(res.status).toBe(200);
+    expect(body(res)).toContain('width="1600"'); // clamped max
+    expect(body(res)).toContain('height="16"');  // clamped min
+  });
+
+  it('derives the label from the query (escaped)', async () => {
+    const res = await request.get('/api/image?q=' + encodeURIComponent('grilled salmon'));
+    expect(body(res)).toContain('grilled salmon');
+  });
+
+  it('defaults the query when q is missing', async () => {
+    const res = await request.get('/api/image');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/image\/svg/);
+  });
+});
+
+describe('buildHtmlDocument — photo helper injection', () => {
+  it('injects a window.photoImg helper pointing at the image proxy', () => {
+    const html = buildHtmlDocument('function App(){return <div>x</div>;}', 'X');
+    expect(html).toContain('window.photoImg');
+    expect(html).toContain('/api/image?q=');
+  });
+});
