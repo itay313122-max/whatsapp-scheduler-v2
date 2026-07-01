@@ -1667,17 +1667,29 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                           {currentResult.quality!.score}/100
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-1.5 mb-2.5 text-[11px]">
-                        <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-surface-2/60">
+                      <div className="grid grid-cols-3 gap-1.5 mb-2.5 text-[11px]">
+                        <div className="flex flex-col px-2 py-1.5 rounded-lg bg-surface-2/60">
                           <span className="text-text-soft">Screens</span>
-                          <span className="font-semibold text-text-primary ml-auto">
+                          <span className="font-semibold text-text-primary">
                             {currentResult.quality!.reachable}/{currentResult.quality!.screens}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-surface-2/60">
+                        <div className="flex flex-col px-2 py-1.5 rounded-lg bg-surface-2/60">
                           <span className="text-text-soft">Buttons</span>
-                          <span className="font-semibold text-text-primary ml-auto">{currentResult.quality!.buttons}</span>
+                          <span className="font-semibold text-text-primary">{currentResult.quality!.buttons}</span>
                         </div>
+                        {(() => {
+                          const a11yKinds = ['img-no-alt', 'icon-button-no-label', 'touch-target-small'];
+                          const a11y = currentResult.quality!.issues.filter((i) => a11yKinds.includes(i.kind)).length;
+                          return (
+                            <div className="flex flex-col px-2 py-1.5 rounded-lg bg-surface-2/60" title="Accessibility — alt text, aria-labels, touch targets">
+                              <span className="text-text-soft">A11y</span>
+                              <span className={`font-semibold ${a11y === 0 ? 'text-green-400' : 'text-amber-400'}`}>
+                                {a11y === 0 ? '✓ Pass' : `${a11y} to fix`}
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </div>
                       {currentResult.quality!.issues.length === 0 ? (
                         <p className="text-[11px] text-text-secondary leading-relaxed">
