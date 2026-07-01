@@ -832,14 +832,14 @@ export default function ChatInterface({
                         setTimeout(() => handleSubmit(t.prompt), 50);
                       }}
                       disabled={isGenerating}
-                      className={`group relative flex items-center gap-2.5 p-3 rounded-xl border bg-surface/40 text-left transition-all hover:bg-surface/80 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-40 ${isRecommended ? 'border-primary/40' : 'border-border/50 hover:border-primary/40'}`}
+                      className={`group relative flex items-center gap-2.5 p-3 rounded-xl border bg-surface/40 text-left transition-all hover:bg-surface-2/60 hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-40 ${isRecommended ? 'border-primary/30' : 'border-border/50 hover:border-border'}`}
                     >
                       {isRecommended && (
-                        <span className="absolute -top-1.5 -right-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white text-[8px] font-bold shadow-sm" title="Recommended">
+                        <span className="absolute -top-1.5 -right-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-surface-2 border border-border text-primary text-[8px] font-bold" title="Recommended">
                           <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 7.1-1.01L12 2z" /></svg>
                         </span>
                       )}
-                      <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${t.gradient} ring-1 ring-white/10 flex items-center justify-center flex-shrink-0 text-lg shadow-sm transition-transform group-hover:scale-110`}>
+                      <div className="w-9 h-9 rounded-lg bg-surface-2 border border-border flex items-center justify-center flex-shrink-0 text-base transition-transform group-hover:scale-105 grayscale-[0.15]">
                         {t.emoji}
                       </div>
                       <div className="min-w-0">
