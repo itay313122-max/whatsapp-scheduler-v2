@@ -135,7 +135,9 @@ fight Figma hand-off — beat it with runnable code.
 | "Generic AI look" | Theme/archetype variation + premium rules | shipped |
 | Prototype-only, no real state | Working cart/forms/state | shipped |
 | Disputed React export | Runnable Vite+React zip | shipped |
-| **Accessibility fails (contrast/touch)** | **Quality gate accessibility checks** | **BUILD NEXT** |
+| Accessibility fails (contrast/touch) | Quality-gate a11y checks (alt, aria, tap size) | **shipped** |
 | No brand-kit enforcement | Brand-kit upload + design tokens | partial (themes) |
+| Real-time collaboration | Multi-user editing | roadmap (big feature) |
+| Direct Figma export | HTML is Figma-importable via html.to.design | parity via plugin |
 
 *Living document — updated with confirmed June 2026 research.*
