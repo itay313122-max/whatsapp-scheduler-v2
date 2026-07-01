@@ -84,6 +84,15 @@ function findNavState(code: string): { vars: string[]; setters: string[]; initia
 //   case 'home':            (switch in renderContent)
 //   screen === 'home'       (conditional render)
 //   { home: <Home/>, ... }  (lookup map) — captured loosely as `home:`
+// Screen ids are lowercase slugs by convention (home, profile, productDetail).
+// This EXCLUDES status/filter display labels like 'Active', 'On Hold',
+// 'Completed' — those are values of a category/status filter (often a var like
+// activeTab/activeFilter/view that matches our nav-noun heuristic), NOT screens.
+// Without this, filter-based apps get their filter values mis-counted as
+// unreachable screens and unfairly penalized (observed live: a portfolio app
+// scored 24 because Active/On Hold/Completed were treated as dead screens).
+const isScreenId = (s: string) => /^[a-z][a-zA-Z0-9]*$/.test(s);
+
 function findDefinedScreens(code: string, navVars: string[]): string[] {
   const found: string[] = [];
 
@@ -98,7 +107,8 @@ function findDefinedScreens(code: string, navVars: string[]): string[] {
     while ((m = eqRe.exec(code))) found.push(m[2] || m[4]);
   }
 
-  return uniq(found.filter(Boolean));
+  // Keep only slug-like ids (drops 'Active', 'On Hold', 'Completed' filter labels).
+  return uniq(found.filter((s) => s && isScreenId(s)));
 }
 
 // Screens that are *reachable* — any value passed to a navigation setter, plus
@@ -111,6 +121,20 @@ function findReachableScreens(code: string, setters: string[], initials: string[
     while ((m = re.exec(code))) reached.push(m[2]);
   }
   return uniq(reached.filter(Boolean));
+}
+
+// True when a nav setter is called with a NON-literal argument, e.g. a
+// data-driven bottom nav `setTab(item.id)` mapped over an array. Static analysis
+// can't resolve the runtime value, so we must not claim a screen is unreachable
+// (that's the reachability equivalent of a false positive). Observed live: a nav
+// rendered from an array flagged 'profile' as dead when it was fully reachable.
+function hasDynamicNav(code: string, setters: string[]): boolean {
+  for (const s of setters) {
+    // setX( followed by something that is NOT a quote and not close-paren → dynamic arg
+    const re = new RegExp(`${s}\\s*\\(\\s*(?!['")])`, 'g');
+    if (re.test(code)) return true;
+  }
+  return false;
 }
 
 // Reconstruct the navigation GRAPH (which screen links to which). We slice the
@@ -352,7 +376,10 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
 
   const nav = findNavState(clean);
   const definedScreens = findDefinedScreens(clean, nav.vars);
-  const reachableScreens = findReachableScreens(clean, nav.setters, nav.initials);
+  let reachableScreens = findReachableScreens(clean, nav.setters, nav.initials);
+  // Data-driven nav (setTab(item.id) mapped over an array) can't be resolved
+  // statically — don't accuse those screens of being unreachable.
+  if (hasDynamicNav(clean, nav.setters)) reachableScreens = uniq([...reachableScreens, ...definedScreens]);
   const landing = nav.initials[0] || definedScreens[0] || '';
   const edges = findNavEdges(clean, nav.setters, nav.vars, definedScreens, landing);
 

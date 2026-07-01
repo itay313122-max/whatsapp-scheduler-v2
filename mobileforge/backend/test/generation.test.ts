@@ -1768,3 +1768,27 @@ describe('analyzeQuality — design consistency (token drift)', () => {
     expect(r.issues.filter(i => i.kind === 'design-drift').every(i => i.severity === 'warn')).toBe(true);
   });
 });
+
+// ── Regression: false positives found by building a real portfolio app ──────
+describe('analyzeQuality — filter labels & data-driven nav (no false positives)', () => {
+  it('does NOT treat status-filter labels as screens', () => {
+    // activeTab matches the nav-noun heuristic but holds display labels, not screen ids
+    const code = `function App(){const {useState}=React;const [tab,setTab]=useState('home');const [activeTab,setActiveTab]=useState('Active');
+      function r(){switch(tab){case 'home':return <div>{activeTab==='Active'&&<p>a</p>}{activeTab==='On Hold'&&<p>b</p>}{activeTab==='Completed'&&<p>c</p>}<button onClick={()=>setTab('profile')}>go</button></div>;case 'profile':return <div><button onClick={()=>setTab('home')}>back</button></div>;}}
+      return <div>{r()}</div>;}`;
+    const r = analyzeQuality(code);
+    expect(r.blueprint.definedScreens.sort()).toEqual(['home', 'profile']);
+    expect(r.blueprint.definedScreens).not.toContain('Active');
+    expect(r.blueprint.definedScreens).not.toContain('On Hold');
+  });
+
+  it('does NOT flag screens unreachable when nav is data-driven (setTab(item.id))', () => {
+    const code = `function App(){const {useState}=React;const [tab,setTab]=useState('home');
+      const nav=[{id:'home'},{id:'profile'}];
+      function r(){switch(tab){case 'home':return <div>h</div>;case 'profile':return <div>p</div>;}}
+      return <div>{r()}<nav>{nav.map(n=><button key={n.id} onClick={()=>setTab(n.id)}>{n.id}</button>)}</nav></div>;}`;
+    const r = analyzeQuality(code);
+    expect(r.issues.some(i => i.kind === 'unlinked-screen')).toBe(false);
+    expect(r.blueprint.reachableScreens.sort()).toEqual(['home', 'profile']);
+  });
+});
