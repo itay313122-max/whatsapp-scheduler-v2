@@ -420,3 +420,46 @@ export async function verifyBetaKey(key: string): Promise<boolean> {
     return false;
   }
 }
+
+// ── Public apps gallery ─────────────────────────────────────────────────────
+export interface GalleryItem {
+  id: string;
+  appName: string;
+  description: string;
+  primary: string;
+  createdAt: number;
+  views: number;
+}
+
+/** Publish a generated app to the public gallery. Returns the new gallery id. */
+export async function publishToGallery(app: { htmlDoc: string; appName: string; description?: string; primary?: string }): Promise<string | null> {
+  try {
+    const res = await fetch(`${API_URL}/api/gallery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(app),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.id || null;
+  } catch {
+    return null;
+  }
+}
+
+/** List published apps (newest first). */
+export async function getGallery(): Promise<GalleryItem[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/gallery`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data.items) ? data.items : [];
+  } catch {
+    return [];
+  }
+}
+
+/** URL that serves a published app's live HTML (for iframe / opening). */
+export function galleryAppUrl(id: string): string {
+  return `${API_URL}/api/gallery/${id}/app`;
+}

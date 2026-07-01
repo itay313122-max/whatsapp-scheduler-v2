@@ -12,6 +12,7 @@ import feedbackRouter from './routes/feedback';
 import betaRouter from './routes/beta';
 import backupRouter from './routes/backup';
 import imageRouter from './routes/image';
+import galleryRouter from './routes/gallery';
 import { rateLimit } from './middleware/rateLimit';
 import { securityHeaders, csrfGuard, auditLog, isAllowedOrigin } from './middleware/security';
 import './services/backup';
@@ -54,6 +55,7 @@ app.use('/api/feedback', feedbackRouter);
 app.use('/api/beta', betaRouter);
 app.use('/api/backup', backupRouter);
 app.use('/api/image', imageRouter);
+app.use('/api/gallery', galleryRouter);
 
 // 404 handler
 app.use((_req, res) => {
