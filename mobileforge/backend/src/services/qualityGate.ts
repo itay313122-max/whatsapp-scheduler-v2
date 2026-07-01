@@ -19,7 +19,7 @@
 
 export interface QualityIssue {
   kind: 'dead-button' | 'unlinked-screen' | 'no-navigation' | 'empty-handler' | 'missing-screen'
-    | 'img-no-alt' | 'icon-button-no-label' | 'touch-target-small';
+    | 'img-no-alt' | 'icon-button-no-label' | 'touch-target-small' | 'design-drift';
   severity: 'error' | 'warn';
   message: string;
   /** Best-effort source snippet so a human (or the repair prompt) can locate it. */
@@ -282,6 +282,53 @@ function analyzeAccessibility(rawCode: string): QualityIssue[] {
   return issues;
 }
 
+// Design-consistency check — attacks Stitch's #1 unfixed weakness, "token drift"
+// (the model keeps the design system on screen 1 but forgets it by screen 4:
+// spacing/radius/colors wander). A coherent design uses a SMALL set of corner
+// radii and accent colors. We flag drift when the code sprays too many distinct
+// values. Conservative thresholds + 'warn' severity so it surfaces without ever
+// failing the functional gate or triggering a repair.
+function analyzeConsistency(rawCode: string): QualityIssue[] {
+  const issues: QualityIssue[] = [];
+
+  // 1. Corner-radius drift: distinct explicit radius values across the app.
+  //    borderRadius: 12 | '12px' | "12px"  and  rounded-[12px]
+  const radii = new Set<number>();
+  const radiusRe = /(?:borderRadius\s*:\s*['"]?|rounded-\[)(\d{1,3})(?:px)?/gi;
+  let m: RegExpExecArray | null;
+  while ((m = radiusRe.exec(rawCode))) {
+    const px = parseInt(m[1], 10);
+    if (px > 0 && px < 100) radii.add(px);   // ignore 0 and full-round (9999)
+  }
+  if (radii.size > 5) {
+    issues.push({
+      kind: 'design-drift',
+      severity: 'warn',
+      message: `Inconsistent corner radii — ${radii.size} different values (${[...radii].sort((a, b) => a - b).slice(0, 8).join(', ')}px). A coherent design uses 2-3. Pick a scale (e.g. 8/12/16) and reuse it.`,
+    });
+  }
+
+  // 2. Accent-color drift: distinct VIBRANT hex colors (excludes greys/near-b/w).
+  const vibrant = new Set<string>();
+  const hexRe = /#([0-9a-fA-F]{6})\b/g;
+  while ((m = hexRe.exec(rawCode))) {
+    const h = m[1].toLowerCase();
+    const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    // vibrant = has real saturation AND isn't near-white / near-black
+    if (max - min > 45 && max > 60 && min < 230) vibrant.add(h);
+  }
+  if (vibrant.size > 8) {
+    issues.push({
+      kind: 'design-drift',
+      severity: 'warn',
+      message: `Palette drift — ${vibrant.size} distinct accent colors. A premium design leans on 1-2 accents + neutrals; consolidate the palette.`,
+    });
+  }
+
+  return issues;
+}
+
 /**
  * Analyze generated App.jsx and return a quality report describing the
  * reconstructed blueprint plus any dead-UI / unreachable-screen issues.
@@ -317,6 +364,10 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
   // Accessibility (warn-level) — a documented Stitch weakness we verify.
   const a11yIssues = analyzeAccessibility(appJsx);
   issues.push(...a11yIssues);
+
+  // Design consistency (warn-level) — attacks Stitch's "token drift" weakness.
+  const driftIssues = analyzeConsistency(appJsx);
+  issues.push(...driftIssues);
 
   // Unlinked screens: defined but never reachable. The landing screen counts as
   // reachable via the initial state, so it won't be flagged.
@@ -360,11 +411,11 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
   }
 
   // Score: start at 100, subtract per issue (errors hurt more), floor at 0.
-  const A11Y = new Set(['img-no-alt', 'icon-button-no-label', 'touch-target-small']);
+  const SOFT = new Set(['img-no-alt', 'icon-button-no-label', 'touch-target-small', 'design-drift']);
   let score = 100;
   for (const it of issues) {
     if (it.severity === 'error') score -= 18;
-    else if (A11Y.has(it.kind)) score -= 4;  // accessibility warnings weigh lighter
+    else if (SOFT.has(it.kind)) score -= 4;  // accessibility + design-drift warnings weigh lighter
     else score -= 7;
   }
   score = Math.max(0, score);

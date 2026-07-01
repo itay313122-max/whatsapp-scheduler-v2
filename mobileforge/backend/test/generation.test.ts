@@ -1735,3 +1735,36 @@ describe('analyzeQuality — accessibility', () => {
     expect(r.score).toBeLessThan(100); // but the score reflects the a11y warning
   });
 });
+
+// ── Design consistency — attacks Stitch's "token drift" weakness ────────────
+describe('analyzeQuality — design consistency (token drift)', () => {
+  const nav = (extra: string) => `function App(){const {useState}=React;const [screen,setScreen]=useState('a');
+    function r(){switch(screen){case 'a':return <div><button onClick={()=>setScreen('b')}>go</button>${extra}</div>;case 'b':return <div><button onClick={()=>setScreen('a')}>back</button></div>;}}
+    return <div>{r()}</div>;}`;
+
+  it('flags corner-radius drift (many distinct radii)', () => {
+    const code = nav(`<div style={{borderRadius:4}}/><div style={{borderRadius:'8px'}}/><div style={{borderRadius:12}}/><div style={{borderRadius:16}}/><div style={{borderRadius:'20px'}}/><div style={{borderRadius:24}}/>`);
+    const r = analyzeQuality(code);
+    expect(r.issues.some(i => i.kind === 'design-drift' && /radi/i.test(i.message))).toBe(true);
+  });
+
+  it('does NOT flag a consistent radius scale', () => {
+    const code = nav(`<div style={{borderRadius:8}}/><div style={{borderRadius:12}}/><div style={{borderRadius:'8px'}}/>`);
+    const r = analyzeQuality(code);
+    expect(r.issues.some(i => i.kind === 'design-drift')).toBe(false);
+  });
+
+  it('flags palette drift (too many vibrant accent colors)', () => {
+    const colors = ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1'];
+    const code = nav(colors.map(c => `<span style={{color:'${c}'}}/>`).join(''));
+    const r = analyzeQuality(code);
+    expect(r.issues.some(i => i.kind === 'design-drift' && /palette/i.test(i.message))).toBe(true);
+  });
+
+  it('design-drift is a warning — never fails the functional gate', () => {
+    const code = nav(`<div style={{borderRadius:4}}/><div style={{borderRadius:8}}/><div style={{borderRadius:12}}/><div style={{borderRadius:16}}/><div style={{borderRadius:20}}/><div style={{borderRadius:24}}/>`);
+    const r = analyzeQuality(code);
+    expect(r.ok).toBe(true); // functional part is clean
+    expect(r.issues.filter(i => i.kind === 'design-drift').every(i => i.severity === 'warn')).toBe(true);
+  });
+});
