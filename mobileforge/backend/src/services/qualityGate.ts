@@ -429,11 +429,17 @@ export function buildRepairPrompt(report: QualityReport): string | null {
     }
   }
 
+  // Piggyback accessibility warnings onto the repair we're ALREADY doing — free
+  // quality with no extra round-trip (a11y warns alone never trigger a repair).
+  const a11y = report.issues.filter((i) => ['img-no-alt', 'icon-button-no-label', 'touch-target-small'].includes(i.kind));
+  const a11ySteps = a11y.map((e) => `While you're here, also fix: ${e.message} (add alt="..."/aria-label, keep tap targets ≥44px).`);
+
   return [
     'The previous app has QUALITY DEFECTS that MUST be fixed. Change ONLY what is needed to fix them; keep all other code, styles, and content identical.',
     '',
     'DEFECTS AND THEIR EXACT FIX:',
     ...steps.map((s, i) => `${i + 1}. ${s}`),
+    ...(a11ySteps.length ? ['', 'ALSO (accessibility):', ...a11ySteps.map((s) => `- ${s}`)] : []),
     '',
     'AFTER FIXING, self-check: trace every screen — can the user reach it by tapping something? Can every button be tapped to do something real? If not, you have not fixed it.',
     'Return the COMPLETE updated function App(){...}. Do not introduce new defects.',

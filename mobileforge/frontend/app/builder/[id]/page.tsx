@@ -847,8 +847,11 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
     { label: 'Designing the visual system', duration: 4500 },
     { label: 'Writing the code', duration: 6000 },
     { label: 'Wiring interactions', duration: 4500 },
+    { label: 'Verifying quality — reachable screens, wired buttons', duration: 4000 },
     { label: 'Polishing & final touches', duration: 4000 },
   ];
+  // ETA (seconds) — a calm, honest estimate of a typical generation.
+  const GEN_ETA = 30;
   useEffect(() => {
     if (!isGenerating) { setGenerationStep(0); return; }
     let step = 0;
@@ -861,6 +864,15 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
     const t = setTimeout(advance, CANVAS_BUILD_STEPS[0].duration);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGenerating]);
+
+  // Live elapsed-time counter while generating (Stitch-style honest progress).
+  const [genElapsed, setGenElapsed] = useState(0);
+  useEffect(() => {
+    if (!isGenerating) { setGenElapsed(0); return; }
+    const started = Date.now();
+    const iv = setInterval(() => setGenElapsed(Math.floor((Date.now() - started) / 1000)), 250);
+    return () => clearInterval(iv);
   }, [isGenerating]);
 
   const handleAppGenerated = useCallback((result: GenerateResponse) => {
@@ -1764,7 +1776,7 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                                style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }}>
                             <span className="text-white font-bold text-xl">M</span>
                           </div>
-                          <div className="absolute -inset-2 rounded-3xl animate-ping opacity-20"
+                          <div className="absolute -inset-2 rounded-3xl animate-ping opacity-10"
                                style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }} />
                         </div>
                         <div className="w-full space-y-2">
@@ -1794,8 +1806,12 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                           ))}
                         </div>
                         <div className="w-full h-1 rounded-full bg-surface-2 overflow-hidden">
-                          <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all duration-700 ease-out"
-                               style={{ width: `${((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100}%` }} />
+                          <div className="h-full rounded-full bg-indigo-500 transition-all duration-700 ease-out"
+                               style={{ width: `${Math.min(96, Math.max(((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100, (genElapsed / GEN_ETA) * 100))}%` }} />
+                        </div>
+                        <div className="w-full flex items-center justify-between text-[10px] text-text-soft tabular-nums">
+                          <span>{genElapsed}s elapsed</span>
+                          <span>{genElapsed < GEN_ETA ? `~${GEN_ETA - genElapsed}s left` : 'almost there…'}</span>
                         </div>
                       </div>
                     </div>
@@ -1985,7 +2001,7 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                        style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }}>
                     <span className="text-white font-bold text-2xl">M</span>
                   </div>
-                  <div className="absolute -inset-2 rounded-3xl animate-ping opacity-20"
+                  <div className="absolute -inset-2 rounded-3xl animate-ping opacity-10"
                        style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }} />
                 </div>
                 <div className="w-full space-y-2.5">
@@ -2015,10 +2031,13 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                   ))}
                 </div>
                 <div className="w-full h-1.5 rounded-full bg-surface-2 overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all duration-700 ease-out"
-                       style={{ width: `${((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100}%` }} />
+                  <div className="h-full rounded-full bg-indigo-500 transition-all duration-700 ease-out"
+                       style={{ width: `${Math.min(96, Math.max(((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100, (genElapsed / GEN_ETA) * 100))}%` }} />
                 </div>
-                <p className="text-[11px] text-text-secondary">Building your app...</p>
+                <div className="w-full flex items-center justify-between text-[10px] text-text-soft tabular-nums px-0.5">
+                  <span>{genElapsed}s elapsed</span>
+                  <span>{genElapsed < GEN_ETA ? `~${GEN_ETA - genElapsed}s left` : 'almost there…'}</span>
+                </div>
               </div>
             ) : (
               <div className="text-center max-w-md animate-fade-in-up">
