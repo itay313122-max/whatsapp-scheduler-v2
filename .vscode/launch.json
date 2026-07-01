@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug backend (tsx)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/mobileforge/backend",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "src/index.ts"],
+      "env": { "PORT": "4000" },
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true
+    },
+    {
+      "name": "Debug backend tests (jest)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/mobileforge/backend",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["jest", "--runInBand", "--forceExit"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Attach to backend (port 9229)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
