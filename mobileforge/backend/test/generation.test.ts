@@ -1700,3 +1700,38 @@ describe('analyzeQuality — edges from the === conditional pattern', () => {
     expect(edges).toContain('detail>home');
   });
 });
+
+// ── Accessibility checks (a documented Stitch weakness we verify) ───────────
+describe('analyzeQuality — accessibility', () => {
+  const base = (inner: string) => `function App(){const {useState}=React;const [screen,setScreen]=useState('home');
+    function r(){switch(screen){case 'home':return <div><button onClick={()=>setScreen('b')}>Go</button>${inner}</div>;case 'b':return <div><button onClick={()=>setScreen('home')}>Back</button></div>;}}
+    return <div>{r()}</div>;}`;
+
+  it('flags an <img> with no alt text', () => {
+    const r = analyzeQuality(base(`<img src={photoImg('coffee',400,300)} />`));
+    expect(r.issues.some(i => i.kind === 'img-no-alt')).toBe(true);
+  });
+
+  it('does NOT flag an <img> that has alt text', () => {
+    const r = analyzeQuality(base(`<img src={photoImg('coffee',400,300)} alt="A coffee" />`));
+    expect(r.issues.some(i => i.kind === 'img-no-alt')).toBe(false);
+  });
+
+  it('flags an icon-only button with no aria-label', () => {
+    const r = analyzeQuality(base(`<button onClick={()=>setScreen('b')}><svg viewBox="0 0 24 24"><path d="M4 4h16"/></svg></button>`));
+    expect(r.issues.some(i => i.kind === 'icon-button-no-label')).toBe(true);
+  });
+
+  it('does NOT flag an icon button that has an aria-label', () => {
+    const r = analyzeQuality(base(`<button aria-label="Menu" onClick={()=>setScreen('b')}><svg viewBox="0 0 24 24"><path d="M4 4h16"/></svg></button>`));
+    expect(r.issues.some(i => i.kind === 'icon-button-no-label')).toBe(false);
+  });
+
+  it('accessibility issues are warnings (do not fail the functional gate)', () => {
+    const r = analyzeQuality(base(`<img src={photoImg('x',10,10)} />`));
+    // functional part is fine → ok stays true even with a11y warnings
+    expect(r.ok).toBe(true);
+    expect(r.issues.filter(i => i.severity === 'warn').length).toBeGreaterThan(0);
+    expect(r.score).toBeLessThan(100); // but the score reflects the a11y warning
+  });
+});

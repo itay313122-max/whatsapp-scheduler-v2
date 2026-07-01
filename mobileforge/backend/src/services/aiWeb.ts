@@ -343,6 +343,12 @@ Go through this checklist before you finish — each item is mandatory, not opti
    already are). Don't shrink them below that.
 9. BROKEN IMAGES → Use the placeholderImg() SVG helper. NEVER external URLs / picsum.
 10. EMOJIS AS ICONS → Inline SVG only (RULE #1).
+10b. ACCESSIBILITY (verified by the quality gate — do it right the first time):
+    • EVERY <img> MUST have a descriptive alt="..." attribute.
+    • EVERY icon-only button (a <button> whose only content is an <svg>) MUST have
+      an aria-label="..." describing its action (e.g. aria-label="Open cart").
+    • Never put tappable elements below 44px. Ensure text has readable contrast
+      against its background (dark text on light, light text on dark).
 11. NOT DEVICE-ADAPTIVE → Use grid-2 + grid-tablet-3/4 so phone grids reflow on iPad
     instead of stretching one column (see DEVICE-ADAPTIVE below).
 12. ORPHAN SCREENS → Every screen reachable AND has a way back. No dead navigation.

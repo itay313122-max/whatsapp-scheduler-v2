@@ -18,7 +18,8 @@
 // because a noisy gate that cries wolf gets ignored.
 
 export interface QualityIssue {
-  kind: 'dead-button' | 'unlinked-screen' | 'no-navigation' | 'empty-handler' | 'missing-screen';
+  kind: 'dead-button' | 'unlinked-screen' | 'no-navigation' | 'empty-handler' | 'missing-screen'
+    | 'img-no-alt' | 'icon-button-no-label' | 'touch-target-small';
   severity: 'error' | 'warn';
   message: string;
   /** Best-effort source snippet so a human (or the repair prompt) can locate it. */
@@ -221,6 +222,66 @@ function analyzeButtons(rawCode: string): {
   return { total, wired, dead, emptyHandlers };
 }
 
+// Accessibility checks (a documented Stitch weakness — "designs often fail basic
+// contrast and touch-target requirements"). We statically catch the reliably-
+// detectable issues: images without alt text, icon-only buttons with no
+// accessible label, and clickable elements with an explicitly tiny hit area.
+// These are 'warn' severity — they surface and nudge the score, but don't fail
+// the functional gate or trigger the repair loop.
+function analyzeAccessibility(rawCode: string): QualityIssue[] {
+  const issues: QualityIssue[] = [];
+
+  // 1. Images missing alt text.
+  const imgRe = /<img\b([^>]*)>/gi;
+  let m: RegExpExecArray | null;
+  let imgNoAlt = 0;
+  while ((m = imgRe.exec(rawCode))) {
+    if (!/\balt\s*=/.test(m[1])) imgNoAlt++;
+  }
+  if (imgNoAlt > 0) {
+    issues.push({
+      kind: 'img-no-alt',
+      severity: 'warn',
+      message: `${imgNoAlt} image${imgNoAlt > 1 ? 's are' : ' is'} missing alt text — screen readers can't describe ${imgNoAlt > 1 ? 'them' : 'it'}.`,
+    });
+  }
+
+  // 2. Icon-only buttons with no accessible label: a <button> whose entire body
+  //    is an <svg> (icon) with no visible text, and no aria-label / title / aria-labelledby.
+  const iconBtnRe = /<button\b((?:=>|[^>])*)>\s*<svg[\s\S]*?<\/svg>\s*<\/button>/gi;
+  let iconNoLabel = 0;
+  while ((m = iconBtnRe.exec(rawCode))) {
+    const attrs = m[1];
+    if (!/aria-label\s*=|title\s*=|aria-labelledby\s*=/.test(attrs)) iconNoLabel++;
+  }
+  if (iconNoLabel > 0) {
+    issues.push({
+      kind: 'icon-button-no-label',
+      severity: 'warn',
+      message: `${iconNoLabel} icon-only button${iconNoLabel > 1 ? 's have' : ' has'} no aria-label — unusable for screen-reader users.`,
+    });
+  }
+
+  // 3. Tiny touch targets: a clickable element with an explicit inline height or
+  //    width under 36px. Conservative threshold to avoid false positives (the
+  //    design system's own buttons are 44–52px).
+  const smallRe = /<(?:button|a)\b[^>]*style=\{\{[^}]*?(?:height|width)\s*:\s*['"]?(\d{1,2})(px)?['"]?[^}]*\}\}/gi;
+  let tiny = 0;
+  while ((m = smallRe.exec(rawCode))) {
+    const px = parseInt(m[1], 10);
+    if (Number.isFinite(px) && px > 0 && px < 36) tiny++;
+  }
+  if (tiny > 0) {
+    issues.push({
+      kind: 'touch-target-small',
+      severity: 'warn',
+      message: `${tiny} tap target${tiny > 1 ? 's are' : ' is'} under 36px — below the 44px minimum for comfortable touch.`,
+    });
+  }
+
+  return issues;
+}
+
 /**
  * Analyze generated App.jsx and return a quality report describing the
  * reconstructed blueprint plus any dead-UI / unreachable-screen issues.
@@ -252,6 +313,10 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
   // attribute text), but string-noise inside attrs is rare enough not to matter.
   const buttons = analyzeButtons(appJsx);
   issues.push(...buttons.dead, ...buttons.emptyHandlers);
+
+  // Accessibility (warn-level) — a documented Stitch weakness we verify.
+  const a11yIssues = analyzeAccessibility(appJsx);
+  issues.push(...a11yIssues);
 
   // Unlinked screens: defined but never reachable. The landing screen counts as
   // reachable via the initial state, so it won't be flagged.
@@ -295,8 +360,13 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
   }
 
   // Score: start at 100, subtract per issue (errors hurt more), floor at 0.
+  const A11Y = new Set(['img-no-alt', 'icon-button-no-label', 'touch-target-small']);
   let score = 100;
-  for (const it of issues) score -= it.severity === 'error' ? 18 : 7;
+  for (const it of issues) {
+    if (it.severity === 'error') score -= 18;
+    else if (A11Y.has(it.kind)) score -= 4;  // accessibility warnings weigh lighter
+    else score -= 7;
+  }
   score = Math.max(0, score);
 
   return {
