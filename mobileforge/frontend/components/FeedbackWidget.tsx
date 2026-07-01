@@ -35,11 +35,11 @@ export default function FeedbackWidget() {
       <button
         onClick={() => setOpen((v) => !v)}
         dir="ltr"
-        className="fixed bottom-5 right-5 z-[60] flex items-center gap-2 px-4 py-3 rounded-full bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold shadow-lg transition-all active:scale-95"
+        className="fixed bottom-5 right-5 z-[60] flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1a1a1e]/90 backdrop-blur border border-white/10 hover:border-white/20 text-white/80 hover:text-white text-[13px] font-medium shadow-sm transition-all active:scale-[0.98]"
         title="Send feedback"
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.8L3 21l1.8-4A8.5 8.5 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.8L3 21l1.8-4A8.5 8.5 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
         <span>Feedback</span>
       </button>

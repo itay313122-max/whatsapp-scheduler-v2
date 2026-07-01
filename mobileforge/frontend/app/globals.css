@@ -22,8 +22,8 @@ html.dark,
   --bg: #0A0A0B;
   --surface: #141416;
   --surface-2: #1A1A1E;
-  --primary: #8B5CF6;
-  --primary-light: #A78BFA;
+  --primary: #6366F1;
+  --primary-light: #818CF8;
   --accent: #EC4899;
   --accent-sky: #38BDF8;
   --text-primary: #F9FAFB;
@@ -42,8 +42,8 @@ html.dark,
   --bg: #0A0A0B;
   --surface: #141416;
   --surface-2: #1A1A1E;
-  --primary: #8B5CF6;
-  --primary-light: #A78BFA;
+  --primary: #6366F1;
+  --primary-light: #818CF8;
   --accent: #EC4899;
   --accent-sky: #38BDF8;
   --text-primary: #F9FAFB;
@@ -115,28 +115,28 @@ code, pre, .font-code {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(99, 102, 241, 0.12);
-  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
   transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
               border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
               transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .glass-card:hover {
-  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.14);
-  border-color: rgba(99, 102, 241, 0.22);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  border-color: rgba(15, 23, 42, 0.14);
 }
 
 /* ── Glass card — dark mode ────────────────────────────────────────────── */
 html.dark .glass-card,
 .builder-dark .glass-card {
   background: rgba(20, 20, 22, 0.8);
-  border: 1px solid rgba(139, 92, 246, 0.12);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 html.dark .glass-card:hover,
 .builder-dark .glass-card:hover {
-  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.18);
-  border-color: rgba(139, 92, 246, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* ── Glass panel — Lovable-style sidebar panels ────────────────────────── */

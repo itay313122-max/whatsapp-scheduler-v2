@@ -1216,8 +1216,8 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
             </svg>
           </Link>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
-              <span className="text-white font-bold text-[10px]">MF</span>
+            <div className="w-6 h-6 rounded-lg bg-text-primary flex items-center justify-center">
+              <span className="text-bg font-bold text-[10px]">MF</span>
             </div>
             <span className="font-display font-semibold text-sm truncate max-w-[200px]">
               {project?.name || 'Loading…'}
@@ -1761,11 +1761,11 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                       <div className="flex flex-col items-center gap-5 p-8 rounded-3xl bg-surface/90 backdrop-blur-2xl border border-border/60 shadow-2xl pointer-events-auto max-w-xs">
                         <div className="relative">
                           <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
-                               style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                               style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }}>
                             <span className="text-white font-bold text-xl">M</span>
                           </div>
                           <div className="absolute -inset-2 rounded-3xl animate-ping opacity-20"
-                               style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }} />
+                               style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }} />
                         </div>
                         <div className="w-full space-y-2">
                           {CANVAS_BUILD_STEPS.map((step, i) => (
@@ -1794,7 +1794,7 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                           ))}
                         </div>
                         <div className="w-full h-1 rounded-full bg-surface-2 overflow-hidden">
-                          <div className="h-full rounded-full bg-gradient-to-r from-primary to-violet-400 transition-all duration-700 ease-out"
+                          <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all duration-700 ease-out"
                                style={{ width: `${((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100}%` }} />
                         </div>
                       </div>
@@ -1987,11 +1987,11 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
               <div className="flex flex-col items-center gap-5 p-8 rounded-3xl bg-surface/90 backdrop-blur-2xl border border-border/60 shadow-2xl max-w-xs animate-fade-in-up">
                 <div className="relative">
                   <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
-                       style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                       style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }}>
                     <span className="text-white font-bold text-2xl">M</span>
                   </div>
                   <div className="absolute -inset-2 rounded-3xl animate-ping opacity-20"
-                       style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }} />
+                       style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }} />
                 </div>
                 <div className="w-full space-y-2.5">
                   {CANVAS_BUILD_STEPS.map((step, i) => (
@@ -2020,15 +2020,15 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                   ))}
                 </div>
                 <div className="w-full h-1.5 rounded-full bg-surface-2 overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-primary to-violet-400 transition-all duration-700 ease-out"
+                  <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all duration-700 ease-out"
                        style={{ width: `${((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100}%` }} />
                 </div>
                 <p className="text-[11px] text-text-secondary">Building your app...</p>
               </div>
             ) : (
               <div className="text-center max-w-md animate-fade-in-up">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-500/15 to-fuchsia-500/15 border border-violet-500/10 flex items-center justify-center mx-auto mb-6">
-                  <svg className="w-9 h-9 text-violet-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-20 h-20 rounded-3xl bg-surface-2 border border-border flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-9 h-9 text-text-soft" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
                   </svg>
                 </div>
