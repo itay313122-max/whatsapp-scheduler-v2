@@ -40,6 +40,9 @@ export default function Navbar() {
           <Link href="/" className="text-text-secondary hover:text-primary text-sm font-medium transition-colors">
             Home
           </Link>
+          <Link href="/gallery" className="text-text-secondary hover:text-primary text-sm font-medium transition-colors">
+            Gallery
+          </Link>
           {user && (
             <Link href="/dashboard" className="text-text-secondary hover:text-primary text-sm font-medium transition-colors">
               My Projects
