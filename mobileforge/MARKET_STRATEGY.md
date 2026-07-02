@@ -170,3 +170,25 @@ Net: on THIS prompt class our measured output beats Stitch's documented output
 on badges, data realism, working nav, consistency enforcement, and verification.
 Stitch keeps speed + Figma. Caveats: no published Stitch test uses this exact
 prompt, and post-2.0 (Mar 2026) consistency may be better than older reviews.
+
+## PRIMARY EVIDENCE UPDATE (user's own Stitch screenshots, July 2026)
+
+The user shared live in-session screenshots of Stitch. Two corrections to our
+second-hand research, plus the design lessons that drive our UI overhaul:
+
+1. **Stitch output NOW includes real photographic imagery** (construction sites,
+   portraits, hero photos) — the "placeholders only" claim is outdated for the
+   current Flash-3 version. → Our Pexels pipeline is PARITY-CRITICAL in prod,
+   not a wedge.
+2. **Stitch RTL/Hebrew is excellent** — full UI mirroring, Hebrew output. Our
+   "RTL wedge" is thinner than assumed; we must be at least as good.
+
+Design lessons (what makes their workspace feel clean — now our overhaul spec):
+- ONE input, zero chrome at start: greeting + prompt box + a few chips. Nothing else.
+- The canvas IS the app: all controls FLOAT over a full-bleed dot-grid canvas
+  (chat card top-left, icon-only tool rail right, prompt bar bottom-center,
+  agent log collapsed bottom-left, zoom bottom-right). No fixed columns.
+- Progressive materialization: design-system card appears first, then empty
+  frames captioned "creating…", screens fill in one by one — ON the canvas,
+  not behind a modal overlay.
+- Multiple screens side-by-side at 50% zoom; design system is a canvas artifact.

@@ -317,6 +317,8 @@ export default function ChatInterface({
 
   // Sketch state
   const [showSketch, setShowSketch] = useState(false);
+  // Stitch-style opening: templates collapsed behind a quiet toggle by default.
+  const [showTemplates, setShowTemplates] = useState(false);
 
   // Voice state
   const [isListening, setIsListening] = useState(false);
@@ -809,70 +811,68 @@ export default function ChatInterface({
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-thin">
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full gap-4 text-center py-6 px-2">
-              {/* Header — clean and minimal */}
+            /* Opening screen — Stitch-style restraint: a warm greeting, suggestion
+               chips, and NOTHING else demanding attention. Templates and alternate
+               input modes exist but stay quiet until asked for. */
+            <div className="flex flex-col items-center justify-center h-full gap-6 text-center py-8 px-3">
               <div className="animate-fade-in-up">
-                <h2 className="font-display font-bold text-lg text-text-primary mb-1">What should we build?</h2>
-                <p className="text-text-secondary text-sm">Describe your app, pick a template, or upload a screenshot</p>
+                <h2 className="font-display font-semibold text-2xl text-text-primary mb-1.5 tracking-tight">What should we build today?</h2>
+                <p className="text-text-secondary text-sm">Describe your app below — one sentence is enough.</p>
               </div>
 
-              {/* Template Gallery — Lovable-style cards */}
-              <div className="w-full max-w-sm">
-                <p className="text-text-secondary text-xs font-medium mb-2 text-left">Start from a ready-made template</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[...TEMPLATES]
-                    .sort((a, b) => Number(Boolean((b as { recommended?: boolean }).recommended)) - Number(Boolean((a as { recommended?: boolean }).recommended)))
-                    .map((t) => {
-                    const isRecommended = Boolean((t as { recommended?: boolean }).recommended);
-                    return (
+              {/* Suggestion chips — a taste, not a catalog */}
+              <div className="flex flex-wrap justify-center gap-2 max-w-md animate-fade-in-up">
+                {TEMPLATES.slice(0, 4).map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => { setInput(t.prompt); setTimeout(() => handleSubmit(t.prompt), 50); }}
+                    disabled={isGenerating}
+                    className="px-3.5 py-2 rounded-full border border-border/60 bg-surface/40 text-xs text-text-secondary hover:text-text-primary hover:border-border hover:bg-surface-2/50 transition-all disabled:opacity-40"
+                  >
+                    {t.name}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setShowTemplates((v) => !v)}
+                  className={`px-3.5 py-2 rounded-full border text-xs transition-all ${showTemplates ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/60 bg-surface/40 text-text-secondary hover:text-text-primary hover:border-border'}`}
+                >
+                  {showTemplates ? 'Fewer' : 'All templates…'}
+                </button>
+              </div>
+
+              {/* Full gallery — only when asked */}
+              {showTemplates && (
+                <div className="w-full max-w-md grid grid-cols-2 gap-2 animate-fade-in-up">
+                  {TEMPLATES.map((t) => (
                     <button
                       key={t.id}
-                      onClick={() => {
-                        setInput(t.prompt);
-                        setTimeout(() => handleSubmit(t.prompt), 50);
-                      }}
+                      onClick={() => { setInput(t.prompt); setTimeout(() => handleSubmit(t.prompt), 50); }}
                       disabled={isGenerating}
-                      className={`group relative flex items-center gap-2.5 p-3 rounded-xl border bg-surface/40 text-left transition-all hover:bg-surface-2/60 hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-40 ${isRecommended ? 'border-primary/30' : 'border-border/50 hover:border-border'}`}
+                      className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border/50 bg-surface/40 text-left transition-all hover:bg-surface-2/60 hover:border-border active:scale-[0.98] disabled:opacity-40"
                     >
-                      {isRecommended && (
-                        <span className="absolute -top-1.5 -right-1.5 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-surface-2 border border-border text-primary text-[8px] font-bold" title="Recommended">
-                          <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 7.1-1.01L12 2z" /></svg>
-                        </span>
-                      )}
-                      <div className="w-9 h-9 rounded-lg bg-surface-2 border border-border flex items-center justify-center flex-shrink-0 text-base transition-transform group-hover:scale-105 grayscale-[0.15]">
-                        {t.emoji}
-                      </div>
+                      <span className="text-base grayscale-[0.15]">{t.emoji}</span>
                       <div className="min-w-0">
-                        <p className="font-semibold text-text-primary text-[13px] truncate">{t.name}</p>
-                        <p className="text-text-secondary text-[11px] truncate">{t.desc}</p>
+                        <p className="font-medium text-text-primary text-xs truncate">{t.name}</p>
+                        <p className="text-text-secondary text-[10px] truncate">{t.desc}</p>
                       </div>
                     </button>
-                    );
-                  })}
+                  ))}
                 </div>
-              </div>
+              )}
 
-              {/* Divider */}
-              <div className="flex items-center gap-3 w-full max-w-sm">
-                <div className="flex-1 h-px bg-border/50" />
-                <span className="text-text-secondary text-[11px]">or use</span>
-                <div className="flex-1 h-px bg-border/50" />
-              </div>
-
-              {/* Input methods row */}
-              <div className="flex gap-2 w-full max-w-sm">
-                {viralFeatures.map((f) => (
-                  <button
-                    key={f.title}
-                    onClick={f.action}
-                    disabled={f.disabled || isGenerating}
-                    className="flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border/50 bg-surface/30 transition-all hover:bg-surface/50 hover:border-primary/30 active:scale-[0.98] disabled:opacity-40"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-surface/40 flex items-center justify-center text-base">
-                      {f.icon}
-                    </div>
-                    <p className="font-medium text-text-primary text-xs">{f.title}</p>
-                  </button>
+              {/* Alternate input modes — quiet text links, not cards */}
+              <div className="flex items-center gap-1 text-[11px] text-text-soft">
+                {viralFeatures.map((f, i) => (
+                  <span key={f.title} className="flex items-center gap-1">
+                    {i > 0 && <span className="text-border">·</span>}
+                    <button
+                      onClick={f.action}
+                      disabled={f.disabled || isGenerating}
+                      className="px-1.5 py-1 rounded-md hover:text-text-primary hover:bg-surface-2/60 transition-all disabled:opacity-40"
+                    >
+                      {f.title}
+                    </button>
+                  </span>
                 ))}
               </div>
             </div>
@@ -884,8 +884,8 @@ export default function ChatInterface({
               className={`flex animate-fade-in-up ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.role === 'assistant' && (
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex-shrink-0 flex items-center justify-center mr-3 mt-1 shadow-sm shadow-violet-500/20">
-                  <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-7 h-7 rounded-lg bg-surface-2 border border-border flex-shrink-0 flex items-center justify-center mr-3 mt-1">
+                  <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                   </svg>
                 </div>
