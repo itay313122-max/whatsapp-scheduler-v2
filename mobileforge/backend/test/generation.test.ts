@@ -1854,3 +1854,44 @@ describe('parseBrandTokens — multi-format brand-kit import', () => {
     expect(brandTokensToPromptFragment({ colors: {}, radii: {}, fonts: {} })).toBe('');
   });
 });
+
+// ── Duplicate back buttons — observed generation defect ─────────────────────
+describe('analyzeQuality — duplicate adjacent back buttons', () => {
+  const BACK = `<button onClick={()=>setScreen('home')}><svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg></button>`;
+
+  it('flags two back buttons rendered next to each other (the observed bug)', () => {
+    const code = `function App(){const {useState}=React;const [screen,setScreen]=useState('home');
+      function r(){switch(screen){case 'home':return <div><button onClick={()=>setScreen('detail')}>open</button></div>;
+        case 'detail':return <div>${BACK}${BACK}<h1>Detail</h1></div>;}}
+      return <div>{r()}</div>;}`;
+    const r = analyzeQuality(code);
+    expect(r.issues.some(i => i.kind === 'duplicate-back')).toBe(true);
+  });
+
+  it('does NOT flag a single back button', () => {
+    const code = `function App(){const {useState}=React;const [screen,setScreen]=useState('home');
+      function r(){switch(screen){case 'home':return <div><button onClick={()=>setScreen('detail')}>open</button></div>;
+        case 'detail':return <div>${BACK}<h1>Detail</h1></div>;}}
+      return <div>{r()}</div>;}`;
+    const r = analyzeQuality(code);
+    expect(r.issues.some(i => i.kind === 'duplicate-back')).toBe(false);
+  });
+
+  it('does NOT flag back buttons that live in different screen branches', () => {
+    const code = `function App(){const {useState}=React;const [screen,setScreen]=useState('home');
+      function r(){switch(screen){case 'home':return <div><button onClick={()=>setScreen('a')}>a</button><button onClick={()=>setScreen('b')}>b</button></div>;
+        case 'a':return <div>${BACK}</div>;case 'b':return <div>${BACK}</div>;}}
+      return <div>{r()}</div>;}`;
+    const r = analyzeQuality(code);
+    expect(r.issues.some(i => i.kind === 'duplicate-back')).toBe(false);
+  });
+});
+
+  it('flags the REAL observed pattern: header back button + screen-body back button', () => {
+    const code = `function App(){const {useState}=React;const [currentView,setCurrentView]=useState('list');
+      function render(){switch(currentView){case 'list':return <div><button onClick={()=>setCurrentView('detail')}>open</button></div>;
+        case 'detail':return <div><button className="btn-icon" aria-label="Go back to projects" onClick={()=>setCurrentView('list')}><svg viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/></svg></button><h1>Detail</h1></div>;}}
+      return <div className="app-shell"><div className="app-header">{currentView==='detail' ? <button className="btn-icon" aria-label="Back" onClick={()=>setCurrentView('list')}><svg viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/></svg></button> : <h1>My Projects</h1>}</div>{render()}</div>;}`;
+    const r = analyzeQuality(code);
+    expect(r.issues.some(i => i.kind === 'duplicate-back' && /header/i.test(i.message))).toBe(true);
+  });

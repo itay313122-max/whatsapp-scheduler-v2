@@ -19,7 +19,7 @@
 
 export interface QualityIssue {
   kind: 'dead-button' | 'unlinked-screen' | 'no-navigation' | 'empty-handler' | 'missing-screen'
-    | 'img-no-alt' | 'icon-button-no-label' | 'touch-target-small' | 'design-drift';
+    | 'img-no-alt' | 'icon-button-no-label' | 'touch-target-small' | 'design-drift' | 'duplicate-back';
   severity: 'error' | 'warn';
   message: string;
   /** Best-effort source snippet so a human (or the repair prompt) can locate it. */
@@ -353,6 +353,50 @@ function analyzeConsistency(rawCode: string): QualityIssue[] {
   return issues;
 }
 
+// Duplicate back buttons — observed live: a generated detail screen rendered
+// TWO stacked circular back chips (one from a shared header, one from the
+// screen body). Reliable general detection would need conditional-rendering
+// analysis, so we check the narrow, high-confidence pattern that matched the
+// bug: two back-arrow buttons ADJACENT in source (→ adjacent in DOM), with no
+// screen-branch boundary between them. Cross-branch back buttons (one per
+// screen) are correct and never flagged.
+function analyzeDuplicateBack(rawCode: string): QualityIssue[] {
+  // Back signatures: heroicons/lucide arrow-left paths (abs + relative) and aria-labels.
+  const BACK_SIG = /(?:M15 19l-7-7 7-7|M10 19l-7-7|m12 19-7-7 7-7|M19 12H5|aria-label=["'](?:Back|Go back)[^"']*["'])/i;
+  const btnRe = /<button(?:(?:=>|[^>])*)>[\s\S]{0,500}?<\/button>/gi;
+  const hits: number[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = btnRe.exec(rawCode))) {
+    if (BACK_SIG.test(m[0])) hits.push(m.index);
+  }
+  if (hits.length < 2) return [];
+
+  const flag = (message: string): QualityIssue[] => [{ kind: 'duplicate-back', severity: 'warn', message }];
+
+  // Rule 1 — the REAL observed pattern: a back button in the shared app-header
+  // (usually gated on the detail view) AND another inside a screen body. They
+  // live far apart in source but render simultaneously on that screen.
+  const headerIdx = rawCode.indexOf('app-header');
+  if (headerIdx !== -1) {
+    const inHeader = (i: number) => i >= headerIdx - 200 && i <= headerIdx + 1500;
+    if (hits.some(inHeader) && hits.some((i) => !inHeader(i))) {
+      return flag('A back button exists in the shared header AND inside a screen body — they render together as two back buttons. Keep exactly ONE (header OR body, not both).');
+    }
+  }
+
+  // Rule 2 — stacked chips: two back buttons adjacent in source with no
+  // screen-branch marker between them (cross-branch back buttons are fine).
+  for (let i = 1; i < hits.length; i++) {
+    if (hits[i] - hits[i - 1] < 800) {
+      const between = rawCode.slice(hits[i - 1], hits[i]);
+      if (!/case\s+['"]|===?\s*['"]/.test(between)) {
+        return flag('Two back buttons are rendered next to each other — keep exactly ONE back control per screen.');
+      }
+    }
+  }
+  return [];
+}
+
 /**
  * Analyze generated App.jsx and return a quality report describing the
  * reconstructed blueprint plus any dead-UI / unreachable-screen issues.
@@ -396,6 +440,9 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
   const driftIssues = analyzeConsistency(appJsx);
   issues.push(...driftIssues);
 
+  // Duplicate adjacent back buttons (warn-level) — observed generation defect.
+  issues.push(...analyzeDuplicateBack(appJsx));
+
   // Unlinked screens: defined but never reachable. The landing screen counts as
   // reachable via the initial state, so it won't be flagged.
   const unlinked = definedScreens.filter((s) => !reachableScreens.includes(s));
@@ -438,7 +485,7 @@ export function analyzeQuality(appJsx: string, expectedScreens?: string[]): Qual
   }
 
   // Score: start at 100, subtract per issue (errors hurt more), floor at 0.
-  const SOFT = new Set(['img-no-alt', 'icon-button-no-label', 'touch-target-small', 'design-drift']);
+  const SOFT = new Set(['img-no-alt', 'icon-button-no-label', 'touch-target-small', 'design-drift', 'duplicate-back']);
   let score = 100;
   for (const it of issues) {
     if (it.severity === 'error') score -= 18;
@@ -507,17 +554,19 @@ export function buildRepairPrompt(report: QualityReport): string | null {
     }
   }
 
-  // Piggyback accessibility warnings onto the repair we're ALREADY doing — free
-  // quality with no extra round-trip (a11y warns alone never trigger a repair).
-  const a11y = report.issues.filter((i) => ['img-no-alt', 'icon-button-no-label', 'touch-target-small'].includes(i.kind));
-  const a11ySteps = a11y.map((e) => `While you're here, also fix: ${e.message} (add alt="..."/aria-label, keep tap targets ≥44px).`);
+  // Piggyback soft warnings (a11y, design drift, duplicate back) onto the repair
+  // we're ALREADY doing — free quality with no extra round-trip (soft warns
+  // alone never trigger a repair).
+  const soft = report.issues.filter((i) =>
+    ['img-no-alt', 'icon-button-no-label', 'touch-target-small', 'design-drift', 'duplicate-back'].includes(i.kind));
+  const a11ySteps = soft.map((e) => `While you're here, also fix: ${e.message}`);
 
   return [
     'The previous app has QUALITY DEFECTS that MUST be fixed. Change ONLY what is needed to fix them; keep all other code, styles, and content identical.',
     '',
     'DEFECTS AND THEIR EXACT FIX:',
     ...steps.map((s, i) => `${i + 1}. ${s}`),
-    ...(a11ySteps.length ? ['', 'ALSO (accessibility):', ...a11ySteps.map((s) => `- ${s}`)] : []),
+    ...(a11ySteps.length ? ['', 'ALSO (accessibility & polish):', ...a11ySteps.map((s) => `- ${s}`)] : []),
     '',
     'AFTER FIXING, self-check: trace every screen — can the user reach it by tapping something? Can every button be tapped to do something real? If not, you have not fixed it.',
     'Return the COMPLETE updated function App(){...}. Do not introduce new defects.',

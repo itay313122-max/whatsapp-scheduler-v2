@@ -352,6 +352,17 @@ Go through this checklist before you finish — each item is mandatory, not opti
 11. NOT DEVICE-ADAPTIVE → Use grid-2 + grid-tablet-3/4 so phone grids reflow on iPad
     instead of stretching one column (see DEVICE-ADAPTIVE below).
 12. ORPHAN SCREENS → Every screen reachable AND has a way back. No dead navigation.
+13. DUPLICATE BACK BUTTONS → Exactly ONE back control per screen. If a shared/global
+    header (rendered outside the screen switch) already shows a back button, the
+    screen body must NOT render its own. Pick one place — never both.
+14. STALE HEADER TITLE → A shared header's title MUST reflect the ACTIVE screen
+    (derive it from the nav state, e.g. {screen === 'profile' ? 'Profile' : 'My Projects'}).
+    Never show the home screen's title on other tabs.
+15. OVERLAPPING STATS/TEXT → Stat rows (numbers + labels) and name/subtitle blocks use
+    normal flow: flex column/row with gap — NEVER position:absolute, negative margins,
+    or fixed heights that let text collide. Text must never render on top of other text.
+16. FAB COVERING CONTENT → When you add a floating action button, give the scrollable
+    list extra bottom padding (≥96px) so the FAB never hides the last item.
 
 ━━━ CODE RULES ━━━
 - Write ONLY the App function (helper components defined BEFORE App)
