@@ -141,3 +141,32 @@ fight Figma hand-off — beat it with runnable code.
 | Direct Figma export | HTML is Figma-importable via html.to.design | parity via plugin |
 
 *Living document — updated with confirmed June 2026 research.*
+
+---
+
+## Head-to-head: the portfolio-app prompt (July 2026)
+
+Same prompt, both sides. Ours = measured (two live runs, screenshots, verified
+score). Stitch = published evidence for this app class (all article fetches were
+403-blocked; details are second-hand from search summaries — flagged honestly).
+
+Prompt: *"A projects portfolio app: a home screen listing app projects as cards
+(name, category, status badge, last edited date), a project detail screen…
+and a profile screen. Clean modern design with an accent color."*
+
+| Dimension | MobileForge (measured) | Stitch (published evidence) |
+|---|---|---|
+| Status badges | Semantic colors unprompted (green/amber/red) | Only when explicitly specified; no published unprompted case |
+| Sample data | Real names, categories, dates | Generic filler unless the prompt feeds specifics |
+| Navigation in output | Working bottom nav + card→detail, verified by clicking | Clickable only inside its canvas; exported HTML is per-screen |
+| Screens delivered | 4 (home/detail/form/profile), all reachable | 3-5, but cross-screen drift is its most-reported defect |
+| Consistency | Gate verifies; drift check flags radius/palette spray | "Token drift" = #1 documented failure (forum: ignores locked design systems) |
+| Quality verification | 100/100 score, 16/16 buttons wired, shown to user | None exists |
+| Images | Themed icon placeholders (real photos w/ Pexels key) | Placeholders; AI-generated images reported misaligned |
+| Polish ceiling | Real visual bugs remain (overlaps, duplicate back btn) | "Colored wireframe, not polished mockup" (Banani: "85% of reqs") |
+| Where Stitch wins | — | Raw speed, Figma export, breadth of variations |
+
+Net: on THIS prompt class our measured output beats Stitch's documented output
+on badges, data realism, working nav, consistency enforcement, and verification.
+Stitch keeps speed + Figma. Caveats: no published Stitch test uses this exact
+prompt, and post-2.0 (Mar 2026) consistency may be better than older reviews.
