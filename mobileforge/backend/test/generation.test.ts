@@ -1792,3 +1792,65 @@ describe('analyzeQuality — filter labels & data-driven nav (no false positives
     expect(r.blueprint.reachableScreens.sort()).toEqual(['home', 'profile']);
   });
 });
+
+// ── Brand-kit token parsing — multi-format import ───────────────────────────
+import { parseBrandTokens, brandTokensToPromptFragment, hasTokens } from '../src/services/brandTokens';
+
+describe('parseBrandTokens — multi-format brand-kit import', () => {
+  it('parses W3C / Figma design-tokens format ($value/$type)', () => {
+    const kit = parseBrandTokens({
+      color: { primary: { $value: '#1A73E8', $type: 'color' }, surface: { $value: '#F8F9FA', $type: 'color' } },
+      radius: { md: { $value: '12px', $type: 'dimension' } },
+      font: { body: { $value: 'Inter', $type: 'fontFamily' } },
+    });
+    expect(kit.colors.primary).toBe('#1A73E8');
+    expect(kit.colors.surface).toBe('#F8F9FA');
+    expect(Object.values(kit.radii)).toContain('12px');
+    expect(Object.values(kit.fonts)).toContain('Inter');
+  });
+
+  it('parses Tokens Studio format (value/type)', () => {
+    const kit = parseBrandTokens({
+      global: { brandPrimary: { value: '#FF5A5F', type: 'color' }, cardRadius: { value: '16', type: 'borderRadius' } },
+    });
+    expect(Object.values(kit.colors)).toContain('#FF5A5F');
+    expect(Object.values(kit.radii)).toContain('16px');
+  });
+
+  it('parses a Tailwind theme serialized to JSON (theme.extend hoisted)', () => {
+    const kit = parseBrandTokens({
+      theme: { extend: {
+        colors: { primary: '#0052FF', accent: '#00B37E' },
+        borderRadius: { xl: '20px' },
+        fontFamily: { sans: ['Inter', 'system-ui'] },
+      } },
+    });
+    expect(Object.values(kit.colors)).toEqual(expect.arrayContaining(['#0052FF', '#00B37E']));
+    expect(Object.values(kit.radii)).toContain('20px');
+    expect(Object.values(kit.fonts).some((f) => f.includes('Inter'))).toBe(true);
+  });
+
+  it('parses a plain flat kit and accepts a JSON string', () => {
+    const kit = parseBrandTokens(JSON.stringify({ colors: { primary: '#6F4E37' }, radii: { md: 12 }, fonts: { body: 'Heebo' } }));
+    expect(Object.values(kit.colors)).toContain('#6F4E37');
+    expect(Object.values(kit.radii)).toContain('12px');
+    expect(Object.values(kit.fonts)).toContain('Heebo');
+  });
+
+  it('degrades softly on garbage input (never throws, empty kit)', () => {
+    for (const bad of ['not json', 42, null, undefined, ['a']]) {
+      const kit = parseBrandTokens(bad as unknown);
+      expect(hasTokens(kit)).toBe(false);
+    }
+  });
+
+  it('renders an enforcing prompt fragment (anti token-drift)', () => {
+    const kit = parseBrandTokens({ colors: { primary: '#1A73E8' }, radii: { md: '12px' } });
+    const frag = brandTokensToPromptFragment(kit);
+    expect(frag).toContain('BRAND KIT');
+    expect(frag).toContain('#1A73E8');
+    expect(frag).toContain('--c-primary');
+    expect(frag).toContain('no drift');
+    expect(brandTokensToPromptFragment({ colors: {}, radii: {}, fonts: {} })).toBe('');
+  });
+});
