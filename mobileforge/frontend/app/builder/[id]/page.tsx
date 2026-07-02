@@ -3,7 +3,6 @@
 import { Suspense, useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import ChatInterface from '@/components/ChatInterface';
 import WebPreview from '@/components/WebPreview';
 import type { PreviewScreen, PreviewSelectedElement } from '@/components/WebPreview';
@@ -393,6 +392,9 @@ function BuilderContent() {
   // Mobile-only: the builder is a horizontal split on desktop, but on a phone we
   // show ONE pane at a time (chat to type, canvas to preview) via this toggle.
   const [mobileView, setMobileView] = useState<'chat' | 'canvas'>('chat');
+  // Canvas-first (Stitch-style): the chat is a floating card over a full-bleed
+  // canvas, collapsible so the canvas can take the whole stage.
+  const [chatOpen, setChatOpen] = useState(true);
   const [showDeviceSync, setShowDeviceSync] = useState(false);
   const [deviceSyncUrl, setDeviceSyncUrl] = useState('');
   const [phoneStatus, setPhoneStatus] = useState<'idle' | 'preparing'>('idle');
@@ -436,7 +438,8 @@ function BuilderContent() {
   // Versions gallery — all iterations as live thumbnails at once (non-destructive)
   const [showVersionGallery, setShowVersionGallery] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
-  const [showEditSidebar, setShowEditSidebar] = useState(true);
+  // Stitch-style: the design panel stays closed until asked (one click on the rail).
+  const [showEditSidebar, setShowEditSidebar] = useState(false);
 
   const canUndo = versionIdx > 0;
   const canRedo = versionIdx < versions.length - 1;
@@ -1534,32 +1537,33 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
       </header>
 
       {/* Main layout — Stitch-style canvas-first workspace */}
-      <PanelGroup orientation="horizontal" className="flex-1 overflow-hidden">
+      {/* Canvas-first stage — the canvas is full-bleed; chat + tools float over it */}
+      <div className="flex-1 relative overflow-hidden">
         {/* Left panel — Canvas / Preview (hero area) */}
         {currentResult ? (
-          <Panel id="canvas" defaultSize="65%" minSize="40%" className="flex flex-col overflow-hidden bg-bg relative">
-            {/* Canvas toolbar — Preview / Code toggle + screen tabs */}
-            <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border/50 bg-surface/40 backdrop-blur-md flex-shrink-0">
+          <div id="canvas" className={`absolute inset-0 flex flex-col overflow-hidden bg-bg transition-[padding] duration-300 ${chatOpen ? 'md:pr-[416px]' : ''}`}>
+            {/* Floating tool rail — Stitch-style: icon-only, vertical, floats over the canvas */}
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1 p-1.5 rounded-2xl bg-surface/90 backdrop-blur-xl border border-border/60 shadow-lg">
               <button
                 onClick={() => setRightPanel('preview')}
                 aria-label="Show preview panel"
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'preview' ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                title="Preview"
+                className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${rightPanel === 'preview' ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                Preview
               </button>
               <button
                 onClick={() => setRightPanel('code')}
                 aria-label="Show code panel"
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'code' ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                title="Code"
+                className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${rightPanel === 'code' ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
                 </svg>
-                Code
               </button>
 
               {/* Flow — navigation graph of the app's screens */}
@@ -1567,93 +1571,93 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                 <button
                   onClick={() => setRightPanel('flow')}
                   aria-label="Show navigation flow map"
-                  title="See how the app's screens connect"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${rightPanel === 'flow' ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                  title="Flow — how the app's screens connect"
+                  className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${rightPanel === 'flow' ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 4.5v15m6-15v15M4.5 9h15m-15 6h15" />
                   </svg>
-                  Flow
                 </button>
               )}
 
               {/* Play / Prototype toggle — make the app fully interactive */}
               {rightPanel === 'preview' && (
                 <>
-                  <div className="h-4 w-px bg-border/50 mx-1" />
+                  <div className="h-px w-5 bg-border/50 my-0.5" />
                   <button
                     onClick={handleTogglePlay}
                     aria-label={playMode ? 'Exit play mode' : 'Enter play mode'}
-                    title={playMode ? 'Editing mode — tap elements to edit' : 'Play mode — interact with the app like a real user'}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${playMode ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                    title={playMode ? 'Stop — back to editing' : 'Play — interact with the app like a real user'}
+                    className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${playMode ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
                   >
                     {playMode ? (
-                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 5h4v14H6zM14 5h4v14h-4z" />
                       </svg>
                     ) : (
-                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     )}
-                    {playMode ? 'Playing' : 'Play'}
                   </button>
-
-                  {/* Edit — direct text/element editing without AI (Stitch-style) */}
-                  {!playMode && !annotateMode && (
-                    <button
-                      title="Click any element to select it, double-click to edit text directly"
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-primary/10 text-primary"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                      Edit
-                    </button>
-                  )}
 
                   {/* Annotate — pick an element, describe a change with AI */}
                   <button
                     onClick={handleToggleAnnotate}
                     aria-label={annotateMode ? 'Exit annotate mode' : 'Enter annotate mode'}
-                    title="Annotate — tap any element and describe the change you want (AI-powered)"
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${annotateMode ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+                    title="Annotate — tap any element and describe the change you want"
+                    className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${annotateMode ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
                   >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                     </svg>
-                    Annotate
                   </button>
                 </>
               )}
 
-              {/* Multi-screen tabs inline */}
-              {appScreens.length > 1 && (
-                <>
-                  <div className="h-4 w-px bg-border/50 mx-1" />
-                  {appScreens.map((screen) => (
-                    <button
-                      key={screen.index}
-                      onClick={() => handleNavigateScreen(screen.index)}
-                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap ${
-                        screen.active
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'
-                      }`}
-                    >
-                      {screen.label}
-                    </button>
-                  ))}
+              <div className="h-px w-5 bg-border/50 my-0.5" />
+
+              {/* Design panel toggle */}
+              <button
+                onClick={() => setShowEditSidebar(v => !v)}
+                aria-label="Toggle design panel"
+                title="Design system — colors, fonts, corners"
+                className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 ${showEditSidebar ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008z" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Screen tabs — floating pill at the top-center of the canvas */}
+            {appScreens.length > 1 && rightPanel === 'preview' && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-0.5 p-1 rounded-full bg-surface/90 backdrop-blur-xl border border-border/60 shadow-lg max-w-[55%] overflow-x-auto">
+                {appScreens.map((screen) => (
                   <button
-                    onClick={() => handleAddScreen('Add a new screen to the app with navigation to it')}
-                    className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] text-text-secondary hover:text-primary hover:bg-primary/5 transition-all"
+                    key={screen.index}
+                    onClick={() => handleNavigateScreen(screen.index)}
+                    className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all whitespace-nowrap ${
+                      screen.active
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'
+                    }`}
                   >
-                    +
+                    {screen.label}
                   </button>
-                </>
-              )}
+                ))}
+                <button
+                  onClick={() => handleAddScreen('Add a new screen to the app with navigation to it')}
+                  title="Add a screen"
+                  className="w-7 h-7 flex items-center justify-center rounded-full text-text-secondary hover:text-primary hover:bg-primary/5 transition-all"
+                >
+                  +
+                </button>
+              </div>
+            )}
 
-              <div className="flex-1" />
+            {/* Quality chip — floats at the top-left of the canvas */}
+            <div className="absolute top-3 left-3 z-20">
 
               {/* Quality badge — surfaces the post-generation gate (Stitch-style
                   confidence that nothing is dead/unreachable). Click to expand. */}
@@ -1686,7 +1690,7 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                   })()}
 
                   {showQuality && (
-                    <div className="absolute right-0 top-full mt-2 z-30 w-72 rounded-xl bg-surface/95 backdrop-blur-xl border border-border/60 shadow-2xl p-3.5 text-left">
+                    <div className="absolute left-0 top-full mt-2 z-30 w-72 rounded-xl bg-surface/95 backdrop-blur-xl border border-border/60 shadow-2xl p-3.5 text-left">
                       <div className="flex items-center justify-between mb-2.5">
                         <span className="text-xs font-bold text-text-primary">Quality report</span>
                         <span className={`text-[11px] font-semibold ${currentResult.quality!.ok ? 'text-green-400' : 'text-amber-400'}`}>
@@ -1764,17 +1768,6 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                 </div>
               )}
 
-              {/* Theme controls toggle */}
-              <button
-                onClick={() => setShowEditSidebar(v => !v)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${showEditSidebar ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'}`}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Design
-              </button>
             </div>
 
             {rightPanel === 'preview' && (
@@ -2004,10 +1997,10 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                 </div>
               </div>
             )}
-          </Panel>
+          </div>
         ) : (
           /* Empty state — Stitch-style canvas workspace */
-          <Panel id="empty-canvas" defaultSize="65%" minSize="40%" className="hidden md:flex items-center justify-center text-text-secondary bg-bg canvas-bg relative">
+          <div id="empty-canvas" className={`absolute inset-0 hidden md:flex items-center justify-center text-text-secondary bg-bg canvas-bg transition-[padding] duration-300 ${chatOpen ? 'md:pr-[416px]' : ''}`}>
             {isGenerating ? (
               <div className="flex flex-col items-center gap-5 p-8 rounded-3xl bg-surface/90 backdrop-blur-2xl border border-border/60 shadow-2xl max-w-xs animate-fade-in-up">
                 <div className="relative">
@@ -2066,32 +2059,41 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                 </p>
               </div>
             )}
-          </Panel>
+          </div>
         )}
 
-        {/* Resize handle */}
-        <PanelResizeHandle className="hidden md:block" />
-
-        {/* Right panel — Chat (Stitch-style conversation panel) */}
-        <Panel
+        {/* Floating chat card — Stitch-style: conversation floats OVER the canvas.
+            On mobile it fills the screen (the mobile-view CSS still targets #chat). */}
+        <div
           id="chat"
-          defaultSize="35%"
-          minSize="20%"
-          maxSize="55%"
-          className="flex flex-col border-l border-border/50 overflow-hidden glass-panel"
+          className={`absolute z-30 max-md:inset-0 md:top-3 md:bottom-3 md:right-3 md:w-[400px] transition-transform duration-300 ${chatOpen ? '' : 'md:translate-x-[calc(100%+16px)]'}`}
         >
-          <ErrorBoundary fallbackTitle="Chat error">
-            <ChatInterface
-              projectId={projectId}
-              initialPrompt={searchParams.get('prompt') || undefined}
-              currentAppResult={currentResult}
-              onAppGenerated={handleAppGenerated}
-              onShowPreview={handleShowPreview}
-              onGeneratingChange={handleGeneratingChange}
-            />
-          </ErrorBoundary>
-        </Panel>
-      </PanelGroup>
+          <div className="w-full h-full flex flex-col rounded-2xl max-md:rounded-none border border-border/50 max-md:border-0 glass-panel shadow-2xl overflow-hidden">
+            <ErrorBoundary fallbackTitle="Chat error">
+              <ChatInterface
+                projectId={projectId}
+                initialPrompt={searchParams.get('prompt') || undefined}
+                currentAppResult={currentResult}
+                onAppGenerated={handleAppGenerated}
+                onShowPreview={handleShowPreview}
+                onGeneratingChange={handleGeneratingChange}
+              />
+            </ErrorBoundary>
+          </div>
+        </div>
+
+        {/* Chat collapse/expand handle (desktop) — sits at the card's edge */}
+        <button
+          onClick={() => setChatOpen((v) => !v)}
+          title={chatOpen ? 'Hide chat' : 'Show chat'}
+          aria-label={chatOpen ? 'Hide chat' : 'Show chat'}
+          className={`hidden md:flex absolute z-40 top-1/2 -translate-y-1/2 w-6 h-14 items-center justify-center rounded-l-xl bg-surface/95 border border-border/60 border-r-0 text-text-soft hover:text-text-primary shadow-sm transition-all duration-300 ${chatOpen ? 'right-[412px]' : 'right-0'}`}
+        >
+          <svg className={`w-3.5 h-3.5 transition-transform ${chatOpen ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
 
       {/* Share modal — public live link + QR so anyone can open it on a phone. */}
       {shareModalUrl && (
