@@ -395,6 +395,10 @@ function BuilderContent() {
   // Canvas-first (Stitch-style): the chat is a floating card over a full-bleed
   // canvas, collapsible so the canvas can take the whole stage.
   const [chatOpen, setChatOpen] = useState(true);
+  // Floating bottom-center prompt bar (Stitch's iteration input) — drives the
+  // same chat flow via a submit fn the ChatInterface registers with us.
+  const chatSubmitRef = useRef<((prompt: string) => void) | null>(null);
+  const [quickPrompt, setQuickPrompt] = useState('');
   const [showDeviceSync, setShowDeviceSync] = useState(false);
   const [deviceSyncUrl, setDeviceSyncUrl] = useState('');
   const [phoneStatus, setPhoneStatus] = useState<'idle' | 'preparing'>('idle');
@@ -1867,9 +1871,42 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                     </>
                   ) : null}
 
-                  {/* Floating mode indicator — bottom center of canvas */}
+                  {/* Floating prompt bar — Stitch's iteration input, bottom-center of
+                      the canvas. Feeds the same chat flow (streams into the chat card). */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 w-[min(540px,78%)] max-md:hidden">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const p = quickPrompt.trim();
+                        if (!p || isGenerating) return;
+                        chatSubmitRef.current?.(p);
+                        setQuickPrompt('');
+                      }}
+                      className="flex items-center gap-2 pl-4 pr-1.5 py-1.5 rounded-2xl bg-surface/95 backdrop-blur-xl border border-border/60 shadow-lg"
+                    >
+                      <input
+                        value={quickPrompt}
+                        onChange={(e) => setQuickPrompt(e.target.value)}
+                        placeholder={isGenerating ? 'Working…' : 'What would you like to change or create?'}
+                        disabled={isGenerating}
+                        className="flex-1 bg-transparent text-sm outline-none text-text-primary placeholder:text-text-soft disabled:opacity-50"
+                      />
+                      <button
+                        type="submit"
+                        disabled={isGenerating || !quickPrompt.trim()}
+                        aria-label="Send"
+                        className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center transition-all hover:bg-primary/90 disabled:opacity-30 flex-shrink-0"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12l7-7 7 7M12 5v14" />
+                        </svg>
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Floating mode indicator — sits just above the prompt bar */}
                   {!isGenerating && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+                    <div className="absolute bottom-[68px] max-md:bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
                       <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium backdrop-blur-xl border shadow-sm transition-all duration-300 ${
                         (playMode || annotateMode || selectedElement)
                           ? 'bg-primary/10 border-primary/25 text-primary'
@@ -2036,6 +2073,7 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                 onAppGenerated={handleAppGenerated}
                 onShowPreview={handleShowPreview}
                 onGeneratingChange={handleGeneratingChange}
+                registerSubmit={(fn) => { chatSubmitRef.current = fn; }}
               />
             </ErrorBoundary>
           </div>

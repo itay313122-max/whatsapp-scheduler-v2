@@ -123,6 +123,9 @@ interface ChatInterfaceProps {
   onShowPreview?: (result: GenerateResponse) => void;
   onShowCode?: (result: GenerateResponse) => void;
   onGeneratingChange?: (isGenerating: boolean) => void;
+  /** Hands the parent a submit(prompt) function so a canvas-level prompt bar
+      (Stitch-style, floating bottom-center) can drive the same chat flow. */
+  registerSubmit?: (fn: (prompt: string) => void) => void;
 }
 
 const TEMPLATES = [
@@ -285,9 +288,17 @@ export default function ChatInterface({
   onShowPreview,
   onShowCode,
   onGeneratingChange,
+  registerSubmit,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');
+
+  // Expose submit() to the parent's floating canvas prompt bar. The ref is
+  // refreshed every render so the registered wrapper always calls the latest
+  // handleSubmit (which is hoisted, so this is safe above its declaration).
+  const submitApiRef = useRef<(p: string) => void>(() => {});
+  submitApiRef.current = (p) => { void handleSubmit(p); };
+  useEffect(() => { registerSubmit?.((p) => submitApiRef.current(p)); }, [registerSubmit]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [themes, setThemes] = useState<ThemeMeta[]>([]);
   const [selectedTheme, setSelectedTheme] = useState('');
