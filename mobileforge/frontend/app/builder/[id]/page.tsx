@@ -1774,52 +1774,19 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
               <div className="flex-1 flex overflow-hidden">
                 {/* Canvas area — Stitch-style workspace */}
                 <div className="flex-1 overflow-auto flex items-center justify-center relative canvas-bg">
-                  {/* Stitch-style generation progress overlay on canvas */}
+                  {/* Regeneration — Stitch-style non-blocking: the current app stays
+                      visible while a compact status pill shows the live progress. */}
                   {isGenerating && (
-                    <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                      <div className="flex flex-col items-center gap-5 p-8 rounded-3xl bg-surface/90 backdrop-blur-2xl border border-border/60 shadow-2xl pointer-events-auto max-w-xs">
-                        <div className="relative">
-                          <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
-                               style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }}>
-                            <span className="text-white font-bold text-xl">M</span>
-                          </div>
-                          <div className="absolute -inset-2 rounded-3xl animate-ping opacity-10"
-                               style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }} />
-                        </div>
-                        <div className="w-full space-y-2">
-                          {CANVAS_BUILD_STEPS.map((step, i) => (
-                            <div key={i} className={`flex items-center gap-2.5 text-xs transition-all duration-300 ${
-                              i < generationStep ? 'text-text-secondary' :
-                              i === generationStep ? 'text-primary font-semibold' :
-                              'text-text-soft/50'
-                            }`}>
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                                i < generationStep ? 'bg-green-500/15 text-green-500' :
-                                i === generationStep ? 'bg-primary/15 text-primary' :
-                                'bg-surface-2'
-                              }`}>
-                                {i < generationStep ? (
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                ) : i === generationStep ? (
-                                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                                ) : (
-                                  <span className="text-[9px] font-medium text-text-soft">{i + 1}</span>
-                                )}
-                              </div>
-                              <span className={i < generationStep ? 'line-through opacity-60' : ''}>{step.label}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="w-full h-1 rounded-full bg-surface-2 overflow-hidden">
-                          <div className="h-full rounded-full bg-indigo-500 transition-all duration-700 ease-out"
-                               style={{ width: `${Math.min(96, Math.max(((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100, (genElapsed / GEN_ETA) * 100))}%` }} />
-                        </div>
-                        <div className="w-full flex items-center justify-between text-[10px] text-text-soft tabular-nums">
-                          <span>{genElapsed}s elapsed</span>
-                          <span>{genElapsed < GEN_ETA ? `~${GEN_ETA - genElapsed}s left` : 'almost there…'}</span>
-                        </div>
+                    <div className="absolute top-14 left-1/2 -translate-x-1/2 z-20 pointer-events-none animate-fade-in-up">
+                      <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-surface/95 backdrop-blur-xl border border-border/60 shadow-lg">
+                        <span className="relative flex h-2 w-2 flex-shrink-0">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                        </span>
+                        <span className="text-xs font-medium text-text-primary whitespace-nowrap">{CANVAS_BUILD_STEPS[Math.min(generationStep, CANVAS_BUILD_STEPS.length - 1)].label}</span>
+                        <span className="text-[10px] text-text-soft tabular-nums whitespace-nowrap">
+                          {genElapsed}s · {genElapsed < GEN_ETA ? `~${GEN_ETA - genElapsed}s left` : 'almost there…'}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -2002,48 +1969,40 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
           /* Empty state — Stitch-style canvas workspace */
           <div id="empty-canvas" className={`absolute inset-0 hidden md:flex items-center justify-center text-text-secondary bg-bg canvas-bg transition-[padding] duration-300 ${chatOpen ? 'md:pr-[416px]' : ''}`}>
             {isGenerating ? (
-              <div className="flex flex-col items-center gap-5 p-8 rounded-3xl bg-surface/90 backdrop-blur-2xl border border-border/60 shadow-2xl max-w-xs animate-fade-in-up">
+              /* Progressive materialization — Stitch-style: the screen takes shape
+                 ON the canvas (skeleton frame + caption), not behind a modal card. */
+              <div className="flex flex-col items-center gap-6 animate-fade-in-up">
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
-                       style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }}>
-                    <span className="text-white font-bold text-2xl">M</span>
-                  </div>
-                  <div className="absolute -inset-2 rounded-3xl animate-ping opacity-10"
-                       style={{ background: 'linear-gradient(135deg, #4f46e5, #4338ca)' }} />
-                </div>
-                <div className="w-full space-y-2.5">
-                  {CANVAS_BUILD_STEPS.map((step, i) => (
-                    <div key={i} className={`flex items-center gap-2.5 text-xs transition-all duration-300 ${
-                      i < generationStep ? 'text-text-secondary' :
-                      i === generationStep ? 'text-primary font-semibold' :
-                      'text-text-soft/50'
-                    }`}>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                        i < generationStep ? 'bg-green-500/15 text-green-500' :
-                        i === generationStep ? 'bg-primary/15 text-primary' :
-                        'bg-surface-2'
-                      }`}>
-                        {i < generationStep ? (
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                          </svg>
-                        ) : i === generationStep ? (
-                          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                        ) : (
-                          <span className="text-[9px] font-medium text-text-soft">{i + 1}</span>
-                        )}
+                  <p className="absolute -top-7 left-1/2 -translate-x-1/2 text-[11px] text-text-secondary whitespace-nowrap">
+                    The system is creating your screen…
+                  </p>
+                  <div className="relative w-[236px] h-[470px] rounded-[2rem] border-2 border-dashed border-primary/30 bg-surface/50 backdrop-blur-sm overflow-hidden">
+                    <div className="absolute inset-0 shimmer-sweep" />
+                    {/* skeleton content taking shape */}
+                    <div className="p-4 space-y-3 opacity-40">
+                      <div className="h-7 w-24 rounded-lg bg-surface-2" />
+                      <div className="h-24 rounded-xl bg-surface-2" />
+                      <div className="h-3 w-3/4 rounded bg-surface-2" />
+                      <div className="h-3 w-1/2 rounded bg-surface-2" />
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <div className="h-20 rounded-xl bg-surface-2" />
+                        <div className="h-20 rounded-xl bg-surface-2" />
+                        <div className="h-20 rounded-xl bg-surface-2" />
+                        <div className="h-20 rounded-xl bg-surface-2" />
                       </div>
-                      <span className={i < generationStep ? 'line-through opacity-60' : ''}>{step.label}</span>
                     </div>
-                  ))}
+                    <div className="absolute bottom-0 inset-x-0 h-12 border-t border-border/40 bg-surface-2/40" />
+                  </div>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-surface-2 overflow-hidden">
-                  <div className="h-full rounded-full bg-indigo-500 transition-all duration-700 ease-out"
-                       style={{ width: `${Math.min(96, Math.max(((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100, (genElapsed / GEN_ETA) * 100))}%` }} />
-                </div>
-                <div className="w-full flex items-center justify-between text-[10px] text-text-soft tabular-nums px-0.5">
-                  <span>{genElapsed}s elapsed</span>
-                  <span>{genElapsed < GEN_ETA ? `~${GEN_ETA - genElapsed}s left` : 'almost there…'}</span>
+                <div className="flex flex-col items-center gap-1.5">
+                  <p className="text-xs font-medium text-primary">{CANVAS_BUILD_STEPS[Math.min(generationStep, CANVAS_BUILD_STEPS.length - 1)].label}</p>
+                  <div className="w-56 h-1 rounded-full bg-surface-2 overflow-hidden">
+                    <div className="h-full rounded-full bg-indigo-500 transition-all duration-700 ease-out"
+                         style={{ width: `${Math.min(96, Math.max(((generationStep + 1) / CANVAS_BUILD_STEPS.length) * 100, (genElapsed / GEN_ETA) * 100))}%` }} />
+                  </div>
+                  <p className="text-[10px] text-text-soft tabular-nums">
+                    {genElapsed}s elapsed · {genElapsed < GEN_ETA ? `~${GEN_ETA - genElapsed}s left` : 'almost there…'}
+                  </p>
                 </div>
               </div>
             ) : (
