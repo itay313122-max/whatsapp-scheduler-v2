@@ -1,35 +1,53 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View } from 'react-native';
+import { isFirebaseConfigured } from './src/firebase/config';
+import { AuthProvider } from './src/context/AuthContext';
+import RootNavigator from './src/navigation/RootNavigator';
 import { colors } from './src/theme/colors';
 
-// STAGE 0 placeholder root.
-// This just proves the Expo project boots and the toolchain works.
-// Stage 1 replaces this with the real navigation + auth flow.
+// Shown when .env is missing/empty so setup problems are obvious, not a
+// cryptic Firebase crash.
+function ConfigMissing() {
+  return (
+    <View style={styles.center}>
+      <Text style={styles.emoji}>🔧</Text>
+      <Text style={styles.title}>Firebase not configured</Text>
+      <Text style={styles.body}>
+        Copy <Text style={styles.mono}>.env.example</Text> to{' '}
+        <Text style={styles.mono}>.env</Text> and fill in your Firebase web
+        config, then restart with{' '}
+        <Text style={styles.mono}>npx expo start -c</Text>.
+      </Text>
+    </View>
+  );
+}
+
 export default function App() {
   return (
     <SafeAreaProvider>
-      <View style={styles.container}>
-        <Text style={styles.crown}>👑</Text>
-        <Text style={styles.title}>Daily Vlog</Text>
-        <Text style={styles.subtitle}>Stage 0 — project scaffold is running.</Text>
-        <Text style={styles.hint}>Next: Firebase + Auth (Stage 1)</Text>
-        <StatusBar style="light" />
-      </View>
+      {isFirebaseConfigured ? (
+        <AuthProvider>
+          <RootNavigator />
+        </AuthProvider>
+      ) : (
+        <ConfigMissing />
+      )}
+      <StatusBar style="light" />
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  center: {
     flex: 1,
     backgroundColor: colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: 28,
   },
-  crown: { fontSize: 64, marginBottom: 12 },
-  title: { color: colors.text, fontSize: 32, fontWeight: '800' },
-  subtitle: { color: colors.textMuted, fontSize: 16, marginTop: 8, textAlign: 'center' },
-  hint: { color: colors.primary, fontSize: 14, marginTop: 24, fontWeight: '600' },
+  emoji: { fontSize: 56, marginBottom: 12 },
+  title: { color: colors.text, fontSize: 22, fontWeight: '800', marginBottom: 10 },
+  body: { color: colors.textMuted, fontSize: 15, lineHeight: 22, textAlign: 'center' },
+  mono: { color: colors.primary, fontWeight: '700' },
 });

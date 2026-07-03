@@ -18,10 +18,10 @@ Every clip sent → all other members get a push notification.
 
 ## Build stages
 
-This project is built in checkpoints. Current stage: **Stage 0 — scaffold**.
+This project is built in checkpoints. Current stage: **Stage 1 — Auth**.
 
 - [x] **Stage 0** — Clean Expo project + dependencies + folder structure
-- [ ] **Stage 1** — Firebase wiring + Auth screens (sign up / login)
+- [x] **Stage 1** — Firebase wiring + Auth screens (sign up / login)
 - [ ] **Stage 2** — Create / join group by invite code
 - [ ] **Stage 3** — Feed screen (live turn + clips, mock upload)
 - [ ] **Stage 4** — Record screen (record → compress → upload)
@@ -42,6 +42,28 @@ Then open **Expo Go** on your phone and scan the QR code. You should see the
 > Note: from Stage 4 (camera + on-device compression) you will need a **custom
 > dev client** rather than plain Expo Go, because video compression uses a
 > native module. That's called out when we get there.
+
+## Firebase setup (needed from Stage 1)
+
+1. Go to the [Firebase Console](https://console.firebase.google.com/) →
+   **Add project** (free "Spark" plan is fine).
+2. **Authentication** → Get started → **Sign-in method** → enable
+   **Email/Password**.
+3. **Firestore Database** → Create database → Start in **test mode** for now
+   (we add real Security Rules in Stage 5).
+4. Project settings (⚙️) → **Your apps** → add a **Web app** (`</>`). Copy the
+   config values.
+5. In `daily-vlog/`, copy `.env.example` to `.env` and paste the values:
+   ```bash
+   cp .env.example .env
+   ```
+6. Restart Expo clearing the cache so it picks up the env file:
+   ```bash
+   npx expo start -c
+   ```
+
+If `.env` is missing or empty the app shows a "Firebase not configured" screen
+instead of crashing.
 
 ## Folder structure
 
