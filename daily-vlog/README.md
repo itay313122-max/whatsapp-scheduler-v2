@@ -65,6 +65,30 @@ Then open **Expo Go** on your phone and scan the QR code. You should see the
 If `.env` is missing or empty the app shows a "Firebase not configured" screen
 instead of crashing.
 
+## Tests
+
+Two layers, both automated:
+
+```bash
+# Unit tests (pure logic — no Firebase needed): invite codes, error mapping
+npm test
+
+# Integration tests: real Auth + Firestore flows against the Firebase emulator
+#   (needs Java; downloads the emulator jar on first run)
+npm run test:integration
+
+# Everything
+npm run test:all
+```
+
+The integration suite spins up the Auth + Firestore **emulators** (via
+`firebase emulators:exec`) and runs the app's actual auth service
+(`src/services/authOperations.js`) against them — the same code the UI calls.
+It verifies: sign-up creates a correctly-shaped `users/{uid}` document, sign
+out / sign in, duplicate-email rejection, and that the Firestore **security
+rules** block an unauthenticated read. No real Firebase project or credentials
+required.
+
 ## Folder structure
 
 ```

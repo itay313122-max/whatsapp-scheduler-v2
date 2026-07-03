@@ -1,13 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  updateProfile,
-  onAuthStateChanged,
-} from 'firebase/auth';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
+import {
+  signUpWithProfile,
+  signInUser,
+} from '../services/authOperations';
 
 const AuthContext = createContext(null);
 
@@ -36,29 +34,12 @@ export function AuthProvider({ children }) {
     return unsub;
   }, []);
 
-  async function signUp(email, password, displayName) {
-    const cred = await createUserWithEmailAndPassword(
-      auth,
-      email.trim(),
-      password
-    );
-    const name = displayName.trim();
-    if (name) {
-      await updateProfile(cred.user, { displayName: name });
-    }
-    // Create the Firestore user document (data model: users/{userId}).
-    await setDoc(doc(db, 'users', cred.user.uid), {
-      displayName: name || email.trim(),
-      photoURL: null,
-      pushToken: null,
-      groupId: null,
-      createdAt: serverTimestamp(),
-    });
-    return cred.user;
+  function signUp(email, password, displayName) {
+    return signUpWithProfile({ auth, db }, { email, password, displayName });
   }
 
   function signIn(email, password) {
-    return signInWithEmailAndPassword(auth, email.trim(), password);
+    return signInUser({ auth }, { email, password });
   }
 
   function logout() {

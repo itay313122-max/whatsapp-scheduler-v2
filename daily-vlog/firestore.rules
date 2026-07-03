@@ -1,0 +1,24 @@
+rules_version = '2';
+
+// Stage 1 rules: cover the users collection only.
+// Full rules for groups / turns / clips / reactions — including the
+// "members-only read" privacy rule (request.auth.uid in memberIds) — are
+// added in Stage 5.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // A signed-in user may read any user profile (needed to show member names),
+    // but may only create/update their OWN document.
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // Everything else is locked until Stage 5 defines proper rules.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
