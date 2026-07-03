@@ -1,0 +1,33 @@
+# Expo
+.expo/
+dist/
+web-build/
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Dependencies
+node_modules/
+
+# Secrets / env
+.env
+.env.local
+google-services.json
+GoogleService-Info.plist
+serviceAccountKey.json
+
+# Firebase Functions
+functions/node_modules/
+
+# macOS
+.DS_Store
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*

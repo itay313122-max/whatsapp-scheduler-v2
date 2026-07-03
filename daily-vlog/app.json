@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Daily Vlog",
+    "slug": "daily-vlog",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "dailyvlog",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0B12"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dailyvlog.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "We need camera access so you can record your daily vlog clips.",
+        "NSMicrophoneUsageDescription": "We need microphone access to record audio for your vlog clips."
+      }
+    },
+    "android": {
+      "package": "com.dailyvlog.app",
+      "permissions": ["CAMERA", "RECORD_AUDIO"]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Daily Vlog to access your camera to record clips.",
+          "microphonePermission": "Allow Daily Vlog to access your microphone to record audio.",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#7C5CFF"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": ""
+      }
+    }
+  }
+}
