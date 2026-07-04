@@ -1,24 +1,78 @@
 rules_version = '2';
 
-// Stage 1 rules: cover the users collection only.
-// Full rules for groups / turns / clips / reactions — including the
-// "members-only read" privacy rule (request.auth.uid in memberIds) — are
-// added in Stage 5.
+// Stages 1–2 rules: users, inviteCodes, groups (+ read gates for turns/clips/
+// reactions honoring the members-only privacy principle).
+// Stage 5 finalizes write rules for clips/reactions and locks turn lifecycle
+// writes to Cloud Functions.
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // A signed-in user may read any user profile (needed to show member names),
-    // but may only create/update their OWN document.
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // ── users ────────────────────────────────────────────────────────────
+    // Any signed-in user can read profiles (to show member names); you may
+    // only create/update your own document.
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow create, update: if request.auth != null
-        && request.auth.uid == userId;
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.auth.uid == userId;
       allow delete: if false;
     }
 
-    // Everything else is locked until Stage 5 defines proper rules.
-    match /{document=**} {
-      allow read, write: if false;
+    // ── inviteCodes ──────────────────────────────────────────────────────
+    // Lookup docs (code -> groupId) so a not-yet-member can resolve a code.
+    // No sensitive content. Create-if-absent gives atomic uniqueness.
+    match /inviteCodes/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && !exists(/databases/$(database)/documents/inviteCodes/$(code));
+      allow update, delete: if false;
+    }
+
+    // ── groups ───────────────────────────────────────────────────────────
+    match /groups/{groupId} {
+      function isMember() {
+        return signedIn() && request.auth.uid in resource.data.memberIds;
+      }
+      // Joining yourself: you're being added to memberIds but weren't there
+      // before. (Field-level tightening — e.g. disallow touching currentTurn —
+      // comes in Stage 5.)
+      function isJoiningSelf() {
+        return signedIn()
+          && request.auth.uid in request.resource.data.memberIds
+          && !(request.auth.uid in resource.data.memberIds);
+      }
+
+      allow read: if isMember();
+      allow create: if signedIn()
+        && request.auth.uid == request.resource.data.createdBy
+        && request.auth.uid in request.resource.data.memberIds;
+      allow update: if isMember() || isJoiningSelf();
+      allow delete: if false;
+
+      // Turn lifecycle (create/expire) is owned by Cloud Functions.
+      // Members can read; clip/reaction WRITE rules are added in Stage 5.
+      match /turns/{turnId} {
+        function groupData() {
+          return get(/databases/$(database)/documents/groups/$(groupId)).data;
+        }
+        function isGroupMember() {
+          return signedIn() && request.auth.uid in groupData().memberIds;
+        }
+
+        allow read: if isGroupMember();
+        allow write: if false;
+
+        match /clips/{clipId} {
+          allow read: if isGroupMember();
+          allow write: if false; // Stage 5: allow member clip creation
+          match /reactions/{reactionId} {
+            allow read: if isGroupMember();
+            allow write: if false; // Stage 5: allow member reactions
+          }
+        }
+      }
     }
   }
 }

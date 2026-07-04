@@ -13,6 +13,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);      // Firebase auth user
   const [profile, setProfile] = useState(null); // Firestore users/{uid} doc
   const [initializing, setInitializing] = useState(true);
+  // True while we're fetching the profile for a signed-in user. Prevents a
+  // flash of the "join a group" screen before we know if they have a group.
+  const [profileLoading, setProfileLoading] = useState(false);
 
   // Watch auth state. Firebase restores the persisted session on launch, so
   // this fires once with the logged-in user (or null) after startup.
@@ -20,11 +23,14 @@ export function AuthProvider({ children }) {
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
       setUser(fbUser);
       if (fbUser) {
+        setProfileLoading(true);
         try {
           const snap = await getDoc(doc(db, 'users', fbUser.uid));
           setProfile(snap.exists() ? { id: snap.id, ...snap.data() } : null);
         } catch (e) {
           setProfile(null);
+        } finally {
+          setProfileLoading(false);
         }
       } else {
         setProfile(null);
@@ -60,6 +66,7 @@ export function AuthProvider({ children }) {
     user,
     profile,
     initializing,
+    profileLoading,
     signUp,
     signIn,
     logout,

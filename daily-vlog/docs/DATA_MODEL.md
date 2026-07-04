@@ -4,10 +4,16 @@ Canonical reference for the app's data. Keep this in sync as the model evolves.
 
 > **Change log**
 > - Added `inviteCode` to `groups` (needed for the join-by-code flow).
+> - Added top-level `inviteCodes/{CODE}` lookup collection (Stage 2) so a
+>   not-yet-member can resolve a code to a groupId without reading the group.
 
 ## Collections
 
 ```
+inviteCodes/{CODE}                     // CODE is the doc id (uppercase code)
+  groupId            string             // the group this code joins
+  createdAt          timestamp
+
 users/{userId}
   displayName        string
   photoURL           string | null

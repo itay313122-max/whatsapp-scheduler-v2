@@ -6,7 +6,8 @@ import { colors } from '../theme/colors';
 
 import LoginScreen from '../screens/auth/LoginScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
-import HomePlaceholder from '../screens/home/HomePlaceholder';
+import GroupGateScreen from '../screens/group/GroupGateScreen';
+import GroupHomeScreen from '../screens/home/GroupHomeScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,23 +26,31 @@ function LoadingScreen() {
 }
 
 export default function RootNavigator() {
-  const { user, initializing } = useAuth();
+  const { user, initializing, profile, profileLoading } = useAuth();
 
   // Wait for Firebase to restore any persisted session before deciding
   // which stack to show — avoids a flash of the login screen on launch.
   if (initializing) return <LoadingScreen />;
+  // Signed in but we don't yet know their group — hold on the loader so we
+  // don't flash the "join a group" screen at someone who has one.
+  if (user && profileLoading) return <LoadingScreen />;
+
+  const inGroup = Boolean(profile?.groupId);
 
   return (
     <NavigationContainer theme={navTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {user ? (
-          // Authenticated area. Stage 2 adds Group screens, Stage 3 the Feed.
-          <Stack.Screen name="Home" component={HomePlaceholder} />
-        ) : (
+        {!user ? (
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
           </>
+        ) : !inGroup ? (
+          // Signed in, no group yet → create or join.
+          <Stack.Screen name="GroupGate" component={GroupGateScreen} />
+        ) : (
+          // Signed in and in a group → the group home (Stage 3: live Feed).
+          <Stack.Screen name="GroupHome" component={GroupHomeScreen} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

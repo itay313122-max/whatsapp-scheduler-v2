@@ -18,11 +18,11 @@ Every clip sent → all other members get a push notification.
 
 ## Build stages
 
-This project is built in checkpoints. Current stage: **Stage 1 — Auth**.
+This project is built in checkpoints. Current stage: **Stage 2 — Groups**.
 
 - [x] **Stage 0** — Clean Expo project + dependencies + folder structure
 - [x] **Stage 1** — Firebase wiring + Auth screens (sign up / login)
-- [ ] **Stage 2** — Create / join group by invite code
+- [x] **Stage 2** — Create / join group by invite code
 - [ ] **Stage 3** — Feed screen (live turn + clips, mock upload)
 - [ ] **Stage 4** — Record screen (record → compress → upload)
 - [ ] **Stage 5** — Cloud Functions + Security Rules
