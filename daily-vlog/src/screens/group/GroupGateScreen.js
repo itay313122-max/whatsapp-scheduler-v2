@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   toggleBtn: { flex: 1, paddingVertical: 10, borderRadius: 9, alignItems: 'center' },
   toggleActive: { backgroundColor: colors.primary },
   toggleText: { color: colors.textMuted, fontWeight: '700', fontSize: 15 },
-  toggleTextActive: { color: '#fff' },
+  toggleTextActive: { color: colors.onPrimary },
   card: {
     backgroundColor: colors.surface,
     borderWidth: 1,

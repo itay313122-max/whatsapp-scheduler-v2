@@ -30,7 +30,7 @@ export default function PrimaryButton({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={isGhost ? colors.primary : '#fff'} />
+        <ActivityIndicator color={isGhost ? colors.text : colors.onPrimary} />
       ) : (
         <Text style={[styles.text, isGhost && styles.ghostText]}>{title}</Text>
       )}
@@ -41,16 +41,16 @@ export default function PrimaryButton({
 const styles = StyleSheet.create({
   base: {
     width: '100%',
-    borderRadius: 12,
-    paddingVertical: 15,
+    borderRadius: 999,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 52,
+    minHeight: 54,
   },
   primary: { backgroundColor: colors.primary },
   ghost: { backgroundColor: 'transparent' },
-  disabled: { opacity: 0.5 },
+  disabled: { opacity: 0.4 },
   pressed: { opacity: 0.85 },
-  text: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  ghostText: { color: colors.primary },
+  text: { color: colors.onPrimary, fontSize: 16, fontWeight: '700', letterSpacing: 0.2 },
+  ghostText: { color: colors.textMuted },
 });
