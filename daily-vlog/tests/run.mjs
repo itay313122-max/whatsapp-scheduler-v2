@@ -16,7 +16,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const outDir = join(here, '.build');
 
 const GROUPS = {
-  unit: ['inviteCode.test.mjs', 'authErrors.test.mjs'],
+  unit: ['inviteCode.test.mjs', 'authErrors.test.mjs', 'storage.test.mjs'],
   integration: [
     'auth.integration.test.mjs',
     'group.integration.test.mjs',

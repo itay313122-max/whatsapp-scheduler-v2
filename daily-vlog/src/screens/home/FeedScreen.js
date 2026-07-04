@@ -21,7 +21,6 @@ import { getGroup, getMemberNames } from '../../services/groupService';
 import {
   subscribeActiveTurn,
   subscribeClips,
-  addMockClip,
   startTestTurn,
 } from '../../services/feedService';
 import { colors } from '../../theme/colors';
@@ -30,7 +29,7 @@ import { colors } from '../../theme/colors';
 // reactions in real time. Video upload is still mocked (Stage 4 adds the
 // camera); the daily pick is faked with a dev button until the Cloud Function
 // lands in Stage 5.
-export default function FeedScreen() {
+export default function FeedScreen({ navigation }) {
   const { user, profile, logout } = useAuth();
   const groupId = profile?.groupId;
 
@@ -83,18 +82,9 @@ export default function FeedScreen() {
     });
   }
 
-  async function addClip() {
+  function recordClip() {
     if (!turn?.id) return;
-    setBusy(true);
-    try {
-      await addMockClip({ db }, {
-        groupId, turnId: turn.id, uploaderId: user.uid, order: clips.length,
-      });
-    } catch (e) {
-      Alert.alert('Could not add clip', e.message);
-    } finally {
-      setBusy(false);
-    }
+    navigation.navigate('Record', { turnId: turn.id, nextOrder: clips.length });
   }
 
   async function startTurn() {
@@ -139,9 +129,8 @@ export default function FeedScreen() {
 
               {isMyTurn && (
                 <PrimaryButton
-                  title={busy ? 'Adding…' : '＋ Add clip (mock)'}
-                  onPress={addClip}
-                  loading={busy}
+                  title="＋ Record a clip"
+                  onPress={recordClip}
                   style={{ marginBottom: 16 }}
                 />
               )}

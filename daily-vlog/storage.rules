@@ -1,0 +1,26 @@
+rules_version = '2';
+
+// Clip videos live under groups/{groupId}/turns/{turnId}/clips/{clipId}.mp4.
+// Only members of the group can read or upload, uploads are capped and must be
+// video — keeping us inside the free tier and honoring the privacy principle.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /groups/{groupId}/turns/{turnId}/clips/{clipFile} {
+      function isMember() {
+        return request.auth != null
+          && request.auth.uid in
+             firestore.get(/databases/(default)/documents/groups/$(groupId)).data.memberIds;
+      }
+
+      allow read: if isMember();
+      allow write: if isMember()
+        && request.resource.size < 60 * 1024 * 1024
+        && request.resource.contentType.matches('video/.*');
+    }
+
+    // Everything else is closed.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

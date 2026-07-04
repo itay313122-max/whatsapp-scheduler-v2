@@ -8,6 +8,7 @@ import LoginScreen from '../screens/auth/LoginScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import GroupGateScreen from '../screens/group/GroupGateScreen';
 import FeedScreen from '../screens/home/FeedScreen';
+import RecordScreen from '../screens/record/RecordScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,8 +50,15 @@ export default function RootNavigator() {
           // Signed in, no group yet → create or join.
           <Stack.Screen name="GroupGate" component={GroupGateScreen} />
         ) : (
-          // Signed in and in a group → the live Feed.
-          <Stack.Screen name="Feed" component={FeedScreen} />
+          // Signed in and in a group → the live Feed (+ full-screen recorder).
+          <>
+            <Stack.Screen name="Feed" component={FeedScreen} />
+            <Stack.Screen
+              name="Record"
+              component={RecordScreen}
+              options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+            />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
