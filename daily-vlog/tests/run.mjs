@@ -17,7 +17,11 @@ const outDir = join(here, '.build');
 
 const GROUPS = {
   unit: ['inviteCode.test.mjs', 'authErrors.test.mjs'],
-  integration: ['auth.integration.test.mjs', 'group.integration.test.mjs'],
+  integration: [
+    'auth.integration.test.mjs',
+    'group.integration.test.mjs',
+    'feed.integration.test.mjs',
+  ],
 };
 
 const which = process.argv[2] || 'all';

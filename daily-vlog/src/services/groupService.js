@@ -91,3 +91,18 @@ export async function getGroup({ db }, groupId) {
   const snap = await getDoc(doc(db, 'groups', groupId));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 }
+
+/** Fetch a { uid -> displayName } map for the given member uids. */
+export async function getMemberNames({ db }, memberIds = []) {
+  const entries = await Promise.all(
+    memberIds.map(async (uid) => {
+      try {
+        const snap = await getDoc(doc(db, 'users', uid));
+        return [uid, snap.exists() ? snap.data().displayName : uid.slice(0, 6)];
+      } catch {
+        return [uid, uid.slice(0, 6)];
+      }
+    })
+  );
+  return Object.fromEntries(entries);
+}

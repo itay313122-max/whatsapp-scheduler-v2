@@ -7,7 +7,7 @@ import { colors } from '../theme/colors';
 import LoginScreen from '../screens/auth/LoginScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import GroupGateScreen from '../screens/group/GroupGateScreen';
-import GroupHomeScreen from '../screens/home/GroupHomeScreen';
+import FeedScreen from '../screens/home/FeedScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,8 +49,8 @@ export default function RootNavigator() {
           // Signed in, no group yet → create or join.
           <Stack.Screen name="GroupGate" component={GroupGateScreen} />
         ) : (
-          // Signed in and in a group → the group home (Stage 3: live Feed).
-          <Stack.Screen name="GroupHome" component={GroupHomeScreen} />
+          // Signed in and in a group → the live Feed.
+          <Stack.Screen name="Feed" component={FeedScreen} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

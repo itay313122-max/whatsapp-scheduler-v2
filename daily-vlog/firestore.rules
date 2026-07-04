@@ -51,8 +51,6 @@ service cloud.firestore {
       allow update: if isMember() || isJoiningSelf();
       allow delete: if false;
 
-      // Turn lifecycle (create/expire) is owned by Cloud Functions.
-      // Members can read; clip/reaction WRITE rules are added in Stage 5.
       match /turns/{turnId} {
         function groupData() {
           return get(/databases/$(database)/documents/groups/$(groupId)).data;
@@ -62,14 +60,26 @@ service cloud.firestore {
         }
 
         allow read: if isGroupMember();
-        allow write: if false;
+        // TEMP (Stage 3): a member may create their own turn for testing.
+        // Stage 5 removes this — turn creation moves to the selectDailyVlogger
+        // Cloud Function so the daily pick can't be forged from the client.
+        allow create: if isGroupMember()
+          && request.resource.data.userId == request.auth.uid;
+        allow update, delete: if false; // expiry handled server-side (Stage 5)
 
         match /clips/{clipId} {
           allow read: if isGroupMember();
-          allow write: if false; // Stage 5: allow member clip creation
+          // A member uploads their own clip (uploaderId must be them).
+          allow create: if isGroupMember()
+            && request.resource.data.uploaderId == request.auth.uid;
+          allow update, delete: if false;
+
           match /reactions/{reactionId} {
             allow read: if isGroupMember();
-            allow write: if false; // Stage 5: allow member reactions
+            // A member reacts as themselves.
+            allow create: if isGroupMember()
+              && request.resource.data.userId == request.auth.uid;
+            allow update, delete: if false;
           }
         }
       }
