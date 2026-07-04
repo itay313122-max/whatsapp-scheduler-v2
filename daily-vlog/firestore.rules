@@ -60,12 +60,10 @@ service cloud.firestore {
         }
 
         allow read: if isGroupMember();
-        // TEMP (Stage 3): a member may create their own turn for testing.
-        // Stage 5 removes this — turn creation moves to the selectDailyVlogger
-        // Cloud Function so the daily pick can't be forged from the client.
-        allow create: if isGroupMember()
-          && request.resource.data.userId == request.auth.uid;
-        allow update, delete: if false; // expiry handled server-side (Stage 5)
+        // Turn creation/expiry is server-only (selectDailyVlogger / expireTurn
+        // Cloud Functions, via the Admin SDK which bypasses these rules). The
+        // client can never create a turn — that's what stops pick-forging.
+        allow create, update, delete: if false;
 
         match /clips/{clipId} {
           allow read: if isGroupMember();

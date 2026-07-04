@@ -11,10 +11,11 @@ import {
   getDocs,
   addDoc,
 } from 'firebase/firestore';
+import { initializeApp as adminInit } from 'firebase-admin/app';
+import { getFirestore as adminFirestore, Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
 import { signUpWithProfile } from '../src/services/authOperations.js';
 import { createGroup } from '../src/services/groupService.js';
 import {
-  startTestTurn,
   subscribeActiveTurn,
   addMockClip,
   addReaction,
@@ -22,6 +23,24 @@ import {
 } from '../src/services/feedService.js';
 
 const PROJECT_ID = 'demo-daily-vlog';
+
+// Admin client (bypasses Security Rules, auto-connects to the emulator via
+// FIRESTORE_EMULATOR_HOST) — stands in for the selectDailyVlogger Cloud
+// Function, which is what actually creates turns server-side.
+const adminApp = adminInit({ projectId: PROJECT_ID }, 'admin-feed');
+const adminDb = adminFirestore(adminApp);
+
+async function seedActiveTurn(groupId, uid) {
+  const now = Date.now();
+  const startedAt = AdminTimestamp.fromMillis(now);
+  const expiresAt = AdminTimestamp.fromMillis(now + 24 * 60 * 60 * 1000);
+  const turnRef = adminDb.collection('groups').doc(groupId).collection('turns').doc();
+  await turnRef.set({ userId: uid, startedAt, expiresAt, status: 'active' });
+  await adminDb.collection('groups').doc(groupId).update({
+    currentTurn: { userId: uid, startedAt, expiresAt },
+  });
+  return turnRef.id;
+}
 
 function makeClient(name) {
   const app = initializeApp(
@@ -52,8 +71,8 @@ test('setup: user + group + non-member', async () => {
   groupId = res.id;
 });
 
-test('startTestTurn creates an active turn, seen live via subscribeActiveTurn', async () => {
-  await startTestTurn(owner, { groupId, uid: owner.auth.currentUser.uid });
+test('a server-created (seeded) turn is seen live via subscribeActiveTurn', async () => {
+  await seedActiveTurn(groupId, owner.auth.currentUser.uid);
 
   const turn = await new Promise((resolve, reject) => {
     const unsub = subscribeActiveTurn(owner, groupId, (t) => {
@@ -66,6 +85,20 @@ test('startTestTurn creates an active turn, seen live via subscribeActiveTurn', 
   assert.equal(turn.userId, owner.auth.currentUser.uid);
   assert.ok(turn.expiresAt, 'turn has an expiry');
   turnId = turn.id;
+});
+
+test('security: a client (even a member) cannot create a turn', async () => {
+  await assert.rejects(
+    () =>
+      addDoc(collection(owner.db, 'groups', groupId, 'turns'), {
+        userId: owner.auth.currentUser.uid,
+        status: 'active',
+      }),
+    (err) => {
+      assert.match(String(err.code || err.message), /permission-denied/i);
+      return true;
+    }
+  );
 });
 
 test('addMockClip adds a clip, seen live via subscribeClips', async () => {

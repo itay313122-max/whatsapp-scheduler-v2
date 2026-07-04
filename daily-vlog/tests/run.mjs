@@ -16,7 +16,13 @@ const here = dirname(fileURLToPath(import.meta.url));
 const outDir = join(here, '.build');
 
 const GROUPS = {
-  unit: ['inviteCode.test.mjs', 'authErrors.test.mjs', 'storage.test.mjs'],
+  unit: [
+    'inviteCode.test.mjs',
+    'authErrors.test.mjs',
+    'storage.test.mjs',
+    'selection.test.mjs',
+    'notify.test.mjs',
+  ],
   integration: [
     'auth.integration.test.mjs',
     'group.integration.test.mjs',
@@ -46,6 +52,9 @@ await build({
   platform: 'node',
   format: 'cjs',
   target: 'node18',
+  // firebase-admin pulls in native/grpc bits that don't bundle cleanly — leave
+  // it external so Node requires it at runtime (used only to seed emulator data).
+  external: ['firebase-admin', 'firebase-admin/*'],
   logLevel: 'warning',
 });
 

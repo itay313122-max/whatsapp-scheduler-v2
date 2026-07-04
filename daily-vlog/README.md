@@ -18,14 +18,14 @@ Every clip sent → all other members get a push notification.
 
 ## Build stages
 
-This project is built in checkpoints. Current stage: **Stage 4 — Record**.
+This project is built in checkpoints. Current stage: **Stage 5 — Cloud Functions**.
 
 - [x] **Stage 0** — Clean Expo project + dependencies + folder structure
 - [x] **Stage 1** — Firebase wiring + Auth screens (sign up / login)
 - [x] **Stage 2** — Create / join group by invite code
 - [x] **Stage 3** — Feed screen (live turn + clips, mock upload)
 - [x] **Stage 4** — Record screen (record → compress → upload)
-- [ ] **Stage 5** — Cloud Functions + Security Rules
+- [x] **Stage 5** — Cloud Functions + Security Rules
 - [ ] **Stage 6** — Push notifications end-to-end
 
 ## Getting started (Stage 0)
@@ -39,9 +39,10 @@ npx expo start
 Then open **Expo Go** on your phone and scan the QR code. You should see the
 "Stage 0 — project scaffold is running" screen.
 
-> Note: from Stage 4 (camera + on-device compression) you will need a **custom
-> dev client** rather than plain Expo Go, because video compression uses a
-> native module. That's called out when we get there.
+> Note: clips record at 480p (max 30s) so files stay small **without** a native
+> compressor — that keeps everything runnable in **Expo Go** and inside the free
+> tier. Camera recording and push both work best in a real build though; see
+> `docs/DISTRIBUTION.md`.
 
 ## Firebase setup (needed from Stage 1)
 
@@ -64,6 +65,28 @@ Then open **Expo Go** on your phone and scan the QR code. You should see the
 
 If `.env` is missing or empty the app shows a "Firebase not configured" screen
 instead of crashing.
+
+## Cloud Functions & Security Rules (Stage 5)
+
+The daily pick, clip notifications, 24h cleanup, and push-token registration
+run in `functions/`. The **selection runs server-side inside a transaction** —
+the client can never create a turn, so nobody can rig who's up.
+
+- `selectDailyVlogger` (scheduled, daily) — bag-without-replacement pick, sends
+  "Today you're up 👑" to the chosen member.
+- `onClipUploaded` (Firestore trigger) — "New clip from {name} 🎬" to everyone else.
+- `expireTurn` (scheduled, hourly) — deletes expired turns + all clips,
+  reactions, and Storage files. No leftovers, no archive.
+- `registerPushToken` (callable) — saves a user's Expo push token.
+- `devTriggerSelection` (callable) — run the pick on demand for testing (the
+  🧪 button in the Feed) without waiting for the morning schedule.
+
+Deploy (free Spark plan covers a friends-sized test):
+
+```bash
+cd functions && npm install && cd ..
+firebase deploy --only firestore:rules,storage:rules,functions
+```
 
 ## Tests
 

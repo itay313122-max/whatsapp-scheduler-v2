@@ -9,13 +9,8 @@ import {
   limit,
   onSnapshot,
   addDoc,
-  doc,
-  updateDoc,
   serverTimestamp,
-  Timestamp,
 } from 'firebase/firestore';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Subscribe to the group's single active turn (or null). Returns unsubscribe. */
 export function subscribeActiveTurn({ db }, groupId, cb, onError) {
@@ -80,26 +75,4 @@ export function addReaction({ db }, { groupId, turnId, clipId, userId, type, val
     collection(db, 'groups', groupId, 'turns', turnId, 'clips', clipId, 'reactions'),
     { userId, type, value, createdAt: serverTimestamp() }
   );
-}
-
-/**
- * TEMPORARY dev helper to create a turn so the Feed can be tested before the
- * selectDailyVlogger Cloud Function exists. Replaced in Stage 5 — the daily
- * pick must run server-side (never from the client) so nobody can cheat.
- */
-export async function startTestTurn({ db }, { groupId, uid }) {
-  const now = Date.now();
-  const expiresAt = Timestamp.fromMillis(now + DAY_MS);
-  const startedAt = Timestamp.fromMillis(now);
-
-  const turnRef = await addDoc(collection(db, 'groups', groupId, 'turns'), {
-    userId: uid,
-    startedAt: serverTimestamp(),
-    expiresAt,
-    status: 'active',
-  });
-  await updateDoc(doc(db, 'groups', groupId), {
-    currentTurn: { userId: uid, startedAt, expiresAt },
-  });
-  return turnRef.id;
 }

@@ -18,11 +18,8 @@ import Countdown from '../../components/Countdown';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase/config';
 import { getGroup, getMemberNames } from '../../services/groupService';
-import {
-  subscribeActiveTurn,
-  subscribeClips,
-  startTestTurn,
-} from '../../services/feedService';
+import { subscribeActiveTurn, subscribeClips } from '../../services/feedService';
+import { triggerSelection } from '../../services/functionsService';
 import { colors } from '../../theme/colors';
 
 // STAGE 3: the live Feed — today's vlogger, 24h timer, clips in real time,
@@ -87,12 +84,12 @@ export default function FeedScreen({ navigation }) {
     navigation.navigate('Record', { turnId: turn.id, nextOrder: clips.length });
   }
 
-  async function startTurn() {
+  async function pickVlogger() {
     setBusy(true);
     try {
-      await startTestTurn({ db }, { groupId, uid: user.uid });
+      await triggerSelection(groupId); // server-side pick; the turn arrives via the listener
     } catch (e) {
-      Alert.alert('Could not start turn', e.message);
+      Alert.alert('Could not pick a vlogger', e.message);
     } finally {
       setBusy(false);
     }
@@ -162,9 +159,9 @@ export default function FeedScreen({ navigation }) {
               </Text>
               {__DEV__ && (
                 <PrimaryButton
-                  title="🧪 Start my turn (test)"
+                  title="🧪 Pick today's vlogger (test)"
                   variant="ghost"
-                  onPress={startTurn}
+                  onPress={pickVlogger}
                   loading={busy}
                   style={{ marginTop: 16 }}
                 />
