@@ -18,7 +18,7 @@ Every clip sent → all other members get a push notification.
 
 ## Build stages
 
-This project is built in checkpoints. Current stage: **Stage 5 — Cloud Functions**.
+This project is built in checkpoints. Current stage: **Stage 6 — Push (all stages complete)** 🎉
 
 - [x] **Stage 0** — Clean Expo project + dependencies + folder structure
 - [x] **Stage 1** — Firebase wiring + Auth screens (sign up / login)
@@ -26,7 +26,7 @@ This project is built in checkpoints. Current stage: **Stage 5 — Cloud Functio
 - [x] **Stage 3** — Feed screen (live turn + clips, mock upload)
 - [x] **Stage 4** — Record screen (record → compress → upload)
 - [x] **Stage 5** — Cloud Functions + Security Rules
-- [ ] **Stage 6** — Push notifications end-to-end
+- [x] **Stage 6** — Push notifications end-to-end
 
 ## Getting started (Stage 0)
 
@@ -88,9 +88,22 @@ cd functions && npm install && cd ..
 firebase deploy --only firestore:rules,storage:rules,functions
 ```
 
+## Push notifications (Stage 6)
+
+On entering a group the app requests notification permission, gets an Expo push
+token, and saves it via `registerPushToken`. The Cloud Functions then push:
+"Today you're up 👑" to the daily pick, and "New clip from {name} 🎬" to
+everyone else on each upload.
+
+> Push needs a **real device** and a **build** (`eas build`, see
+> `docs/DISTRIBUTION.md`) — it does not work on simulators, and only partially
+> in Expo Go. To test: two phones in one group, deploy functions, then one
+> records a clip and the other should get a notification.
+
 ## Tests
 
-Two layers, both automated:
+Unit (pure logic, no Firebase) + integration (real Auth/Firestore flows against
+the emulator). Current suite: **18 unit + 17 integration**.
 
 ```bash
 # Unit tests (pure logic — no Firebase needed): invite codes, error mapping

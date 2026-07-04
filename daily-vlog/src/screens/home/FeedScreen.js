@@ -20,6 +20,7 @@ import { db } from '../../firebase/config';
 import { getGroup, getMemberNames } from '../../services/groupService';
 import { subscribeActiveTurn, subscribeClips } from '../../services/feedService';
 import { triggerSelection } from '../../services/functionsService';
+import { usePushNotifications } from '../../hooks/usePushNotifications';
 import { colors } from '../../theme/colors';
 
 // STAGE 3: the live Feed — today's vlogger, 24h timer, clips in real time,
@@ -36,6 +37,9 @@ export default function FeedScreen({ navigation }) {
   const [clips, setClips] = useState([]);
   const [loadingGroup, setLoadingGroup] = useState(true);
   const [busy, setBusy] = useState(false);
+
+  // Register this device for push once we know the user is in a group.
+  usePushNotifications(Boolean(groupId));
 
   // Load group + member names once.
   const loadGroup = useCallback(async () => {

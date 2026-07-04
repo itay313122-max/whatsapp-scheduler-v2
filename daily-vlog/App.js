@@ -4,7 +4,11 @@ import { StyleSheet, Text, View } from 'react-native';
 import { isFirebaseConfigured } from './src/firebase/config';
 import { AuthProvider } from './src/context/AuthContext';
 import RootNavigator from './src/navigation/RootNavigator';
+import { setupNotificationHandler } from './src/services/pushService';
 import { colors } from './src/theme/colors';
+
+// Configure how notifications appear in the foreground (runs once at startup).
+setupNotificationHandler();
 
 // Shown when .env is missing/empty so setup problems are obvious, not a
 // cryptic Firebase crash.
