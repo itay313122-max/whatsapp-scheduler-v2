@@ -49,13 +49,15 @@ The proper way for an all-iPhone group, **with push**.
 **You (one-time):**
 1. Enroll in the Apple Developer Program ($99/yr) at
    <https://developer.apple.com/programs/>. (Approval can take a day.)
-2. Link the project and build:
+2. Link the project and build (use the **production** profile — that's the
+   store build TestFlight needs; `preview` is ad-hoc and does NOT reach
+   TestFlight):
    ```bash
    cd daily-vlog
    npm install -g eas-cli
    eas login
    eas init            # writes projectId into app.json
-   eas build -p ios --profile preview
+   eas build -p ios --profile production
    ```
    EAS asks for your Apple login and handles certificates automatically.
 3. Upload to App Store Connect:
