@@ -2,8 +2,20 @@ import Groq from 'groq-sdk';
 import { getDemoResponse, getDemoEditResponse } from './demoApps';
 import { getThemePrompt } from './themes';
 import { analyzeQuality, buildRepairPrompt } from './qualityGate';
+import { parseBrandTokens, brandTokensToPromptFragment } from './brandTokens';
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY || 'placeholder-for-demo-mode' });
+
+/** Parse a raw uploaded brand kit and render it as a prompt fragment. Fully
+    defensive: any parse problem yields '' so generation proceeds unbranded. */
+function brandKitFragment(brandKit: unknown): string {
+  if (brandKit == null) return '';
+  try {
+    return brandTokensToPromptFragment(parseBrandTokens(brandKit));
+  } catch {
+    return '';
+  }
+}
 const MODEL = 'llama-3.3-70b-versatile';
 
 // Log key status once on startup (last 4 chars only, never full key)
@@ -1329,6 +1341,9 @@ export interface GenerateOptions {
   ideate?: boolean;
   /** Pre-built blueprint to generate against (skips the internal Ideate call). */
   blueprint?: Blueprint;
+  /** Raw uploaded brand kit (any supported token format). Parsed + injected as
+      hard constraints so generated apps use the brand instead of inventing one. */
+  brandKit?: unknown;
 }
 
 export interface ConversationMessage {
@@ -1539,6 +1554,9 @@ export async function generateWebApp(
     : WEB_SYSTEM_PROMPT + PREMIUM_DESIGN_RULES;
   // Apply a chosen design theme only on fresh generation (not edits).
   if (!options?.editMode && options?.theme) systemPrompt += '\n' + getThemePrompt(options.theme);
+  // Apply an uploaded brand kit as hard constraints (on edits too — the brand
+  // must hold across every iteration, which is exactly Stitch's token-drift gap).
+  systemPrompt += brandKitFragment(options?.brandKit);
 
   // Ideate phase: on a fresh generation, build (or accept) a blueprint and feed
   // it in as a contract. The generated code must then implement exactly those
@@ -1699,6 +1717,7 @@ export async function* streamGenerateWebApp(
     ? buildEditSystemPrompt(options.existingCode)
     : WEB_SYSTEM_PROMPT + PREMIUM_DESIGN_RULES;
   if (!options?.editMode && options?.theme) systemPrompt += '\n' + getThemePrompt(options.theme);
+  systemPrompt += brandKitFragment(options?.brandKit);
 
   const msgs = [
     { role: 'system' as const, content: systemPrompt },

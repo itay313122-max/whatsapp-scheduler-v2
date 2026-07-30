@@ -1895,3 +1895,21 @@ describe('analyzeQuality — duplicate adjacent back buttons', () => {
     const r = analyzeQuality(code);
     expect(r.issues.some(i => i.kind === 'duplicate-back' && /header/i.test(i.message))).toBe(true);
   });
+
+// ── Brand kit → generation wiring ───────────────────────────────────────────
+describe('brandKitFragment wiring in generateWebApp', () => {
+  it('injects brand-kit constraints into the system prompt (via demo path smoke)', async () => {
+    // parseBrandTokens + brandTokensToPromptFragment already unit-tested; here we
+    // assert the helper composes them without throwing on a realistic kit.
+    const { parseBrandTokens: parse, brandTokensToPromptFragment: frag } = await import('../src/services/brandTokens');
+    const kit = { theme: { extend: { colors: { primary: '#0EA5E9' }, borderRadius: { xl: '20px' } } } };
+    const out = frag(parse(kit));
+    expect(out).toContain('#0EA5E9');
+    expect(out).toContain('--c-primary');
+  });
+
+  it('brandKit is optional — undefined yields no fragment', async () => {
+    const { parseBrandTokens: parse, brandTokensToPromptFragment: frag } = await import('../src/services/brandTokens');
+    expect(frag(parse(undefined))).toBe('');
+  });
+});

@@ -1938,6 +1938,7 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
                     />
                     <div className="border-t border-border/30">
                       <EditSidebar
+                        projectId={projectId}
                         onAIEdit={handleStructureEdit}
                         isGenerating={isGenerating}
                         appName={currentResult.appName}

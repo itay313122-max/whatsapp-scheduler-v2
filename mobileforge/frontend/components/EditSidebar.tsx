@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { SelectedElement } from './PropertyPanel';
 import DesignGallery from './DesignGallery';
+import { storeBrandKit, loadBrandKit, summarizeBrandKit, type BrandKitSummary } from '@/lib/brandKit';
 
 interface Screen {
   label: string;
@@ -13,6 +14,7 @@ interface Screen {
 type SidebarTab = 'ai' | 'gallery' | 'widgets' | 'layers' | 'animations' | 'properties';
 
 interface EditSidebarProps {
+  projectId?: string;
   onAIEdit: (prompt: string) => void;
   isGenerating: boolean;
   appName?: string;
@@ -313,6 +315,7 @@ const PRESET_SCREENS = [
 ];
 
 export default function EditSidebar({
+  projectId,
   onAIEdit,
   isGenerating,
   appName,
@@ -326,6 +329,33 @@ export default function EditSidebar({
   onDeselect,
 }: EditSidebarProps) {
   const [tab, setTab] = useState<SidebarTab>('ai');
+  const [brandSummary, setBrandSummary] = useState<BrandKitSummary | null>(null);
+  const [brandError, setBrandError] = useState('');
+  const brandInputRef = useRef<HTMLInputElement>(null);
+
+  // Reflect any previously-stored kit for this project on mount / project change.
+  useEffect(() => {
+    const existing = loadBrandKit(projectId);
+    setBrandSummary(existing ? summarizeBrandKit(JSON.stringify(existing)) : null);
+  }, [projectId]);
+
+  async function handleBrandUpload(file: File) {
+    setBrandError('');
+    const text = await file.text();
+    const summary = summarizeBrandKit(text);
+    if (!summary || summary.colors === 0) {
+      setBrandError('Could not read colors from that file. Expected JSON (Figma tokens, Tokens Studio, Tailwind theme, or a flat kit).');
+      return;
+    }
+    storeBrandKit(projectId, text);
+    setBrandSummary(summary);
+  }
+
+  function clearBrand() {
+    storeBrandKit(projectId, null);
+    setBrandSummary(null);
+    setBrandError('');
+  }
   const [aiPrompt, setAIPrompt] = useState('');
   const [text, setText] = useState('');
   const [expandedCategory, setExpandedCategory] = useState<string | null>('Buttons');
@@ -438,6 +468,43 @@ export default function EditSidebar({
         {/* ── AI Design ──────────────────────────────────────────────── */}
         {tab === 'ai' && (
           <div className="flex flex-col gap-4 p-4">
+            {/* Brand kit — upload once, enforced on every build & edit */}
+            <Section label="Brand kit">
+              <input
+                ref={brandInputRef}
+                type="file"
+                accept="application/json,.json"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleBrandUpload(f); e.target.value = ''; }}
+              />
+              {brandSummary ? (
+                <div className="flex items-center gap-2 p-2.5 rounded-lg border border-primary/25 bg-primary/5">
+                  <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-semibold text-text-primary">Kit active — enforced on every build</p>
+                    <p className="text-[10px] text-text-secondary">
+                      {brandSummary.colors} colors{brandSummary.hasRadii ? ' · radii' : ''}{brandSummary.hasFonts ? ' · fonts' : ''}
+                    </p>
+                  </div>
+                  <button onClick={clearBrand} title="Remove brand kit" className="text-text-soft hover:text-red-400 text-[10px] font-medium px-1.5 py-1">Clear</button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => brandInputRef.current?.click()}
+                  className="w-full flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-border hover:border-primary/40 hover:bg-surface-2/50 text-[11px] text-text-secondary hover:text-text-primary transition-all"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                  </svg>
+                  Upload brand kit (.json)
+                </button>
+              )}
+              {brandError && <p className="mt-1.5 text-[10px] text-red-400 leading-snug">{brandError}</p>}
+              <p className="mt-1.5 text-[10px] text-text-soft leading-snug">Figma / Tokens Studio / Tailwind theme / flat JSON. Colors, radii &amp; fonts are locked so every screen stays on-brand.</p>
+            </Section>
+
             {/* Input */}
             <Section label="Custom design request">
               <textarea

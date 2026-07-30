@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { generateApp, streamGenerateApp, generateFromImage, planApp, getThemes, getSuggestions, type GenerateResponse, type PlanQuestion, type PlanResult, type ThemeMeta, type Suggestion } from '@/lib/api';
+import { loadBrandKit } from '@/lib/brandKit';
 
 const SketchCanvas = dynamic(() => import('./SketchCanvas'), { ssr: false });
 
@@ -551,6 +552,9 @@ export default function ChatInterface({
         existingCode: ctx.existingCode,
         theme: ctx.isEditMode ? undefined : (selectedTheme || undefined),
         ideate: ctx.ideate,
+        // Attach the uploaded brand kit (if any) so the backend enforces it on
+        // every build AND edit — the brand holds across iterations.
+        brandKit: loadBrandKit(projectId) ?? undefined,
       };
       // Stream fresh, non-Ideate builds so the user watches the app being written
       // in real time (Stitch's "watch it build" feel). Ideate keeps the full

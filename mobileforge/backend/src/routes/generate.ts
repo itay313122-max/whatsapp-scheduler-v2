@@ -102,14 +102,14 @@ router.post('/suggest', async (req: Request, res: Response) => {
 
 // POST /api/generate
 router.post('/', async (req: Request, res: Response) => {
-  const { projectId, prompt, conversationHistory = [], editMode = false, existingCode, theme, ideate = false } = req.body;
+  const { projectId, prompt, conversationHistory = [], editMode = false, existingCode, theme, ideate = false, brandKit } = req.body;
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
 
   try {
     const generated = await generateWebApp(
       prompt,
       conversationHistory as ConversationMessage[],
-      { editMode: !!editMode, existingCode: existingCode ?? undefined, theme: theme ?? undefined, ideate: !!ideate }
+      { editMode: !!editMode, existingCode: existingCode ?? undefined, theme: theme ?? undefined, ideate: !!ideate, brandKit: brandKit ?? undefined }
     );
     const appCode = extractAppCode(generated.files);
 
@@ -161,7 +161,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 // POST /api/generate/stream
 router.post('/stream', async (req: Request, res: Response) => {
-  const { projectId, prompt, conversationHistory = [], editMode = false, existingCode, theme } = req.body;
+  const { projectId, prompt, conversationHistory = [], editMode = false, existingCode, theme, brandKit } = req.body;
   if (!prompt) return res.status(400).json({ error: 'prompt is required' });
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -174,7 +174,7 @@ router.post('/stream', async (req: Request, res: Response) => {
     for await (const chunk of streamGenerateWebApp(
       prompt,
       conversationHistory as ConversationMessage[],
-      { editMode: !!editMode, existingCode: existingCode ?? undefined, theme: theme ?? undefined }
+      { editMode: !!editMode, existingCode: existingCode ?? undefined, theme: theme ?? undefined, brandKit: brandKit ?? undefined }
     )) {
       fullText += chunk;
       res.write(`data: ${JSON.stringify({ chunk })}\n\n`);

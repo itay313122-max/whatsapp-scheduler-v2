@@ -22,6 +22,9 @@ export interface GenerateRequest {
   theme?: string;
   /** Run the Ideate phase: build a blueprint first, generate against it, verify coverage. */
   ideate?: boolean;
+  /** Raw uploaded brand kit (Figma/Tokens Studio/Tailwind/flat JSON). The backend
+      parses + enforces it so generated apps use the brand instead of inventing one. */
+  brandKit?: unknown;
 }
 
 export interface ThemeMeta {
