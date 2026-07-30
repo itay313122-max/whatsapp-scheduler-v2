@@ -27,9 +27,17 @@
 1. היכנס ל-https://render.com והתחבר עם GitHub.
 2. **New → Blueprint** → בחר את ה-repo הזה. Render יקרא את `mobileforge/render.yaml`.
 3. אחרי היצירה, היכנס ל-service → **Environment** והוסף את המפתחות:
-   - `GROQ_API_KEY` (ואם יש: `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `CEREBRAS_API_KEY`, `TOGETHER_API_KEY`)
+   - **בסיסי (חובה למצב AI אמיתי):** `GROQ_API_KEY` (ואם יש: `GEMINI_API_KEY`,
+     `NVIDIA_API_KEY`, `OPENROUTER_API_KEY`, `CEREBRAS_API_KEY`, `TOGETHER_API_KEY`,
+     `ANTHROPIC_API_KEY`). מספיק אחד — אבל כמה שיותר = יותר מהירות ועמידות.
+   - **תמונות אמיתיות (מומלץ מאוד — כאן מנצחים את סטיץ'):** `PEXELS_API_KEY`
+     (מפתח חינם ב-pexels.com/api). בלעדיו האפליקציות מקבלות placeholder-ים במקום צילומים.
+   - **שמירת נתונים (מומלץ):** `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`,
+     `FIREBASE_PRIVATE_KEY`. בלעדיהם השרת רץ אבל כל שמירה (פרויקטים, לינקים, משוב)
+     לא נשמרת — בלוגים יופיע `Firestore save failed`.
    - `ADMIN_TOKEN` — בחר סיסמה כלשהי (תשמש לקריאת המשובים)
-   - `FRONTEND_URL` — תמלא אחרי חלק 2 (כתובת ה-Vercel)
+   - `FRONTEND_URL` + `BACKEND_URL` — תמלא אחרי חלק 2 (הראשון = כתובת ה-Vercel, השני = כתובת ה-Render עצמו, ללינקי-שיתוף)
+   - `BETA_KEYS` — קודי ההזמנה (מופרדים בפסיק). ריק = הכניסה פתוחה לכולם.
 4. שמור את כתובת השרת, למשל: `https://mobileforge-backend.onrender.com`
 
 > הערה: בתוכנית החינמית השרת "נרדם" אחרי 15 דק׳ חוסר פעילות ומתעורר תוך ~30 שנ׳
@@ -74,7 +82,9 @@ https://<כתובת-render>/api/feedback?token=<ADMIN_TOKEN שלך>
 
 - [ ] Backend עלה ב-Render, `/health` מחזיר `ok`
 - [ ] מפתחות AI + `ADMIN_TOKEN` הוגדרו ב-Render
+- [ ] `PEXELS_API_KEY` הוגדר (תמונות אמיתיות — פער מול סטיץ')
+- [ ] מפתחות `FIREBASE_*` הוגדרו (אחרת אין שמירת נתונים)
 - [ ] Frontend עלה ב-Vercel עם Root Directory = `mobileforge/frontend`
 - [ ] `NEXT_PUBLIC_API_URL` מצביע על ה-Render
-- [ ] `FRONTEND_URL` ב-Render מצביע על ה-Vercel
+- [ ] `FRONTEND_URL` + `BACKEND_URL` ב-Render מוגדרים
 - [ ] נכנסת ללינק, בנית אפליקציה, ושלחת משוב לבדיקה

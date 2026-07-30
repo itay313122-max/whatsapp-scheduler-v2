@@ -37,9 +37,26 @@ services:
         sync: false
       - key: TOGETHER_API_KEY
         sync: false
+      # Anthropic Claude — optional high-quality provider (Thinking mode). Set in dashboard.
+      - key: ANTHROPIC_API_KEY
+        sync: false
       # Photos in generated apps (optional — free key at pexels.com/api).
       - key: PEXELS_API_KEY
         sync: false
       # Public backend origin so the in-app photo proxy resolves from the preview.
       - key: PUBLIC_BACKEND_URL
+        sync: false
+      # Backend's own public origin — used to build shareable /live links.
+      - key: BACKEND_URL
+        sync: false
+      # Closed-beta invite codes (comma-separated). Leave unset to open the gate.
+      - key: BETA_KEYS
+        sync: false
+      # Firestore persistence (projects, share links, feedback). Without these the
+      # backend runs but every save no-ops ("Firestore save failed" in logs).
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
         sync: false
