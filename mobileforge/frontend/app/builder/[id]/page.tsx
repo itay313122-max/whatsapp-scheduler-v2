@@ -2080,17 +2080,22 @@ Corners use the \`rounded\` scale (${roundedSm} small, ${roundedMd} medium). ${r
           </div>
         </div>
 
-        {/* Chat collapse/expand handle (desktop) — sits at the card's edge */}
-        <button
-          onClick={() => setChatOpen((v) => !v)}
-          title={chatOpen ? 'Hide chat' : 'Show chat'}
-          aria-label={chatOpen ? 'Hide chat' : 'Show chat'}
-          className={`hidden md:flex absolute z-40 top-1/2 -translate-y-1/2 w-6 h-14 items-center justify-center rounded-l-xl bg-surface/95 border border-border/60 border-r-0 text-text-soft hover:text-text-primary shadow-sm transition-all duration-300 ${chatOpen ? 'right-[412px]' : 'right-0'}`}
-        >
-          <svg className={`w-3.5 h-3.5 transition-transform ${chatOpen ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+        {/* Chat collapse/expand handle (desktop) — only once an app exists to look
+            at. On the empty state the chat IS the workspace (and the only input,
+            since the floating canvas prompt bar appears with the preview), so we
+            keep it open rather than let the user collapse into a dead end. */}
+        {currentResult?.htmlDoc && (
+          <button
+            onClick={() => setChatOpen((v) => !v)}
+            title={chatOpen ? 'Hide chat' : 'Show chat'}
+            aria-label={chatOpen ? 'Hide chat' : 'Show chat'}
+            className={`hidden md:flex absolute z-40 top-1/2 -translate-y-1/2 w-6 h-14 items-center justify-center rounded-l-xl bg-surface/95 border border-border/60 border-r-0 text-text-soft hover:text-text-primary shadow-sm transition-all duration-300 ${chatOpen ? 'right-[412px]' : 'right-0'}`}
+          >
+            <svg className={`w-3.5 h-3.5 transition-transform ${chatOpen ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Share modal — public live link + QR so anyone can open it on a phone. */}
