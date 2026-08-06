@@ -11,5 +11,14 @@
   "dir": "rtl",
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "דבר עכשיו",
+      "short_name": "דבר",
+      "description": "פתח את העוזר ישר במצב האזנה",
+      "url": "/assistant.html?listen=1",
+      "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
   ]
 }

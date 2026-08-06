@@ -296,6 +296,34 @@ app.post('/api/assistant/confirm', async (req, res) => {
   }
 });
 
+// POST /api/ask  { text, contacts? }  → { reply, needsApp? }
+// A simple single-turn endpoint for iOS Shortcuts / Siri / Google Assistant.
+// Answers questions and searches the web; actions that need approval are NOT
+// auto-run — it returns a spoken note asking the user to confirm in the app.
+app.post('/api/ask', async (req, res) => {
+  const { text, contacts } = req.body;
+  if (!text || typeof text !== 'string') {
+    return res.status(400).json({ error: 'text is required' });
+  }
+  try {
+    const result = await assistantTurn(
+      [{ role: 'user', content: text }],
+      assistantDeps(),
+      { contacts }
+    );
+    if (result.status === 'confirm') {
+      const a = result.actions[0] || {};
+      const say =
+        (result.preface ? result.preface + ' ' : '') +
+        `כדי לבצע: ${a.title || 'הפעולה'}${a.detail ? ' ' + a.detail : ''} — פתח את האפליקציה ואשר.`;
+      return res.json({ reply: say, needsApp: true });
+    }
+    res.json({ reply: result.reply });
+  } catch (err) {
+    handleAssistantError(res, err);
+  }
+});
+
 // ── Start ────────────────────────────────────────────────────────────────────
 connectToWhatsApp().catch(console.error);
 
