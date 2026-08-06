@@ -13,6 +13,7 @@ import {
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import fs from 'fs';
+import { runAssistant } from './assistant.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -96,6 +97,52 @@ async function sendWhatsAppMessage(phone, message) {
   }
   const jid = normalizePhone(phone);
   await sock.sendMessage(jid, { text: message });
+}
+
+// ── Helper: schedule a one-off message (shared by API + assistant) ────────────
+function scheduleWhatsApp(phone, message, sendAt, id = `sch_${Date.now()}`) {
+  const sendDate = new Date(sendAt);
+  if (isNaN(sendDate.getTime())) return { ok: false, error: 'Invalid sendAt date' };
+  if (sendDate <= new Date()) return { ok: false, error: 'sendAt must be in the future' };
+  if (schedules.has(id)) return { ok: false, error: `Schedule "${id}" already exists` };
+
+  const min = sendDate.getMinutes();
+  const hour = sendDate.getHours();
+  const day = sendDate.getDate();
+  const month = sendDate.getMonth() + 1;
+  const expression = `${min} ${hour} ${day} ${month} *`;
+
+  const entry = { id, phone, message, sendAt, status: 'pending' };
+  const job = cron.schedule(
+    expression,
+    async () => {
+      try {
+        await sendWhatsAppMessage(phone, message);
+        entry.status = 'sent';
+      } catch (err) {
+        entry.status = 'failed';
+        entry.error = err.message;
+      } finally {
+        job.stop();
+      }
+    },
+    { timezone: 'Asia/Jerusalem' }
+  );
+  entry.cronJob = job;
+  schedules.set(id, entry);
+  return { ok: true, id, phone, message, sendAt };
+}
+
+function listSchedules() {
+  return [...schedules.values()].map(({ cronJob, ...rest }) => rest);
+}
+
+function cancelSchedule(id) {
+  const entry = schedules.get(id);
+  if (!entry) return { ok: false, error: `Schedule "${id}" not found` };
+  entry.cronJob?.stop();
+  schedules.delete(id);
+  return { ok: true, id };
 }
 
 // ── Routes ───────────────────────────────────────────────────────────────────
@@ -194,6 +241,44 @@ app.delete('/api/schedule/:id', (req, res) => {
 app.get('/api/schedules', (_req, res) => {
   const list = [...schedules.values()].map(({ cronJob, ...rest }) => rest);
   res.json(list);
+});
+
+// ── AI Assistant ──────────────────────────────────────────────────────────────
+
+// GET /api/assistant/config  → tells the client what's available
+app.get('/api/assistant/config', (_req, res) => {
+  res.json({
+    aiConfigured: Boolean(process.env.ANTHROPIC_API_KEY),
+    whatsapp: connectionStatus,
+    capabilities: {
+      webSearch: true,
+      whatsapp: true,
+      schedule: true,
+      calendar: false, // scaffolded – needs OAuth
+      email: false, // scaffolded – needs OAuth
+    },
+  });
+});
+
+// POST /api/assistant  { history: [{role, content}, ...] }
+// Returns { reply, history } — send the returned history back on the next turn.
+app.post('/api/assistant', async (req, res) => {
+  const { history } = req.body;
+  if (!Array.isArray(history) || history.length === 0) {
+    return res.status(400).json({ error: 'history (non-empty array) is required' });
+  }
+  try {
+    const result = await runAssistant(history, {
+      sendWhatsAppMessage,
+      scheduleWhatsApp,
+      listSchedules,
+      cancelSchedule,
+    });
+    res.json(result);
+  } catch (err) {
+    const status = err.code === 'NO_API_KEY' ? 503 : 500;
+    res.status(status).json({ error: err.message, code: err.code });
+  }
 });
 
 // ── Start ────────────────────────────────────────────────────────────────────

@@ -1,0 +1,15 @@
+{
+  "name": "העוזר החכם",
+  "short_name": "עוזר",
+  "description": "עוזר אישי קולי חכם מבוסס AI — הבנה קולית, חיפוש באינטרנט, וביצוע פעולות.",
+  "start_url": "/assistant.html",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "orientation": "portrait",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

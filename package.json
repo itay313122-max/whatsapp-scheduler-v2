@@ -8,10 +8,11 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
     "@whiskeysockets/baileys": "^6.7.16",
     "express": "^4.19.2",
     "node-cron": "^3.0.3",
-    "qrcode": "^1.5.4",
-    "pino": "^9.3.2"
+    "pino": "^9.3.2",
+    "qrcode": "^1.5.4"
   }
 }
