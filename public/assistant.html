@@ -318,7 +318,7 @@
     function handleResult(data, res) {
       if (!res.ok) {
         const m = data.code === 'NO_API_KEY'
-          ? 'המוח (Claude) עדיין לא מחובר. הגדירו ANTHROPIC_API_KEY בשרת.'
+          ? 'המוח עדיין לא מחובר. הגדירו מפתח AI בשרת (GEMINI_API_KEY חינמי, או ANTHROPIC_API_KEY).'
           : ('שגיאה: ' + (data.error || res.status));
         addBubble(m, 'sys');
         return false;
@@ -405,7 +405,9 @@
         document.getElementById('dotWA').className = 'dot ' + (c.whatsapp === 'connected' ? 'on' : 'off');
         if (!c.aiConfigured) {
           banner.style.display = 'block';
-          banner.textContent = 'המוח (Claude) עדיין לא מחובר — הגדירו את משתנה הסביבה ANTHROPIC_API_KEY בשרת כדי להפעיל.';
+          banner.textContent = c.provider === 'gemini'
+            ? 'המוח (Gemini, חינמי) עדיין לא מחובר — הגדירו GEMINI_API_KEY בשרת (מפתח חינם: aistudio.google.com/apikey).'
+            : 'המוח (Claude) עדיין לא מחובר — הגדירו ANTHROPIC_API_KEY בשרת.';
         }
         if (c.authRequired && !appKey) promptForKey();
         else if (c.authRequired) syncContactsFromServer();

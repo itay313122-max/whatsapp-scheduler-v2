@@ -13,7 +13,7 @@ import {
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import fs from 'fs';
-import { assistantTurn, assistantConfirm } from './assistant.js';
+import { assistantTurn, assistantConfirm, activeProvider, providerConfigured } from './provider.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -274,7 +274,8 @@ app.get('/api/schedules', (_req, res) => {
 // GET /api/assistant/config  → tells the client what's available
 app.get('/api/assistant/config', (_req, res) => {
   res.json({
-    aiConfigured: Boolean(process.env.ANTHROPIC_API_KEY),
+    aiConfigured: providerConfigured(),
+    provider: activeProvider(),
     authRequired: Boolean(APP_PASSWORD),
     whatsapp: connectionStatus,
     capabilities: {

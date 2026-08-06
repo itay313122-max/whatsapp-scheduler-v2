@@ -31,9 +31,8 @@ Actions and confirmation:
 Interpret relative times ("tomorrow at 9", "in 10 minutes") against the current date/time provided, in the user's timezone (Asia/Jerusalem).`;
 
 // ── Tool definitions ──────────────────────────────────────────────────────────
-function toolDefinitions() {
-  return [
-    { type: 'web_search_20260209', name: 'web_search', max_uses: 5 },
+// Neutral custom-tool specs (JSON Schema), shared across providers (Claude/Gemini).
+export const CUSTOM_TOOLS = [
     {
       name: 'send_whatsapp',
       description:
@@ -98,7 +97,10 @@ function toolDefinitions() {
         required: ['action'],
       },
     },
-  ];
+];
+
+function toolDefinitions() {
+  return [{ type: 'web_search_20260209', name: 'web_search', max_uses: 5 }, ...CUSTOM_TOOLS];
 }
 
 const SERVER_TOOL_NAMES = new Set(['web_search']);
@@ -128,7 +130,7 @@ export function actionSummary(name, input = {}) {
 }
 
 // ── Execute a client-side tool ────────────────────────────────────────────────
-async function runTool(name, input, deps) {
+export async function runTool(name, input, deps) {
   const { sendWhatsAppMessage, scheduleWhatsApp, listSchedules, cancelSchedule } = deps;
   try {
     switch (name) {
@@ -170,7 +172,7 @@ export async function executeToolUses(toolUses, deps, decisions = {}) {
   return results;
 }
 
-function buildSystem(ctx = {}) {
+export function buildSystem(ctx = {}) {
   const now = new Date();
   let sys = `${BASE_SYSTEM}\n\nCurrent date and time (Asia/Jerusalem): ${now.toLocaleString('en-GB', { timeZone: 'Asia/Jerusalem' })}.`;
   const contacts = Array.isArray(ctx.contacts) ? ctx.contacts.filter((c) => c.name && c.phone) : [];

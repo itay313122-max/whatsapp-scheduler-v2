@@ -1,6 +1,6 @@
 # העוזר האישי החכם — התקנה והפעלה
 
-עוזר קולי פרטי מבוסס Claude. עובד בדפדפן, ניתן להתקנה כאפליקציה על **אייפון** ו**מקבוק**,
+עוזר קולי פרטי מבוסס AI (מנוע חינמי **Gemini** כברירת מחדל, או **Claude** בתשלום). עובד בדפדפן, ניתן להתקנה כאפליקציה על **אייפון** ו**מקבוק**,
 מסונכרן בין המכשירים, נעול בסיסמה — רק שלך.
 
 הכתובת של העוזר בכל שרת: **`/assistant.html`**
@@ -19,7 +19,7 @@
    ```
 3. **הפעל בלחיצה כפולה** — פתח את התיקייה ב-Finder ולחץ פעמיים על **`run-mac.command`**.
    - בפעם הראשונה מק עלול לחסום → **לחיצה ימנית → Open**.
-   - הקובץ יתקין הכל לבד, יפתח לך את `.env` להדביק את המפתח `ANTHROPIC_API_KEY`, ואז יפתח את העוזר בדפדפן ב-<http://localhost:3000/assistant.html>.
+   - הקובץ יתקין הכל לבד, יפתח לך את `.env` להדביק את המפתח **החינמי** `GEMINI_API_KEY`, ואז יפתח את העוזר בדפדפן ב-<http://localhost:3000/assistant.html>.
 4. להריץ שוב בעתיד — פשוט לחיצה כפולה שוב על `run-mac.command`.
 
 > חלופה למי שנוח לו ב-Terminal: `cp .env.example .env` (ערוך והדבק מפתח) → `npm install` → `npm run start:local`.
@@ -39,12 +39,14 @@
    - **Branch**: `claude/smart-voice-assistant-g1li66` (או `main` אחרי מיזוג)
    - **Runtime**: Docker (מזוהה אוטומטית מה-`Dockerfile`)
    - **Instance Type**: Free
-4. **Environment → Add Environment Variable** — הגדר שלושה:
+4. **Environment → Add Environment Variable** — הגדר:
    | Key | Value | לְמה |
    |---|---|---|
-   | `ANTHROPIC_API_KEY` | `sk-ant-...` | המוח. משיגים ב-<https://console.anthropic.com> |
+   | `GEMINI_API_KEY` | המפתח החינמי שלך | **המוח החינמי.** משיגים בחינם ב-<https://aistudio.google.com/apikey> |
    | `APP_PASSWORD` | קוד סודי משלך | הנעילה הפרטית — רק מי שיודע אותו נכנס |
    | `PORT` | `3000` | (בד"כ אוטומטי ב-Render) |
+
+   > רוצה איכות מקסימלית ומוכן לשלם? הגדר במקום זאת `LLM_PROVIDER=claude` ו-`ANTHROPIC_API_KEY=sk-ant-...` (מ-<https://console.anthropic.com>).
 5. **Create Web Service**. אחרי ~דקה תקבל כתובת כמו `https://my-assistant.onrender.com`.
 
 > יש קובץ blueprint מוכן ב-`render.assistant.yaml` — אפשר להשתמש בו אם מעדיפים "Blueprint" במקום הגדרה ידנית.

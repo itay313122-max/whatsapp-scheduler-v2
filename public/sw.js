@@ -1,5 +1,5 @@
 // Minimal service worker: enables install-to-home-screen and offline shell.
-const CACHE = 'assistant-v4';
+const CACHE = 'assistant-v5';
 const SHELL = ['/assistant.html', '/manifest.webmanifest', '/icon.svg'];
 
 self.addEventListener('install', (e) => {
