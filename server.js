@@ -35,6 +35,32 @@ const schedules = new Map(); // id -> { id, phone, message, sendAt, cronJob, sta
 const AUTH_DIR = join(__dirname, 'auth_info');
 if (!fs.existsSync(AUTH_DIR)) fs.mkdirSync(AUTH_DIR, { recursive: true });
 
+// ── Private access gate ───────────────────────────────────────────────────────
+// If APP_PASSWORD is set, the assistant APIs require it (via the x-app-key header
+// or ?key=). Leave it unset for open/dev use. This is what makes the app "yours".
+const APP_PASSWORD = process.env.APP_PASSWORD || '';
+function requireAuth(req, res, next) {
+  if (!APP_PASSWORD) return next();
+  const key = req.get('x-app-key') || req.query.key || (req.body && req.body.key);
+  if (key === APP_PASSWORD) return next();
+  return res.status(401).json({ error: 'unauthorized', code: 'UNAUTHORIZED' });
+}
+
+// ── Cross-device store (contacts shared across your iPhone + Mac) ──────────────
+const DATA_DIR = join(__dirname, 'data');
+const CONTACTS_FILE = join(DATA_DIR, 'contacts.json');
+function readContacts() {
+  try {
+    return JSON.parse(fs.readFileSync(CONTACTS_FILE, 'utf8'));
+  } catch {
+    return [];
+  }
+}
+function writeContacts(list) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(CONTACTS_FILE, JSON.stringify(list, null, 2));
+}
+
 // ── WhatsApp connection ─────────────────────────────────────────────────────
 async function connectToWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
@@ -249,6 +275,7 @@ app.get('/api/schedules', (_req, res) => {
 app.get('/api/assistant/config', (_req, res) => {
   res.json({
     aiConfigured: Boolean(process.env.ANTHROPIC_API_KEY),
+    authRequired: Boolean(APP_PASSWORD),
     whatsapp: connectionStatus,
     capabilities: {
       webSearch: true,
@@ -256,8 +283,21 @@ app.get('/api/assistant/config', (_req, res) => {
       schedule: true,
       calendar: false, // scaffolded – needs OAuth
       email: false, // scaffolded – needs OAuth
+      spotify: false, // scaffolded – needs OAuth
     },
   });
+});
+
+// GET/PUT /api/contacts — device-independent contact list (synced across devices).
+app.get('/api/contacts', requireAuth, (_req, res) => res.json({ contacts: readContacts() }));
+app.put('/api/contacts', requireAuth, (req, res) => {
+  const { contacts } = req.body;
+  if (!Array.isArray(contacts)) return res.status(400).json({ error: 'contacts array required' });
+  const clean = contacts
+    .filter((c) => c && c.name && c.phone)
+    .map((c) => ({ name: String(c.name).slice(0, 60), phone: String(c.phone).slice(0, 30) }));
+  writeContacts(clean);
+  res.json({ ok: true, contacts: clean });
 });
 
 const assistantDeps = () => ({ sendWhatsAppMessage, scheduleWhatsApp, listSchedules, cancelSchedule });
@@ -270,13 +310,13 @@ function handleAssistantError(res, err) {
 // POST /api/assistant  { history: [{role, content}, ...], contacts? }
 // Returns either { status:'done', reply, history } or
 // { status:'confirm', actions, preface, history } when an action needs approval.
-app.post('/api/assistant', async (req, res) => {
+app.post('/api/assistant', requireAuth, async (req, res) => {
   const { history, contacts } = req.body;
   if (!Array.isArray(history) || history.length === 0) {
     return res.status(400).json({ error: 'history (non-empty array) is required' });
   }
   try {
-    res.json(await assistantTurn(history, assistantDeps(), { contacts }));
+    res.json(await assistantTurn(history, assistantDeps(), { contacts: contacts || readContacts() }));
   } catch (err) {
     handleAssistantError(res, err);
   }
@@ -284,13 +324,13 @@ app.post('/api/assistant', async (req, res) => {
 
 // POST /api/assistant/confirm  { history, decisions: {tool_use_id: 'allow'|'deny'}, contacts? }
 // Executes the approved actions and resumes the assistant loop.
-app.post('/api/assistant/confirm', async (req, res) => {
+app.post('/api/assistant/confirm', requireAuth, async (req, res) => {
   const { history, decisions, contacts } = req.body;
   if (!Array.isArray(history) || history.length === 0) {
     return res.status(400).json({ error: 'history (non-empty array) is required' });
   }
   try {
-    res.json(await assistantConfirm(history, decisions || {}, assistantDeps(), { contacts }));
+    res.json(await assistantConfirm(history, decisions || {}, assistantDeps(), { contacts: contacts || readContacts() }));
   } catch (err) {
     handleAssistantError(res, err);
   }
@@ -300,7 +340,7 @@ app.post('/api/assistant/confirm', async (req, res) => {
 // A simple single-turn endpoint for iOS Shortcuts / Siri / Google Assistant.
 // Answers questions and searches the web; actions that need approval are NOT
 // auto-run — it returns a spoken note asking the user to confirm in the app.
-app.post('/api/ask', async (req, res) => {
+app.post('/api/ask', requireAuth, async (req, res) => {
   const { text, contacts } = req.body;
   if (!text || typeof text !== 'string') {
     return res.status(400).json({ error: 'text is required' });
@@ -309,7 +349,7 @@ app.post('/api/ask', async (req, res) => {
     const result = await assistantTurn(
       [{ role: 'user', content: text }],
       assistantDeps(),
-      { contacts }
+      { contacts: contacts || readContacts() }
     );
     if (result.status === 'confirm') {
       const a = result.actions[0] || {};

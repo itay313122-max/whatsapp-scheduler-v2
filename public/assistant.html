@@ -193,10 +193,28 @@
 
     let history = [];   // full API conversation (may contain tool blocks)
     let busy = false;
+    let appKey = localStorage.getItem('appKey') || '';
 
-    // ── Contacts (device-local) ─────────────────────────────────
+    // Wrap fetch to attach the private access key on every API call.
+    function api(url, opts = {}) {
+      opts.headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+      if (appKey) opts.headers['x-app-key'] = appKey;
+      return fetch(url, opts);
+    }
+
+    // ── Contacts (synced through the server; localStorage is a cache) ──
     function getContacts() { try { return JSON.parse(localStorage.getItem('contacts') || '[]'); } catch { return []; } }
-    function setContacts(c) { localStorage.setItem('contacts', JSON.stringify(c)); renderContacts(); }
+    async function setContacts(c) {
+      localStorage.setItem('contacts', JSON.stringify(c));
+      renderContacts();
+      try { await api('/api/contacts', { method: 'PUT', body: JSON.stringify({ contacts: c }) }); } catch {}
+    }
+    async function syncContactsFromServer() {
+      try {
+        const r = await api('/api/contacts');
+        if (r.ok) { const d = await r.json(); if (Array.isArray(d.contacts)) { localStorage.setItem('contacts', JSON.stringify(d.contacts)); renderContacts(); } }
+      } catch {}
+    }
     function renderContacts() {
       const list = document.getElementById('contactList');
       const c = getContacts();
@@ -321,12 +339,10 @@
       input.value = '';
       const typing = showTyping();
       try {
-        const res = await fetch('/api/assistant', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ history, contacts: getContacts() }),
-        });
+        const res = await api('/api/assistant', { method: 'POST', body: JSON.stringify({ history, contacts: getContacts() }) });
         const data = await res.json();
         typing.remove();
+        if (res.status === 401) { history.pop(); return promptForKey(); }
         if (!handleResult(data, res)) history.pop();
       } catch (err) {
         typing.remove(); addBubble('שגיאת רשת: ' + err.message, 'sys'); history.pop();
@@ -337,12 +353,10 @@
       busy = true;
       const typing = showTyping();
       try {
-        const res = await fetch('/api/assistant/confirm', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ history, decisions, contacts: getContacts() }),
-        });
+        const res = await api('/api/assistant/confirm', { method: 'POST', body: JSON.stringify({ history, decisions, contacts: getContacts() }) });
         const data = await res.json();
         typing.remove();
+        if (res.status === 401) return promptForKey();
         handleResult(data, res);
       } catch (err) {
         typing.remove(); addBubble('שגיאת רשת: ' + err.message, 'sys');
@@ -377,6 +391,12 @@
     function stopListening() { listening = false; micBtn.classList.remove('listening'); try { recog && recog.stop(); } catch {} }
     micBtn.addEventListener('click', () => (listening ? stopListening() : startListening()));
 
+    // ── Private lock screen ─────────────────────────────────────
+    function promptForKey() {
+      const k = window.prompt('קוד גישה לעוזר הפרטי שלך:');
+      if (k) { appKey = k; localStorage.setItem('appKey', k); syncContactsFromServer(); }
+    }
+
     // ── Status ──────────────────────────────────────────────────
     async function loadConfig() {
       try {
@@ -387,9 +407,12 @@
           banner.style.display = 'block';
           banner.textContent = 'המוח (Claude) עדיין לא מחובר — הגדירו את משתנה הסביבה ANTHROPIC_API_KEY בשרת כדי להפעיל.';
         }
+        if (c.authRequired && !appKey) promptForKey();
+        else if (c.authRequired) syncContactsFromServer();
       } catch {}
     }
     loadConfig();
+    syncContactsFromServer();
 
     // ── "Talk now" launch: open straight into listening ────────
     // Triggered by /assistant.html?listen=1 (a home-screen shortcut or iOS Shortcut).

@@ -104,7 +104,7 @@ function toolDefinitions() {
 const SERVER_TOOL_NAMES = new Set(['web_search']);
 
 // Which tool calls require the user's on-screen approval before running.
-function needsConfirmation(name, input = {}) {
+export function needsConfirmation(name, input = {}) {
   if (name === 'send_whatsapp' || name === 'schedule_whatsapp') return true;
   if (name === 'calendar_action') return input.action === 'create';
   if (name === 'email_action') return input.action === 'send';
@@ -112,7 +112,7 @@ function needsConfirmation(name, input = {}) {
 }
 
 // A short human summary of an action, shown on the confirmation card.
-function actionSummary(name, input = {}) {
+export function actionSummary(name, input = {}) {
   switch (name) {
     case 'send_whatsapp':
       return { icon: '📱', title: 'שליחת הודעת וואטסאפ', detail: `אל ${input.phone}`, body: input.message };
@@ -155,7 +155,7 @@ async function runTool(name, input, deps) {
 
 // Build tool_result blocks for every client tool_use in a turn.
 // `decisions` maps tool_use_id -> 'allow' | 'deny' for confirmation-gated tools.
-async function executeToolUses(toolUses, deps, decisions = {}) {
+export async function executeToolUses(toolUses, deps, decisions = {}) {
   const results = [];
   for (const tu of toolUses) {
     if (SERVER_TOOL_NAMES.has(tu.name)) continue; // Anthropic already ran it
@@ -181,7 +181,7 @@ function buildSystem(ctx = {}) {
   return sys;
 }
 
-function lastAssistantToolUses(messages) {
+export function lastAssistantToolUses(messages) {
   for (let i = messages.length - 1; i >= 0; i--) {
     const m = messages[i];
     if (m.role === 'assistant' && Array.isArray(m.content)) {

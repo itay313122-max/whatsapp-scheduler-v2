@@ -1,0 +1,22 @@
+# Render blueprint for the personal voice assistant (root server.js).
+# To use: in Render → New → Blueprint, point it at this file (or rename it to
+# render.yaml if you're deploying only the assistant).
+services:
+  - type: web
+    name: personal-assistant
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/assistant/config
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false # set your Claude API key in the dashboard
+      - key: APP_PASSWORD
+        sync: false # your private access code
+      - key: PORT
+        value: 3000
+    # For contact sync that survives redeploys, add a paid plan + a disk:
+    # disk:
+    #   name: assistant-data
+    #   mountPath: /app/data
+    #   sizeGB: 1
