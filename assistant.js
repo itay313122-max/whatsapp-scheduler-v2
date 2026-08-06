@@ -1,42 +1,43 @@
 // ── AI Voice Assistant brain ──────────────────────────────────────────────────
-// A Siri-like assistant powered by Claude. Understands natural language (Hebrew
-// or English), can search the web, and perform actions through tools.
+// A Siri-like agent powered by Claude. Understands natural language (Hebrew or
+// English), searches the web on its own, and performs real actions through tools
+// — with an explicit on-screen confirmation before anything leaves the device
+// (sending/scheduling a WhatsApp, creating a calendar event, sending email).
 //
-// The tool set is pluggable: WhatsApp send/schedule are wired to the live
-// functions in server.js; calendar & email are scaffolded and return a clear
-// "not connected yet" result until OAuth is configured, so the model degrades
-// gracefully instead of failing.
+// The turn loop can pause: when the model calls an action tool that needs the
+// user's approval, runLoop() returns { status: 'confirm', actions } instead of
+// executing. The client shows a confirm card and calls back into
+// assistantConfirm() with the user's allow/deny decisions to resume.
 
 import Anthropic from '@anthropic-ai/sdk';
 
 const MODEL = 'claude-opus-5';
+const MAX_ITERATIONS = 8;
 
-const SYSTEM_PROMPT = `You are a smart personal voice assistant, like Siri but far more capable, powered by AI.
+const BASE_SYSTEM = `You are a smart personal voice assistant — like Siri but far more capable, powered by AI. You have real control over the tools you're connected to, and you act on the user's behalf.
 
 Core behavior:
-- The user talks to you (often by voice) in Hebrew or English. Always reply in the SAME language the user used. Default to Hebrew when unsure.
-- Keep spoken replies short, natural and conversational — they are read aloud by text-to-speech. Avoid markdown, bullet lists, emoji, and code blocks in your replies unless the user explicitly asks for written/structured output.
-- Be proactive and decisive. When the user asks you to do something you have a tool for, do it. For minor choices, pick a sensible default and mention it briefly rather than asking.
-- When you need current information (news, prices, recent events, anything time-sensitive), use web_search before answering instead of guessing.
-- Before an action that is hard to reverse or sends something to another person (e.g. sending a WhatsApp message), confirm the key details in one short sentence unless the user already gave them clearly.
+- The user talks to you (often by voice) in Hebrew or English. Always reply in the SAME language the user used; default to Hebrew when unsure.
+- Keep spoken replies short, natural and conversational — they are read aloud by text-to-speech. Avoid markdown, bullet lists, emoji and code blocks unless the user explicitly asks for written/structured output.
+- Be proactive and decisive. When the user asks for something you have a tool for, DO IT yourself rather than explaining how they could. "Find me flights to Rome" → search the web and present the best options. "Text mom I'm on my way" → send the WhatsApp message.
+- When current information is involved (news, prices, flights, schedules, anything time-sensitive), use web_search before answering instead of guessing.
 
-Tools:
-- web_search: search the internet for up-to-date information.
-- send_whatsapp: send a WhatsApp message right now.
-- schedule_whatsapp: schedule a WhatsApp message to be sent at a future time.
-- list_schedules / cancel_schedule: manage scheduled messages.
-- calendar and email tools may report they are not connected yet — if so, tell the user plainly that this capability still needs to be connected, and offer what you CAN do.
+Actions and confirmation:
+- Actions that leave the device — send_whatsapp, schedule_whatsapp, creating a calendar event, sending email — are protected: the app automatically shows the user an on-screen "Approve / Cancel" card before they run. You do NOT need to ask for confirmation in text; just call the tool with complete, correct details, and the app handles approval.
+- Do make sure you actually have the details you need (who to send to, the exact message, the time). If something essential is missing or ambiguous, ask a short question first.
+- If a tool result says the user declined, acknowledge it briefly and offer an alternative.
+- If a tool reports it is not connected yet (calendar/email), tell the user plainly and offer what you can do instead.
 
-Today's context is provided in each request. Interpret relative times ("tomorrow at 9", "in 10 minutes") against it, in the user's timezone (Asia/Jerusalem).`;
+Interpret relative times ("tomorrow at 9", "in 10 minutes") against the current date/time provided, in the user's timezone (Asia/Jerusalem).`;
 
-// ── Tool schema definitions given to the model ────────────────────────────────
+// ── Tool definitions ──────────────────────────────────────────────────────────
 function toolDefinitions() {
   return [
     { type: 'web_search_20260209', name: 'web_search', max_uses: 5 },
     {
       name: 'send_whatsapp',
       description:
-        'Send a WhatsApp text message immediately to a phone number. Use when the user asks to text/message/send something to someone now.',
+        'Send a WhatsApp text message immediately. Use when the user asks to text/message/send something to someone now. If the recipient is a known contact, pass their phone number.',
       input_schema: {
         type: 'object',
         properties: {
@@ -48,17 +49,13 @@ function toolDefinitions() {
     },
     {
       name: 'schedule_whatsapp',
-      description:
-        'Schedule a WhatsApp message for a future time. Use for reminders like "remind X tomorrow at 9" or "send this at 18:00".',
+      description: 'Schedule a WhatsApp message for a future time (reminders, "send this at 18:00", "remind X tomorrow at 9").',
       input_schema: {
         type: 'object',
         properties: {
           phone: { type: 'string', description: 'Recipient phone number' },
-          message: { type: 'string', description: 'The message text to send' },
-          sendAt: {
-            type: 'string',
-            description: 'When to send, as an ISO 8601 datetime in local (Asia/Jerusalem) time, e.g. 2026-08-07T09:00:00',
-          },
+          message: { type: 'string', description: 'The message text' },
+          sendAt: { type: 'string', description: 'ISO 8601 datetime in local (Asia/Jerusalem) time, e.g. 2026-08-07T09:00:00' },
         },
         required: ['phone', 'message', 'sendAt'],
       },
@@ -71,37 +68,32 @@ function toolDefinitions() {
     {
       name: 'cancel_schedule',
       description: 'Cancel a scheduled WhatsApp message by its id.',
-      input_schema: {
-        type: 'object',
-        properties: { id: { type: 'string', description: 'The schedule id to cancel' } },
-        required: ['id'],
-      },
+      input_schema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
     },
     {
       name: 'calendar_action',
-      description:
-        'Create, list, or check calendar events (Google Calendar). Use for meetings, appointments and agenda questions.',
+      description: 'Create or list Google Calendar events (meetings, appointments, agenda).',
       input_schema: {
         type: 'object',
         properties: {
-          action: { type: 'string', enum: ['list', 'create'], description: 'What to do' },
-          title: { type: 'string', description: 'Event title (for create)' },
-          start: { type: 'string', description: 'Event start, ISO 8601 local time (for create)' },
-          durationMinutes: { type: 'number', description: 'Event length in minutes (for create)' },
+          action: { type: 'string', enum: ['list', 'create'] },
+          title: { type: 'string' },
+          start: { type: 'string', description: 'ISO 8601 local time (for create)' },
+          durationMinutes: { type: 'number' },
         },
         required: ['action'],
       },
     },
     {
       name: 'email_action',
-      description: 'Read a summary of, or send, email (Gmail).',
+      description: 'Summarize recent email or send an email (Gmail).',
       input_schema: {
         type: 'object',
         properties: {
-          action: { type: 'string', enum: ['summarize', 'send'], description: 'What to do' },
-          to: { type: 'string', description: 'Recipient email (for send)' },
-          subject: { type: 'string', description: 'Email subject (for send)' },
-          body: { type: 'string', description: 'Email body (for send)' },
+          action: { type: 'string', enum: ['summarize', 'send'] },
+          to: { type: 'string' },
+          subject: { type: 'string' },
+          body: { type: 'string' },
         },
         required: ['action'],
       },
@@ -109,35 +101,50 @@ function toolDefinitions() {
   ];
 }
 
-// ── Execute a client-side (custom) tool call ──────────────────────────────────
+const SERVER_TOOL_NAMES = new Set(['web_search']);
+
+// Which tool calls require the user's on-screen approval before running.
+function needsConfirmation(name, input = {}) {
+  if (name === 'send_whatsapp' || name === 'schedule_whatsapp') return true;
+  if (name === 'calendar_action') return input.action === 'create';
+  if (name === 'email_action') return input.action === 'send';
+  return false;
+}
+
+// A short human summary of an action, shown on the confirmation card.
+function actionSummary(name, input = {}) {
+  switch (name) {
+    case 'send_whatsapp':
+      return { icon: '📱', title: 'שליחת הודעת וואטסאפ', detail: `אל ${input.phone}`, body: input.message };
+    case 'schedule_whatsapp':
+      return { icon: '⏰', title: 'תזמון הודעת וואטסאפ', detail: `אל ${input.phone} • ${input.sendAt}`, body: input.message };
+    case 'calendar_action':
+      return { icon: '📅', title: 'יצירת אירוע ביומן', detail: input.start || '', body: input.title || '' };
+    case 'email_action':
+      return { icon: '📧', title: 'שליחת אימייל', detail: `אל ${input.to} • ${input.subject || ''}`, body: input.body || '' };
+    default:
+      return { icon: '⚙️', title: name, detail: '', body: JSON.stringify(input) };
+  }
+}
+
+// ── Execute a client-side tool ────────────────────────────────────────────────
 async function runTool(name, input, deps) {
   const { sendWhatsAppMessage, scheduleWhatsApp, listSchedules, cancelSchedule } = deps;
   try {
     switch (name) {
-      case 'send_whatsapp': {
+      case 'send_whatsapp':
         await sendWhatsAppMessage(input.phone, input.message);
         return { ok: true, note: `Message sent to ${input.phone}.` };
-      }
-      case 'schedule_whatsapp': {
-        const res = scheduleWhatsApp(input.phone, input.message, input.sendAt);
-        return res;
-      }
+      case 'schedule_whatsapp':
+        return scheduleWhatsApp(input.phone, input.message, input.sendAt);
       case 'list_schedules':
         return { schedules: listSchedules() };
       case 'cancel_schedule':
         return cancelSchedule(input.id);
       case 'calendar_action':
-        return {
-          ok: false,
-          not_connected: true,
-          note: 'Calendar (Google Calendar) is not connected yet. Connect it to enable creating and reading events.',
-        };
+        return { ok: false, not_connected: true, note: 'Calendar (Google Calendar) is not connected yet.' };
       case 'email_action':
-        return {
-          ok: false,
-          not_connected: true,
-          note: 'Email (Gmail) is not connected yet. Connect it to enable reading and sending mail.',
-        };
+        return { ok: false, not_connected: true, note: 'Email (Gmail) is not connected yet.' };
       default:
         return { ok: false, error: `Unknown tool: ${name}` };
     }
@@ -146,30 +153,50 @@ async function runTool(name, input, deps) {
   }
 }
 
-// A tool is "server-side" (run by Anthropic) if it carries a `type` field.
-const SERVER_TOOL_NAMES = new Set(['web_search']);
-
-// ── Main entry: run one assistant turn over the conversation ───────────────────
-// `history` is an array of { role: 'user' | 'assistant', content: <string|blocks> }.
-// Returns { reply, history } where history is the updated array to send back next time.
-export async function runAssistant(history, deps) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    const err = new Error('ANTHROPIC_API_KEY is not configured on the server.');
-    err.code = 'NO_API_KEY';
-    throw err;
+// Build tool_result blocks for every client tool_use in a turn.
+// `decisions` maps tool_use_id -> 'allow' | 'deny' for confirmation-gated tools.
+async function executeToolUses(toolUses, deps, decisions = {}) {
+  const results = [];
+  for (const tu of toolUses) {
+    if (SERVER_TOOL_NAMES.has(tu.name)) continue; // Anthropic already ran it
+    let output;
+    if (needsConfirmation(tu.name, tu.input) && decisions[tu.id] !== 'allow') {
+      output = { ok: false, declined: true, note: 'The user declined this action.' };
+    } else {
+      output = await runTool(tu.name, tu.input, deps);
+    }
+    results.push({ type: 'tool_result', tool_use_id: tu.id, content: JSON.stringify(output) });
   }
+  return results;
+}
 
-  const client = new Anthropic({ apiKey });
-  const tools = toolDefinitions();
-  const messages = [...history];
-
+function buildSystem(ctx = {}) {
   const now = new Date();
-  const dateContext = `Current date and time (Asia/Jerusalem): ${now.toLocaleString('en-GB', {
-    timeZone: 'Asia/Jerusalem',
-  })}.`;
+  let sys = `${BASE_SYSTEM}\n\nCurrent date and time (Asia/Jerusalem): ${now.toLocaleString('en-GB', { timeZone: 'Asia/Jerusalem' })}.`;
+  const contacts = Array.isArray(ctx.contacts) ? ctx.contacts.filter((c) => c.name && c.phone) : [];
+  if (contacts.length) {
+    sys += `\n\nKnown contacts (resolve names the user mentions to these numbers; if a name isn't here, ask for the number):\n` +
+      contacts.map((c) => `- ${c.name}: ${c.phone}`).join('\n');
+  }
+  return sys;
+}
 
-  const MAX_ITERATIONS = 8;
+function lastAssistantToolUses(messages) {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m.role === 'assistant' && Array.isArray(m.content)) {
+      const tus = m.content.filter((b) => b.type === 'tool_use');
+      if (tus.length) return tus;
+      return [];
+    }
+  }
+  return [];
+}
+
+// ── Core loop: call the model, run tools, pause for confirmation ──────────────
+async function runLoop(client, messages, deps, ctx) {
+  const tools = toolDefinitions();
+  const system = buildSystem(ctx);
   let finalText = '';
 
   for (let i = 0; i < MAX_ITERATIONS; i++) {
@@ -178,44 +205,73 @@ export async function runAssistant(history, deps) {
       max_tokens: 4096,
       thinking: { type: 'adaptive' },
       output_config: { effort: 'medium' },
-      system: `${SYSTEM_PROMPT}\n\n${dateContext}`,
+      system,
       tools,
       messages,
     });
 
-    // Preserve the full assistant turn (needed for tool_use / thinking blocks).
     messages.push({ role: 'assistant', content: response.content });
 
-    // Server tools paused the turn — resend to let Anthropic resume.
-    if (response.stop_reason === 'pause_turn') continue;
+    if (response.stop_reason === 'pause_turn') continue; // server tool ran; resume
 
     const toolUses = response.content.filter((b) => b.type === 'tool_use');
-
-    // Collect any assistant text (spoken reply).
-    const text = response.content
-      .filter((b) => b.type === 'text')
-      .map((b) => b.text)
-      .join('')
-      .trim();
+    const text = response.content.filter((b) => b.type === 'text').map((b) => b.text).join('').trim();
     if (text) finalText = text;
 
-    if (response.stop_reason !== 'tool_use' || toolUses.length === 0) break;
-
-    // Run all client-side tool calls; skip server tools (Anthropic ran those).
-    const results = [];
-    for (const tu of toolUses) {
-      if (SERVER_TOOL_NAMES.has(tu.name)) continue;
-      const output = await runTool(tu.name, tu.input, deps);
-      results.push({
-        type: 'tool_result',
-        tool_use_id: tu.id,
-        content: JSON.stringify(output),
-      });
+    if (response.stop_reason !== 'tool_use' || toolUses.length === 0) {
+      return { status: 'done', reply: finalText || 'סליחה, לא הצלחתי להפיק תשובה.', history: messages };
     }
 
-    if (results.length === 0) break; // only server tools ran; model will continue on next loop via pause_turn otherwise
+    // If any tool in this turn needs approval, pause and ask the client.
+    const pending = toolUses.filter((tu) => needsConfirmation(tu.name, tu.input));
+    if (pending.length) {
+      return {
+        status: 'confirm',
+        preface: finalText, // any words the model said before the action
+        history: messages,
+        actions: pending.map((tu) => ({ id: tu.id, name: tu.name, ...actionSummary(tu.name, tu.input) })),
+      };
+    }
+
+    // Only non-confirm client tools (or server tools) → run and continue.
+    const results = await executeToolUses(toolUses, deps, {});
+    if (results.length === 0) {
+      return { status: 'done', reply: finalText || '', history: messages };
+    }
     messages.push({ role: 'user', content: results });
   }
 
-  return { reply: finalText || 'סליחה, לא הצלחתי להפיק תשובה.', history: messages };
+  return { status: 'done', reply: finalText || 'סליחה, נגמרו לי הצעדים לפני שסיימתי.', history: messages };
+}
+
+function getClient() {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    const err = new Error('ANTHROPIC_API_KEY is not configured on the server.');
+    err.code = 'NO_API_KEY';
+    throw err;
+  }
+  return new Anthropic({ apiKey });
+}
+
+// Start a fresh turn (history already ends with the new user message).
+export async function assistantTurn(history, deps, ctx = {}) {
+  const client = getClient();
+  return runLoop(client, [...history], deps, ctx);
+}
+
+// Resume after the user approved/declined a pending action.
+// `decisions` maps tool_use_id -> 'allow' | 'deny'.
+export async function assistantConfirm(history, decisions, deps, ctx = {}) {
+  const client = getClient();
+  const messages = [...history];
+  const toolUses = lastAssistantToolUses(messages);
+  if (!toolUses.length) {
+    const err = new Error('No pending action to confirm.');
+    err.code = 'NO_PENDING';
+    throw err;
+  }
+  const results = await executeToolUses(toolUses, deps, decisions || {});
+  messages.push({ role: 'user', content: results });
+  return runLoop(client, messages, deps, ctx);
 }

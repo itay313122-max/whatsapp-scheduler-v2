@@ -13,7 +13,7 @@ import {
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import fs from 'fs';
-import { runAssistant } from './assistant.js';
+import { assistantTurn, assistantConfirm } from './assistant.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -260,24 +260,39 @@ app.get('/api/assistant/config', (_req, res) => {
   });
 });
 
-// POST /api/assistant  { history: [{role, content}, ...] }
-// Returns { reply, history } — send the returned history back on the next turn.
+const assistantDeps = () => ({ sendWhatsAppMessage, scheduleWhatsApp, listSchedules, cancelSchedule });
+
+function handleAssistantError(res, err) {
+  const status = err.code === 'NO_API_KEY' ? 503 : err.code === 'NO_PENDING' ? 409 : 500;
+  res.status(status).json({ error: err.message, code: err.code });
+}
+
+// POST /api/assistant  { history: [{role, content}, ...], contacts? }
+// Returns either { status:'done', reply, history } or
+// { status:'confirm', actions, preface, history } when an action needs approval.
 app.post('/api/assistant', async (req, res) => {
-  const { history } = req.body;
+  const { history, contacts } = req.body;
   if (!Array.isArray(history) || history.length === 0) {
     return res.status(400).json({ error: 'history (non-empty array) is required' });
   }
   try {
-    const result = await runAssistant(history, {
-      sendWhatsAppMessage,
-      scheduleWhatsApp,
-      listSchedules,
-      cancelSchedule,
-    });
-    res.json(result);
+    res.json(await assistantTurn(history, assistantDeps(), { contacts }));
   } catch (err) {
-    const status = err.code === 'NO_API_KEY' ? 503 : 500;
-    res.status(status).json({ error: err.message, code: err.code });
+    handleAssistantError(res, err);
+  }
+});
+
+// POST /api/assistant/confirm  { history, decisions: {tool_use_id: 'allow'|'deny'}, contacts? }
+// Executes the approved actions and resumes the assistant loop.
+app.post('/api/assistant/confirm', async (req, res) => {
+  const { history, decisions, contacts } = req.body;
+  if (!Array.isArray(history) || history.length === 0) {
+    return res.status(400).json({ error: 'history (non-empty array) is required' });
+  }
+  try {
+    res.json(await assistantConfirm(history, decisions || {}, assistantDeps(), { contacts }));
+  } catch (err) {
+    handleAssistantError(res, err);
   }
 });
 

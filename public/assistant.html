@@ -9,17 +9,9 @@
   <link rel="apple-touch-icon" href="/icon.svg" />
   <style>
     :root {
-      --bg: #0b1020;
-      --bg2: #131a2e;
-      --card: rgba(255, 255, 255, 0.06);
-      --text: #eaf0ff;
-      --muted: #9aa6c7;
-      --accent: #6ea8ff;
-      --accent2: #9b7bff;
-      --user: #2a63d8;
-      --ok: #34d399;
-      --warn: #fbbf24;
-      --err: #f87171;
+      --bg: #0b1020; --card: rgba(255,255,255,.06); --text: #eaf0ff; --muted: #9aa6c7;
+      --accent: #6ea8ff; --accent2: #9b7bff; --user: #2a63d8;
+      --ok: #34d399; --warn: #fbbf24; --err: #f87171;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; margin: 0; }
@@ -27,36 +19,27 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       color: var(--text);
       background: radial-gradient(1200px 800px at 80% -10%, #1c2748 0%, transparent 60%),
-                  radial-gradient(1000px 700px at -10% 110%, #24123f 0%, transparent 55%),
-                  var(--bg);
-      display: flex; flex-direction: column;
-      min-height: 100dvh;
+                  radial-gradient(1000px 700px at -10% 110%, #24123f 0%, transparent 55%), var(--bg);
+      display: flex; flex-direction: column; min-height: 100dvh;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
-    header {
-      display: flex; align-items: center; gap: 10px;
-      padding: 16px 18px 8px;
-    }
-    header .logo {
-      width: 34px; height: 34px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: grid; place-items: center; font-size: 18px;
-      box-shadow: 0 6px 20px rgba(110, 168, 255, 0.35);
-    }
-    header h1 { font-size: 18px; margin: 0; font-weight: 650; letter-spacing: .2px; }
-    header .status { margin-inline-start: auto; font-size: 12px; color: var(--muted); display: flex; gap: 12px; }
+    header { display: flex; align-items: center; gap: 10px; padding: 16px 18px 8px; }
+    header .logo { width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2)); display: grid; place-items: center;
+      font-size: 18px; box-shadow: 0 6px 20px rgba(110,168,255,.35); }
+    header h1 { font-size: 18px; margin: 0; font-weight: 650; }
+    header .right { margin-inline-start: auto; display: flex; align-items: center; gap: 12px; }
+    header .status { font-size: 12px; color: var(--muted); display: flex; gap: 10px; }
     header .dot { display: inline-flex; align-items: center; gap: 5px; }
     header .dot i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; }
     header .dot.on i { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
     header .dot.off i { background: var(--err); }
+    .ghost { background: var(--card); border: 1px solid rgba(255,255,255,.12); color: var(--text);
+      border-radius: 999px; padding: 7px 12px; font-size: 13px; cursor: pointer; }
 
-    #chat {
-      flex: 1; overflow-y: auto; padding: 12px 16px 8px;
-      display: flex; flex-direction: column; gap: 12px;
-      scroll-behavior: smooth;
-    }
+    #chat { flex: 1; overflow-y: auto; padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 12px; }
     .msg { max-width: 84%; padding: 11px 14px; border-radius: 18px; line-height: 1.5; font-size: 15.5px;
-           white-space: pre-wrap; word-wrap: break-word; animation: pop .18s ease; }
+      white-space: pre-wrap; word-wrap: break-word; animation: pop .18s ease; }
     @keyframes pop { from { transform: translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
     .msg.user { align-self: flex-start; background: linear-gradient(135deg, var(--user), #3b7ae0); color: #fff; border-bottom-inline-start-radius: 6px; }
     .msg.bot { align-self: flex-end; background: var(--card); border: 1px solid rgba(255,255,255,.08); border-bottom-inline-end-radius: 6px; }
@@ -66,48 +49,76 @@
     .typing span:nth-child(2){ animation-delay:.2s } .typing span:nth-child(3){ animation-delay:.4s }
     @keyframes blink { 0%,80%,100%{opacity:.3} 40%{opacity:1} }
 
+    /* Confirmation card */
+    .confirm { align-self: stretch; max-width: 92%; margin: 0 auto; background: var(--card);
+      border: 1px solid rgba(251,191,36,.4); border-radius: 16px; padding: 14px; }
+    .confirm .head { font-size: 13px; color: var(--warn); margin-bottom: 10px; }
+    .confirm .act { display: flex; gap: 10px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08); margin-bottom: 10px; }
+    .confirm .act .em { font-size: 22px; }
+    .confirm .act .t { font-weight: 600; font-size: 14.5px; }
+    .confirm .act .d { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+    .confirm .act .b { margin-top: 6px; font-size: 14px; background: rgba(0,0,0,.2); padding: 8px 10px; border-radius: 8px; }
+    .confirm .btns { display: flex; gap: 10px; }
+    .confirm .btns button { flex: 1; border: none; border-radius: 12px; padding: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .confirm .approve { background: linear-gradient(135deg, var(--ok), #10b981); color: #04160f; }
+    .confirm .deny { background: rgba(255,255,255,.08); color: var(--text); }
+    .confirm.done { opacity: .55; border-color: rgba(255,255,255,.08); }
+
     .empty { margin: auto; text-align: center; color: var(--muted); padding: 20px; }
     .empty .big { font-size: 22px; color: var(--text); margin-bottom: 8px; font-weight: 600; }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
     .chip { background: var(--card); border: 1px solid rgba(255,255,255,.1); color: var(--text);
-            padding: 8px 12px; border-radius: 999px; font-size: 13.5px; cursor: pointer; }
+      padding: 8px 12px; border-radius: 999px; font-size: 13.5px; cursor: pointer; }
     .chip:active { transform: scale(.96); }
 
     footer { padding: 10px 16px calc(14px + env(safe-area-inset-bottom)); }
     .composer { display: flex; align-items: center; gap: 10px; }
-    .composer input {
-      flex: 1; background: var(--card); border: 1px solid rgba(255,255,255,.12);
-      color: var(--text); border-radius: 999px; padding: 13px 16px; font-size: 15px; outline: none;
-    }
+    .composer input { flex: 1; background: var(--card); border: 1px solid rgba(255,255,255,.12);
+      color: var(--text); border-radius: 999px; padding: 13px 16px; font-size: 15px; outline: none; }
     .composer input::placeholder { color: var(--muted); }
-    .iconbtn {
-      width: 48px; height: 48px; border-radius: 50%; border: none; cursor: pointer; flex: 0 0 auto;
+    .iconbtn { width: 48px; height: 48px; border-radius: 50%; border: none; cursor: pointer; flex: 0 0 auto;
       display: grid; place-items: center; color: #fff; font-size: 20px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 6px 18px rgba(110,168,255,.35); transition: transform .1s;
-    }
+      background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 6px 18px rgba(110,168,255,.35); transition: transform .1s; }
     .iconbtn:active { transform: scale(.94); }
     .iconbtn.send { background: rgba(255,255,255,.1); box-shadow: none; }
     .mic { position: relative; }
     .mic.listening { background: linear-gradient(135deg, var(--err), #ff7ab6); }
-    .mic.listening::after {
-      content: ""; position: absolute; inset: -6px; border-radius: 50%;
-      border: 2px solid var(--err); animation: ring 1.2s ease-out infinite;
-    }
+    .mic.listening::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--err); animation: ring 1.2s ease-out infinite; }
     @keyframes ring { from { transform: scale(1); opacity:.7 } to { transform: scale(1.5); opacity:0 } }
-    .toolbar { display: flex; gap: 8px; align-items: center; margin-top: 10px; justify-content: center; font-size: 12.5px; color: var(--muted); }
+    .toolbar { display: flex; gap: 12px; align-items: center; margin-top: 10px; justify-content: center; font-size: 12.5px; color: var(--muted); }
     .toolbar label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
     .banner { margin: 0 16px 8px; padding: 10px 12px; border-radius: 12px; font-size: 13px;
-              background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.35); color: #ffe6a3; display: none; }
+      background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.35); color: #ffe6a3; display: none; }
+
+    /* Contacts sheet */
+    .sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; z-index: 20; }
+    .sheet { position: fixed; inset-inline: 0; bottom: 0; background: #131a2e; border-radius: 20px 20px 0 0;
+      padding: 18px 18px calc(20px + env(safe-area-inset-bottom)); z-index: 21; transform: translateY(100%);
+      transition: transform .25s ease; max-height: 80dvh; overflow-y: auto; }
+    .sheet.open { transform: none; }
+    .sheet h3 { margin: 0 0 12px; }
+    .contact-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .contact-row input { flex: 1; background: var(--card); border: 1px solid rgba(255,255,255,.12); color: var(--text);
+      border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+    .contact-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+    .contact-item { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 10px 12px; }
+    .contact-item .nm { font-weight: 600; }
+    .contact-item .ph { color: var(--muted); font-size: 13px; margin-inline-start: auto; }
+    .contact-item .del { background: none; border: none; color: var(--err); font-size: 18px; cursor: pointer; }
   </style>
 </head>
 <body>
   <header>
     <div class="logo">🎙️</div>
     <h1>העוזר החכם</h1>
-    <div class="status">
-      <span class="dot" id="dotAI"><i></i>AI</span>
-      <span class="dot" id="dotWA"><i></i>WhatsApp</span>
+    <div class="right">
+      <button class="ghost" id="contactsBtn">👥 אנשי קשר</button>
+      <div class="status">
+        <span class="dot" id="dotAI"><i></i>AI</span>
+        <span class="dot" id="dotWA"><i></i>WA</span>
+      </div>
     </div>
   </header>
 
@@ -116,10 +127,10 @@
   <div id="chat">
     <div class="empty" id="empty">
       <div class="big">שלום 👋 אני מקשיב.</div>
-      <div>דבר איתי או כתוב, ואבצע לפי הבקשה.</div>
+      <div>דבר איתי או כתוב — אני אחפש ואבצע לבד, ואבקש אישור לפני כל פעולה יוצאת.</div>
       <div class="chips" id="chips">
-        <div class="chip">מה מזג האוויר מחר בתל אביב?</div>
-        <div class="chip">שלח לאמא הודעה שאני בדרך</div>
+        <div class="chip">תמצא לי טיסות זולות לרומא בספטמבר</div>
+        <div class="chip">שלח לאמא בוואטסאפ שאני בדרך</div>
         <div class="chip">תזכיר לי מחר ב-9 להתקשר לרופא</div>
         <div class="chip">מה החדשות האחרונות בטכנולוגיה?</div>
       </div>
@@ -143,6 +154,22 @@
     </div>
   </footer>
 
+  <!-- Contacts sheet -->
+  <div class="sheet-bg" id="sheetBg"></div>
+  <div class="sheet" id="sheet">
+    <h3>👥 אנשי קשר</h3>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:12px;">
+      נשמר רק במכשיר שלך. כך תוכל להגיד "שלח לאמא" והעוזר יידע את המספר.
+    </div>
+    <div class="contact-row">
+      <input id="cName" placeholder="שם (למשל: אמא)" />
+      <input id="cPhone" placeholder="טלפון (0501234567)" inputmode="tel" />
+      <button class="iconbtn send" id="cAdd" style="width:44px;height:44px;">＋</button>
+    </div>
+    <div class="contact-list" id="contactList"></div>
+    <button class="ghost" id="sheetClose" style="width:100%;padding:12px;">סגור</button>
+  </div>
+
   <script>
     const chat = document.getElementById('chat');
     const empty = document.getElementById('empty');
@@ -153,9 +180,39 @@
     const langSel = document.getElementById('lang');
     const banner = document.getElementById('banner');
 
-    // Full API conversation history (may contain tool blocks) — sent back each turn.
-    let history = [];
+    let history = [];   // full API conversation (may contain tool blocks)
     let busy = false;
+
+    // ── Contacts (device-local) ─────────────────────────────────
+    function getContacts() { try { return JSON.parse(localStorage.getItem('contacts') || '[]'); } catch { return []; } }
+    function setContacts(c) { localStorage.setItem('contacts', JSON.stringify(c)); renderContacts(); }
+    function renderContacts() {
+      const list = document.getElementById('contactList');
+      const c = getContacts();
+      list.innerHTML = c.length ? '' : '<div style="color:var(--muted);font-size:13px;">עדיין אין אנשי קשר.</div>';
+      c.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = 'contact-item';
+        row.innerHTML = `<span class="nm"></span><span class="ph"></span><button class="del">✕</button>`;
+        row.querySelector('.nm').textContent = p.name;
+        row.querySelector('.ph').textContent = p.phone;
+        row.querySelector('.del').onclick = () => { const arr = getContacts(); arr.splice(i, 1); setContacts(arr); };
+        list.appendChild(row);
+      });
+    }
+    document.getElementById('cAdd').onclick = () => {
+      const name = document.getElementById('cName').value.trim();
+      const phone = document.getElementById('cPhone').value.trim();
+      if (!name || !phone) return;
+      const arr = getContacts(); arr.push({ name, phone }); setContacts(arr);
+      document.getElementById('cName').value = ''; document.getElementById('cPhone').value = '';
+    };
+    const sheet = document.getElementById('sheet'), sheetBg = document.getElementById('sheetBg');
+    function openSheet() { renderContacts(); sheet.classList.add('open'); sheetBg.style.display = 'block'; }
+    function closeSheet() { sheet.classList.remove('open'); sheetBg.style.display = 'none'; }
+    document.getElementById('contactsBtn').onclick = openSheet;
+    document.getElementById('sheetClose').onclick = closeSheet;
+    sheetBg.onclick = closeSheet;
 
     // ── UI helpers ──────────────────────────────────────────────
     function addBubble(text, cls) {
@@ -163,30 +220,79 @@
       const el = document.createElement('div');
       el.className = 'msg ' + cls;
       el.textContent = text;
-      chat.appendChild(el);
-      chat.scrollTop = chat.scrollHeight;
+      chat.appendChild(el); chat.scrollTop = chat.scrollHeight;
       return el;
     }
     function showTyping() {
       const el = document.createElement('div');
       el.className = 'typing msg bot';
       el.innerHTML = '<span></span><span></span><span></span>';
-      chat.appendChild(el);
-      chat.scrollTop = chat.scrollHeight;
+      chat.appendChild(el); chat.scrollTop = chat.scrollHeight;
       return el;
     }
-
-    // ── Text-to-speech ──────────────────────────────────────────
     function speak(text) {
-      if (!ttsToggle.checked || !('speechSynthesis' in window)) return;
+      if (!ttsToggle.checked || !('speechSynthesis' in window) || !text) return;
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = langSel.value;
-      u.rate = 1.02;
+      u.lang = langSel.value; u.rate = 1.02;
       window.speechSynthesis.speak(u);
     }
 
-    // ── Send a message to the assistant ─────────────────────────
+    // ── Confirmation card ───────────────────────────────────────
+    function renderConfirm(data) {
+      if (data.preface) { addBubble(data.preface, 'bot'); speak(data.preface); }
+      const card = document.createElement('div');
+      card.className = 'confirm';
+      const head = document.createElement('div');
+      head.className = 'head';
+      head.textContent = '⚠️ דרוש אישור לפני ביצוע:';
+      card.appendChild(head);
+      data.actions.forEach((a) => {
+        const act = document.createElement('div');
+        act.className = 'act';
+        act.innerHTML = `<div class="em"></div><div><div class="t"></div><div class="d"></div>${a.body ? '<div class="b"></div>' : ''}</div>`;
+        act.querySelector('.em').textContent = a.icon || '⚙️';
+        act.querySelector('.t').textContent = a.title;
+        act.querySelector('.d').textContent = a.detail || '';
+        if (a.body) act.querySelector('.b').textContent = a.body;
+        card.appendChild(act);
+      });
+      const btns = document.createElement('div');
+      btns.className = 'btns';
+      const approve = document.createElement('button');
+      approve.className = 'approve'; approve.textContent = '✓ אשר ובצע';
+      const deny = document.createElement('button');
+      deny.className = 'deny'; deny.textContent = '✕ בטל';
+      btns.appendChild(approve); btns.appendChild(deny);
+      card.appendChild(btns);
+      chat.appendChild(card); chat.scrollTop = chat.scrollHeight;
+
+      const decide = (verdict) => {
+        const decisions = {};
+        data.actions.forEach((a) => (decisions[a.id] = verdict));
+        btns.remove(); card.classList.add('done');
+        addBubble(verdict === 'allow' ? 'מבצע…' : 'בוטל.', 'sys');
+        confirmDecision(decisions);
+      };
+      approve.onclick = () => decide('allow');
+      deny.onclick = () => decide('deny');
+    }
+
+    // ── Talk to the assistant ───────────────────────────────────
+    function handleResult(data, res) {
+      if (!res.ok) {
+        const m = data.code === 'NO_API_KEY'
+          ? 'המוח (Claude) עדיין לא מחובר. הגדירו ANTHROPIC_API_KEY בשרת.'
+          : ('שגיאה: ' + (data.error || res.status));
+        addBubble(m, 'sys');
+        return false;
+      }
+      history = data.history;
+      if (data.status === 'confirm') { renderConfirm(data); return true; }
+      addBubble(data.reply, 'bot'); speak(data.reply);
+      return true;
+    }
+
     async function send(text) {
       text = (text || '').trim();
       if (!text || busy) return;
@@ -198,30 +304,31 @@
       const typing = showTyping();
       try {
         const res = await fetch('/api/assistant', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ history }),
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history, contacts: getContacts() }),
         });
         const data = await res.json();
         typing.remove();
-        if (!res.ok) {
-          const m = data.code === 'NO_API_KEY'
-            ? 'המוח (Claude) עדיין לא מחובר. הגדירו ANTHROPIC_API_KEY בשרת.'
-            : ('שגיאה: ' + (data.error || res.status));
-          addBubble(m, 'sys');
-          history.pop();
-          return;
-        }
-        history = data.history; // keep full history incl. tool blocks
-        addBubble(data.reply, 'bot');
-        speak(data.reply);
+        if (!handleResult(data, res)) history.pop();
       } catch (err) {
+        typing.remove(); addBubble('שגיאת רשת: ' + err.message, 'sys'); history.pop();
+      } finally { busy = false; }
+    }
+
+    async function confirmDecision(decisions) {
+      busy = true;
+      const typing = showTyping();
+      try {
+        const res = await fetch('/api/assistant/confirm', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history, decisions, contacts: getContacts() }),
+        });
+        const data = await res.json();
         typing.remove();
-        addBubble('שגיאת רשת: ' + err.message, 'sys');
-        history.pop();
-      } finally {
-        busy = false;
-      }
+        handleResult(data, res);
+      } catch (err) {
+        typing.remove(); addBubble('שגיאת רשת: ' + err.message, 'sys');
+      } finally { busy = false; }
     }
 
     sendBtn.addEventListener('click', () => send(input.value));
@@ -230,13 +337,11 @@
       if (e.target.classList.contains('chip')) send(e.target.textContent);
     });
 
-    // ── Speech recognition (voice input) ────────────────────────
+    // ── Voice input ─────────────────────────────────────────────
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recog = null, listening = false;
     if (SR) {
-      recog = new SR();
-      recog.continuous = false;
-      recog.interimResults = true;
+      recog = new SR(); recog.continuous = false; recog.interimResults = true;
       recog.onresult = (e) => {
         let t = '';
         for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
@@ -245,21 +350,16 @@
       };
       recog.onerror = () => stopListening();
       recog.onend = () => stopListening();
-    } else {
-      micBtn.style.display = 'none';
-    }
+    } else { micBtn.style.display = 'none'; }
     function startListening() {
       if (!recog || listening) return;
       recog.lang = langSel.value;
       try { recog.start(); listening = true; micBtn.classList.add('listening'); } catch {}
     }
-    function stopListening() {
-      listening = false; micBtn.classList.remove('listening');
-      try { recog && recog.stop(); } catch {}
-    }
+    function stopListening() { listening = false; micBtn.classList.remove('listening'); try { recog && recog.stop(); } catch {} }
     micBtn.addEventListener('click', () => (listening ? stopListening() : startListening()));
 
-    // ── Status / config ─────────────────────────────────────────
+    // ── Status ──────────────────────────────────────────────────
     async function loadConfig() {
       try {
         const c = await (await fetch('/api/assistant/config')).json();
@@ -272,10 +372,7 @@
       } catch {}
     }
     loadConfig();
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    }
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   </script>
 </body>
 </html>
